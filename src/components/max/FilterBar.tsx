@@ -4,7 +4,6 @@ import {
   Calendar as CalendarIcon,
   SlidersHorizontal,
   Search,
-  Plus,
   type LucideIcon,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"

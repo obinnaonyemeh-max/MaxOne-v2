@@ -32,7 +32,7 @@ export function StatusTimeline({ entries, className }: StatusTimelineProps) {
 
   return (
     <div className={cn("", className)}>
-      {dates.map((date, dateIndex) => {
+      {dates.map((date) => {
         const dateEntries = groupedEntries[date]
 
         return (

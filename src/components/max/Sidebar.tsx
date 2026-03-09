@@ -110,7 +110,7 @@ function TreeChildItem({ item, isLast, isActiveAbove, onItemClick }: TreeChildIt
   )
 }
 
-function SidebarNavItem({ item, depth = 0, onItemClick, isExpanded = false, onToggleExpand, isCollapsed = false }: SidebarNavItemProps) {
+function SidebarNavItem({ item, onItemClick, isExpanded = false, onToggleExpand, isCollapsed = false }: SidebarNavItemProps) {
   const hasChildren = item.children && item.children.length > 0
   const icon = item.icon
   const isImageIcon = typeof icon === "string"

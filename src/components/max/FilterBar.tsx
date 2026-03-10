@@ -86,7 +86,7 @@ export function FilterBar({
           <PopoverTrigger asChild>
             <Button
               variant="outline"
-              className="h-9 gap-2 border-border bg-white text-foreground hover:bg-gray-50"
+              className="h-9 gap-2 bg-gray-100 text-foreground hover:bg-gray-200"
             >
               <CalendarIcon className="h-4 w-4" />
               <span className="text-sm">{formatDateRange()}</span>
@@ -106,7 +106,7 @@ export function FilterBar({
           <PopoverTrigger asChild>
             <Button
               variant="outline"
-              className="h-9 gap-2 border-border bg-white text-foreground hover:bg-gray-50"
+              className="h-9 gap-2 bg-gray-100 text-foreground hover:bg-gray-200"
             >
               <SlidersHorizontal className="h-4 w-4" />
               <span className="text-sm">Filter</span>
@@ -153,7 +153,7 @@ export function FilterBar({
           <Button
             variant="outline"
             size="icon"
-            className="h-9 w-9 border-border bg-white hover:bg-gray-50"
+            className="h-9 w-9 bg-gray-100 hover:bg-gray-200"
             onClick={() => setSearchOpen(true)}
           >
             <Search className="h-4 w-4 text-muted-foreground" />
@@ -168,7 +168,7 @@ export function FilterBar({
           <Button
             variant="outline"
             className={cn(
-              "h-9 gap-2 border-border bg-white text-foreground hover:bg-gray-50",
+              "h-9 gap-2 bg-gray-100 text-foreground hover:bg-gray-200",
               secondaryAction.icon ? "px-3" : "px-4"
             )}
             onClick={secondaryAction.onClick}

@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
-import { RotateCcw, Pencil, ChevronLeft } from "lucide-react"
+import { RotateCcw, Pencil } from "lucide-react"
 
 import {
   PageLayout,
@@ -11,6 +11,7 @@ import {
   VehicleOverviewCard,
   AssignmentHistoryCard,
   StatusTimeline,
+  BackButton,
 } from "@/components/max"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
@@ -62,18 +63,7 @@ export default function VehicleDetailsPage() {
           <div className="flex items-start justify-between">
             <div>
               <div className="flex items-center gap-2">
-                <button
-                  onClick={() => navigate(-1)}
-                  className="p-1.5 bg-[#FAFAFA] border border-[#E5E5E6] transition-colors hover:bg-gray-200"
-                  style={{ 
-                    borderTopLeftRadius: '8px', 
-                    borderBottomLeftRadius: '8px',
-                    borderTopRightRadius: '4px',
-                    borderBottomRightRadius: '4px'
-                  }}
-                >
-                  <ChevronLeft className="h-4 w-4 text-sidebar-item" />
-                </button>
+                <BackButton onClick={() => navigate(-1)} />
                 <h1 className="flex items-end gap-1 font-semibold text-sidebar-item-active" style={{ fontSize: '22px' }}>
                   {vehicle.assetId}
                   <span className="mb-2 h-1.5 w-1.5 rounded-full bg-brand-primary" />
@@ -84,11 +74,11 @@ export default function VehicleDetailsPage() {
               </p>
             </div>
             <div className="flex items-center gap-3">
-              <Button variant="outline" className="gap-2">
+              <Button variant="outline" className="h-10 gap-2">
                 <RotateCcw className="h-4 w-4" />
                 Reverse Assignment
               </Button>
-              <Button className="gap-2 bg-sidebar-item-active hover:bg-sidebar-item-active/90">
+              <Button className="h-10 gap-2 bg-sidebar-item-active hover:bg-sidebar-item-active/90">
                 <Pencil className="h-4 w-4" />
                 Edit Vehicle Info
               </Button>

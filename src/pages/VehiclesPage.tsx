@@ -1,4 +1,4 @@
-import { useState } from "react"
+import React, { useState, useRef } from "react"
 import { useNavigate } from "react-router-dom"
 import { type ColumnDef } from "@tanstack/react-table"
 import { Plus } from "lucide-react"
@@ -14,11 +14,29 @@ import {
   DataTable,
   StatusBadge,
   Pagination,
+  Modal,
   type SidebarItem,
   type SidebarUser,
   type StatusTab,
   type FilterState,
 } from "@/components/max"
+import { Input } from "@/components/ui/input"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { Calendar } from "@/components/ui/calendar"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+import { Button } from "@/components/ui/button"
+import { Calendar as CalendarIcon } from "lucide-react"
+import { format } from "date-fns"
 
 export interface Vehicle {
   id: string
@@ -291,7 +309,7 @@ function SafetyScoreRing({ score }: { score: number }) {
           transform="rotate(-90 18 18)"
         />
       </svg>
-      <span className="font-medium text-table-text" style={{ fontSize: '14px' }}>{score}</span>
+      <span className="font-medium text-table-text" style={{ fontSize: '12px' }}>{score}</span>
     </div>
   )
 }
@@ -307,7 +325,7 @@ function CollectionBar({ percent }: { percent: number }) {
           style={{ width: `${percent}%`, backgroundColor: color }}
         />
       </div>
-      <span className="font-medium text-table-text" style={{ fontSize: '14px' }}>{percent}%</span>
+      <span className="font-medium text-table-text" style={{ fontSize: '12px' }}>{percent}%</span>
     </div>
   )
 }
@@ -404,6 +422,191 @@ const columns: ColumnDef<Vehicle>[] = [
   },
 ]
 
+function AddVehicleOptionCard({
+  icon,
+  title,
+  description,
+  onClick,
+}: {
+  icon: string
+  title: string
+  description: string
+  onClick: () => void
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex flex-col items-center justify-center gap-3 rounded-lg border border-transparent bg-gray-50 p-6 text-center transition-all hover:border-gray-300"
+    >
+      <div className="flex h-14 w-14 items-center justify-center">
+        <img src={icon} alt="" className="h-12 w-auto" />
+      </div>
+      <div>
+        <p className="font-semibold text-sidebar-item-active" style={{ fontSize: '14px' }}>{title}</p>
+        <p className="mt-1 font-medium text-breadcrumb-root" style={{ fontSize: '12px' }}>{description}</p>
+      </div>
+    </button>
+  )
+}
+
+function FormSection({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center gap-2">
+        <span className="h-1.5 w-1.5 rounded-full bg-status-info" />
+        <h3 className="font-semibold text-sidebar-item-active uppercase" style={{ fontSize: '11px', letterSpacing: '0.4px' }}>
+          {title}
+        </h3>
+      </div>
+      {children}
+    </div>
+  )
+}
+
+function FormField({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="flex flex-col gap-2">
+      <label className="text-gray-400 font-medium" style={{ fontSize: '13px' }}>{label}</label>
+      {children}
+    </div>
+  )
+}
+
+function FileDropZone({
+  onFileSelect,
+  file,
+}: {
+  onFileSelect: (file: File) => void
+  file: File | null
+}) {
+  const [isDragOver, setIsDragOver] = useState(false)
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragOver(true)
+  }
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragOver(false)
+  }
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragOver(false)
+    const droppedFile = e.dataTransfer.files[0]
+    if (droppedFile) {
+      onFileSelect(droppedFile)
+    }
+  }
+
+  const handleClick = () => {
+    inputRef.current?.click()
+  }
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files?.[0]
+    if (selectedFile) {
+      onFileSelect(selectedFile)
+    }
+  }
+
+  return (
+    <div
+      onClick={handleClick}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+      className={`flex flex-col items-center justify-center gap-4 rounded-lg border-2 border-dashed p-8 cursor-pointer transition-colors h-full min-h-[280px] ${
+        isDragOver
+          ? "border-brand-primary bg-brand-primary/5"
+          : file
+            ? "border-green-400 bg-green-50"
+            : "border-gray-300 bg-gray-50"
+      }`}
+    >
+      <input
+        ref={inputRef}
+        type="file"
+        accept=".xlsx,.xls,.csv"
+        onChange={handleFileChange}
+        className="hidden"
+      />
+      
+      {/* XLS Icon */}
+      <div className="flex flex-col items-center">
+        <img src="/images/xls.svg" alt="XLS" className="h-12 w-auto" />
+      </div>
+
+      {file ? (
+        <div className="text-center">
+          <p className="font-medium text-green-600" style={{ fontSize: '14px' }}>{file.name}</p>
+          <p className="mt-1 text-green-500" style={{ fontSize: '12px' }}>File uploaded successfully</p>
+        </div>
+      ) : (
+        <div className="text-center">
+          <p className="font-medium text-sidebar-item" style={{ fontSize: '14px' }}>
+            Drag and drop filled template sheet
+          </p>
+          <p className="mt-1" style={{ fontSize: '14px' }}>
+            <span className="text-sidebar-item">or </span>
+            <span className="text-status-info underline">click to upload</span>
+          </p>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function SpreadsheetPreview() {
+  return (
+    <div className="rounded-lg border border-gray-200 bg-white overflow-hidden">
+      {/* Title bar with dots */}
+      <div className="flex items-center gap-1.5 px-3 py-2 bg-gray-50 border-b border-gray-200">
+        <span className="h-2.5 w-2.5 rounded-full bg-[#EF4444]" />
+        <span className="h-2.5 w-2.5 rounded-full bg-[#F59E0B]" />
+        <span className="h-2.5 w-2.5 rounded-full bg-[#22C55E]" />
+      </div>
+      {/* Spreadsheet mockup */}
+      <div className="p-4 space-y-3">
+        {/* Header row */}
+        <div className="flex gap-2">
+          <div className="h-3 w-16 rounded bg-gray-200" />
+          <div className="h-3 w-20 rounded bg-gray-200" />
+          <div className="h-3 w-14 rounded bg-gray-200" />
+          <div className="h-3 w-18 rounded bg-gray-200" />
+          <div className="h-3 w-12 rounded bg-gray-200" />
+        </div>
+        {/* Data rows */}
+        <div className="flex gap-2">
+          <div className="h-3 w-16 rounded bg-gray-100" />
+          <div className="h-3 w-20 rounded bg-gray-100" />
+          <div className="h-3 w-14 rounded bg-gray-100" />
+          <div className="h-3 w-18 rounded bg-gray-100" />
+          <div className="h-3 w-12 rounded bg-gray-100" />
+        </div>
+        <div className="flex gap-2">
+          <div className="h-3 w-16 rounded bg-gray-100" />
+          <div className="h-3 w-20 rounded bg-gray-100" />
+          <div className="h-3 w-14 rounded bg-gray-100" />
+          <div className="h-3 w-18 rounded bg-gray-100" />
+          <div className="h-3 w-12 rounded bg-gray-100" />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+const vehicleTypes = ["2 Wheeler", "3 Wheeler", "4 Wheeler"]
+const manufacturers = ["Honda", "Toyota", "Yamaha", "Bajaj", "TVS", "Suzuki"]
+const models = ["Model A", "Model B", "Model C", "Model D"]
+const trims = ["Standard", "Premium", "Sport", "Luxury"]
+const platformTypes = ["Electric", "Petrol", "Diesel", "Hybrid"]
+const financialPartners = ["Access Bank", "GTBank", "First Bank", "Zenith Bank", "UBA"]
+const locations = ["Ikeja", "Lekki", "Victoria Island", "Yaba", "Surulere", "Gbagada"]
+
 export default function VehiclesPage() {
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState("all")
@@ -418,6 +621,29 @@ export default function VehiclesPage() {
     contractStatus: [],
     locations: [],
   })
+  const [showAddVehicleModal, setShowAddVehicleModal] = useState(false)
+  const [addVehicleStep, setAddVehicleStep] = useState<"options" | "single" | "bulk" | "validating" | "validated" | "imported">("options")
+  const [addAnother, setAddAnother] = useState(false)
+  const [deliveryDate, setDeliveryDate] = useState<Date | undefined>(undefined)
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null)
+  const [validationStats] = useState({
+    totalRows: 25,
+    validEntries: 25,
+    rowsWithErrors: 0,
+  })
+
+  const handleOpenAddVehicle = () => {
+    setAddVehicleStep("options")
+    setShowAddVehicleModal(true)
+  }
+
+  const handleCloseAddVehicle = () => {
+    setShowAddVehicleModal(false)
+    setAddVehicleStep("options")
+    setAddAnother(false)
+    setDeliveryDate(undefined)
+    setUploadedFile(null)
+  }
 
   return (
     <PageLayout
@@ -461,7 +687,7 @@ export default function VehiclesPage() {
           }}
           primaryAction={{
             label: "Add Vehicles",
-            onClick: () => console.log("Add vehicle"),
+            onClick: handleOpenAddVehicle,
             icon: Plus,
           }}
           className="shrink-0"
@@ -487,6 +713,380 @@ export default function VehiclesPage() {
           itemLabel="vehicles"
         />
       </div>
+
+      {/* Add Vehicles Modal - Options */}
+      <Modal
+        open={showAddVehicleModal && addVehicleStep === "options"}
+        onOpenChange={handleCloseAddVehicle}
+        title="Add vehicles"
+        subtitle="Choose how you want to add vehicles to the system."
+      >
+        <div className="grid grid-cols-2 gap-4">
+          <AddVehicleOptionCard
+            icon="/images/single_vehicle.svg"
+            title="Add a single vehicle"
+            description="Enter vehicle details manually"
+            onClick={() => setAddVehicleStep("single")}
+          />
+          <AddVehicleOptionCard
+            icon="/images/bulk_vehicles.svg"
+            title="Bulk upload vehicles"
+            description="Enter multiple vehicles at once"
+            onClick={() => setAddVehicleStep("bulk")}
+          />
+        </div>
+      </Modal>
+
+      {/* Add Single Vehicle Modal */}
+      <Modal
+        open={showAddVehicleModal && addVehicleStep === "single"}
+        onOpenChange={handleCloseAddVehicle}
+        title="Add vehicles"
+        subtitle="Choose how you want to add vehicles to the system."
+        showBackButton
+        onBack={() => setAddVehicleStep("options")}
+        maxHeight="85vh"
+        className="max-w-2xl"
+        primaryAction={{
+          label: "Add Vehicle",
+          onClick: () => {
+            console.log("Add vehicle submitted")
+            if (!addAnother) {
+              handleCloseAddVehicle()
+            }
+          },
+          icon: true,
+        }}
+        secondaryAction={{
+          label: "Cancel",
+          onClick: handleCloseAddVehicle,
+        }}
+        leftAction={
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={addAnother}
+              onChange={(e) => setAddAnother(e.target.checked)}
+              className="h-4 w-4 rounded appearance-none border border-gray-200 bg-gray-100 checked:bg-brand-dark checked:border-brand-dark cursor-pointer checked:bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22white%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M12.207%204.793a1%201%200%20010%201.414l-5%205a1%201%200%2001-1.414%200l-2-2a1%201%200%20011.414-1.414L6.5%209.086l4.293-4.293a1%201%200%20011.414%200z%22%2F%3E%3C%2Fsvg%3E')] checked:bg-center checked:bg-no-repeat"
+            />
+            <span className="text-sm font-medium text-sidebar-item-active">Add another</span>
+          </label>
+        }
+      >
+        <div className="space-y-8">
+          {/* Basic Vehicle Information */}
+          <FormSection title="Basic Vehicle Information">
+            <div className="grid grid-cols-2 gap-4">
+              <FormField label="Vehicle Type">
+                <Select>
+                  <SelectTrigger className="h-12 w-full bg-[#F8F8F8]">
+                    <SelectValue placeholder="Select a vehicle type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {vehicleTypes.map((type) => (
+                      <SelectItem key={type} value={type}>{type}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </FormField>
+              <FormField label="Vehicle Manufacturer">
+                <Select>
+                  <SelectTrigger className="h-12 w-full bg-[#F8F8F8]">
+                    <SelectValue placeholder="Select a manufacturer" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {manufacturers.map((m) => (
+                      <SelectItem key={m} value={m}>{m}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </FormField>
+              <FormField label="Model">
+                <Select>
+                  <SelectTrigger className="h-12 w-full bg-[#F8F8F8]">
+                    <SelectValue placeholder="Select a model" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {models.map((m) => (
+                      <SelectItem key={m} value={m}>{m}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </FormField>
+              <FormField label="Trim">
+                <Select>
+                  <SelectTrigger className="h-12 w-full bg-[#F8F8F8]">
+                    <SelectValue placeholder="Select a vehicle trim" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {trims.map((t) => (
+                      <SelectItem key={t} value={t}>{t}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </FormField>
+              <FormField label="Platform Type">
+                <Select>
+                  <SelectTrigger className="h-12 w-full bg-[#F8F8F8]">
+                    <SelectValue placeholder="Select a platform type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {platformTypes.map((p) => (
+                      <SelectItem key={p} value={p}>{p}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </FormField>
+            </div>
+          </FormSection>
+
+          {/* Vehicle Identification */}
+          <FormSection title="Vehicle Identification">
+            <div className="grid grid-cols-2 gap-4">
+              <FormField label="Chassis Number (VIN)">
+                <Input placeholder="Enter the chassis number" className="h-12 bg-[#F8F8F8]" />
+              </FormField>
+              <FormField label="Engine Number">
+                <Input placeholder="Enter the engine number" className="h-12 bg-[#F8F8F8]" />
+              </FormField>
+              <FormField label="Ignition Number">
+                <Input placeholder="Enter the ignition number" className="h-12 bg-[#F8F8F8]" />
+              </FormField>
+            </div>
+          </FormSection>
+
+          {/* Vendor & Financial Details */}
+          <FormSection title="Vendor & Financial Details">
+            <div className="grid grid-cols-2 gap-4">
+              <FormField label="OEM/Vendor Name">
+                <Input placeholder="Enter vendor name" className="h-12 bg-[#F8F8F8]" />
+              </FormField>
+              <FormField label="Financial Partner">
+                <Select>
+                  <SelectTrigger className="h-12 w-full bg-[#F8F8F8]">
+                    <SelectValue placeholder="Select a financial partner" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {financialPartners.map((p) => (
+                      <SelectItem key={p} value={p}>{p}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </FormField>
+            </div>
+          </FormSection>
+
+          {/* Assignment, Location & Delivery Date */}
+          <FormSection title="Assignment, Location & Delivery Date">
+            <div className="grid grid-cols-2 gap-4">
+              <FormField label="Receiver">
+                <Input placeholder="Enter receiver name" className="h-12 bg-[#F8F8F8]" />
+              </FormField>
+              <FormField label="Location">
+                <Select>
+                  <SelectTrigger className="h-12 w-full bg-[#F8F8F8]">
+                    <SelectValue placeholder="Select a location" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {locations.map((l) => (
+                      <SelectItem key={l} value={l}>{l}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </FormField>
+              <FormField label="Delivery Date">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="h-12 w-full justify-start text-left font-normal bg-[#F8F8F8]"
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {deliveryDate ? format(deliveryDate, "PPP") : <span className="text-muted-foreground">Pick a date</span>}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={deliveryDate}
+                      onSelect={setDeliveryDate}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </FormField>
+            </div>
+          </FormSection>
+        </div>
+      </Modal>
+
+      {/* Bulk Upload Vehicles Modal */}
+      <Modal
+        open={showAddVehicleModal && addVehicleStep === "bulk"}
+        onOpenChange={handleCloseAddVehicle}
+        title="Bulk upload vehicles"
+        subtitle="Upload multiple vehicles using a template sheet"
+        showBackButton
+        onBack={() => setAddVehicleStep("options")}
+        className="max-w-3xl"
+        primaryAction={{
+          label: "Validate data",
+          onClick: () => {
+            setAddVehicleStep("validating")
+            setTimeout(() => {
+              setAddVehicleStep("validated")
+            }, 2000)
+          },
+          disabled: !uploadedFile,
+        }}
+        secondaryAction={{
+          label: "Cancel",
+          onClick: handleCloseAddVehicle,
+        }}
+      >
+        <div className="flex gap-6">
+          {/* Left column - File Drop Zone */}
+          <div className="w-[280px] shrink-0">
+            <FileDropZone
+              onFileSelect={setUploadedFile}
+              file={uploadedFile}
+            />
+          </div>
+
+          {/* Right column - Instructions */}
+          <div className="flex-1 space-y-4">
+            <div className="space-y-2">
+              <h3 className="font-semibold text-sidebar-item-active" style={{ fontSize: '16px' }}>
+                Bulk add vehicles you wish to import into the system
+              </h3>
+              <p className="text-breadcrumb-root font-medium" style={{ fontSize: '13px' }}>
+                Download the template, fill in the required vehicle details under the designated headers, and upload the completed file to import them into the system.
+              </p>
+            </div>
+            <a
+              href="#"
+              className="inline-block font-medium underline"
+              style={{ fontSize: '14px', color: '#F59E0B' }}
+              onClick={(e) => {
+                e.preventDefault()
+                console.log("Download template")
+              }}
+            >
+              Download template sheet
+            </a>
+            <div className="pt-2">
+              <img src="/images/upload_sheet.svg" alt="Spreadsheet preview" className="w-full" />
+            </div>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Loader Modal - Validating File */}
+      <Modal
+        open={showAddVehicleModal && addVehicleStep === "validating"}
+        onOpenChange={() => {}}
+        hideHeader
+        className="max-w-[280px]"
+      >
+        <div className="flex flex-col items-center justify-center py-12">
+          <div className="animate-spin">
+            <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M40 10V20" stroke="#F59E0B" strokeWidth="6" strokeLinecap="round"/>
+              <path d="M40 60V70" stroke="#F59E0B" strokeWidth="6" strokeLinecap="round"/>
+              <path d="M70 40H60" stroke="#F59E0B" strokeWidth="6" strokeLinecap="round"/>
+              <path d="M20 40H10" stroke="#F59E0B" strokeWidth="6" strokeLinecap="round"/>
+              <path d="M61.21 18.79L54.14 25.86" stroke="#F59E0B" strokeWidth="6" strokeLinecap="round"/>
+              <path d="M25.86 54.14L18.79 61.21" stroke="#F59E0B" strokeWidth="6" strokeLinecap="round"/>
+              <path d="M61.21 61.21L54.14 54.14" stroke="#F59E0B" strokeWidth="6" strokeLinecap="round"/>
+              <path d="M25.86 25.86L18.79 18.79" stroke="#F59E0B" strokeWidth="6" strokeLinecap="round"/>
+            </svg>
+          </div>
+          <p className="mt-6 font-semibold text-sidebar-item-active" style={{ fontSize: '18px' }}>
+            Validating file...
+          </p>
+        </div>
+      </Modal>
+
+      {/* Validation Report Modal */}
+      <Modal
+        open={showAddVehicleModal && addVehicleStep === "validated"}
+        onOpenChange={handleCloseAddVehicle}
+        title="Bulk upload vehicles"
+        subtitle="Upload multiple vehicles using a template sheet"
+        showBackButton
+        onBack={() => setAddVehicleStep("bulk")}
+        className="max-w-xl"
+        primaryAction={{
+          label: "Import Data",
+          onClick: () => {
+            setAddVehicleStep("imported")
+          },
+          icon: true,
+        }}
+        secondaryAction={{
+          label: "Cancel",
+          onClick: handleCloseAddVehicle,
+        }}
+      >
+        <div className="flex flex-col items-center py-6">
+          {/* Success Badge */}
+          <img src="/images/success_Checkmark.svg" alt="Success" className="h-16 w-16" />
+          
+          {/* Title */}
+          <h3 className="mt-6 font-semibold text-sidebar-item-active" style={{ fontSize: '18px' }}>
+            Vehicles ready to import
+          </h3>
+          
+          {/* Description */}
+          <p className="mt-2 text-center text-breadcrumb-root font-medium" style={{ fontSize: '13px' }}>
+            All entries have been successfully validated. You can proceed with importing them into the system.
+          </p>
+          
+          {/* Stats */}
+          <div className="mt-8 w-full rounded-lg border border-gray-200 p-6">
+            <div className="grid grid-cols-3 divide-x divide-gray-200">
+              <div className="text-center px-4">
+                <p className="text-breadcrumb-root font-medium" style={{ fontSize: '13px' }}>Total Rows</p>
+                <p className="mt-2 font-semibold text-sidebar-item-active" style={{ fontSize: '28px' }}>
+                  {validationStats.totalRows}
+                </p>
+              </div>
+              <div className="text-center px-4">
+                <p className="text-breadcrumb-root font-medium" style={{ fontSize: '13px' }}>Valid Entries</p>
+                <p className="mt-2 font-semibold" style={{ fontSize: '28px', color: '#22C55E' }}>
+                  {validationStats.validEntries}
+                </p>
+              </div>
+              <div className="text-center px-4">
+                <p className="text-breadcrumb-root font-medium" style={{ fontSize: '13px' }}>Rows with Errors</p>
+                <p className="mt-2 font-semibold text-sidebar-item-active" style={{ fontSize: '28px' }}>
+                  {validationStats.rowsWithErrors}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Import Success Modal */}
+      <Modal
+        open={showAddVehicleModal && addVehicleStep === "imported"}
+        onOpenChange={handleCloseAddVehicle}
+        hideHeader
+        className="max-w-[280px]"
+      >
+        <div className="flex flex-col items-center justify-center py-8">
+          <img src="/images/success_Checkmark.svg" alt="Success" className="h-20 w-20" />
+          <p className="mt-6 font-semibold text-sidebar-item-active" style={{ fontSize: '18px' }}>
+            Import successful!
+          </p>
+          <button
+            onClick={handleCloseAddVehicle}
+            className="mt-8 px-12 py-3 rounded-lg bg-brand-dark text-white font-medium hover:bg-opacity-90 transition-colors"
+          >
+            Done
+          </button>
+        </div>
+      </Modal>
     </PageLayout>
   )
 }

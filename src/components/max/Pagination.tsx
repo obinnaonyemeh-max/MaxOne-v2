@@ -94,7 +94,7 @@ export function Pagination({
         <Button
           variant="outline"
           size="icon"
-          className="h-8 w-8 border-border"
+          className="h-8 w-8 bg-gray-100"
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
         >
@@ -119,7 +119,7 @@ export function Pagination({
                 "h-8 min-w-8 px-3 font-medium",
                 currentPage === page
                   ? "bg-brand-dark text-white hover:bg-brand-dark/90"
-                  : "border-border bg-white text-sidebar-item-active hover:bg-gray-50"
+                  : "bg-gray-100 text-sidebar-item-active hover:bg-gray-200"
               )}
               style={{ fontSize: '13px' }}
               onClick={() => onPageChange(page)}
@@ -132,7 +132,7 @@ export function Pagination({
         <Button
           variant="outline"
           size="icon"
-          className="h-8 w-8 border-border"
+          className="h-8 w-8 bg-gray-100"
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
         >
@@ -147,7 +147,7 @@ export function Pagination({
             value={pageSize.toString()}
             onValueChange={(value) => onPageSizeChange(Number(value))}
           >
-            <SelectTrigger className="h-8 w-[76px] border-border font-medium text-foreground">
+            <SelectTrigger className="h-8 w-[76px] bg-gray-100 font-medium text-foreground">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>

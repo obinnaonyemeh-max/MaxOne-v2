@@ -15,7 +15,7 @@ import {
 } from "@/components/max"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import { sidebarItems, sidebarUser } from "./VehiclesPage"
+import { sidebarSections, sidebarUser } from "./VehiclesPage"
 import { getVehicleDetails } from "@/data/mockVehicleDetails"
 
 export default function VehicleDetailsPage() {
@@ -41,7 +41,7 @@ export default function VehicleDetailsPage() {
     <PageLayout
       sidebar={({ isCollapsed, onToggleCollapse }) => (
         <Sidebar
-          items={sidebarItems}
+          sections={sidebarSections}
           user={sidebarUser}
           onItemClick={(item) => console.log("Clicked:", item.label)}
           isCollapsed={isCollapsed}

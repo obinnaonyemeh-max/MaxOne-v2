@@ -15,7 +15,7 @@ import {
   StatusBadge,
   Pagination,
   Modal,
-  type SidebarItem,
+  type SidebarSection,
   type SidebarUser,
   type StatusTab,
   type FilterState,
@@ -47,7 +47,7 @@ export interface Vehicle {
   location: string
   championStatus: "Active" | "Inactive" | null
   contractStatus: "Active" | "Inactive" | null
-  lifecycleState: "3rd Party Check-In" | "Asset Checkout" | "HP Completed" | "Inbound"
+  lifecycleState: "Active" | "Portfolio - Inactive" | "Inactive" | "Refurb" | "Inbound"
   driverSafetyScore: number | null
   contractRisk: "Low" | "Medium" | "High" | null
   collectionPercent: number | null
@@ -65,7 +65,7 @@ const baseMockVehicles: Vehicle[] = [
     location: "Ikeja",
     championStatus: "Active",
     contractStatus: "Inactive",
-    lifecycleState: "3rd Party Check-In",
+    lifecycleState: "Active",
     driverSafetyScore: 92,
     contractRisk: "Low",
     collectionPercent: 98,
@@ -81,7 +81,7 @@ const baseMockVehicles: Vehicle[] = [
     location: "Ikeja",
     championStatus: "Active",
     contractStatus: "Active",
-    lifecycleState: "Asset Checkout",
+    lifecycleState: "Active",
     driverSafetyScore: 78,
     contractRisk: "Low",
     collectionPercent: 85,
@@ -97,7 +97,7 @@ const baseMockVehicles: Vehicle[] = [
     location: "Ikeja",
     championStatus: "Active",
     contractStatus: "Inactive",
-    lifecycleState: "3rd Party Check-In",
+    lifecycleState: "Portfolio - Inactive",
     driverSafetyScore: 55,
     contractRisk: "Medium",
     collectionPercent: 72,
@@ -113,7 +113,7 @@ const baseMockVehicles: Vehicle[] = [
     location: "Ikeja",
     championStatus: "Active",
     contractStatus: "Active",
-    lifecycleState: "HP Completed",
+    lifecycleState: "Inactive",
     driverSafetyScore: 88,
     contractRisk: "Low",
     collectionPercent: 100,
@@ -145,7 +145,7 @@ const baseMockVehicles: Vehicle[] = [
     location: "Ikeja",
     championStatus: "Active",
     contractStatus: "Active",
-    lifecycleState: "HP Completed",
+    lifecycleState: "Refurb",
     driverSafetyScore: 35,
     contractRisk: "High",
     collectionPercent: 45,
@@ -161,7 +161,7 @@ const baseMockVehicles: Vehicle[] = [
     location: "Ikeja",
     championStatus: "Active",
     contractStatus: "Active",
-    lifecycleState: "HP Completed",
+    lifecycleState: "Active",
     driverSafetyScore: 65,
     contractRisk: "Medium",
     collectionPercent: 60,
@@ -175,72 +175,193 @@ export const mockVehicles: Vehicle[] = Array.from({ length: 25 }, (_, i) => ({
   id: String(i + 1),
 }))
 
-export const sidebarItems: SidebarItem[] = [
+export const sidebarSections: SidebarSection[] = [
   {
-    id: "dashboard",
-    label: "Dashboard",
-    icon: "/images/dashboard_menu.svg",
-    href: "/dashboard",
+    id: "home",
+    label: "Home",
+    items: [
+      {
+        id: "dashboard",
+        label: "Dashboard",
+        icon: "/images/dashboard_menu.svg",
+        href: "/dashboard",
+      },
+    ],
   },
   {
-    id: "fleet",
-    label: "Fleet",
-    icon: "/images/fleet_menu.svg",
-    children: [
+    id: "operations",
+    label: "Operations",
+    items: [
       {
         id: "vehicles",
         label: "Vehicles",
+        icon: "/images/fleet_menu.svg",
         badge: "24K",
         isActive: true,
       },
       {
-        id: "maintenance",
-        label: "Maintenance",
+        id: "asset-movement",
+        label: "Asset Movement",
+        icon: "/images/fleet_menu.svg",
       },
+    ],
+  },
+  {
+    id: "deployment",
+    label: "Deployment",
+    items: [
+      {
+        id: "growth-activation",
+        label: "Growth & Activation",
+        icon: "/images/agent_menu.svg",
+        children: [
+          {
+            id: "activation-dashboard",
+            label: "Activation Dashboard",
+          },
+          {
+            id: "mcp-management",
+            label: "MCP Management",
+          },
+          {
+            id: "chairman-dashboard",
+            label: "Chairman Dashboard",
+            badge: "Soon",
+            badgeVariant: "coming-soon",
+          },
+        ],
+      },
+      {
+        id: "inbound",
+        label: "Inbound",
+        icon: "/images/fleet_menu.svg",
+      },
+    ],
+  },
+  {
+    id: "lifecycle",
+    label: "Lifecycle",
+    items: [
       {
         id: "refurbishment",
         label: "Refurbishment",
+        icon: "/images/config_menu.svg",
       },
       {
-        id: "mcp-management",
-        label: "MCP Management",
+        id: "maintenance",
+        label: "Maintenance",
+        icon: "/images/config_menu.svg",
+        children: [
+          {
+            id: "service-schedule",
+            label: "Service Schedule",
+          },
+          {
+            id: "predictive-lab",
+            label: "Predictive Lab",
+            badge: "Soon",
+            badgeVariant: "coming-soon",
+          },
+        ],
       },
       {
-        id: "deactivation",
-        label: "Deactivation",
+        id: "disposal-auction",
+        label: "Disposal & Auction",
+        icon: "/images/config_menu.svg",
+        children: [
+          {
+            id: "disposal-management",
+            label: "Disposal Management",
+          },
+          {
+            id: "conversion-request",
+            label: "Conversion Request",
+          },
+          {
+            id: "auction",
+            label: "Auction",
+            badge: "Soon",
+            badgeVariant: "coming-soon",
+          },
+          {
+            id: "scrap-management",
+            label: "Scrap Management",
+          },
+          {
+            id: "closed-assets",
+            label: "Closed Assets",
+          },
+        ],
       },
     ],
   },
   {
-    id: "issues",
-    label: "Issues",
-    icon: "/images/issues_menu.svg",
-    badge: 13,
-    badgeVariant: "notification",
-  },
-  {
-    id: "configurations",
-    label: "Configurations",
-    icon: "/images/config_menu.svg",
-    children: [
+    id: "fleet-intelligence",
+    label: "Fleet Intelligence",
+    items: [
       {
-        id: "model",
-        label: "Model",
+        id: "fleet-performance",
+        label: "Fleet Performance",
+        icon: "/images/dashboard_menu.svg",
+        badge: "Soon",
+        badgeVariant: "coming-soon",
       },
       {
-        id: "trim",
-        label: "Trim",
+        id: "driver-safety",
+        label: "Driver Safety",
+        icon: "/images/dashboard_menu.svg",
+        badge: "Soon",
+        badgeVariant: "coming-soon",
       },
       {
-        id: "platform",
-        label: "Platform",
+        id: "asset-health",
+        label: "Asset Health",
+        icon: "/images/dashboard_menu.svg",
+        badge: "Soon",
+        badgeVariant: "coming-soon",
+      },
+      {
+        id: "revenue-analytics",
+        label: "Revenue Analytics",
+        icon: "/images/dashboard_menu.svg",
+        badge: "Soon",
+        badgeVariant: "coming-soon",
       },
     ],
   },
   {
-    id: "agent-activities",
-    label: "Agent Activities",
-    icon: "/images/agent_menu.svg",
+    id: "control",
+    label: "Control",
+    items: [
+      {
+        id: "asset-assessment-engine",
+        label: "Asset Assessment Engine",
+        icon: "/images/issues_menu.svg",
+        badge: "Soon",
+        badgeVariant: "coming-soon",
+      },
+      {
+        id: "compliance",
+        label: "Compliance",
+        icon: "/images/issues_menu.svg",
+        badge: "Soon",
+        badgeVariant: "coming-soon",
+      },
+      {
+        id: "vendor-management",
+        label: "Vendor Management",
+        icon: "/images/issues_menu.svg",
+        badge: "Soon",
+        badgeVariant: "coming-soon",
+      },
+      {
+        id: "governance",
+        label: "Governance",
+        icon: "/images/issues_menu.svg",
+        badge: "Soon",
+        badgeVariant: "coming-soon",
+      },
+    ],
   },
 ]
 
@@ -251,12 +372,11 @@ export const sidebarUser: SidebarUser = {
 
 const statusTabs: StatusTab[] = [
   { id: "all", label: "All", count: 24340 },
-  { id: "yard-check-in", label: "Yard Check-In", count: 4953 },
-  { id: "3rd-party-check-in", label: "3rd Party Check-In", count: 4953 },
-  { id: "asset-checkout", label: "Asset Checkout", count: 10450 },
-  { id: "hp-completed", label: "HP Completed", count: 456 },
+  { id: "active", label: "Active", count: 15230 },
+  { id: "portfolio-inactive", label: "Portfolio-Inactive", count: 4953 },
+  { id: "inactive", label: "Inactive", count: 2890 },
+  { id: "refurbished", label: "Refurbished", count: 811 },
   { id: "inbound", label: "Inbound", count: 456 },
-  { id: "stolen", label: "Stolen", count: 0 },
 ]
 
 function getVehicleIcon(assetType: string) {
@@ -404,13 +524,14 @@ const columns: ColumnDef<Vehicle>[] = [
     header: "Lifecycle State",
     cell: ({ row }) => {
       const status = row.original.lifecycleState
-      const variant =
-        status === "HP Completed"
-          ? "success"
-          : status === "Inbound"
-            ? "info"
-            : "warning"
-      return <StatusBadge variant={variant}>{status}</StatusBadge>
+      const variantMap: Record<string, "success" | "warning" | "neutral" | "refurb" | "info"> = {
+        "Active": "success",
+        "Portfolio - Inactive": "warning",
+        "Inactive": "neutral",
+        "Refurb": "refurb",
+        "Inbound": "info",
+      }
+      return <StatusBadge variant={variantMap[status]}>{status}</StatusBadge>
     },
   },
   {
@@ -560,45 +681,6 @@ function FileDropZone({
   )
 }
 
-function SpreadsheetPreview() {
-  return (
-    <div className="rounded-lg border border-gray-200 bg-white overflow-hidden">
-      {/* Title bar with dots */}
-      <div className="flex items-center gap-1.5 px-3 py-2 bg-gray-50 border-b border-gray-200">
-        <span className="h-2.5 w-2.5 rounded-full bg-[#EF4444]" />
-        <span className="h-2.5 w-2.5 rounded-full bg-[#F59E0B]" />
-        <span className="h-2.5 w-2.5 rounded-full bg-[#22C55E]" />
-      </div>
-      {/* Spreadsheet mockup */}
-      <div className="p-4 space-y-3">
-        {/* Header row */}
-        <div className="flex gap-2">
-          <div className="h-3 w-16 rounded bg-gray-200" />
-          <div className="h-3 w-20 rounded bg-gray-200" />
-          <div className="h-3 w-14 rounded bg-gray-200" />
-          <div className="h-3 w-18 rounded bg-gray-200" />
-          <div className="h-3 w-12 rounded bg-gray-200" />
-        </div>
-        {/* Data rows */}
-        <div className="flex gap-2">
-          <div className="h-3 w-16 rounded bg-gray-100" />
-          <div className="h-3 w-20 rounded bg-gray-100" />
-          <div className="h-3 w-14 rounded bg-gray-100" />
-          <div className="h-3 w-18 rounded bg-gray-100" />
-          <div className="h-3 w-12 rounded bg-gray-100" />
-        </div>
-        <div className="flex gap-2">
-          <div className="h-3 w-16 rounded bg-gray-100" />
-          <div className="h-3 w-20 rounded bg-gray-100" />
-          <div className="h-3 w-14 rounded bg-gray-100" />
-          <div className="h-3 w-18 rounded bg-gray-100" />
-          <div className="h-3 w-12 rounded bg-gray-100" />
-        </div>
-      </div>
-    </div>
-  )
-}
-
 const vehicleTypes = ["2 Wheeler", "3 Wheeler", "4 Wheeler"]
 const manufacturers = ["Honda", "Toyota", "Yamaha", "Bajaj", "TVS", "Suzuki"]
 const models = ["Model A", "Model B", "Model C", "Model D"]
@@ -622,13 +704,23 @@ export default function VehiclesPage() {
     locations: [],
   })
   const [showAddVehicleModal, setShowAddVehicleModal] = useState(false)
-  const [addVehicleStep, setAddVehicleStep] = useState<"options" | "single" | "bulk" | "validating" | "validated" | "imported">("options")
+  const [addVehicleStep, setAddVehicleStep] = useState<"options" | "single" | "bulk" | "validating" | "validated" | "importing" | "imported">("options")
   const [addAnother, setAddAnother] = useState(false)
   const [deliveryDate, setDeliveryDate] = useState<Date | undefined>(undefined)
   const [uploadedFile, setUploadedFile] = useState<File | null>(null)
   const [validationStats] = useState({
     totalRows: 25,
     validEntries: 25,
+    rowsWithErrors: 0,
+  })
+
+  // Bulk Update Vehicles state
+  const [showBulkUpdateModal, setShowBulkUpdateModal] = useState(false)
+  const [bulkUpdateStep, setBulkUpdateStep] = useState<"upload" | "validating" | "validated" | "importing" | "imported">("upload")
+  const [bulkUpdateFile, setBulkUpdateFile] = useState<File | null>(null)
+  const [bulkUpdateStats] = useState({
+    totalRows: 18,
+    validEntries: 18,
     rowsWithErrors: 0,
   })
 
@@ -645,11 +737,22 @@ export default function VehiclesPage() {
     setUploadedFile(null)
   }
 
+  const handleOpenBulkUpdate = () => {
+    setBulkUpdateStep("upload")
+    setShowBulkUpdateModal(true)
+  }
+
+  const handleCloseBulkUpdate = () => {
+    setShowBulkUpdateModal(false)
+    setBulkUpdateStep("upload")
+    setBulkUpdateFile(null)
+  }
+
   return (
     <PageLayout
       sidebar={({ isCollapsed, onToggleCollapse }) => (
         <Sidebar
-          items={sidebarItems}
+          sections={sidebarSections}
           user={sidebarUser}
           onItemClick={(item) => console.log("Clicked:", item.label)}
           isCollapsed={isCollapsed}
@@ -682,7 +785,7 @@ export default function VehiclesPage() {
           onSearch={(query) => console.log("Search:", query)}
           secondaryAction={{
             label: "Bulk Update Vehicles",
-            onClick: () => console.log("Bulk update"),
+            onClick: handleOpenBulkUpdate,
             icon: "/images/bulk_update.svg",
           }}
           primaryAction={{
@@ -983,7 +1086,7 @@ export default function VehiclesPage() {
       {/* Loader Modal - Validating File */}
       <Modal
         open={showAddVehicleModal && addVehicleStep === "validating"}
-        onOpenChange={() => {}}
+        onOpenChange={() => setAddVehicleStep("bulk")}
         hideHeader
         className="max-w-[280px]"
       >
@@ -1018,7 +1121,10 @@ export default function VehiclesPage() {
         primaryAction={{
           label: "Import Data",
           onClick: () => {
-            setAddVehicleStep("imported")
+            setAddVehicleStep("importing")
+            setTimeout(() => {
+              setAddVehicleStep("imported")
+            }, 2000)
           },
           icon: true,
         }}
@@ -1067,6 +1173,32 @@ export default function VehiclesPage() {
         </div>
       </Modal>
 
+      {/* Loader Modal - Importing Data */}
+      <Modal
+        open={showAddVehicleModal && addVehicleStep === "importing"}
+        onOpenChange={() => setAddVehicleStep("validated")}
+        hideHeader
+        className="max-w-[280px]"
+      >
+        <div className="flex flex-col items-center justify-center py-12">
+          <div className="animate-spin">
+            <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M40 10V20" stroke="#F59E0B" strokeWidth="6" strokeLinecap="round"/>
+              <path d="M40 60V70" stroke="#F59E0B" strokeWidth="6" strokeLinecap="round"/>
+              <path d="M70 40H60" stroke="#F59E0B" strokeWidth="6" strokeLinecap="round"/>
+              <path d="M20 40H10" stroke="#F59E0B" strokeWidth="6" strokeLinecap="round"/>
+              <path d="M61.21 18.79L54.14 25.86" stroke="#F59E0B" strokeWidth="6" strokeLinecap="round"/>
+              <path d="M25.86 54.14L18.79 61.21" stroke="#F59E0B" strokeWidth="6" strokeLinecap="round"/>
+              <path d="M61.21 61.21L54.14 54.14" stroke="#F59E0B" strokeWidth="6" strokeLinecap="round"/>
+              <path d="M25.86 25.86L18.79 18.79" stroke="#F59E0B" strokeWidth="6" strokeLinecap="round"/>
+            </svg>
+          </div>
+          <p className="mt-6 font-semibold text-sidebar-item-active" style={{ fontSize: '18px' }}>
+            Importing data...
+          </p>
+        </div>
+      </Modal>
+
       {/* Import Success Modal */}
       <Modal
         open={showAddVehicleModal && addVehicleStep === "imported"}
@@ -1081,6 +1213,198 @@ export default function VehiclesPage() {
           </p>
           <button
             onClick={handleCloseAddVehicle}
+            className="mt-8 px-12 py-3 rounded-lg bg-brand-dark text-white font-medium hover:bg-opacity-90 transition-colors"
+          >
+            Done
+          </button>
+        </div>
+      </Modal>
+
+      {/* ==================== BULK UPDATE VEHICLES FLOW ==================== */}
+
+      {/* Bulk Update Vehicles - Upload Modal */}
+      <Modal
+        open={showBulkUpdateModal && bulkUpdateStep === "upload"}
+        onOpenChange={handleCloseBulkUpdate}
+        title="Bulk Update Vehicles"
+        subtitle="Update multiple vehicles in the system all at once"
+        className="max-w-3xl"
+        primaryAction={{
+          label: "Validate data",
+          onClick: () => {
+            setBulkUpdateStep("validating")
+            setTimeout(() => {
+              setBulkUpdateStep("validated")
+            }, 2000)
+          },
+          disabled: !bulkUpdateFile,
+        }}
+        secondaryAction={{
+          label: "Cancel",
+          onClick: handleCloseBulkUpdate,
+        }}
+      >
+        <div className="flex gap-8">
+          {/* File Drop Zone */}
+          <div className="w-[280px] shrink-0">
+            <FileDropZone
+              file={bulkUpdateFile}
+              onFileSelect={setBulkUpdateFile}
+            />
+          </div>
+
+          {/* Instructions */}
+          <div className="flex-1">
+            <h4 className="font-semibold text-sidebar-item-active" style={{ fontSize: '16px' }}>
+              Update multiple vehicles at once
+            </h4>
+            <p className="mt-2 text-breadcrumb-root font-medium" style={{ fontSize: '13px' }}>
+              Use the provided template to modify vehicle details and upload it to apply updates across selected records.
+            </p>
+            <a 
+              href="#" 
+              className="mt-4 inline-block underline font-medium"
+              style={{ color: '#F59E0B', fontSize: '14px' }}
+            >
+              Download template sheet
+            </a>
+            <div className="pt-2">
+              <img src="/images/upload_sheet.svg" alt="Spreadsheet preview" className="w-full" />
+            </div>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Bulk Update - Validating Loader Modal */}
+      <Modal
+        open={showBulkUpdateModal && bulkUpdateStep === "validating"}
+        onOpenChange={() => setBulkUpdateStep("upload")}
+        hideHeader
+        className="max-w-[280px]"
+      >
+        <div className="flex flex-col items-center justify-center py-12">
+          <div className="animate-spin">
+            <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M40 10V20" stroke="#F59E0B" strokeWidth="6" strokeLinecap="round"/>
+              <path d="M40 60V70" stroke="#F59E0B" strokeWidth="6" strokeLinecap="round"/>
+              <path d="M70 40H60" stroke="#F59E0B" strokeWidth="6" strokeLinecap="round"/>
+              <path d="M20 40H10" stroke="#F59E0B" strokeWidth="6" strokeLinecap="round"/>
+              <path d="M61.21 18.79L54.14 25.86" stroke="#F59E0B" strokeWidth="6" strokeLinecap="round"/>
+              <path d="M25.86 54.14L18.79 61.21" stroke="#F59E0B" strokeWidth="6" strokeLinecap="round"/>
+              <path d="M61.21 61.21L54.14 54.14" stroke="#F59E0B" strokeWidth="6" strokeLinecap="round"/>
+              <path d="M25.86 25.86L18.79 18.79" stroke="#F59E0B" strokeWidth="6" strokeLinecap="round"/>
+            </svg>
+          </div>
+          <p className="mt-6 font-semibold text-sidebar-item-active" style={{ fontSize: '18px' }}>
+            Validating file...
+          </p>
+        </div>
+      </Modal>
+
+      {/* Bulk Update - Validation Report Modal */}
+      <Modal
+        open={showBulkUpdateModal && bulkUpdateStep === "validated"}
+        onOpenChange={handleCloseBulkUpdate}
+        title="Bulk Update Vehicles"
+        subtitle="Update multiple vehicles in the system all at once"
+        showBackButton
+        onBack={() => setBulkUpdateStep("upload")}
+        className="max-w-xl"
+        primaryAction={{
+          label: "Update Data",
+          onClick: () => {
+            setBulkUpdateStep("importing")
+            setTimeout(() => {
+              setBulkUpdateStep("imported")
+            }, 2000)
+          },
+          icon: true,
+        }}
+        secondaryAction={{
+          label: "Cancel",
+          onClick: handleCloseBulkUpdate,
+        }}
+      >
+        <div className="flex flex-col items-center py-6">
+          {/* Success Badge */}
+          <img src="/images/success_Checkmark.svg" alt="Success" className="h-16 w-16" />
+          
+          {/* Title */}
+          <h3 className="mt-6 font-semibold text-sidebar-item-active" style={{ fontSize: '18px' }}>
+            Vehicles ready to update
+          </h3>
+          
+          {/* Description */}
+          <p className="mt-2 text-center text-breadcrumb-root font-medium" style={{ fontSize: '13px' }}>
+            All entries have been successfully validated. You can proceed with updating them in the system.
+          </p>
+          
+          {/* Stats */}
+          <div className="mt-8 w-full rounded-lg border border-gray-200 p-6">
+            <div className="grid grid-cols-3 divide-x divide-gray-200">
+              <div className="text-center px-4">
+                <p className="text-breadcrumb-root font-medium" style={{ fontSize: '13px' }}>Total Rows</p>
+                <p className="mt-2 font-semibold text-sidebar-item-active" style={{ fontSize: '28px' }}>
+                  {bulkUpdateStats.totalRows}
+                </p>
+              </div>
+              <div className="text-center px-4">
+                <p className="text-breadcrumb-root font-medium" style={{ fontSize: '13px' }}>Valid Entries</p>
+                <p className="mt-2 font-semibold" style={{ fontSize: '28px', color: '#22C55E' }}>
+                  {bulkUpdateStats.validEntries}
+                </p>
+              </div>
+              <div className="text-center px-4">
+                <p className="text-breadcrumb-root font-medium" style={{ fontSize: '13px' }}>Rows with Errors</p>
+                <p className="mt-2 font-semibold text-sidebar-item-active" style={{ fontSize: '28px' }}>
+                  {bulkUpdateStats.rowsWithErrors}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Bulk Update - Importing Loader Modal */}
+      <Modal
+        open={showBulkUpdateModal && bulkUpdateStep === "importing"}
+        onOpenChange={() => setBulkUpdateStep("validated")}
+        hideHeader
+        className="max-w-[280px]"
+      >
+        <div className="flex flex-col items-center justify-center py-12">
+          <div className="animate-spin">
+            <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M40 10V20" stroke="#F59E0B" strokeWidth="6" strokeLinecap="round"/>
+              <path d="M40 60V70" stroke="#F59E0B" strokeWidth="6" strokeLinecap="round"/>
+              <path d="M70 40H60" stroke="#F59E0B" strokeWidth="6" strokeLinecap="round"/>
+              <path d="M20 40H10" stroke="#F59E0B" strokeWidth="6" strokeLinecap="round"/>
+              <path d="M61.21 18.79L54.14 25.86" stroke="#F59E0B" strokeWidth="6" strokeLinecap="round"/>
+              <path d="M25.86 54.14L18.79 61.21" stroke="#F59E0B" strokeWidth="6" strokeLinecap="round"/>
+              <path d="M61.21 61.21L54.14 54.14" stroke="#F59E0B" strokeWidth="6" strokeLinecap="round"/>
+              <path d="M25.86 25.86L18.79 18.79" stroke="#F59E0B" strokeWidth="6" strokeLinecap="round"/>
+            </svg>
+          </div>
+          <p className="mt-6 font-semibold text-sidebar-item-active" style={{ fontSize: '18px' }}>
+            Updating data...
+          </p>
+        </div>
+      </Modal>
+
+      {/* Bulk Update - Success Modal */}
+      <Modal
+        open={showBulkUpdateModal && bulkUpdateStep === "imported"}
+        onOpenChange={handleCloseBulkUpdate}
+        hideHeader
+        className="max-w-[280px]"
+      >
+        <div className="flex flex-col items-center justify-center py-8">
+          <img src="/images/success_Checkmark.svg" alt="Success" className="h-20 w-20" />
+          <p className="mt-6 font-semibold text-sidebar-item-active" style={{ fontSize: '18px' }}>
+            Update successful!
+          </p>
+          <button
+            onClick={handleCloseBulkUpdate}
             className="mt-8 px-12 py-3 rounded-lg bg-brand-dark text-white font-medium hover:bg-opacity-90 transition-colors"
           >
             Done

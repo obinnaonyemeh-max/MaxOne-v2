@@ -13,9 +13,16 @@ export interface SidebarItem {
   icon?: LucideIcon | string
   href?: string
   badge?: string | number
-  badgeVariant?: "default" | "notification"
+  badgeVariant?: "default" | "notification" | "coming-soon"
   children?: SidebarItem[]
   isActive?: boolean
+}
+
+export interface SidebarSection {
+  id: string
+  label: string
+  items: SidebarItem[]
+  defaultExpanded?: boolean
 }
 
 export interface SidebarUser {
@@ -27,7 +34,7 @@ export interface SidebarUser {
 interface SidebarProps {
   logo?: ReactNode
   collapsedLogo?: ReactNode
-  items: SidebarItem[]
+  sections: SidebarSection[]
   user?: SidebarUser
   onItemClick?: (item: SidebarItem) => void
   isCollapsed?: boolean
@@ -85,21 +92,25 @@ function TreeChildItem({ item, isLast, isActiveAbove, onItemClick }: TreeChildIt
       {/* Child item button */}
       <button
         onClick={() => onItemClick?.(item)}
+        title={item.label}
         className={cn(
-          "flex flex-1 items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors",
+          "flex flex-1 items-center gap-3 rounded-lg px-3 py-2 transition-colors min-w-0",
           "hover:bg-sidebar-hover",
           "font-medium text-sidebar-item",
           isActive && "bg-sidebar-active font-semibold text-sidebar-item-active"
         )}
+        style={{ fontSize: '13px' }}
       >
-        <span className="flex-1 text-left">{item.label}</span>
+        <span className="flex-1 text-left truncate min-w-0">{item.label}</span>
         {item.badge !== undefined && (
           <span
             className={cn(
               "rounded-full px-1.5 py-0.5 text-xs font-medium",
               item.badgeVariant === "notification"
                 ? "bg-status-danger text-white"
-                : "bg-sidebar-item-active text-white"
+                : item.badgeVariant === "coming-soon"
+                  ? "bg-gray-200 text-gray-500"
+                  : "bg-sidebar-item-active text-white"
             )}
           >
             {item.badge}
@@ -147,12 +158,12 @@ function SidebarNavItem({ item, onItemClick, isExpanded = false, onToggleExpand,
             <img
               src={icon}
               alt=""
-              className="h-5 w-5"
+              className="h-[18px] w-[18px]"
             />
           ) : LucideIcon ? (
             <LucideIcon
               className={cn(
-                "h-5 w-5",
+                "h-[18px] w-[18px]",
                 (item.isActive || hasActiveChild) ? "text-sidebar-item-active" : "text-sidebar-item"
               )}
             />
@@ -167,37 +178,41 @@ function SidebarNavItem({ item, onItemClick, isExpanded = false, onToggleExpand,
       {/* Parent item */}
       <button
         onClick={handleClick}
+        title={item.label}
         className={cn(
-          "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors",
+          "flex w-full items-center gap-3 rounded-lg px-3 py-2 transition-colors overflow-hidden",
           "hover:bg-sidebar-hover",
           "font-medium text-sidebar-item",
           item.isActive && !hasChildren && "bg-sidebar-active font-semibold text-sidebar-item-active"
         )}
+        style={{ fontSize: '13px' }}
       >
         {icon && (
           isImageIcon ? (
             <img
               src={icon}
               alt=""
-              className="h-5 w-5 shrink-0"
+              className="h-[18px] w-[18px] shrink-0"
             />
           ) : LucideIcon ? (
             <LucideIcon
               className={cn(
-                "h-5 w-5 shrink-0",
+                "h-[18px] w-[18px] shrink-0",
                 item.isActive ? "text-sidebar-item-active" : "text-sidebar-item"
               )}
             />
           ) : null
         )}
-        <span className="flex-1 text-left">{item.label}</span>
+        <span className="flex-1 text-left truncate min-w-0">{item.label}</span>
         {item.badge !== undefined && !hasChildren && (
           <span
             className={cn(
               "rounded-full px-1.5 py-0.5 text-xs font-medium",
               item.badgeVariant === "notification"
                 ? "bg-status-danger text-white"
-                : "bg-sidebar-item-active text-white"
+                : item.badgeVariant === "coming-soon"
+                  ? "bg-gray-200 text-gray-500"
+                  : "bg-sidebar-item-active text-white"
             )}
           >
             {item.badge}
@@ -322,27 +337,139 @@ function AccountMenu({ user }: { user: SidebarUser }) {
   )
 }
 
-export function Sidebar({ logo, collapsedLogo, items, user, onItemClick, isCollapsed = false, onToggleCollapse }: SidebarProps) {
-  const getInitialExpandedId = () => {
-    for (const item of items) {
-      if (item.children?.some((child) => child.isActive)) {
-        return item.id
+interface NavSectionProps {
+  section: SidebarSection
+  isCollapsed: boolean
+  isSectionExpanded: boolean
+  onToggleSectionExpand: (sectionId: string) => void
+  expandedItemId: string | null
+  onToggleItemExpand: (itemId: string) => void
+  onItemClick?: (item: SidebarItem) => void
+}
+
+function NavSection({ 
+  section, 
+  isCollapsed, 
+  isSectionExpanded, 
+  onToggleSectionExpand, 
+  expandedItemId, 
+  onToggleItemExpand, 
+  onItemClick 
+}: NavSectionProps) {
+  if (isCollapsed) {
+    return (
+      <div className="space-y-1 mb-4">
+        {section.items.map((item) => (
+          <SidebarNavItem
+            key={item.id}
+            item={item}
+            onItemClick={onItemClick}
+            isExpanded={expandedItemId === item.id}
+            onToggleExpand={onToggleItemExpand}
+            isCollapsed={isCollapsed}
+          />
+        ))}
+      </div>
+    )
+  }
+
+  return (
+    <div className="mb-2">
+      {/* Section label - clickable to expand/collapse */}
+      <button
+        onClick={() => onToggleSectionExpand(section.id)}
+        className="flex w-full items-center justify-between px-3 py-1.5 hover:bg-sidebar-hover rounded transition-colors"
+      >
+        <span 
+          className="font-medium text-sidebar-label uppercase"
+          style={{ fontSize: '11px', letterSpacing: '1px' }}
+        >
+          {section.label}
+        </span>
+        <span className="text-sidebar-label">
+          {isSectionExpanded ? (
+            <Minus className="h-3 w-3" />
+          ) : (
+            <Plus className="h-3 w-3" />
+          )}
+        </span>
+      </button>
+
+      {/* Section items with smooth transition */}
+      <div
+        className={cn(
+          "grid transition-all duration-200 ease-in-out",
+          isSectionExpanded ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+        )}
+      >
+        <div className="overflow-hidden">
+          <div className="space-y-1 mt-1">
+            {section.items.map((item) => (
+              <SidebarNavItem
+                key={item.id}
+                item={item}
+                onItemClick={onItemClick}
+                isExpanded={expandedItemId === item.id}
+                onToggleExpand={onToggleItemExpand}
+                isCollapsed={isCollapsed}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export function Sidebar({ logo, collapsedLogo, sections, user, onItemClick, isCollapsed = false, onToggleCollapse }: SidebarProps) {
+  const getInitialExpandedItemId = () => {
+    for (const section of sections) {
+      for (const item of section.items) {
+        if (item.children?.some((child) => child.isActive)) {
+          return item.id
+        }
       }
     }
     return null
   }
 
-  const [expandedItemId, setExpandedItemId] = useState<string | null>(getInitialExpandedId)
+  const getInitialExpandedSections = () => {
+    const expanded: string[] = []
+    for (const section of sections) {
+      if (section.defaultExpanded !== false) {
+        expanded.push(section.id)
+      }
+      for (const item of section.items) {
+        if (item.isActive || item.children?.some((child) => child.isActive)) {
+          if (!expanded.includes(section.id)) {
+            expanded.push(section.id)
+          }
+        }
+      }
+    }
+    return expanded
+  }
 
-  const handleToggleExpand = (itemId: string) => {
+  const [expandedItemId, setExpandedItemId] = useState<string | null>(getInitialExpandedItemId)
+  const [expandedSections, setExpandedSections] = useState<string[]>(getInitialExpandedSections)
+
+  const handleToggleItemExpand = (itemId: string) => {
     setExpandedItemId((currentId) => (currentId === itemId ? null : itemId))
+  }
+
+  const handleToggleSectionExpand = (sectionId: string) => {
+    setExpandedSections((current) => 
+      current.includes(sectionId)
+        ? current.filter((id) => id !== sectionId)
+        : [...current, sectionId]
+    )
   }
 
   return (
     <div className="flex h-full flex-col">
       {/* Logo area with collapse toggle */}
       <div className={cn(
-        "flex items-center py-4",
+        "flex items-center py-4 shrink-0",
         isCollapsed ? "justify-center px-2" : "justify-between px-3"
       )}>
         {isCollapsed ? (
@@ -384,34 +511,29 @@ export function Sidebar({ logo, collapsedLogo, items, user, onItemClick, isColla
         )}
       </div>
 
-      {/* Navigation */}
+      {/* Navigation - scrollable */}
       <nav className={cn(
-        "flex-1 overflow-y-auto py-2",
+        "flex-1 overflow-y-auto overflow-x-hidden py-2 min-h-0",
         isCollapsed ? "px-2" : "px-3"
       )}>
-        {!isCollapsed && (
-          <p className="mb-2 px-3 text-xs font-medium text-sidebar-label">
-            Menu
-          </p>
-        )}
-        <div className="space-y-1">
-          {items.map((item) => (
-            <SidebarNavItem
-              key={item.id}
-              item={item}
-              onItemClick={onItemClick}
-              isExpanded={expandedItemId === item.id}
-              onToggleExpand={handleToggleExpand}
-              isCollapsed={isCollapsed}
-            />
-          ))}
-        </div>
+        {sections.map((section) => (
+          <NavSection
+            key={section.id}
+            section={section}
+            isCollapsed={isCollapsed}
+            isSectionExpanded={expandedSections.includes(section.id)}
+            onToggleSectionExpand={handleToggleSectionExpand}
+            expandedItemId={expandedItemId}
+            onToggleItemExpand={handleToggleItemExpand}
+            onItemClick={onItemClick}
+          />
+        ))}
       </nav>
 
       {/* Account menu */}
       {user && (
         <div className={cn(
-          "mt-auto",
+          "mt-auto shrink-0",
           isCollapsed ? "px-2 pt-2 pb-4" : "px-3 py-4"
         )}>
           {isCollapsed ? (

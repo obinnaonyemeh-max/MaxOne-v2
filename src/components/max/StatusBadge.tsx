@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils"
 import type { ReactNode } from "react"
 
-type StatusVariant = "success" | "danger" | "warning" | "info" | "default"
+type StatusVariant = "success" | "danger" | "warning" | "info" | "default" | "refurb" | "neutral"
 
 interface StatusBadgeProps {
   variant?: StatusVariant
@@ -39,6 +39,16 @@ const variantStyles: Record<
     dot: "bg-gray-400",
     bg: "bg-gray-100",
     text: "text-gray-600",
+  },
+  refurb: {
+    dot: "bg-[#DB2777]",
+    bg: "bg-[#FDF2F8]",
+    text: "text-[#DB2777]",
+  },
+  neutral: {
+    dot: "bg-gray-500",
+    bg: "bg-gray-100",
+    text: "text-gray-500",
   },
 }
 

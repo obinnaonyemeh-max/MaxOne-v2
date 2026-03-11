@@ -426,12 +426,12 @@ export default function DashboardPage() {
         ]}
       />
 
-      <PageHeader
-        title="Dashboard"
-        subtitle="See real-time fleet overview across all regions"
-      />
-
       <div className="flex-1 overflow-auto px-6 pb-6">
+        <PageHeader
+          title="Dashboard"
+          subtitle="See real-time fleet overview across all regions"
+          className="px-0"
+        />
         <div className="grid grid-cols-4 gap-2">
           {dashboardStats.map((stat) => (
             <StatCard

@@ -7,7 +7,7 @@ import AssetMovementPage from "@/pages/AssetMovementPage"
 export default function App() {
   return (
     <Routes>
-      <Route path="/" element={<Navigate to="/fleet-register" replace />} />
+      <Route path="/" element={<Navigate to="/dashboard" replace />} />
       <Route path="/dashboard" element={<DashboardPage />} />
       <Route path="/fleet-register" element={<VehiclesPage />} />
       <Route path="/fleet-register/:id" element={<VehicleDetailsPage />} />

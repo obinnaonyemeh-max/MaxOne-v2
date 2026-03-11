@@ -1,7 +1,7 @@
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { type ColumnDef } from "@tanstack/react-table"
-import { SlidersHorizontal } from "lucide-react"
+import { Search, SlidersHorizontal } from "lucide-react"
 import {
   TopBar,
   PageHeader,
@@ -15,6 +15,7 @@ import {
   type GenericFilterState,
 } from "@/components/max"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import {
   Popover,
   PopoverContent,
@@ -30,6 +31,7 @@ import {
   ResponsiveContainer,
   BarChart,
   Bar,
+  Cell,
   Legend,
 } from "recharts"
 import { cn } from "@/lib/utils"
@@ -397,14 +399,21 @@ function DarkTooltipContent({
 export default function GrowthActivationPage() {
   const navigate = useNavigate()
   const [channelPeriod, setChannelPeriod] = useState<ChannelPeriod>("today")
+  const [hoveredBarIndex, setHoveredBarIndex] = useState<number | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
   const [activationFilters, setActivationFilters] = useState<GenericFilterState>({})
+  const [searchQuery, setSearchQuery] = useState("")
+  const [searchOpen, setSearchOpen] = useState(false)
 
   const activeFilterCount = getActiveFilterCount(activationFilters)
 
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [searchQuery])
+
   const filteredActivationData = useMemo(() => {
-    return activationData.filter((record) => {
+    let data = activationData.filter((record) => {
       const channels = activationFilters.channels || []
       if (channels.length > 0 && !channels.includes(record.channel)) return false
 
@@ -419,7 +428,23 @@ export default function GrowthActivationPage() {
 
       return true
     })
-  }, [activationFilters])
+
+    if (searchQuery.trim()) {
+      const q = searchQuery.trim().toLowerCase()
+      data = data.filter(
+        (record) =>
+          record.assetId.toLowerCase().includes(q) ||
+          record.vehicleModel.toLowerCase().includes(q) ||
+          record.plateNumber.toLowerCase().includes(q) ||
+          record.customerName.toLowerCase().includes(q) ||
+          record.channel.toLowerCase().includes(q) ||
+          record.officer.toLowerCase().includes(q) ||
+          record.location.toLowerCase().includes(q)
+      )
+    }
+
+    return data
+  }, [activationFilters, searchQuery])
 
   const paginatedData = useMemo(() => {
     const start = (currentPage - 1) * pageSize
@@ -682,7 +707,23 @@ export default function GrowthActivationPage() {
                     fill="var(--color-badge-active-text)"
                     radius={[4, 4, 0, 0]}
                     barSize={40}
-                  />
+                    onMouseEnter={(_: unknown, index: number) =>
+                      setHoveredBarIndex(index)
+                    }
+                    onMouseLeave={() => setHoveredBarIndex(null)}
+                  >
+                    {locationData.map((_, index) => (
+                      <Cell
+                        key={index}
+                        opacity={
+                          hoveredBarIndex === null || hoveredBarIndex === index
+                            ? 1
+                            : 0.35
+                        }
+                        style={{ transition: "opacity 0.2s ease", cursor: "pointer" }}
+                      />
+                    ))}
+                  </Bar>
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -699,29 +740,65 @@ export default function GrowthActivationPage() {
           </h3>
           <div className="flex-1 flex flex-col min-h-0 rounded-t-[14px] rounded-b-[4px] border border-table-border">
             <div className="flex flex-wrap items-center justify-between gap-3 px-2 py-2 shrink-0">
-              <Popover>
-                <PopoverTrigger asChild>
+              <div className="flex items-center gap-2">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="h-9 gap-2 bg-gray-100 text-foreground hover:bg-gray-200"
+                    >
+                      <SlidersHorizontal className="h-4 w-4" />
+                      <span className="text-sm">Filters</span>
+                      {activeFilterCount > 0 && (
+                        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-brand-dark text-xs text-white">
+                          {activeFilterCount}
+                        </span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-2" align="start">
+                    <GenericFilterPopover
+                      sections={activationFilterSections}
+                      filters={activationFilters}
+                      onFiltersChange={setActivationFilters}
+                    />
+                  </PopoverContent>
+                </Popover>
+
+                {searchOpen ? (
+                  <div className="flex items-center gap-1">
+                    <Input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Search activations..."
+                      className="h-9 w-48"
+                      autoFocus
+                    />
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-9 w-9"
+                      onClick={() => {
+                        setSearchOpen(false)
+                        setSearchQuery("")
+                      }}
+                    >
+                      <span className="sr-only">Close search</span>
+                      ×
+                    </Button>
+                  </div>
+                ) : (
                   <Button
                     variant="outline"
-                    className="h-9 gap-2 bg-gray-100 text-foreground hover:bg-gray-200"
+                    size="icon"
+                    className="h-9 bg-gray-100 hover:bg-gray-200"
+                    onClick={() => setSearchOpen(true)}
                   >
-                    <SlidersHorizontal className="h-4 w-4" />
-                    <span className="text-sm">Filters</span>
-                    {activeFilterCount > 0 && (
-                      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-brand-dark text-xs text-white">
-                        {activeFilterCount}
-                      </span>
-                    )}
+                    <Search className="h-4 w-4 text-muted-foreground" />
                   </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-2" align="start">
-                  <GenericFilterPopover
-                    sections={activationFilterSections}
-                    filters={activationFilters}
-                    onFiltersChange={setActivationFilters}
-                  />
-                </PopoverContent>
-              </Popover>
+                )}
+              </div>
             </div>
             <div className="flex-1 overflow-y-auto">
               <DataTable

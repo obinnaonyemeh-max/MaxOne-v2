@@ -122,7 +122,7 @@ export function HorizontalBarChart({
         filter: {
           type: "darken",
           value: 0.9,
-        },
+        } as { type: string; value?: number },
       },
     },
   }

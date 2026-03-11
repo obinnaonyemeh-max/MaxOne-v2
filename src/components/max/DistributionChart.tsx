@@ -63,7 +63,7 @@ export function DistributionChart({
         filter: {
           type: "darken",
           value: 0.9,
-        },
+        } as { type: string; value?: number },
       },
       active: {
         filter: {

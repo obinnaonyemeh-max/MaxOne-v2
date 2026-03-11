@@ -5,6 +5,7 @@ import VehiclesPage from "@/pages/VehiclesPage"
 import VehicleDetailsPage from "@/pages/VehicleDetailsPage"
 import AssetMovementPage from "@/pages/AssetMovementPage"
 import GrowthActivationPage from "@/pages/GrowthActivationPage"
+import MCPManagementPage from "@/pages/MCPManagementPage"
 
 export default function App() {
   return (
@@ -17,6 +18,7 @@ export default function App() {
         <Route path="/asset-movement" element={<AssetMovementPage />} />
         <Route path="/asset-movement/:id" element={<VehicleDetailsPage />} />
         <Route path="/growth-activation" element={<GrowthActivationPage />} />
+        <Route path="/mcp-management" element={<MCPManagementPage />} />
       </Routes>
     </AppLayout>
   )

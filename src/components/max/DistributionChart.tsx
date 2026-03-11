@@ -28,6 +28,21 @@ export function DistributionChart({
       animations: {
         enabled: true,
       },
+      events: {
+        dataPointMouseEnter: (_e: unknown, chart: { el: HTMLElement }, opts: { dataPointIndex: number }) => {
+          const paths = chart.el.querySelectorAll(`.apexcharts-pie-area`)
+          paths.forEach((path, i) => {
+            ;(path as HTMLElement).style.opacity = i === opts.dataPointIndex ? "1" : "0.35"
+            ;(path as HTMLElement).style.transition = "opacity 0.2s ease"
+          })
+        },
+        dataPointMouseLeave: (_e: unknown, chart: { el: HTMLElement }) => {
+          const paths = chart.el.querySelectorAll(`.apexcharts-pie-area`)
+          paths.forEach((path) => {
+            ;(path as HTMLElement).style.opacity = "1"
+          })
+        },
+      },
     },
     colors,
     labels: data.map((item) => item.label),
@@ -61,8 +76,7 @@ export function DistributionChart({
     states: {
       hover: {
         filter: {
-          type: "darken",
-          value: 0.9,
+          type: "none",
         } as { type: string; value?: number },
       },
       active: {

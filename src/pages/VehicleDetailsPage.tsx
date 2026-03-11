@@ -3,8 +3,6 @@ import { useParams, useNavigate, useLocation } from "react-router-dom"
 import { RotateCcw, Pencil } from "lucide-react"
 
 import {
-  PageLayout,
-  Sidebar,
   TopBar,
   InfoCard,
   InfoGrid,
@@ -12,11 +10,9 @@ import {
   AssignmentHistoryCard,
   StatusTimeline,
   BackButton,
-  type SidebarItem,
 } from "@/components/max"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import { sidebarSections, sidebarUser } from "./VehiclesPage"
 import { getVehicleDetails } from "@/data/mockVehicleDetails"
 
 export default function VehicleDetailsPage() {
@@ -41,21 +37,7 @@ export default function VehicleDetailsPage() {
   ]
 
   return (
-    <PageLayout
-      sidebar={({ isCollapsed, onToggleCollapse }) => (
-        <Sidebar
-          sections={sidebarSections}
-          user={sidebarUser}
-          onItemClick={(item: SidebarItem) => {
-            if (item.href) {
-              navigate(item.href)
-            }
-          }}
-          isCollapsed={isCollapsed}
-          onToggleCollapse={onToggleCollapse}
-        />
-      )}
-    >
+    <>
       <TopBar
         breadcrumbs={[
           { label: "Operations" },
@@ -241,6 +223,6 @@ export default function VehicleDetailsPage() {
           </div>
         </div>
       </div>
-    </PageLayout>
+    </>
   )
 }

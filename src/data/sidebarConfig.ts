@@ -44,6 +44,7 @@ export const sidebarSections: SidebarSection[] = [
           {
             id: "activation-dashboard",
             label: "Activation Dashboard",
+            href: "/growth-activation",
           },
           {
             id: "mcp-management",

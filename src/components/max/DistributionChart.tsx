@@ -1,6 +1,6 @@
+import { useState, useCallback } from "react"
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts"
 import { cn } from "@/lib/utils"
-import Chart from "react-apexcharts"
-import type { ApexOptions } from "apexcharts"
 
 export interface DistributionDataItem {
   label: string
@@ -19,73 +19,15 @@ export function DistributionChart({
   data,
   className,
 }: DistributionChartProps) {
-  const series = data.map((item) => item.value)
-  const colors = data.map((item) => item.color)
+  const [activeIndex, setActiveIndex] = useState<number | null>(null)
 
-  const options: ApexOptions = {
-    chart: {
-      type: "donut",
-      animations: {
-        enabled: true,
-      },
-      events: {
-        dataPointMouseEnter: (_e: unknown, chart: { el: HTMLElement }, opts: { dataPointIndex: number }) => {
-          const paths = chart.el.querySelectorAll(`.apexcharts-pie-area`)
-          paths.forEach((path, i) => {
-            ;(path as HTMLElement).style.opacity = i === opts.dataPointIndex ? "1" : "0.35"
-            ;(path as HTMLElement).style.transition = "opacity 0.2s ease"
-          })
-        },
-        dataPointMouseLeave: (_e: unknown, chart: { el: HTMLElement }) => {
-          const paths = chart.el.querySelectorAll(`.apexcharts-pie-area`)
-          paths.forEach((path) => {
-            ;(path as HTMLElement).style.opacity = "1"
-          })
-        },
-      },
-    },
-    colors,
-    labels: data.map((item) => item.label),
-    plotOptions: {
-      pie: {
-        donut: {
-          size: "65%",
-        },
-        expandOnClick: false,
-        offsetX: 0,
-        offsetY: 0,
-      },
-    },
-    stroke: {
-      width: 6,
-      colors: ["#FDFDFD"],
-      lineCap: "round",
-    },
-    dataLabels: {
-      enabled: false,
-    },
-    legend: {
-      show: false,
-    },
-    tooltip: {
-      enabled: true,
-      y: {
-        formatter: (val: number) => val.toLocaleString(),
-      },
-    },
-    states: {
-      hover: {
-        filter: {
-          type: "none",
-        } as { type: string; value?: number },
-      },
-      active: {
-        filter: {
-          type: "none",
-        },
-      },
-    },
-  }
+  const onPieEnter = useCallback((_: unknown, index: number) => {
+    setActiveIndex(index)
+  }, [])
+
+  const onPieLeave = useCallback(() => {
+    setActiveIndex(null)
+  }, [])
 
   return (
     <div
@@ -103,13 +45,69 @@ export function DistributionChart({
 
       <div className="flex items-center" style={{ gap: "100px" }}>
         <div className="shrink-0" style={{ width: "185px", height: "185px" }}>
-          <Chart
-            options={options}
-            series={series}
-            type="donut"
-            width="100%"
-            height="100%"
-          />
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={data}
+                cx="50%"
+                cy="50%"
+                innerRadius={45}
+                outerRadius={75}
+                cornerRadius={8}
+                paddingAngle={4}
+                dataKey="value"
+                nameKey="label"
+                strokeWidth={0}
+                onMouseEnter={onPieEnter}
+                onMouseLeave={onPieLeave}
+              >
+                {data.map((item, index) => (
+                  <Cell
+                    key={item.label}
+                    fill={item.color}
+                    opacity={activeIndex === null || activeIndex === index ? 1 : 0.35}
+                    style={{
+                      transition: "opacity 0.2s ease",
+                      cursor: "pointer",
+                    }}
+                  />
+                ))}
+              </Pie>
+              <Tooltip
+                content={({ active, payload }) => {
+                  if (!active || !payload?.length) return null
+                  const entry = payload[0]
+                  const value = entry.value as number
+                  return (
+                    <div
+                      style={{
+                        backgroundColor: "#1E1E1E",
+                        borderRadius: "8px",
+                        padding: "8px 14px",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px",
+                        boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                      }}
+                    >
+                      <span
+                        style={{
+                          width: "10px",
+                          height: "10px",
+                          borderRadius: "50%",
+                          backgroundColor: entry.payload?.color || entry.payload?.fill,
+                          flexShrink: 0,
+                        }}
+                      />
+                      <span style={{ color: "#fff", fontSize: "13px", fontWeight: 500 }}>
+                        {entry.name}: {value.toLocaleString()}
+                      </span>
+                    </div>
+                  )
+                }}
+              />
+            </PieChart>
+          </ResponsiveContainer>
         </div>
 
         <div className="flex-1">

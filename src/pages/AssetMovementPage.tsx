@@ -4,8 +4,6 @@ import { type ColumnDef } from "@tanstack/react-table"
 import { Plus, Search, SlidersHorizontal } from "lucide-react"
 
 import {
-  PageLayout,
-  Sidebar,
   TopBar,
   PageHeader,
   DataTable,
@@ -13,9 +11,6 @@ import {
   Pagination,
   GenericFilterPopover,
   getActiveFilterCount,
-  type SidebarSection,
-  type SidebarUser,
-  type SidebarItem,
   type FilterSection,
   type GenericFilterState,
 } from "@/components/max"
@@ -74,202 +69,6 @@ export interface MovementLogRecord {
   referenceSource: string
 }
 
-const sidebarSections: SidebarSection[] = [
-  {
-    id: "home",
-    label: "Home",
-    items: [
-      {
-        id: "dashboard",
-        label: "Dashboard",
-        icon: "/images/dashboard_menu.svg",
-        href: "/dashboard",
-      },
-    ],
-  },
-  {
-    id: "operations",
-    label: "Operations",
-    items: [
-      {
-        id: "fleet-register",
-        label: "Fleet Register",
-        icon: "/images/fleet_menu.svg",
-        badge: "24K",
-        href: "/fleet-register",
-      },
-      {
-        id: "asset-movement",
-        label: "Asset Movement",
-        icon: "/images/fleet_menu.svg",
-        href: "/asset-movement",
-        isActive: true,
-      },
-    ],
-  },
-  {
-    id: "deployment",
-    label: "Deployment",
-    items: [
-      {
-        id: "growth-activation",
-        label: "Growth & Activation",
-        icon: "/images/agent_menu.svg",
-        children: [
-          {
-            id: "activation-dashboard",
-            label: "Activation Dashboard",
-          },
-          {
-            id: "mcp-management",
-            label: "MCP Management",
-          },
-          {
-            id: "chairman-dashboard",
-            label: "Chairman Dashboard",
-            badge: "Soon",
-            badgeVariant: "coming-soon",
-          },
-        ],
-      },
-      {
-        id: "inbound",
-        label: "Inbound",
-        icon: "/images/fleet_menu.svg",
-      },
-    ],
-  },
-  {
-    id: "lifecycle",
-    label: "Lifecycle",
-    items: [
-      {
-        id: "refurbishment",
-        label: "Refurbishment",
-        icon: "/images/config_menu.svg",
-      },
-      {
-        id: "maintenance",
-        label: "Maintenance",
-        icon: "/images/config_menu.svg",
-        children: [
-          {
-            id: "service-schedule",
-            label: "Service Schedule",
-          },
-          {
-            id: "predictive-lab",
-            label: "Predictive Lab",
-            badge: "Soon",
-            badgeVariant: "coming-soon",
-          },
-        ],
-      },
-      {
-        id: "disposal-auction",
-        label: "Disposal & Auction",
-        icon: "/images/config_menu.svg",
-        children: [
-          {
-            id: "disposal-management",
-            label: "Disposal Management",
-          },
-          {
-            id: "conversion-request",
-            label: "Conversion Request",
-          },
-          {
-            id: "auction",
-            label: "Auction",
-            badge: "Soon",
-            badgeVariant: "coming-soon",
-          },
-          {
-            id: "scrap-management",
-            label: "Scrap Management",
-          },
-          {
-            id: "closed-assets",
-            label: "Closed Assets",
-          },
-        ],
-      },
-    ],
-  },
-  {
-    id: "fleet-intelligence",
-    label: "Fleet Intelligence",
-    items: [
-      {
-        id: "fleet-performance",
-        label: "Fleet Performance",
-        icon: "/images/dashboard_menu.svg",
-        badge: "Soon",
-        badgeVariant: "coming-soon",
-      },
-      {
-        id: "driver-safety",
-        label: "Driver Safety",
-        icon: "/images/dashboard_menu.svg",
-        badge: "Soon",
-        badgeVariant: "coming-soon",
-      },
-      {
-        id: "asset-health",
-        label: "Asset Health",
-        icon: "/images/dashboard_menu.svg",
-        badge: "Soon",
-        badgeVariant: "coming-soon",
-      },
-      {
-        id: "revenue-analytics",
-        label: "Revenue Analytics",
-        icon: "/images/dashboard_menu.svg",
-        badge: "Soon",
-        badgeVariant: "coming-soon",
-      },
-    ],
-  },
-  {
-    id: "control",
-    label: "Control",
-    items: [
-      {
-        id: "asset-assessment-engine",
-        label: "Asset Assessment Engine",
-        icon: "/images/issues_menu.svg",
-        badge: "Soon",
-        badgeVariant: "coming-soon",
-      },
-      {
-        id: "compliance",
-        label: "Compliance",
-        icon: "/images/issues_menu.svg",
-        badge: "Soon",
-        badgeVariant: "coming-soon",
-      },
-      {
-        id: "vendor-management",
-        label: "Vendor Management",
-        icon: "/images/issues_menu.svg",
-        badge: "Soon",
-        badgeVariant: "coming-soon",
-      },
-      {
-        id: "governance",
-        label: "Governance",
-        icon: "/images/issues_menu.svg",
-        badge: "Soon",
-        badgeVariant: "coming-soon",
-      },
-    ],
-  },
-]
-
-const sidebarUser: SidebarUser = {
-  name: "Desmond Nsogbuwa",
-  role: "Fleet Manager",
-}
 
 const COLOR_BRAND_PRIMARY = "#FCDD00"
 const COLOR_BADGE_ACTIVE = "#008356"
@@ -1090,21 +889,7 @@ export default function AssetMovementPage() {
   }
 
   return (
-    <PageLayout
-      sidebar={({ isCollapsed, onToggleCollapse }) => (
-        <Sidebar
-          sections={sidebarSections}
-          user={sidebarUser}
-          onItemClick={(item: SidebarItem) => {
-            if (item.href) {
-              navigate(item.href)
-            }
-          }}
-          isCollapsed={isCollapsed}
-          onToggleCollapse={onToggleCollapse}
-        />
-      )}
-    >
+    <>
       <TopBar
         breadcrumbs={[{ label: "Operations" }, { label: "Asset Movement" }]}
       />
@@ -1158,7 +943,7 @@ export default function AssetMovementPage() {
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
-                      className="h-9 gap-2 bg-gray-100 text-foreground hover:bg-gray-200"
+                      className="h-9 gap-2"
                     >
                       <SlidersHorizontal className="h-4 w-4" />
                       <span className="text-sm">Filter</span>
@@ -1210,7 +995,6 @@ export default function AssetMovementPage() {
                   <Button
                     variant="outline"
                     size="icon"
-                    className="h-9 w-9 bg-gray-100 hover:bg-gray-200"
                     onClick={() => setSearchOpen(true)}
                   >
                     <Search className="h-4 w-4 text-muted-foreground" />
@@ -1220,9 +1004,8 @@ export default function AssetMovementPage() {
               
               <Button
                 onClick={handleNewCheckIn}
-                className="h-9 bg-brand-dark hover:bg-brand-dark/90"
               >
-                <Plus className="h-4 w-4 mr-2" />
+                <Plus className="h-4 w-4" />
                 New Check-In
               </Button>
             </div>
@@ -1264,6 +1047,30 @@ export default function AssetMovementPage() {
           <div className="mt-4 flex-1 flex flex-col min-h-0 rounded-t-[14px] rounded-b-[4px] border border-table-border">
             <div className="flex flex-wrap items-center justify-between gap-3 px-2 py-2 shrink-0">
               <div className="flex items-center gap-2">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="h-9 gap-2"
+                    >
+                      <SlidersHorizontal className="h-4 w-4" />
+                      <span className="text-sm">Filter</span>
+                      {checkoutActiveFilterCount > 0 && (
+                        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-brand-dark text-xs text-white">
+                          {checkoutActiveFilterCount}
+                        </span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-2" align="start">
+                    <GenericFilterPopover
+                      sections={checkoutFilterSections}
+                      filters={checkoutFilters}
+                      onFiltersChange={setCheckoutFilters}
+                    />
+                  </PopoverContent>
+                </Popover>
+
                 {checkoutSearchOpen ? (
                   <div className="flex items-center gap-1">
                     <Input
@@ -1296,43 +1103,17 @@ export default function AssetMovementPage() {
                   <Button
                     variant="outline"
                     size="icon"
-                    className="h-9 w-9 bg-gray-100 hover:bg-gray-200"
                     onClick={() => setCheckoutSearchOpen(true)}
                   >
                     <Search className="h-4 w-4 text-muted-foreground" />
                   </Button>
                 )}
-                
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="h-9 gap-2 bg-gray-100 text-foreground hover:bg-gray-200"
-                    >
-                      <SlidersHorizontal className="h-4 w-4" />
-                      <span className="text-sm">Filter</span>
-                      {checkoutActiveFilterCount > 0 && (
-                        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-brand-dark text-xs text-white">
-                          {checkoutActiveFilterCount}
-                        </span>
-                      )}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-2" align="start">
-                    <GenericFilterPopover
-                      sections={checkoutFilterSections}
-                      filters={checkoutFilters}
-                      onFiltersChange={setCheckoutFilters}
-                    />
-                  </PopoverContent>
-                </Popover>
               </div>
               
               <Button
                 onClick={handleNewCheckout}
-                className="h-9 bg-brand-dark hover:bg-brand-dark/90"
               >
-                <Plus className="h-4 w-4 mr-2" />
+                <Plus className="h-4 w-4" />
                 New Check-Out
               </Button>
             </div>
@@ -1363,6 +1144,30 @@ export default function AssetMovementPage() {
           <div className="flex-1 flex flex-col min-h-0 rounded-t-[14px] rounded-b-[4px] border border-table-border">
             <div className="flex flex-wrap items-center justify-between gap-3 px-2 py-2 shrink-0">
               <div className="flex items-center gap-2">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="h-9 gap-2"
+                    >
+                      <SlidersHorizontal className="h-4 w-4" />
+                      <span className="text-sm">Filter</span>
+                      {movementLogActiveFilterCount > 0 && (
+                        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-brand-dark text-xs text-white">
+                          {movementLogActiveFilterCount}
+                        </span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-2" align="start">
+                    <GenericFilterPopover
+                      sections={movementLogFilterSections}
+                      filters={movementLogFilters}
+                      onFiltersChange={setMovementLogFilters}
+                    />
+                  </PopoverContent>
+                </Popover>
+
                 {movementLogSearchOpen ? (
                   <div className="flex items-center gap-1">
                     <Input
@@ -1395,36 +1200,11 @@ export default function AssetMovementPage() {
                   <Button
                     variant="outline"
                     size="icon"
-                    className="h-9 w-9 bg-gray-100 hover:bg-gray-200"
                     onClick={() => setMovementLogSearchOpen(true)}
                   >
                     <Search className="h-4 w-4 text-muted-foreground" />
                   </Button>
                 )}
-                
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="h-9 gap-2 bg-gray-100 text-foreground hover:bg-gray-200"
-                    >
-                      <SlidersHorizontal className="h-4 w-4" />
-                      <span className="text-sm">Filter</span>
-                      {movementLogActiveFilterCount > 0 && (
-                        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-brand-dark text-xs text-white">
-                          {movementLogActiveFilterCount}
-                        </span>
-                      )}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-2" align="start">
-                    <GenericFilterPopover
-                      sections={movementLogFilterSections}
-                      filters={movementLogFilters}
-                      onFiltersChange={setMovementLogFilters}
-                    />
-                  </PopoverContent>
-                </Popover>
               </div>
             </div>
 
@@ -1450,6 +1230,6 @@ export default function AssetMovementPage() {
           </div>
         </TabsContent>
       </Tabs>
-    </PageLayout>
+    </>
   )
 }

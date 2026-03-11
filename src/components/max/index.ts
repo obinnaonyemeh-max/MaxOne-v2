@@ -1,4 +1,5 @@
 export { PageLayout } from "./PageLayout"
+export { AppLayout } from "./AppLayout"
 export { Sidebar, type SidebarItem, type SidebarSection, type SidebarUser } from "./Sidebar"
 export { TopBar, type Breadcrumb } from "./TopBar"
 export { PageHeader } from "./PageHeader"

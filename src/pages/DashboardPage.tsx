@@ -1,12 +1,7 @@
 import { useNavigate } from "react-router-dom"
 import {
-  PageLayout,
-  Sidebar,
   TopBar,
   PageHeader,
-  type SidebarSection,
-  type SidebarUser,
-  type SidebarItem,
 } from "@/components/max"
 import { StatCard } from "@/components/max/StatCard"
 import { LifecycleFlowCard, type LifecycleStage } from "@/components/max/LifecycleFlowCard"
@@ -14,202 +9,6 @@ import { FleetDistributionCard, type RegionDistribution } from "@/components/max
 import { ActivationQueueCard, type ActivationQueueItem } from "@/components/max/ActivationQueueCard"
 import { HorizontalBarChart, type BarChartSeries } from "@/components/max/HorizontalBarChart"
 
-const sidebarSections: SidebarSection[] = [
-  {
-    id: "home",
-    label: "Home",
-    items: [
-      {
-        id: "dashboard",
-        label: "Dashboard",
-        icon: "/images/dashboard_menu.svg",
-        href: "/dashboard",
-        isActive: true,
-      },
-    ],
-  },
-  {
-    id: "operations",
-    label: "Operations",
-    items: [
-      {
-        id: "fleet-register",
-        label: "Fleet Register",
-        icon: "/images/fleet_menu.svg",
-        badge: "24K",
-        href: "/fleet-register",
-      },
-      {
-        id: "asset-movement",
-        label: "Asset Movement",
-        icon: "/images/fleet_menu.svg",
-        href: "/asset-movement",
-      },
-    ],
-  },
-  {
-    id: "deployment",
-    label: "Deployment",
-    items: [
-      {
-        id: "growth-activation",
-        label: "Growth & Activation",
-        icon: "/images/agent_menu.svg",
-        children: [
-          {
-            id: "activation-dashboard",
-            label: "Activation Dashboard",
-          },
-          {
-            id: "mcp-management",
-            label: "MCP Management",
-          },
-          {
-            id: "chairman-dashboard",
-            label: "Chairman Dashboard",
-            badge: "Soon",
-            badgeVariant: "coming-soon",
-          },
-        ],
-      },
-      {
-        id: "inbound",
-        label: "Inbound",
-        icon: "/images/fleet_menu.svg",
-      },
-    ],
-  },
-  {
-    id: "lifecycle",
-    label: "Lifecycle",
-    items: [
-      {
-        id: "refurbishment",
-        label: "Refurbishment",
-        icon: "/images/config_menu.svg",
-      },
-      {
-        id: "maintenance",
-        label: "Maintenance",
-        icon: "/images/config_menu.svg",
-        children: [
-          {
-            id: "service-schedule",
-            label: "Service Schedule",
-          },
-          {
-            id: "predictive-lab",
-            label: "Predictive Lab",
-            badge: "Soon",
-            badgeVariant: "coming-soon",
-          },
-        ],
-      },
-      {
-        id: "disposal-auction",
-        label: "Disposal & Auction",
-        icon: "/images/config_menu.svg",
-        children: [
-          {
-            id: "disposal-management",
-            label: "Disposal Management",
-          },
-          {
-            id: "conversion-request",
-            label: "Conversion Request",
-          },
-          {
-            id: "auction",
-            label: "Auction",
-            badge: "Soon",
-            badgeVariant: "coming-soon",
-          },
-          {
-            id: "scrap-management",
-            label: "Scrap Management",
-          },
-          {
-            id: "closed-assets",
-            label: "Closed Assets",
-          },
-        ],
-      },
-    ],
-  },
-  {
-    id: "fleet-intelligence",
-    label: "Fleet Intelligence",
-    items: [
-      {
-        id: "fleet-performance",
-        label: "Fleet Performance",
-        icon: "/images/dashboard_menu.svg",
-        badge: "Soon",
-        badgeVariant: "coming-soon",
-      },
-      {
-        id: "driver-safety",
-        label: "Driver Safety",
-        icon: "/images/dashboard_menu.svg",
-        badge: "Soon",
-        badgeVariant: "coming-soon",
-      },
-      {
-        id: "asset-health",
-        label: "Asset Health",
-        icon: "/images/dashboard_menu.svg",
-        badge: "Soon",
-        badgeVariant: "coming-soon",
-      },
-      {
-        id: "revenue-analytics",
-        label: "Revenue Analytics",
-        icon: "/images/dashboard_menu.svg",
-        badge: "Soon",
-        badgeVariant: "coming-soon",
-      },
-    ],
-  },
-  {
-    id: "control",
-    label: "Control",
-    items: [
-      {
-        id: "asset-assessment-engine",
-        label: "Asset Assessment Engine",
-        icon: "/images/issues_menu.svg",
-        badge: "Soon",
-        badgeVariant: "coming-soon",
-      },
-      {
-        id: "compliance",
-        label: "Compliance",
-        icon: "/images/issues_menu.svg",
-        badge: "Soon",
-        badgeVariant: "coming-soon",
-      },
-      {
-        id: "vendor-management",
-        label: "Vendor Management",
-        icon: "/images/issues_menu.svg",
-        badge: "Soon",
-        badgeVariant: "coming-soon",
-      },
-      {
-        id: "governance",
-        label: "Governance",
-        icon: "/images/issues_menu.svg",
-        badge: "Soon",
-        badgeVariant: "coming-soon",
-      },
-    ],
-  },
-]
-
-const sidebarUser: SidebarUser = {
-  name: "Desmond Nsogbuwa",
-  role: "Fleet Manager",
-}
 
 const COLOR_BRAND_PRIMARY = "#FCDD00"
 const COLOR_BADGE_ACTIVE = "#008356"
@@ -401,24 +200,8 @@ const inactiveFleetSeries: BarChartSeries[] = [
 export default function DashboardPage() {
   const navigate = useNavigate()
 
-  const handleSidebarItemClick = (item: SidebarItem) => {
-    if (item.href) {
-      navigate(item.href)
-    }
-  }
-
   return (
-    <PageLayout
-      sidebar={({ isCollapsed, onToggleCollapse }) => (
-        <Sidebar
-          sections={sidebarSections}
-          user={sidebarUser}
-          onItemClick={handleSidebarItemClick}
-          isCollapsed={isCollapsed}
-          onToggleCollapse={onToggleCollapse}
-        />
-      )}
-    >
+    <>
       <TopBar
         breadcrumbs={[
           { label: "Home" },
@@ -472,6 +255,6 @@ export default function DashboardPage() {
           />
         </div>
       </div>
-    </PageLayout>
+    </>
   )
 }

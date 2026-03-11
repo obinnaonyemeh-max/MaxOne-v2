@@ -9,6 +9,7 @@
      ============================================ */
 
   /* Gray Scale */
+  --color-gray-25: #FDFDFD;
   --color-gray-50: #FAFAFA;
   --color-gray-100: #F3F3F3;
   --color-gray-200: #EAEAEA;
@@ -93,6 +94,8 @@
   --color-status-danger: var(--color-danger);
   --color-status-warning: var(--color-warning);
   --color-status-info: var(--color-info);
+  --color-status-closed: #6F2191;
+  --color-status-outright-sales: #7BB924;
 
   /* Badge */
   --color-badge-active-text: #008356;

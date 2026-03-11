@@ -20,6 +20,7 @@ All colors are defined as CSS custom properties in `src/index.css`.
 
 | Token | Value | Usage |
 |-------|-------|-------|
+| `--color-gray-25` | #FDFDFD | Lightest gray, stat card backgrounds |
 | `--color-gray-50` | #FAFAFA | Very light backgrounds, hover states |
 | `--color-gray-100` | #F3F3F3 | Table headers, content backgrounds |
 | `--color-gray-200` | #EAEAEA | Borders, dividers, sidebar hover |
@@ -47,6 +48,8 @@ All colors are defined as CSS custom properties in `src/index.css`.
 | `--color-warning` | #E88E15 | Warning states |
 | `--color-danger` | #DC2626 | Error/danger states |
 | `--color-info` | #1855FC | Informational states |
+| `--color-status-closed` | #6F2191 | Closed/completed status |
+| `--color-status-outright-sales` | #7BB924 | Outright sales status |
 
 ## Layer 2: Semantic Tokens
 

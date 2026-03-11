@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { type ColumnDef } from "@tanstack/react-table"
-import { Plus, Search, SlidersHorizontal } from "lucide-react"
+import { Search, SlidersHorizontal } from "lucide-react"
 
 import {
   TopBar,
@@ -880,13 +880,6 @@ export default function AssetMovementPage() {
   const [movementLogSearchOpen, setMovementLogSearchOpen] = useState(false)
   const movementLogActiveFilterCount = getActiveFilterCount(movementLogFilters)
 
-  const handleNewCheckIn = () => {
-    console.log("New Check-In clicked")
-  }
-
-  const handleNewCheckout = () => {
-    console.log("New Check-Out clicked")
-  }
 
   return (
     <>
@@ -1001,13 +994,6 @@ export default function AssetMovementPage() {
                   </Button>
                 )}
               </div>
-              
-              <Button
-                onClick={handleNewCheckIn}
-              >
-                <Plus className="h-4 w-4" />
-                New Check-In
-              </Button>
             </div>
 
             <div className="flex-1 overflow-y-auto">
@@ -1109,13 +1095,6 @@ export default function AssetMovementPage() {
                   </Button>
                 )}
               </div>
-              
-              <Button
-                onClick={handleNewCheckout}
-              >
-                <Plus className="h-4 w-4" />
-                New Check-Out
-              </Button>
             </div>
 
             <div className="flex-1 overflow-y-auto">

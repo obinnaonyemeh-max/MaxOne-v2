@@ -4,6 +4,7 @@ import DashboardPage from "@/pages/DashboardPage"
 import VehiclesPage from "@/pages/VehiclesPage"
 import VehicleDetailsPage from "@/pages/VehicleDetailsPage"
 import AssetMovementPage from "@/pages/AssetMovementPage"
+import GrowthActivationPage from "@/pages/GrowthActivationPage"
 
 export default function App() {
   return (
@@ -15,6 +16,7 @@ export default function App() {
         <Route path="/fleet-register/:id" element={<VehicleDetailsPage />} />
         <Route path="/asset-movement" element={<AssetMovementPage />} />
         <Route path="/asset-movement/:id" element={<VehicleDetailsPage />} />
+        <Route path="/growth-activation" element={<GrowthActivationPage />} />
       </Routes>
     </AppLayout>
   )

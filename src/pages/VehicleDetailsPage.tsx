@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { useParams, useNavigate } from "react-router-dom"
+import { useParams, useNavigate, useLocation } from "react-router-dom"
 import { RotateCcw, Pencil } from "lucide-react"
 
 import {
@@ -12,6 +12,7 @@ import {
   AssignmentHistoryCard,
   StatusTimeline,
   BackButton,
+  type SidebarItem,
 } from "@/components/max"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
@@ -21,6 +22,8 @@ import { getVehicleDetails } from "@/data/mockVehicleDetails"
 export default function VehicleDetailsPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const location = useLocation()
+  const isFromAssetMovement = location.pathname.startsWith("/asset-movement")
   const vehicle = getVehicleDetails(id || "1")
   const [assignmentIndex, setAssignmentIndex] = useState(0)
 
@@ -43,7 +46,11 @@ export default function VehicleDetailsPage() {
         <Sidebar
           sections={sidebarSections}
           user={sidebarUser}
-          onItemClick={(item) => console.log("Clicked:", item.label)}
+          onItemClick={(item: SidebarItem) => {
+            if (item.href) {
+              navigate(item.href)
+            }
+          }}
           isCollapsed={isCollapsed}
           onToggleCollapse={onToggleCollapse}
         />
@@ -51,8 +58,11 @@ export default function VehicleDetailsPage() {
     >
       <TopBar
         breadcrumbs={[
-          { label: "Fleet" },
-          { label: "Vehicles", href: "/vehicles" },
+          { label: "Operations" },
+          {
+            label: isFromAssetMovement ? "Asset Movement" : "Fleet Register",
+            href: isFromAssetMovement ? "/asset-movement" : "/fleet-register",
+          },
           { label: vehicle.vehicleStatus },
           { label: vehicle.assetId },
         ]}
@@ -63,7 +73,13 @@ export default function VehicleDetailsPage() {
           <div className="flex items-start justify-between">
             <div>
               <div className="flex items-center gap-2">
-                <BackButton onClick={() => navigate(-1)} />
+                <BackButton
+                  onClick={() =>
+                    isFromAssetMovement
+                      ? navigate("/asset-movement")
+                      : navigate(-1)
+                  }
+                />
                 <h1 className="flex items-end gap-1 font-semibold text-sidebar-item-active" style={{ fontSize: '22px' }}>
                   {vehicle.assetId}
                   <span className="mb-2 h-1.5 w-1.5 rounded-full bg-brand-primary" />

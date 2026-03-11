@@ -1,5 +1,5 @@
-import React, { useState, useRef } from "react"
-import { useNavigate } from "react-router-dom"
+import React, { useState, useRef, useMemo, useEffect } from "react"
+import { useNavigate, useSearchParams } from "react-router-dom"
 import { type ColumnDef } from "@tanstack/react-table"
 import { Plus } from "lucide-react"
 import type { DateRange } from "react-day-picker"
@@ -17,6 +17,7 @@ import {
   Modal,
   type SidebarSection,
   type SidebarUser,
+  type SidebarItem,
   type StatusTab,
   type FilterState,
 } from "@/components/max"
@@ -193,16 +194,18 @@ export const sidebarSections: SidebarSection[] = [
     label: "Operations",
     items: [
       {
-        id: "vehicles",
-        label: "Vehicles",
+        id: "fleet-register",
+        label: "Fleet Register",
         icon: "/images/fleet_menu.svg",
         badge: "24K",
+        href: "/fleet-register",
         isActive: true,
       },
       {
         id: "asset-movement",
         label: "Asset Movement",
         icon: "/images/fleet_menu.svg",
+        href: "/asset-movement",
       },
     ],
   },
@@ -370,14 +373,30 @@ export const sidebarUser: SidebarUser = {
   role: "Fleet Manager",
 }
 
-const statusTabs: StatusTab[] = [
-  { id: "all", label: "All", count: 24340 },
-  { id: "active", label: "Active", count: 15230 },
-  { id: "portfolio-inactive", label: "Portfolio-Inactive", count: 4953 },
-  { id: "inactive", label: "Inactive", count: 2890 },
-  { id: "refurbished", label: "Refurbished", count: 811 },
-  { id: "inbound", label: "Inbound", count: 456 },
-]
+const lifecycleStateToTabId: Record<string, string> = {
+  "Active": "active",
+  "Portfolio - Inactive": "portfolio-inactive",
+  "Inactive": "inactive",
+  "Refurb": "refurbished",
+  "Inbound": "inbound",
+}
+
+const getStatusTabs = (vehicles: Vehicle[]): StatusTab[] => {
+  const counts = vehicles.reduce((acc, vehicle) => {
+    const tabId = lifecycleStateToTabId[vehicle.lifecycleState] || "other"
+    acc[tabId] = (acc[tabId] || 0) + 1
+    return acc
+  }, {} as Record<string, number>)
+
+  return [
+    { id: "all", label: "All", count: vehicles.length },
+    { id: "active", label: "Active", count: counts["active"] || 0 },
+    { id: "portfolio-inactive", label: "Portfolio-Inactive", count: counts["portfolio-inactive"] || 0 },
+    { id: "inactive", label: "Inactive", count: counts["inactive"] || 0 },
+    { id: "refurbished", label: "Refurbished", count: counts["refurbished"] || 0 },
+    { id: "inbound", label: "Inbound", count: counts["inbound"] || 0 },
+  ]
+}
 
 function getVehicleIcon(assetType: string) {
   if (assetType.includes("2")) return "/images/2_wheeler.svg"
@@ -691,7 +710,15 @@ const locations = ["Ikeja", "Lekki", "Victoria Island", "Yaba", "Surulere", "Gba
 
 export default function VehiclesPage() {
   const navigate = useNavigate()
-  const [activeTab, setActiveTab] = useState("all")
+  const [searchParams] = useSearchParams()
+  const tabFromUrl = searchParams.get("tab")
+  const [activeTab, setActiveTab] = useState(tabFromUrl || "all")
+
+  useEffect(() => {
+    if (tabFromUrl) {
+      setActiveTab(tabFromUrl)
+    }
+  }, [tabFromUrl])
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: new Date(2025, 11, 10),
     to: new Date(2026, 9, 11),
@@ -724,6 +751,20 @@ export default function VehiclesPage() {
     rowsWithErrors: 0,
   })
 
+  // Filter vehicles based on active tab
+  const filteredVehicles = useMemo(() => {
+    if (activeTab === "all") {
+      return mockVehicles
+    }
+    return mockVehicles.filter((vehicle) => {
+      const vehicleTabId = lifecycleStateToTabId[vehicle.lifecycleState]
+      return vehicleTabId === activeTab
+    })
+  }, [activeTab])
+
+  // Generate status tabs with dynamic counts
+  const statusTabs = useMemo(() => getStatusTabs(mockVehicles), [])
+
   const handleOpenAddVehicle = () => {
     setAddVehicleStep("options")
     setShowAddVehicleModal(true)
@@ -754,17 +795,21 @@ export default function VehiclesPage() {
         <Sidebar
           sections={sidebarSections}
           user={sidebarUser}
-          onItemClick={(item) => console.log("Clicked:", item.label)}
+          onItemClick={(item: SidebarItem) => {
+            if (item.href) {
+              navigate(item.href)
+            }
+          }}
           isCollapsed={isCollapsed}
           onToggleCollapse={onToggleCollapse}
         />
       )}
     >
       <TopBar
-        breadcrumbs={[{ label: "Fleet" }, { label: "Vehicles" }]}
+        breadcrumbs={[{ label: "Operations" }, { label: "Fleet Register" }]}
       />
       <PageHeader
-        title="Vehicles"
+        title="Fleet Register"
         subtitle="Keep full visibility and control over your vehicle fleet in one place."
         className="shrink-0"
       />
@@ -772,7 +817,10 @@ export default function VehiclesPage() {
       <StatusTabs
         tabs={statusTabs}
         activeTab={activeTab}
-        onTabChange={setActiveTab}
+        onTabChange={(tab) => {
+          setActiveTab(tab)
+          setCurrentPage(1)
+        }}
         className="shrink-0"
       />
 
@@ -799,8 +847,8 @@ export default function VehiclesPage() {
         <div className="flex-1 overflow-y-auto">
           <DataTable
             columns={columns}
-            data={mockVehicles}
-            onRowClick={(row) => navigate(`/vehicles/${row.id}`)}
+            data={filteredVehicles}
+            onRowClick={(row) => navigate(`/fleet-register/${row.id}`)}
           />
         </div>
       </div>
@@ -808,8 +856,8 @@ export default function VehiclesPage() {
       <div className="shrink-0 mx-6 mt-1 mb-6 rounded-t-[4px] rounded-b-[14px] border border-table-border bg-content-card">
         <Pagination
           currentPage={currentPage}
-          totalPages={49}
-          totalItems={20340}
+          totalPages={Math.ceil(filteredVehicles.length / pageSize)}
+          totalItems={filteredVehicles.length}
           pageSize={pageSize}
           onPageChange={setCurrentPage}
           onPageSizeChange={setPageSize}

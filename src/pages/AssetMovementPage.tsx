@@ -943,7 +943,7 @@ export default function AssetMovementPage() {
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
-                      className="h-9 gap-2 bg-gray-100 text-foreground hover:bg-gray-200"
+                      className="h-9 gap-2"
                     >
                       <SlidersHorizontal className="h-4 w-4" />
                       <span className="text-sm">Filter</span>
@@ -995,7 +995,6 @@ export default function AssetMovementPage() {
                   <Button
                     variant="outline"
                     size="icon"
-                    className="h-9 w-9 bg-gray-100 hover:bg-gray-200"
                     onClick={() => setSearchOpen(true)}
                   >
                     <Search className="h-4 w-4 text-muted-foreground" />
@@ -1005,9 +1004,8 @@ export default function AssetMovementPage() {
               
               <Button
                 onClick={handleNewCheckIn}
-                className="h-9 bg-brand-dark hover:bg-brand-dark/90"
               >
-                <Plus className="h-4 w-4 mr-2" />
+                <Plus className="h-4 w-4" />
                 New Check-In
               </Button>
             </div>
@@ -1049,6 +1047,30 @@ export default function AssetMovementPage() {
           <div className="mt-4 flex-1 flex flex-col min-h-0 rounded-t-[14px] rounded-b-[4px] border border-table-border">
             <div className="flex flex-wrap items-center justify-between gap-3 px-2 py-2 shrink-0">
               <div className="flex items-center gap-2">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="h-9 gap-2"
+                    >
+                      <SlidersHorizontal className="h-4 w-4" />
+                      <span className="text-sm">Filter</span>
+                      {checkoutActiveFilterCount > 0 && (
+                        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-brand-dark text-xs text-white">
+                          {checkoutActiveFilterCount}
+                        </span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-2" align="start">
+                    <GenericFilterPopover
+                      sections={checkoutFilterSections}
+                      filters={checkoutFilters}
+                      onFiltersChange={setCheckoutFilters}
+                    />
+                  </PopoverContent>
+                </Popover>
+
                 {checkoutSearchOpen ? (
                   <div className="flex items-center gap-1">
                     <Input
@@ -1081,43 +1103,17 @@ export default function AssetMovementPage() {
                   <Button
                     variant="outline"
                     size="icon"
-                    className="h-9 w-9 bg-gray-100 hover:bg-gray-200"
                     onClick={() => setCheckoutSearchOpen(true)}
                   >
                     <Search className="h-4 w-4 text-muted-foreground" />
                   </Button>
                 )}
-                
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="h-9 gap-2 bg-gray-100 text-foreground hover:bg-gray-200"
-                    >
-                      <SlidersHorizontal className="h-4 w-4" />
-                      <span className="text-sm">Filter</span>
-                      {checkoutActiveFilterCount > 0 && (
-                        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-brand-dark text-xs text-white">
-                          {checkoutActiveFilterCount}
-                        </span>
-                      )}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-2" align="start">
-                    <GenericFilterPopover
-                      sections={checkoutFilterSections}
-                      filters={checkoutFilters}
-                      onFiltersChange={setCheckoutFilters}
-                    />
-                  </PopoverContent>
-                </Popover>
               </div>
               
               <Button
                 onClick={handleNewCheckout}
-                className="h-9 bg-brand-dark hover:bg-brand-dark/90"
               >
-                <Plus className="h-4 w-4 mr-2" />
+                <Plus className="h-4 w-4" />
                 New Check-Out
               </Button>
             </div>
@@ -1148,6 +1144,30 @@ export default function AssetMovementPage() {
           <div className="flex-1 flex flex-col min-h-0 rounded-t-[14px] rounded-b-[4px] border border-table-border">
             <div className="flex flex-wrap items-center justify-between gap-3 px-2 py-2 shrink-0">
               <div className="flex items-center gap-2">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="h-9 gap-2"
+                    >
+                      <SlidersHorizontal className="h-4 w-4" />
+                      <span className="text-sm">Filter</span>
+                      {movementLogActiveFilterCount > 0 && (
+                        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-brand-dark text-xs text-white">
+                          {movementLogActiveFilterCount}
+                        </span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-2" align="start">
+                    <GenericFilterPopover
+                      sections={movementLogFilterSections}
+                      filters={movementLogFilters}
+                      onFiltersChange={setMovementLogFilters}
+                    />
+                  </PopoverContent>
+                </Popover>
+
                 {movementLogSearchOpen ? (
                   <div className="flex items-center gap-1">
                     <Input
@@ -1180,36 +1200,11 @@ export default function AssetMovementPage() {
                   <Button
                     variant="outline"
                     size="icon"
-                    className="h-9 w-9 bg-gray-100 hover:bg-gray-200"
                     onClick={() => setMovementLogSearchOpen(true)}
                   >
                     <Search className="h-4 w-4 text-muted-foreground" />
                   </Button>
                 )}
-                
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="h-9 gap-2 bg-gray-100 text-foreground hover:bg-gray-200"
-                    >
-                      <SlidersHorizontal className="h-4 w-4" />
-                      <span className="text-sm">Filter</span>
-                      {movementLogActiveFilterCount > 0 && (
-                        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-brand-dark text-xs text-white">
-                          {movementLogActiveFilterCount}
-                        </span>
-                      )}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-2" align="start">
-                    <GenericFilterPopover
-                      sections={movementLogFilterSections}
-                      filters={movementLogFilters}
-                      onFiltersChange={setMovementLogFilters}
-                    />
-                  </PopoverContent>
-                </Popover>
               </div>
             </div>
 

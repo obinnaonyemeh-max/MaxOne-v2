@@ -518,10 +518,7 @@ export default function VehiclesPage() {
       setActiveTab(tabFromUrl)
     }
   }, [tabFromUrl])
-  const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: new Date(2025, 11, 10),
-    to: new Date(2026, 9, 11),
-  })
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined)
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(25)
   const [filters, setFilters] = useState<FilterState>({

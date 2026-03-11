@@ -63,6 +63,23 @@ export const sidebarSections: SidebarSection[] = [
         id: "inbound",
         label: "Inbound",
         icon: "/images/inbound_menu.svg",
+        children: [
+          {
+            id: "inbound-dashboard",
+            label: "Dashboard",
+            href: "/inbound/dashboard",
+          },
+          {
+            id: "inbound-stock-setup",
+            label: "Stock Setup",
+            href: "/inbound/stock-setup",
+          },
+          {
+            id: "inbound-batches",
+            label: "Batches",
+            href: "/inbound/batches",
+          },
+        ],
       },
     ],
   },

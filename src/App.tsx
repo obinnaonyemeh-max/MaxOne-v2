@@ -6,6 +6,7 @@ import VehicleDetailsPage from "@/pages/VehicleDetailsPage"
 import AssetMovementPage from "@/pages/AssetMovementPage"
 import GrowthActivationPage from "@/pages/GrowthActivationPage"
 import MCPManagementPage from "@/pages/MCPManagementPage"
+import InboundPage from "@/pages/InboundPage"
 
 export default function App() {
   return (
@@ -19,6 +20,10 @@ export default function App() {
         <Route path="/asset-movement/:id" element={<VehicleDetailsPage />} />
         <Route path="/growth-activation" element={<GrowthActivationPage />} />
         <Route path="/mcp-management" element={<MCPManagementPage />} />
+        <Route path="/inbound" element={<Navigate to="/inbound/dashboard" replace />} />
+        <Route path="/inbound/dashboard" element={<InboundPage />} />
+        <Route path="/inbound/stock-setup" element={<InboundPage />} />
+        <Route path="/inbound/batches" element={<InboundPage />} />
       </Routes>
     </AppLayout>
   )

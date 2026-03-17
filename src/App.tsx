@@ -7,6 +7,7 @@ import AssetMovementPage from "@/pages/AssetMovementPage"
 import GrowthActivationPage from "@/pages/GrowthActivationPage"
 import MCPManagementPage from "@/pages/MCPManagementPage"
 import InboundPage from "@/pages/InboundPage"
+import BatchDetailsPage from "@/pages/BatchDetailsPage"
 
 export default function App() {
   return (
@@ -24,6 +25,7 @@ export default function App() {
         <Route path="/inbound/dashboard" element={<InboundPage />} />
         <Route path="/inbound/stock-setup" element={<InboundPage />} />
         <Route path="/inbound/batches" element={<InboundPage />} />
+        <Route path="/inbound/batches/:id" element={<BatchDetailsPage />} />
       </Routes>
     </AppLayout>
   )

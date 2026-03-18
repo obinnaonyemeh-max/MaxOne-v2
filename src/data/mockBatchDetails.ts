@@ -99,6 +99,26 @@ export const mockBatchDetails: Record<string, BatchDetails> = {
       },
       {
         id: "sh3",
+        date: "Feb 2026",
+        status: "Identifier Upload",
+        statusVariant: "info",
+        description: {
+          template: "VIN and identifier data uploaded for {quantity} units",
+          highlights: {
+            quantity: "20,000",
+          },
+        },
+        actor: {
+          action: "Completed by",
+          name: "Data Team",
+        },
+        duration: {
+          range: "10 Feb - 15 Feb",
+          total: "5 days",
+        },
+      },
+      {
+        id: "sh4",
         date: "Jan 2026",
         status: "In Production",
         statusVariant: "default",
@@ -114,8 +134,8 @@ export const mockBatchDetails: Record<string, BatchDetails> = {
           name: "TailG Factory",
         },
         duration: {
-          range: "5 Jan - 15 Feb",
-          total: "41 days",
+          range: "5 Jan - 10 Feb",
+          total: "36 days",
         },
       },
     ],
@@ -325,6 +345,128 @@ export const mockBatchDetails: Record<string, BatchDetails> = {
           total: "3 days",
         },
       },
+      {
+        id: "sh2",
+        date: "Mar 2026",
+        status: "Warehouse QA",
+        statusVariant: "default",
+        description: {
+          template: "Quality inspection completed for {quantity} units",
+          highlights: {
+            quantity: "400",
+          },
+        },
+        actor: {
+          action: "Completed by",
+          name: "QA Team",
+        },
+        duration: {
+          range: "12 Mar - 15 Mar",
+          total: "3 days",
+        },
+      },
+      {
+        id: "sh3",
+        date: "Mar 2026",
+        status: "Clearing",
+        statusVariant: "warning",
+        description: {
+          template: "Customs clearance completed at {location}",
+          highlights: {
+            location: "Tema Port",
+          },
+        },
+        actor: {
+          action: "Completed by",
+          name: "Clearing Agent",
+        },
+        duration: {
+          range: "8 Mar - 12 Mar",
+          total: "4 days",
+        },
+      },
+      {
+        id: "sh4",
+        date: "Mar 2026",
+        status: "At Port",
+        statusVariant: "warning",
+        description: {
+          template: "Batch arrived at {location}",
+          highlights: {
+            location: "Tema Port",
+          },
+        },
+        actor: {
+          action: "Updated by",
+          name: "Logistics Team",
+        },
+        duration: {
+          range: "5 Mar - 8 Mar",
+          total: "3 days",
+        },
+      },
+      {
+        id: "sh5",
+        date: "Feb 2026",
+        status: "In Transit",
+        statusVariant: "info",
+        description: {
+          template: "Batch shipped from {origin} via {carrier}",
+          highlights: {
+            origin: "Shanghai",
+            carrier: "Maersk Line",
+          },
+        },
+        actor: {
+          action: "Shipped by",
+          name: "TailG Logistics",
+        },
+        duration: {
+          range: "10 Feb - 5 Mar",
+          total: "23 days",
+        },
+      },
+      {
+        id: "sh6",
+        date: "Feb 2026",
+        status: "Identifier Upload",
+        statusVariant: "info",
+        description: {
+          template: "VIN and identifier data uploaded for {quantity} units",
+          highlights: {
+            quantity: "400",
+          },
+        },
+        actor: {
+          action: "Completed by",
+          name: "Data Team",
+        },
+        duration: {
+          range: "5 Feb - 10 Feb",
+          total: "5 days",
+        },
+      },
+      {
+        id: "sh7",
+        date: "Jan 2026",
+        status: "In Production",
+        statusVariant: "default",
+        description: {
+          template: "Production started for {quantity} units of {model}",
+          highlights: {
+            quantity: "400",
+            model: "Jidi",
+          },
+        },
+        actor: {
+          action: "Initiated by",
+          name: "TailG Factory",
+        },
+        duration: {
+          range: "10 Jan - 5 Feb",
+          total: "26 days",
+        },
+      },
     ],
   },
   "5": {
@@ -371,6 +513,27 @@ export const mockBatchDetails: Record<string, BatchDetails> = {
         duration: {
           range: "14 Mar - Current",
           total: "4 days",
+        },
+      },
+      {
+        id: "sh2",
+        date: "Feb 2026",
+        status: "In Production",
+        statusVariant: "default",
+        description: {
+          template: "Production started for {quantity} units of {model}",
+          highlights: {
+            quantity: "1,000",
+            model: "Ekon",
+          },
+        },
+        actor: {
+          action: "Initiated by",
+          name: "Spiro Factory",
+        },
+        duration: {
+          range: "1 Mar - 14 Mar",
+          total: "13 days",
         },
       },
     ],
@@ -513,6 +676,26 @@ export const mockBatchDetails: Record<string, BatchDetails> = {
       },
       {
         id: "sh4",
+        date: "Feb 2026",
+        status: "Identifier Upload",
+        statusVariant: "info",
+        description: {
+          template: "VIN and identifier data uploaded for {quantity} units",
+          highlights: {
+            quantity: "1,500",
+          },
+        },
+        actor: {
+          action: "Completed by",
+          name: "Data Team",
+        },
+        duration: {
+          range: "5 Feb - 10 Feb",
+          total: "5 days",
+        },
+      },
+      {
+        id: "sh5",
         date: "Jan 2026",
         status: "In Production",
         statusVariant: "default",
@@ -528,8 +711,8 @@ export const mockBatchDetails: Record<string, BatchDetails> = {
           name: "TailG Factory",
         },
         duration: {
-          range: "20 Jan - 10 Feb",
-          total: "21 days",
+          range: "20 Jan - 5 Feb",
+          total: "16 days",
         },
       },
     ],
@@ -644,6 +827,26 @@ export const mockBatchDetails: Record<string, BatchDetails> = {
       {
         id: "sh5",
         date: "Jan 2026",
+        status: "Identifier Upload",
+        statusVariant: "info",
+        description: {
+          template: "VIN and identifier data uploaded for {quantity} units",
+          highlights: {
+            quantity: "800",
+          },
+        },
+        actor: {
+          action: "Completed by",
+          name: "Data Team",
+        },
+        duration: {
+          range: "1 Feb - 10 Feb",
+          total: "9 days",
+        },
+      },
+      {
+        id: "sh6",
+        date: "Jan 2026",
         status: "In Production",
         statusVariant: "default",
         description: {
@@ -658,8 +861,8 @@ export const mockBatchDetails: Record<string, BatchDetails> = {
           name: "Spiro Factory",
         },
         duration: {
-          range: "15 Dec - 10 Feb",
-          total: "57 days",
+          range: "15 Dec - 1 Feb",
+          total: "48 days",
         },
       },
     ],

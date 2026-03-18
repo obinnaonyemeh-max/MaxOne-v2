@@ -6,7 +6,7 @@ export interface TimelineEntryData {
   id: string
   date: string
   status: string
-  statusVariant: "success" | "warning" | "info" | "danger"
+  statusVariant: "success" | "warning" | "info" | "danger" | "default"
   description: {
     template: string
     highlights: Record<string, string>

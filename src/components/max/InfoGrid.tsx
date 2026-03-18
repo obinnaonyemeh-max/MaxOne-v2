@@ -1,8 +1,9 @@
+import { type ReactNode } from "react"
 import { cn } from "@/lib/utils"
 
 interface InfoItem {
   label: string
-  value: string | null | undefined
+  value: ReactNode
 }
 
 interface InfoGridProps {

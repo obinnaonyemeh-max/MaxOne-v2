@@ -96,7 +96,7 @@ const manufacturerColumns: ColumnDef<ManufacturerRecord>[] = [
     accessorKey: "status",
     header: "Status",
     cell: ({ row }) => (
-      <StatusBadge variant="success">{row.original.status}</StatusBadge>
+      <StatusBadge variant="success">{row.original.status.charAt(0).toUpperCase() + row.original.status.slice(1)}</StatusBadge>
     ),
   },
   {

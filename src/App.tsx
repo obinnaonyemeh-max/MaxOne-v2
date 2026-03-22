@@ -11,6 +11,11 @@ import BatchDetailsPage from "@/pages/BatchDetailsPage"
 import RefurbishmentPage from "@/pages/RefurbishmentPage"
 import ServiceSchedulePage from "@/pages/ServiceSchedulePage"
 import DisposalManagementPage from "@/pages/DisposalManagementPage"
+import ConversionRequestPage from "@/pages/ConversionRequestPage"
+import ScrapManagementPage from "@/pages/ScrapManagementPage"
+import ScrapDetailPage from "@/pages/ScrapDetailPage"
+import ClosedAssetsPage from "@/pages/ClosedAssetsPage"
+import ClosedAssetDetailPage from "@/pages/ClosedAssetDetailPage"
 
 export default function App() {
   return (
@@ -32,6 +37,11 @@ export default function App() {
         <Route path="/refurbishment" element={<RefurbishmentPage />} />
         <Route path="/service-schedule" element={<ServiceSchedulePage />} />
         <Route path="/disposal-management" element={<DisposalManagementPage />} />
+        <Route path="/conversion-request" element={<ConversionRequestPage />} />
+        <Route path="/scrap-management" element={<ScrapManagementPage />} />
+        <Route path="/scrap-management/:id" element={<ScrapDetailPage />} />
+        <Route path="/closed-assets" element={<ClosedAssetsPage />} />
+        <Route path="/closed-assets/:id" element={<ClosedAssetDetailPage />} />
       </Routes>
     </AppLayout>
   )

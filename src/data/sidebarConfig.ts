@@ -124,6 +124,7 @@ export const sidebarSections: SidebarSection[] = [
           {
             id: "conversion-request",
             label: "Conversion Request",
+            href: "/conversion-request",
           },
           {
             id: "auction",
@@ -134,10 +135,12 @@ export const sidebarSections: SidebarSection[] = [
           {
             id: "scrap-management",
             label: "Scrap Management",
+            href: "/scrap-management",
           },
           {
             id: "closed-assets",
             label: "Closed Assets",
+            href: "/closed-assets",
           },
         ],
       },

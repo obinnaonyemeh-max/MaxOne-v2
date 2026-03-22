@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react"
 import { type ColumnDef } from "@tanstack/react-table"
-import { Search, SlidersHorizontal, Wrench } from "lucide-react"
+import { Search, SlidersHorizontal } from "lucide-react"
 
 import {
   TopBar,
@@ -304,15 +304,6 @@ function FormSection({ title, children }: { title: string; children: React.React
           {title}
         </h3>
       </div>
-      {children}
-    </div>
-  )
-}
-
-function FormField({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="flex flex-col gap-2">
-      <label className="text-gray-400 font-medium" style={{ fontSize: '13px' }}>{label}</label>
       {children}
     </div>
   )

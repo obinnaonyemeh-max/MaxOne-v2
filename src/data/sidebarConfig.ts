@@ -91,6 +91,7 @@ export const sidebarSections: SidebarSection[] = [
         id: "refurbishment",
         label: "Refurbishment",
         icon: "/images/refurbishment_menu.svg",
+        href: "/refurbishment",
       },
       {
         id: "maintenance",
@@ -100,6 +101,7 @@ export const sidebarSections: SidebarSection[] = [
           {
             id: "service-schedule",
             label: "Service Schedule",
+            href: "/service-schedule",
           },
           {
             id: "predictive-lab",
@@ -117,6 +119,7 @@ export const sidebarSections: SidebarSection[] = [
           {
             id: "disposal-management",
             label: "Disposal Management",
+            href: "/disposal-management",
           },
           {
             id: "conversion-request",

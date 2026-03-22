@@ -8,6 +8,9 @@ import GrowthActivationPage from "@/pages/GrowthActivationPage"
 import MCPManagementPage from "@/pages/MCPManagementPage"
 import InboundPage from "@/pages/InboundPage"
 import BatchDetailsPage from "@/pages/BatchDetailsPage"
+import RefurbishmentPage from "@/pages/RefurbishmentPage"
+import ServiceSchedulePage from "@/pages/ServiceSchedulePage"
+import DisposalManagementPage from "@/pages/DisposalManagementPage"
 
 export default function App() {
   return (
@@ -26,6 +29,9 @@ export default function App() {
         <Route path="/inbound/stock-setup" element={<InboundPage />} />
         <Route path="/inbound/batches" element={<InboundPage />} />
         <Route path="/inbound/batches/:id" element={<BatchDetailsPage />} />
+        <Route path="/refurbishment" element={<RefurbishmentPage />} />
+        <Route path="/service-schedule" element={<ServiceSchedulePage />} />
+        <Route path="/disposal-management" element={<DisposalManagementPage />} />
       </Routes>
     </AppLayout>
   )

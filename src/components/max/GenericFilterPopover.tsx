@@ -80,10 +80,17 @@ export function GenericFilterPopover({
   })
 
   const toggleSection = (sectionId: string) => {
-    setExpandedSections((prev) => ({
-      ...prev,
-      [sectionId]: !prev[sectionId],
-    }))
+    setExpandedSections((prev) => {
+      const isCurrentlyExpanded = prev[sectionId]
+      const next: Record<string, boolean> = {}
+      sections.forEach((s) => {
+        next[s.id] = false
+      })
+      if (!isCurrentlyExpanded) {
+        next[sectionId] = true
+      }
+      return next
+    })
   }
 
   const toggleFilter = (sectionId: string, value: string) => {

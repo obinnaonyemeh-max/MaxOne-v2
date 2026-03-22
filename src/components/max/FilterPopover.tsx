@@ -47,7 +47,7 @@ function FilterSection({ title, isExpanded, onToggle, children }: FilterSectionP
       <button
         type="button"
         onClick={onToggle}
-        className="flex items-center justify-between w-full px-2 py-1.5 rounded-md hover:bg-muted transition-colors"
+        className="flex items-center justify-between w-full px-2 py-1.5 rounded-md hover:bg-gray-50 transition-colors"
       >
         <span className="font-medium text-sm text-sidebar-item">{title}</span>
         {isExpanded ? (
@@ -90,10 +90,18 @@ export function FilterPopover({
   })
 
   const toggleSection = (section: string) => {
-    setExpandedSections((prev) => ({
-      ...prev,
-      [section]: !prev[section],
-    }))
+    setExpandedSections((prev) => {
+      const isCurrentlyExpanded = prev[section]
+      const next: Record<string, boolean> = {
+        championStatus: false,
+        contractStatus: false,
+        locations: false,
+      }
+      if (!isCurrentlyExpanded) {
+        next[section] = true
+      }
+      return next
+    })
   }
 
   const toggleChampionStatus = (value: string) => {
@@ -132,7 +140,7 @@ export function FilterPopover({
           {championStatusOptions.map((option) => (
             <div
               key={option.value}
-              className="flex items-center justify-between px-2 py-1.5 rounded-md hover:bg-muted"
+              className="flex items-center justify-between px-2 py-1.5 rounded-md hover:bg-gray-50"
             >
               <div className="flex items-center gap-2">
                 <span
@@ -163,7 +171,7 @@ export function FilterPopover({
           {contractStatusOptions.map((option) => (
             <div
               key={option.value}
-              className="flex items-center justify-between px-2 py-1.5 rounded-md hover:bg-muted"
+              className="flex items-center justify-between px-2 py-1.5 rounded-md hover:bg-gray-50"
             >
               <div className="flex items-center gap-2">
                 <span
@@ -194,7 +202,7 @@ export function FilterPopover({
           {locationOptions.map((location) => (
             <div
               key={location}
-              className="flex items-center justify-between px-2 py-1.5 rounded-md hover:bg-muted"
+              className="flex items-center justify-between px-2 py-1.5 rounded-md hover:bg-gray-50"
             >
               <span className="font-medium text-sm">{location}</span>
               <Switch

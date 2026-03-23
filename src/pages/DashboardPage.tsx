@@ -37,7 +37,7 @@ const dashboardStats = [
     tab: "active",
   },
   {
-    title: "Portfolio-Inactive",
+    title: "Temporarily Inactive",
     value: "1,805",
     subtitle: "4.4% of fleet",
     trend: { value: 2.5, direction: "up" as const },
@@ -104,7 +104,7 @@ const lifecycleStages: LifecycleStage[] = [
     titleVariant: "warning",
   },
   {
-    title: "Portfolio-Inactive",
+    title: "Temporarily Inactive",
     value: "1,240",
     subtitle: "Average of 5 days",
     showSla: true,
@@ -152,7 +152,7 @@ const randomValue = (min: number, max: number) =>
 
 const createDistributionData = () => [
   { label: "Active", value: randomValue(1000, 5000), color: DISTRIBUTION_COLORS.active },
-  { label: "Portfolio-Inactive", value: randomValue(500, 3000), color: DISTRIBUTION_COLORS.portfolioInactive },
+  { label: "Temporarily Inactive", value: randomValue(500, 3000), color: DISTRIBUTION_COLORS.portfolioInactive },
   { label: "Inactive", value: randomValue(300, 2000), color: DISTRIBUTION_COLORS.inactive },
   { label: "Inbound", value: randomValue(200, 1500), color: DISTRIBUTION_COLORS.inbound },
   { label: "HP Complete", value: randomValue(400, 2500), color: DISTRIBUTION_COLORS.hpComplete },
@@ -186,7 +186,7 @@ const activeFleetSeries: BarChartSeries[] = [
 
 const inactiveFleetSeries: BarChartSeries[] = [
   {
-    name: "Portfolio-Inactive",
+    name: "Temporarily Inactive",
     data: [160, 80, 175, 195, 140, 185, 55],
     color: "#E88E15",
   },

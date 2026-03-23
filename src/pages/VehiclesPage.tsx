@@ -43,7 +43,7 @@ export interface Vehicle {
   location: string
   championStatus: "Active" | "Inactive" | null
   contractStatus: "Active" | "Inactive" | null
-  lifecycleState: "Active" | "Portfolio - Inactive" | "Inactive" | "Refurb" | "Inbound"
+  lifecycleState: "Active" | "Temporarily Inactive" | "Inactive" | "Refurb" | "Inbound"
   driverSafetyScore: number | null
   contractRisk: "Low" | "Medium" | "High" | null
   collectionPercent: number | null
@@ -93,7 +93,7 @@ const baseMockVehicles: Vehicle[] = [
     location: "Ikeja",
     championStatus: "Active",
     contractStatus: "Inactive",
-    lifecycleState: "Portfolio - Inactive",
+    lifecycleState: "Temporarily Inactive",
     driverSafetyScore: 55,
     contractRisk: "Medium",
     collectionPercent: 72,
@@ -174,7 +174,7 @@ export const mockVehicles: Vehicle[] = Array.from({ length: 25 }, (_, i) => ({
 
 const lifecycleStateToTabId: Record<string, string> = {
   "Active": "active",
-  "Portfolio - Inactive": "portfolio-inactive",
+  "Temporarily Inactive": "portfolio-inactive",
   "Inactive": "inactive",
   "Refurb": "refurbished",
   "Inbound": "inbound",
@@ -190,7 +190,7 @@ const getStatusTabs = (vehicles: Vehicle[]): StatusTab[] => {
   return [
     { id: "all", label: "All", count: vehicles.length },
     { id: "active", label: "Active", count: counts["active"] || 0 },
-    { id: "portfolio-inactive", label: "Portfolio-Inactive", count: counts["portfolio-inactive"] || 0 },
+    { id: "portfolio-inactive", label: "Temporarily Inactive", count: counts["portfolio-inactive"] || 0 },
     { id: "inactive", label: "Inactive", count: counts["inactive"] || 0 },
     { id: "refurbished", label: "Refurbished", count: counts["refurbished"] || 0 },
     { id: "inbound", label: "Inbound", count: counts["inbound"] || 0 },
@@ -344,7 +344,7 @@ const columns: ColumnDef<Vehicle>[] = [
       const status = row.original.lifecycleState
       const variantMap: Record<string, "success" | "warning" | "neutral" | "refurb" | "info"> = {
         "Active": "success",
-        "Portfolio - Inactive": "warning",
+        "Temporarily Inactive": "warning",
         "Inactive": "neutral",
         "Refurb": "refurb",
         "Inbound": "info",

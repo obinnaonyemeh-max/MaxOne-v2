@@ -6,6 +6,7 @@ import {
   MoreVertical,
   type LucideIcon,
 } from "lucide-react"
+import { AppSwitcher } from "./AppSwitcher"
 
 export interface SidebarItem {
   id: string
@@ -509,6 +510,14 @@ export function Sidebar({ logo, collapsedLogo, sections, user, onItemClick, isCo
             )}
           </>
         )}
+      </div>
+
+      {/* App Switcher */}
+      <div className={cn(
+        "shrink-0 pb-2",
+        isCollapsed ? "px-2 flex justify-center" : "px-3"
+      )}>
+        <AppSwitcher isCollapsed={isCollapsed} />
       </div>
 
       {/* Navigation - scrollable */}

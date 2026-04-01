@@ -37,12 +37,6 @@ export const sidebarSections: SidebarSection[] = [
     label: "Deployment",
     items: [
       {
-        id: "growth-activation",
-        label: "Growth & Activation",
-        icon: "/images/growth_activation_menu.svg",
-        href: "/growth-activation",
-      },
-      {
         id: "inbound",
         label: "Inbound",
         icon: "/images/inbound_menu.svg",

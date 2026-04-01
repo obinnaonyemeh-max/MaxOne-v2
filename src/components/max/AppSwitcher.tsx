@@ -23,6 +23,7 @@ const apps: App[] = [
 
 interface AppSwitcherProps {
   isCollapsed?: boolean
+  onAppChange?: (appId: string) => void
 }
 
 function AppLogo({ app, size = "default" }: { app: App; size?: "default" | "small" }) {
@@ -46,13 +47,14 @@ function AppLogo({ app, size = "default" }: { app: App; size?: "default" | "smal
   )
 }
 
-export function AppSwitcher({ isCollapsed = false }: AppSwitcherProps) {
+export function AppSwitcher({ isCollapsed = false, onAppChange }: AppSwitcherProps) {
   const [selectedApp, setSelectedApp] = useState<App>(apps[0])
   const [open, setOpen] = useState(false)
 
   const handleSelectApp = (app: App) => {
     setSelectedApp(app)
     setOpen(false)
+    onAppChange?.(app.id)
   }
 
   if (isCollapsed) {

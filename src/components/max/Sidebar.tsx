@@ -40,6 +40,7 @@ interface SidebarProps {
   onItemClick?: (item: SidebarItem) => void
   isCollapsed?: boolean
   onToggleCollapse?: () => void
+  onAppChange?: (appId: string) => void
 }
 
 interface SidebarNavItemProps {
@@ -422,7 +423,7 @@ function NavSection({
   )
 }
 
-export function Sidebar({ logo, collapsedLogo, sections, user, onItemClick, isCollapsed = false, onToggleCollapse }: SidebarProps) {
+export function Sidebar({ logo, collapsedLogo, sections, user, onItemClick, isCollapsed = false, onToggleCollapse, onAppChange }: SidebarProps) {
   const getInitialExpandedItemId = () => {
     for (const section of sections) {
       for (const item of section.items) {
@@ -517,7 +518,7 @@ export function Sidebar({ logo, collapsedLogo, sections, user, onItemClick, isCo
         "shrink-0 pb-2",
         isCollapsed ? "px-2 flex justify-center" : "px-3"
       )}>
-        <AppSwitcher isCollapsed={isCollapsed} />
+        <AppSwitcher isCollapsed={isCollapsed} onAppChange={onAppChange} />
       </div>
 
       {/* Navigation - scrollable */}

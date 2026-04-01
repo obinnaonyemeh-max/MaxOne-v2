@@ -40,24 +40,7 @@ export const sidebarSections: SidebarSection[] = [
         id: "growth-activation",
         label: "Growth & Activation",
         icon: "/images/growth_activation_menu.svg",
-        children: [
-          {
-            id: "activation-dashboard",
-            label: "Activation Dashboard",
-            href: "/growth-activation",
-          },
-          {
-            id: "mcp-management",
-            label: "MCP Management",
-            href: "/mcp-management",
-          },
-          {
-            id: "chairman-dashboard",
-            label: "Chairman Dashboard",
-            badge: "Soon",
-            badgeVariant: "coming-soon",
-          },
-        ],
+        href: "/growth-activation",
       },
       {
         id: "inbound",
@@ -209,6 +192,40 @@ export const sidebarSections: SidebarSection[] = [
         id: "governance",
         label: "Governance",
         icon: "/images/governance_menu.svg",
+        badge: "Soon",
+        badgeVariant: "coming-soon",
+      },
+    ],
+  },
+]
+
+export const driverGrowthSidebarSections: SidebarSection[] = [
+  {
+    id: "home",
+    label: "Home",
+    items: [
+      {
+        id: "activation-dashboard",
+        label: "Activation Dashboard",
+        icon: "/images/growth_activation_menu.svg",
+        href: "/growth-activation",
+      },
+    ],
+  },
+  {
+    id: "management",
+    label: "Management",
+    items: [
+      {
+        id: "mcp-management",
+        label: "MCP Management",
+        icon: "/images/fleet_menu.svg",
+        href: "/mcp-management",
+      },
+      {
+        id: "chairman-dashboard",
+        label: "Chairman Dashboard",
+        icon: "/images/dashboard_menu.svg",
         badge: "Soon",
         badgeVariant: "coming-soon",
       },

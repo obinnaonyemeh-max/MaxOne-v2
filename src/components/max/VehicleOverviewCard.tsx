@@ -1,15 +1,17 @@
 import { cn } from "@/lib/utils"
 import { StatusBadge } from "./StatusBadge"
 
+type OverviewStatusVariant = "success" | "warning" | "info" | "danger" | "default" | "refurb"
+
 interface VehicleOverviewProps {
   status: string
-  statusVariant?: "success" | "warning" | "info" | "danger" | "default"
+  statusVariant?: OverviewStatusVariant
   imageUrl: string
   details: {
     label: string
     value: string
     isStatus?: boolean
-    statusVariant?: "success" | "warning" | "info" | "danger" | "default"
+    statusVariant?: OverviewStatusVariant
   }[]
   className?: string
 }

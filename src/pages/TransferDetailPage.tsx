@@ -20,11 +20,11 @@ import {
   type TransferRecord,
 } from "@/data/mockTransferRecords"
 
-type OverviewBadgeVariant = "success" | "warning" | "info" | "danger" | "default"
+type OverviewBadgeVariant = "success" | "warning" | "info" | "danger" | "default" | "refurb"
 
 const overviewBadgeVariantMap: Record<TransferRecord["status"], OverviewBadgeVariant> = {
   "Transfer In Progress":       "warning",
-  "Transfer — Yet to Commence": "info",
+  "Transfer — Yet to Commence": "refurb",
   "Ownership Transferred":      "success",
 }
 

@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { type ColumnDef } from "@tanstack/react-table"
-import { Search, Download, SlidersHorizontal } from "lucide-react"
+import { Search, SlidersHorizontal } from "lucide-react"
 
 import {
   TopBar,
@@ -220,19 +220,13 @@ export default function AllTransferPage() {
     <>
       <TopBar breadcrumbs={[{ label: "Transfer" }, { label: "All Transfer" }]} />
 
-      <div className="flex items-start justify-between px-6 pt-6 pb-2 shrink-0">
-        <div>
-          <h1 className="text-foreground font-semibold" style={{ fontSize: "22px" }}>
-            Ownership Transfer Dashboard
-          </h1>
-          <p className="text-muted-foreground mt-1" style={{ fontSize: "14px" }}>
-            All open vehicle ownership transfers
-          </p>
-        </div>
-        <Button variant="outline" className="gap-2 shrink-0">
-          <Download className="h-4 w-4" />
-          Export
-        </Button>
+      <div className="px-6 pt-6 pb-2 shrink-0">
+        <h1 className="text-foreground font-semibold" style={{ fontSize: "22px" }}>
+          Ownership Transfer Dashboard
+        </h1>
+        <p className="text-muted-foreground mt-1" style={{ fontSize: "14px" }}>
+          All open vehicle ownership transfers
+        </p>
       </div>
 
       <div className="px-6 pb-4 shrink-0">

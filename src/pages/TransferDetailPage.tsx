@@ -14,11 +14,19 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import {
   mockTransferRecords,
   flagVariantMap,
-  statusVariantMap,
   isOwnershipTransferred,
   isReturnedForCorrection,
   isYetToCommence,
+  type TransferRecord,
 } from "@/data/mockTransferRecords"
+
+type OverviewBadgeVariant = "success" | "warning" | "info" | "danger" | "default"
+
+const overviewBadgeVariantMap: Record<TransferRecord["status"], OverviewBadgeVariant> = {
+  "Transfer In Progress":       "warning",
+  "Transfer — Yet to Commence": "info",
+  "Ownership Transferred":      "success",
+}
 
 import { activityLog, checklistItems } from "./transfer-detail/data"
 import { useTransferFlow } from "./transfer-detail/useTransferFlow"
@@ -63,7 +71,7 @@ export default function TransferDetailPage() {
   const showEmptyState = isYetToCommence(record) && !commenced
 
   const displayStatus = commenced ? "Transfer In Progress" : record.status
-  const displayStatusVariant = commenced ? ("warning" as const) : statusVariantMap[record.status]
+  const displayStatusVariant: OverviewBadgeVariant = commenced ? "warning" : overviewBadgeVariantMap[record.status]
 
   const overviewDetails = transferred
     ? [
@@ -225,7 +233,7 @@ export default function TransferDetailPage() {
 }
 
 interface HeaderActionsProps {
-  record: import("@/data/mockTransferRecords").TransferRecord
+  record: TransferRecord
   isInProgressMode: boolean
   transferred: boolean
   canSubmit: boolean

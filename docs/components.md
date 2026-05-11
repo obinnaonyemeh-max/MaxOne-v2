@@ -649,6 +649,163 @@ const [filters, setFilters] = useState<FilterState>({
 
 ---
 
+## Form/Input Components
+
+### TagInput
+
+Multi-value text input where each entry renders as a removable pill. Users add tags by typing and pressing Enter or comma; backspace on an empty input removes the last tag.
+
+**Props**
+
+| Prop | Type | Required | Description |
+|------|------|----------|-------------|
+| `value` | `string[]` | yes | Current list of tags |
+| `onChange` | `(next: string[]) => void` | yes | Called whenever the tag list changes |
+| `placeholder` | `string` | no | Shown only when there are no tags |
+| `className` | `string` | no | Extra classes on the outer container |
+| `disabled` | `boolean` | no | Disables typing and tag removal |
+| `separators` | `string[]` | no | Keys that commit the current draft. Defaults to `[",", "Enter"]`. |
+
+Pasting or typing a comma also commits the draft, so users can paste comma-separated lists in one go.
+
+**Usage**
+
+```tsx
+import { TagInput } from "@/components/max"
+
+const [containers, setContainers] = useState<string[]>([])
+
+<TagInput
+  value={containers}
+  onChange={setContainers}
+  placeholder="Enter container number — separate with comma or Enter"
+/>
+```
+
+**Notes**
+
+- Container, input, and pill styles match the standard `Input` component (same `bg-[#F8F8F8]`, `border-input`, focus ring), so a `TagInput` drops into existing forms without tweaks.
+- Use for any free-form list: container numbers, VINs, emails, tags, etc.
+
+---
+
+## Dialog Components
+
+### ConfirmModal
+
+Centered confirmation dialog for destructive or affirmative actions (delete, archive, publish, etc.). Renders an icon, title, and subtitle stacked centrally, with primary + optional secondary action buttons in the footer.
+
+**Props**
+
+| Prop | Type | Required | Description |
+|------|------|----------|-------------|
+| `open` | `boolean` | yes | Whether the dialog is visible |
+| `onOpenChange` | `(open: boolean) => void` | yes | Called when the dialog requests to open/close |
+| `title` | `string` | yes | Heading shown below the icon (16px semibold, `text-sidebar-item-active`) |
+| `subtitle` | `string` | no | Body copy below the title (13px medium, `text-breadcrumb-root`) |
+| `icon` | `ComponentType<SVGProps<SVGSVGElement>>` | no | Lucide icon component, defaults to `AlertTriangle` |
+| `variant` | `"destructive" \| "default"` | no | `destructive` (default) uses `status-danger` tokens (red icon background + red primary button); `default` uses `status-info` + `brand-dark` |
+| `primaryAction` | `{ label, onClick, disabled? }` | yes | Right-most footer button (Delete / Confirm) |
+| `secondaryAction` | `{ label, onClick, disabled? }` | no | Outline button to its left (typically Cancel) |
+| `className` | `string` | no | Extra classes applied to the `DialogContent`. Defaults to `max-w-sm`. |
+
+**Usage**
+
+```tsx
+import { ConfirmModal } from "@/components/max"
+
+<ConfirmModal
+  open={deleteTarget !== null}
+  onOpenChange={(o) => { if (!o) setDeleteTarget(null) }}
+  variant="destructive"
+  title="Delete Manufacturer"
+  subtitle={`Are you sure you want to delete "${name}"? This action cannot be undone.`}
+  primaryAction={{ label: "Delete", onClick: handleDelete }}
+  secondaryAction={{ label: "Cancel", onClick: () => setDeleteTarget(null) }}
+/>
+```
+
+**Notes**
+
+- Use for binary confirm/cancel decisions only — for forms with inputs, use `Modal` instead
+- Typography matches `Modal` (same title/subtitle styles) so the two read as part of the same family
+- Icon background uses 10% opacity of the same token as the icon color
+
+---
+
+## Feedback Components
+
+### Banner
+
+Contextual notification strip with an icon, bold title, and optional description. Used to surface status messages, approvals, or alerts inline within page content.
+
+#### Import
+
+```tsx
+import { Banner, type BannerProps } from "@/components/max"
+```
+
+#### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `icon` | `ReactNode` | required | Icon element rendered to the left of the text block (use `<img>` for SVG assets or any inline element) |
+| `title` | `string` | required | Bold title text, colored by variant |
+| `description` | `string` | — | Optional body text below the title, rendered in muted color |
+| `variant` | `"info" \| "warning" \| "danger" \| "success"` | `"info"` | Controls background and text color |
+| `className` | `string` | — | Additional classes for the wrapper |
+
+#### Variant Styles
+
+| Variant | Background | Border | Title color | Use case |
+|---------|------------|--------|-------------|----------|
+| `info` | `status-info/8%` | `status-info/20%` | `text-status-info` | Approval requests, informational notices |
+| `warning` | `status-warning/8%` | `status-warning/20%` | `text-status-warning` | Near-SLA warnings, caution states |
+| `danger` | `status-danger/8%` | `status-danger/20%` | `text-status-danger` | SLA breaches, blocking errors |
+| `success` | `status-success/8%` | `status-success/20%` | `text-status-success` | Completion confirmations |
+
+#### Usage
+
+```tsx
+import { Banner } from "@/components/max"
+
+// With an SVG asset icon (tinted to match variant)
+<Banner
+  variant="info"
+  icon={
+    <img
+      src="/images/duration-alt.svg"
+      alt=""
+      className="h-5 w-5 opacity-80"
+      style={{ filter: "invert(21%) sepia(98%) saturate(2000%) hue-rotate(219deg) brightness(90%) contrast(110%)" }}
+    />
+  }
+  title="Awaiting your approval"
+  description="The Documentation Officer has completed all required steps and submitted this record. Review the checklist and document before approving or rejecting."
+/>
+
+// With a Lucide icon
+import { AlertTriangle } from "lucide-react"
+
+<Banner
+  variant="danger"
+  icon={<AlertTriangle className="h-5 w-5 text-status-danger" />}
+  title="3 Vehicles in SLA Breach"
+  description="These vehicles have exceeded their SLA threshold and require immediate action."
+/>
+```
+
+#### Styling Notes
+
+- Layout: `flex items-start gap-4` — icon is top-aligned with the text block
+- Corner radius: `rounded-lg` (8px)
+- Padding: `px-5 py-4`
+- Title: 14px, `font-bold`, variant color
+- Description: 14px, `text-muted-foreground`, `leading-relaxed`
+- The icon slot accepts any `ReactNode` — use `<img>` for SVG assets in `public/images/`, or Lucide icon components
+
+---
+
 ## Color Tokens
 
 The design system uses custom Tailwind color tokens defined in `src/index.css`:

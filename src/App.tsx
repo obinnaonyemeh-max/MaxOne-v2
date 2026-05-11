@@ -16,6 +16,8 @@ import ScrapManagementPage from "@/pages/ScrapManagementPage"
 import ScrapDetailPage from "@/pages/ScrapDetailPage"
 import ClosedAssetsPage from "@/pages/ClosedAssetsPage"
 import ClosedAssetDetailPage from "@/pages/ClosedAssetDetailPage"
+import AllTransferPage from "@/pages/AllTransferPage"
+import TransferDetailPage from "@/pages/TransferDetailPage"
 
 export default function App() {
   return (
@@ -42,6 +44,8 @@ export default function App() {
         <Route path="/scrap-management/:id" element={<ScrapDetailPage />} />
         <Route path="/closed-assets" element={<ClosedAssetsPage />} />
         <Route path="/closed-assets/:id" element={<ClosedAssetDetailPage />} />
+        <Route path="/transfer/all" element={<AllTransferPage />} />
+        <Route path="/transfer/all/:id" element={<TransferDetailPage />} />
       </Routes>
     </AppLayout>
   )

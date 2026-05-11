@@ -124,6 +124,18 @@ export const sidebarSections: SidebarSection[] = [
     ],
   },
   {
+    id: "transfer",
+    label: "Transfer",
+    items: [
+      {
+        id: "all-transfer",
+        label: "All Transfer",
+        icon: "/images/asset_movement_menu.svg",
+        href: "/transfer/all",
+      },
+    ],
+  },
+  {
     id: "fleet-intelligence",
     label: "Fleet Intelligence",
     items: [

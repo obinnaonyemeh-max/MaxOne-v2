@@ -9,7 +9,9 @@ export interface BatchDetails {
     oem: string
     model: string
     trim: string
-    quantity: number
+    quantityOrdered: number
+    quantityReceived: number
+    quantityInTransit: number
     destinationCountry: string
     destinationCity: string
   }
@@ -38,7 +40,9 @@ export const mockBatchDetails: Record<string, BatchDetails> = {
       oem: "TailG",
       model: "Jidi",
       trim: "V1",
-      quantity: 20000,
+      quantityOrdered: 20000,
+      quantityReceived: 5000,
+      quantityInTransit: 7500,
       destinationCountry: "Ghana",
       destinationCity: "Accra",
     },
@@ -149,7 +153,9 @@ export const mockBatchDetails: Record<string, BatchDetails> = {
       oem: "Spiro",
       model: "Ekon",
       trim: "Ekon V2",
-      quantity: 5000,
+      quantityOrdered: 5000,
+      quantityReceived: 1250,
+      quantityInTransit: 1875,
       destinationCountry: "Nigeria",
       destinationCity: "Lagos",
     },
@@ -218,7 +224,9 @@ export const mockBatchDetails: Record<string, BatchDetails> = {
       oem: "King",
       model: "MAX M4",
       trim: "MM4",
-      quantity: 2500,
+      quantityOrdered: 2500,
+      quantityReceived: 625,
+      quantityInTransit: 937,
       destinationCountry: "Nigeria",
       destinationCity: "Lagos",
     },
@@ -308,7 +316,9 @@ export const mockBatchDetails: Record<string, BatchDetails> = {
       oem: "TailG",
       model: "Jidi",
       trim: "V1",
-      quantity: 400,
+      quantityOrdered: 400,
+      quantityReceived: 100,
+      quantityInTransit: 150,
       destinationCountry: "Ghana",
       destinationCity: "Accra",
     },
@@ -478,7 +488,9 @@ export const mockBatchDetails: Record<string, BatchDetails> = {
       oem: "Spiro",
       model: "Ekon",
       trim: "Ekon V2",
-      quantity: 1000,
+      quantityOrdered: 1000,
+      quantityReceived: 250,
+      quantityInTransit: 375,
       destinationCountry: "Nigeria",
       destinationCity: "Lagos",
     },
@@ -547,7 +559,9 @@ export const mockBatchDetails: Record<string, BatchDetails> = {
       oem: "King",
       model: "MAX M4",
       trim: "MM4",
-      quantity: 3000,
+      quantityOrdered: 3000,
+      quantityReceived: 750,
+      quantityInTransit: 1125,
       destinationCountry: "Nigeria",
       destinationCity: "Lagos",
     },
@@ -596,7 +610,9 @@ export const mockBatchDetails: Record<string, BatchDetails> = {
       oem: "TailG",
       model: "Jidi",
       trim: "V1",
-      quantity: 1500,
+      quantityOrdered: 1500,
+      quantityReceived: 375,
+      quantityInTransit: 562,
       destinationCountry: "Ghana",
       destinationCity: "Accra",
     },
@@ -726,7 +742,9 @@ export const mockBatchDetails: Record<string, BatchDetails> = {
       oem: "Spiro",
       model: "Ekon",
       trim: "Ekon V2",
-      quantity: 800,
+      quantityOrdered: 800,
+      quantityReceived: 200,
+      quantityInTransit: 300,
       destinationCountry: "Nigeria",
       destinationCity: "Lagos",
     },

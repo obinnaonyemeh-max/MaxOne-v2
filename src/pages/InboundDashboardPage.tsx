@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { useNavigate } from "react-router-dom"
 import { type ColumnDef } from "@tanstack/react-table"
 import { Search, SlidersHorizontal } from "lucide-react"
 
@@ -165,6 +166,7 @@ const columns: ColumnDef<InboundBatchRecord>[] = [
 ]
 
 export default function InboundDashboardPage() {
+  const navigate = useNavigate()
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(25)
   const [filters, setFilters] = useState<GenericFilterState>(defaultInboundFilters)
@@ -251,7 +253,7 @@ export default function InboundDashboardPage() {
         </div>
 
         <div className="flex-1 overflow-y-auto">
-          <DataTable columns={columns} data={mockInboundBatches} />
+          <DataTable columns={columns} data={mockInboundBatches} onRowClick={(row) => navigate(`/inbound/batches/${row.id}`)} />
         </div>
       </div>
 

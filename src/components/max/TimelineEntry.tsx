@@ -97,7 +97,7 @@ export function TimelineEntry({ entry, className }: TimelineEntryProps) {
         <span className="text-breadcrumb-root">•</span>
         <Clock className="h-3 w-3 text-breadcrumb-root" />
         <span className="font-medium text-breadcrumb-root">
-          {entry.duration.range} ({entry.duration.total})
+          {entry.duration.range}{entry.duration.total ? ` (${entry.duration.total})` : ""}
         </span>
       </div>
     </div>

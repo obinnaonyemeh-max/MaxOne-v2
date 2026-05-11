@@ -13,6 +13,7 @@ import {
   getActiveFilterCount,
   type FilterSection,
   type GenericFilterState,
+  Banner,
 } from "@/components/max"
 import { StatCard } from "@/components/max/StatCard"
 import { Button } from "@/components/ui/button"
@@ -268,17 +269,15 @@ export default function ScrapManagementPage() {
         <button
           type="button"
           onClick={() => setBreachFilter(!breachFilter)}
-          className={`mt-3 shrink-0 flex items-center gap-3 w-full rounded-lg border px-4 py-3 text-left transition-colors ${
-            breachFilter
-              ? "border-danger bg-danger/5"
-              : "border-danger/30 bg-danger/5 hover:border-danger"
-          }`}
+          className="mt-3 shrink-0 w-full text-left transition-opacity hover:opacity-90"
         >
-          <AlertTriangle className="h-5 w-5 text-danger shrink-0" />
-          <div>
-            <p className="font-semibold text-sm text-foreground">{breachCount} Vehicles in SLA Breach</p>
-            <p className="text-xs text-muted-foreground">Click to filter breached vehicles</p>
-          </div>
+          <Banner
+            variant="danger"
+            icon={<AlertTriangle className="h-5 w-5 text-status-danger" />}
+            title={`${breachCount} Vehicles in SLA Breach`}
+            description="Click to filter breached vehicles"
+            className={breachFilter ? "border-status-danger" : ""}
+          />
         </button>
 
         <div className="mt-4 flex-1 flex flex-col min-h-0 rounded-t-[14px] rounded-b-[4px] border border-table-border">

@@ -11,6 +11,7 @@ import {
   GenericFilterPopover,
   getActiveFilterCount,
   Modal,
+  TagInput,
   type FilterSection,
   type GenericFilterState,
 } from "@/components/max"
@@ -178,6 +179,7 @@ export default function BatchesPage() {
   const [batchSearchOpen, setBatchSearchOpen] = useState(false)
   const [showCreateBatch, setShowCreateBatch] = useState(false)
   const [expectedDeliveryDate, setExpectedDeliveryDate] = useState<Date | undefined>(undefined)
+  const [containerNumbers, setContainerNumbers] = useState<string[]>([])
   const batchFilterCount = getActiveFilterCount(batchFilters)
 
   return (
@@ -404,7 +406,12 @@ export default function BatchesPage() {
             <div className="grid grid-cols-2 gap-4">
               <div className="flex flex-col gap-2">
                 <label className="text-gray-400 font-medium" style={{ fontSize: '13px' }}>Container Number</label>
-                <Input placeholder="Enter container number" className="h-12 bg-[#F8F8F8]" />
+                <TagInput
+                  value={containerNumbers}
+                  onChange={setContainerNumbers}
+                  placeholder="Enter container number"
+                />
+                <span className="text-status-danger" style={{ fontSize: '11px' }}>* Separate multiple container numbers with a comma.</span>
               </div>
               <div className="flex flex-col gap-2">
                 <label className="text-gray-400 font-medium" style={{ fontSize: '13px' }}>Shipping Line</label>

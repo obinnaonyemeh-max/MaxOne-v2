@@ -9,6 +9,7 @@ export interface BannerProps {
   title: string
   description?: ReactNode
   variant?: BannerVariant
+  action?: ReactNode
   className?: string
 }
 
@@ -38,18 +39,19 @@ const variantStyles: Record<
   },
 }
 
-export function Banner({ icon, title, description, variant = "info", className }: BannerProps) {
+export function Banner({ icon, title, description, variant = "info", action, className }: BannerProps) {
   const styles = variantStyles[variant]
 
   return (
-    <div className={cn("rounded-lg border px-5 py-4 flex items-start gap-4", styles.wrapper, className)}>
-      <span className="shrink-0 mt-0.5">{icon ?? styles.defaultIcon}</span>
-      <div>
+    <div className={cn("rounded-lg border px-5 py-4 flex items-center gap-4", styles.wrapper, className)}>
+      <span className="shrink-0">{icon ?? styles.defaultIcon}</span>
+      <div className="flex-1">
         <p className={cn("font-bold text-sm", styles.title)}>{title}</p>
         {description && (
           <p className="text-sm text-muted-foreground mt-1 leading-relaxed">{description}</p>
         )}
       </div>
+      {action && <div className="shrink-0">{action}</div>}
     </div>
   )
 }

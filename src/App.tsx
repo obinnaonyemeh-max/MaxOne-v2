@@ -18,6 +18,7 @@ import ClosedAssetsPage from "@/pages/ClosedAssetsPage"
 import ClosedAssetDetailPage from "@/pages/ClosedAssetDetailPage"
 import AllTransferPage from "@/pages/AllTransferPage"
 import TransferDetailPage from "@/pages/TransferDetailPage"
+import ActivationReadinessPage from "@/pages/ActivationReadinessPage"
 
 export default function App() {
   return (
@@ -46,6 +47,7 @@ export default function App() {
         <Route path="/closed-assets/:id" element={<ClosedAssetDetailPage />} />
         <Route path="/transfer/all" element={<AllTransferPage />} />
         <Route path="/transfer/all/:id" element={<TransferDetailPage />} />
+        <Route path="/activation/readiness" element={<ActivationReadinessPage />} />
       </Routes>
     </AppLayout>
   )

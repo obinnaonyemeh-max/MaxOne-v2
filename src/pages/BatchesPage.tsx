@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { type ColumnDef } from "@tanstack/react-table"
-import { Search, SlidersHorizontal, Plus, Calendar as CalendarIcon } from "lucide-react"
+import { Search, SlidersHorizontal, Plus, Calendar as CalendarIcon, Info } from "lucide-react"
 import { format } from "date-fns"
 
 import {
@@ -411,7 +411,10 @@ export default function BatchesPage() {
                   onChange={setContainerNumbers}
                   placeholder="Enter container number"
                 />
-                <span className="text-status-danger" style={{ fontSize: '11px' }}>* Separate multiple container numbers with a comma.</span>
+                <span className="flex items-center gap-1 text-gray-950" style={{ fontSize: '11px' }}>
+                  <Info className="h-3 w-3 shrink-0" />
+                  Separate multiple container numbers with a comma.
+                </span>
               </div>
               <div className="flex flex-col gap-2">
                 <label className="text-gray-400 font-medium" style={{ fontSize: '13px' }}>Shipping Line</label>

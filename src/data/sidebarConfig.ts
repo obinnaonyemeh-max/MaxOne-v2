@@ -125,13 +125,25 @@ export const sidebarSections: SidebarSection[] = [
   },
   {
     id: "transfer",
-    label: "Transfer",
+    label: "Ownership Transfer",
     items: [
       {
         id: "all-transfer",
         label: "All Transfer",
         icon: "/images/asset_movement_menu.svg",
         href: "/transfer/all",
+      },
+    ],
+  },
+  {
+    id: "activation",
+    label: "Activation",
+    items: [
+      {
+        id: "activation-readiness",
+        label: "Activation Readiness",
+        icon: "/images/memo_circle_check_menu.svg",
+        href: "/activation/readiness",
       },
     ],
   },

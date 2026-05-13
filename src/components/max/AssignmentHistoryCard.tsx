@@ -7,7 +7,7 @@ interface AssignmentRecord {
   duration: string
   assigneeName: string
   assigneeAvatar?: string
-  status: "Active" | "Inactive"
+  status: "Active" | "Inactive" | "HP Complete"
   isCurrent: boolean
 }
 
@@ -16,6 +16,8 @@ interface AssignmentHistoryCardProps {
   currentIndex: number
   onPrevious: () => void
   onNext: () => void
+  title?: string
+  showNavigation?: boolean
   className?: string
 }
 
@@ -24,6 +26,8 @@ export function AssignmentHistoryCard({
   currentIndex,
   onPrevious,
   onNext,
+  title = "Assignment History",
+  showNavigation = true,
   className,
 }: AssignmentHistoryCardProps) {
   const currentAssignment = assignments[currentIndex]
@@ -33,38 +37,41 @@ export function AssignmentHistoryCard({
   if (!currentAssignment) {
     return (
       <div className={cn("bg-content-card p-5 rounded-lg border border-border", className)}>
-        <h3 className="text-base font-medium text-sidebar-item-active">
-          Assignment History
-        </h3>
+        <h3 className="text-base font-medium text-sidebar-item-active">{title}</h3>
         <p className="mt-4 text-sm font-medium text-breadcrumb-root">No assignment history available</p>
       </div>
     )
   }
 
-  const statusDotColor = currentAssignment.status === "Active" ? "bg-badge-active-text" : "bg-status-warning"
+  const statusDotColor =
+    currentAssignment.status === "Active"
+      ? "bg-badge-active-text"
+      : currentAssignment.status === "HP Complete"
+      ? "bg-status-info"
+      : "bg-status-warning"
 
   return (
     <div className={cn("bg-content-card p-5 rounded-lg border border-border", className)}>
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-base font-medium text-sidebar-item-active">
-          Assignment History
-        </h3>
-        <div className="flex items-center gap-0.5">
-          <button
-            onClick={onPrevious}
-            disabled={!hasPrevious}
-            className="p-1.5 bg-gray-50 border border-border rounded-l-lg rounded-r transition-colors disabled:cursor-not-allowed disabled:bg-white disabled:border-gray-100 hover:not-disabled:bg-border"
-          >
-            <ChevronLeft className={cn("h-4 w-4 text-sidebar-item", !hasPrevious && "opacity-30")} />
-          </button>
-          <button
-            onClick={onNext}
-            disabled={!hasNext}
-            className="p-1.5 bg-gray-50 border border-border rounded-l rounded-r-lg transition-colors disabled:cursor-not-allowed disabled:bg-white disabled:border-gray-100 hover:not-disabled:bg-border"
-          >
-            <ChevronRight className={cn("h-4 w-4 text-sidebar-item", !hasNext && "opacity-30")} />
-          </button>
-        </div>
+        <h3 className="text-base font-medium text-sidebar-item-active">{title}</h3>
+        {showNavigation && (
+          <div className="flex items-center gap-0.5">
+            <button
+              onClick={onPrevious}
+              disabled={!hasPrevious}
+              className="p-1.5 bg-gray-50 border border-border rounded-l-lg rounded-r transition-colors disabled:cursor-not-allowed disabled:bg-white disabled:border-gray-100 hover:not-disabled:bg-border"
+            >
+              <ChevronLeft className={cn("h-4 w-4 text-sidebar-item", !hasPrevious && "opacity-30")} />
+            </button>
+            <button
+              onClick={onNext}
+              disabled={!hasNext}
+              className="p-1.5 bg-gray-50 border border-border rounded-l rounded-r-lg transition-colors disabled:cursor-not-allowed disabled:bg-white disabled:border-gray-100 hover:not-disabled:bg-border"
+            >
+              <ChevronRight className={cn("h-4 w-4 text-sidebar-item", !hasNext && "opacity-30")} />
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="bg-gray-50 border border-gray-100 rounded p-3">
@@ -85,8 +92,8 @@ export function AssignmentHistoryCard({
               style={{ width: '44px', height: '44px', minWidth: '44px', minHeight: '44px' }}
             />
           ) : (
-            <div 
-              className="shrink-0 rounded-full bg-gray-200 flex items-center justify-center" 
+            <div
+              className="shrink-0 rounded-full bg-gray-200 flex items-center justify-center"
               style={{ width: '44px', height: '44px', minWidth: '44px', minHeight: '44px' }}
             >
               <span className="text-sm font-medium text-sidebar-item">
@@ -100,7 +107,13 @@ export function AssignmentHistoryCard({
             </p>
             <div className="flex items-center gap-2 mt-1">
               <StatusBadge
-                variant={currentAssignment.status === "Active" ? "success" : "warning"}
+                variant={
+                  currentAssignment.status === "Active"
+                    ? "success"
+                    : currentAssignment.status === "HP Complete"
+                    ? "info"
+                    : "warning"
+                }
                 withDot
                 size="sm"
               >

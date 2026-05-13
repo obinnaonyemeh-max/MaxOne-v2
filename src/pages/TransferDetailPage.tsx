@@ -33,6 +33,7 @@ import { useTransferFlow } from "./transfer-detail/useTransferFlow"
 import { TransferBanners } from "./transfer-detail/TransferBanners"
 import { TransferChecklist } from "./transfer-detail/TransferChecklist"
 import { TransferDocumentSection } from "./transfer-detail/TransferDocumentSection"
+import { TransferUploadSection } from "./transfer-detail/TransferUploadSection"
 import { TransferEmptyState } from "./transfer-detail/TransferEmptyState"
 import { TransferFlowModals } from "./transfer-detail/TransferFlowModals"
 
@@ -99,9 +100,9 @@ export default function TransferDetailPage() {
   const assignmentHistory = [
     {
       id: "1",
-      duration: "3 Dec 2023 - Current",
+      duration: `3 Dec 2023 - ${record.hpCompletedDate}`,
       assigneeName: record.champion,
-      status: "Active" as const,
+      status: "HP Complete" as const,
       isCurrent: true,
     },
   ]
@@ -159,6 +160,8 @@ export default function TransferDetailPage() {
               currentIndex={assignmentIndex}
               onPrevious={() => setAssignmentIndex((p) => Math.max(0, p - 1))}
               onNext={() => setAssignmentIndex((p) => Math.min(assignmentHistory.length - 1, p + 1))}
+              title="Assigned To"
+              showNavigation={false}
             />
           </div>
 
@@ -193,14 +196,17 @@ export default function TransferDetailPage() {
                             checkedIds={checkedIds}
                             onToggle={toggleCheck}
                           />
-                          <TransferDocumentSection
-                            record={record}
-                            isInProgressMode={isInProgressMode}
-                            reuploadMode={reuploadMode}
-                            onReupload={() => setReuploadMode(true)}
-                            uploadedFile={uploadedFile}
-                            onFileSelect={setUploadedFile}
-                          />
+                          {reuploadMode || (isInProgressMode && !isReturnedForCorrection(record)) ? (
+                            <TransferUploadSection
+                              uploadedFile={uploadedFile}
+                              onFileSelect={setUploadedFile}
+                            />
+                          ) : (
+                            <TransferDocumentSection
+                              record={record}
+                              onReupload={() => setReuploadMode(true)}
+                            />
+                          )}
                         </>
                       )}
                     </>

@@ -41,9 +41,9 @@ const variantStyles: Record<
     text: "text-gray-600",
   },
   refurb: {
-    dot: "bg-[#DB2777]",
-    bg: "bg-[#FDF2F8]",
-    text: "text-[#DB2777]",
+    dot: "bg-status-pink-text",
+    bg: "bg-status-pink-bg",
+    text: "text-status-pink-text",
   },
   neutral: {
     dot: "bg-gray-500",

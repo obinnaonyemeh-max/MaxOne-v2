@@ -28,10 +28,10 @@ export function InfoGrid({ items, columns = 4, showDividers = false, className }
   if (!showDividers) {
     return (
       <div className={cn("grid gap-4", gridCols[columns], className)}>
-        {items.map((item, index) => (
-          <div key={index} className="space-y-1">
+        {items.map((item) => (
+          <div key={item.label} className="space-y-1">
             <p className="text-xs text-breadcrumb-root font-medium">{item.label}</p>
-            <p className="font-medium text-sidebar-item-active" style={{ fontSize: '14px' }}>
+            <p className="font-medium text-sidebar-item-active" style={{ fontSize: "14px" }}>
               {item.value || "-"}
             </p>
           </div>
@@ -48,7 +48,7 @@ export function InfoGrid({ items, columns = 4, showDividers = false, className }
 
         return (
           <div
-            key={index}
+            key={item.label}
             className={cn(
               "space-y-1",
               !lastCol && "pr-4 mr-4 border-r border-gray-100",
@@ -56,7 +56,7 @@ export function InfoGrid({ items, columns = 4, showDividers = false, className }
             )}
           >
             <p className="text-xs text-breadcrumb-root font-medium">{item.label}</p>
-            <p className="font-medium text-sidebar-item-active" style={{ fontSize: '14px' }}>
+            <p className="font-medium text-sidebar-item-active" style={{ fontSize: "14px" }}>
               {item.value || "-"}
             </p>
           </div>

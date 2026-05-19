@@ -38,8 +38,8 @@ import { cn } from "@/lib/utils"
 
 // ── Summary stat cards data ──
 
-const COLOR_BADGE_ACTIVE = "#008356"
-const COLOR_GRAY_500 = "#737373"
+const COLOR_BADGE_ACTIVE = "var(--color-badge-active-text)"
+const COLOR_GRAY_500 = "var(--color-gray-500)"
 
 const summaryStats = [
   { title: "Total activations today", value: "6", indicatorColor: COLOR_BADGE_ACTIVE },
@@ -48,25 +48,17 @@ const summaryStats = [
   { title: "Avg activations per day (7D)", value: "6", indicatorColor: COLOR_BADGE_ACTIVE },
 ]
 
+import {
+  growthChannels,
+  growthTrendData,
+  growthLocationData,
+  mockGrowthActivationRecords,
+  type GrowthActivationRecord,
+} from "@/data/mockGrowthActivation"
+
 // ── Channel cards data ──
 
 type ChannelPeriod = "today" | "thisWeek" | "thisMonth"
-
-interface ChannelData {
-  name: string
-  today: number
-  thisWeek: number
-  thisMonth: number
-  avgPerDay: number
-  trend: { value: number; direction: "up" | "down" }
-}
-
-const channels: ChannelData[] = [
-  { name: "Retail", today: 12, thisWeek: 42, thisMonth: 187, avgPerDay: 1.7, trend: { value: 1.1, direction: "down" } },
-  { name: "Enterprise", today: 17, thisWeek: 58, thisMonth: 210, avgPerDay: 1.7, trend: { value: 1.1, direction: "up" } },
-  { name: "MCP", today: 8, thisWeek: 31, thisMonth: 120, avgPerDay: 1.7, trend: { value: 1.1, direction: "up" } },
-  { name: "Outright Sales", today: 4, thisWeek: 14, thisMonth: 52, avgPerDay: 1.7, trend: { value: 1.1, direction: "up" } },
-]
 
 const channelPeriodLabels: { id: ChannelPeriod; label: string }[] = [
   { id: "today", label: "Today" },
@@ -77,134 +69,11 @@ const channelPeriodLabels: { id: ChannelPeriod; label: string }[] = [
 // ── Activation Trend (Line Chart) data ──
 
 const CHANNEL_COLORS = {
-  retail: "#1855FC",
-  enterprise: "#16B04F",
-  mcp: "#E88E15",
-  outright: "#6F2191",
+  retail: "var(--color-status-info)",
+  enterprise: "var(--color-success)",
+  mcp: "var(--color-warning)",
+  outright: "var(--color-status-closed)",
 }
-
-const trendData = [
-  { date: "Feb 10", Retail: 21, Enterprise: 18, MCP: 14, "Outright Sale": 10 },
-  { date: "Feb 12", Retail: 19, Enterprise: 22, MCP: 12, "Outright Sale": 8 },
-  { date: "Feb 14", Retail: 24, Enterprise: 20, MCP: 16, "Outright Sale": 11 },
-  { date: "Feb 16", Retail: 18, Enterprise: 15, MCP: 10, "Outright Sale": 7 },
-  { date: "Feb 18", Retail: 22, Enterprise: 21, MCP: 18, "Outright Sale": 9 },
-  { date: "Feb 20", Retail: 20, Enterprise: 19, MCP: 14, "Outright Sale": 12 },
-  { date: "Feb 22", Retail: 16, Enterprise: 14, MCP: 11, "Outright Sale": 6 },
-  { date: "Feb 25", Retail: 23, Enterprise: 20, MCP: 17, "Outright Sale": 10 },
-  { date: "Feb 27", Retail: 21, Enterprise: 22, MCP: 15, "Outright Sale": 8 },
-  { date: "Mar 1", Retail: 19, Enterprise: 17, MCP: 12, "Outright Sale": 9 },
-  { date: "Mar 2", Retail: 25, Enterprise: 23, MCP: 19, "Outright Sale": 11 },
-  { date: "Mar 4", Retail: 22, Enterprise: 18, MCP: 14, "Outright Sale": 7 },
-  { date: "Mar 6", Retail: 17, Enterprise: 15, MCP: 10, "Outright Sale": 8 },
-  { date: "Mar 7", Retail: 20, Enterprise: 21, MCP: 16, "Outright Sale": 10 },
-]
-
-// ── Activations by Location (Bar Chart) data ──
-
-const locationData = [
-  { name: "Riyadh", value: 245 },
-  { name: "Jeddah", value: 198 },
-  { name: "Dubai", value: 142 },
-  { name: "Cairo", value: 105 },
-  { name: "Dammam", value: 72 },
-]
-
-// ── Activation Activity table data ──
-
-interface ActivationRecord {
-  assetId: string
-  vehicleModel: string
-  plateNumber: string
-  customerName: string
-  channel: "Retail" | "Enterprise" | "MCP" | "Outright Sale"
-  officer: string
-  location: string
-  activationTime: string
-}
-
-const activationData: ActivationRecord[] = [
-  {
-    assetId: "AST-4501",
-    vehicleModel: "EV-S200",
-    plateNumber: "RYD-1122",
-    customerName: "Mohammed Ali",
-    channel: "Retail",
-    officer: "Ahmed Al-Rashid",
-    location: "Riyadh",
-    activationTime: "2026-03-10 09:15",
-  },
-  {
-    assetId: "AST-4502",
-    vehicleModel: "EV-X400",
-    plateNumber: "JED-3344",
-    customerName: "Khalid Enterprises",
-    channel: "Enterprise",
-    officer: "Sarah Khan",
-    location: "Jeddah",
-    activationTime: "2026-03-10 10:30",
-  },
-  {
-    assetId: "AST-4503",
-    vehicleModel: "EV-T300",
-    plateNumber: "DXB-5566",
-    customerName: "Fleet Corp MCP",
-    channel: "MCP",
-    officer: "Omar Hassan",
-    location: "Dubai",
-    activationTime: "2026-03-10 11:00",
-  },
-  {
-    assetId: "AST-4504",
-    vehicleModel: "EV-C100",
-    plateNumber: "CAI-7788",
-    customerName: "Nadia Saleh",
-    channel: "Retail",
-    officer: "Fatima Noor",
-    location: "Cairo",
-    activationTime: "2026-03-10 12:45",
-  },
-  {
-    assetId: "AST-4505",
-    vehicleModel: "EV-S200",
-    plateNumber: "RYD-9900",
-    customerName: "Hassan Trading Co",
-    channel: "Enterprise",
-    officer: "Ahmed Al-Rashid",
-    location: "Riyadh",
-    activationTime: "2026-03-10 13:20",
-  },
-  {
-    assetId: "AST-4506",
-    vehicleModel: "EV-X400",
-    plateNumber: "DMM-1234",
-    customerName: "Ali Transport",
-    channel: "MCP",
-    officer: "Yusuf Bakr",
-    location: "Dammam",
-    activationTime: "2026-03-10 14:00",
-  },
-  {
-    assetId: "AST-4507",
-    vehicleModel: "EV-T300",
-    plateNumber: "JED-5678",
-    customerName: "Fahad Motors",
-    channel: "Outright Sale",
-    officer: "Sarah Khan",
-    location: "Jeddah",
-    activationTime: "2026-03-10 14:30",
-  },
-  {
-    assetId: "AST-4508",
-    vehicleModel: "EV-C100",
-    plateNumber: "DXB-2233",
-    customerName: "Layla Ibrahim",
-    channel: "Retail",
-    officer: "Omar Hassan",
-    location: "Dubai",
-    activationTime: "2026-03-10 15:10",
-  },
-]
 
 const channelBadgeVariant: Record<string, "info" | "success" | "warning" | "default"> = {
   Retail: "info",
@@ -213,7 +82,7 @@ const channelBadgeVariant: Record<string, "info" | "success" | "warning" | "defa
   "Outright Sale": "default",
 }
 
-const columns: ColumnDef<ActivationRecord>[] = [
+const columns: ColumnDef<GrowthActivationRecord>[] = [
   {
     accessorKey: "assetId",
     header: "Asset / ID",
@@ -293,10 +162,10 @@ const columns: ColumnDef<ActivationRecord>[] = [
 
 // ── Activation Activity filter sections ──
 
-const COLOR_CHANNEL_RETAIL = "#1855FC"
-const COLOR_CHANNEL_ENTERPRISE = "#16B04F"
-const COLOR_CHANNEL_MCP = "#E88E15"
-const COLOR_CHANNEL_OUTRIGHT = "#737373"
+const COLOR_CHANNEL_RETAIL = "var(--color-status-info)"
+const COLOR_CHANNEL_ENTERPRISE = "var(--color-success)"
+const COLOR_CHANNEL_MCP = "var(--color-warning)"
+const COLOR_CHANNEL_OUTRIGHT = "var(--color-gray-500)"
 
 const activationFilterSections: FilterSection[] = [
   {
@@ -359,7 +228,7 @@ function DarkTooltipContent({
   return (
     <div
       style={{
-        backgroundColor: "#1E1E1E",
+        backgroundColor: "var(--color-gray-900)",
         borderRadius: "8px",
         padding: "10px 14px",
         display: "flex",
@@ -368,7 +237,7 @@ function DarkTooltipContent({
         boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
       }}
     >
-      <span style={{ color: "#A3A3A3", fontSize: "12px", fontWeight: 500 }}>
+      <span style={{ color: "var(--color-gray-400)", fontSize: "12px", fontWeight: 500 }}>
         {label}
       </span>
       {payload.map((entry) => (
@@ -413,7 +282,7 @@ export default function GrowthActivationPage() {
   }, [searchQuery])
 
   const filteredActivationData = useMemo(() => {
-    let data = activationData.filter((record) => {
+    let data = mockGrowthActivationRecords.filter((record) => {
       const channels = activationFilters.channels || []
       if (channels.length > 0 && !channels.includes(record.channel)) return false
 
@@ -509,7 +378,7 @@ export default function GrowthActivationPage() {
           </div>
           <div className="px-5 pb-5">
             <div className="grid grid-cols-4 gap-2">
-              {channels.map((channel) => {
+              {growthChannels.map((channel) => {
                 const periodValue =
                   channelPeriod === "today"
                     ? channel.today
@@ -594,22 +463,22 @@ export default function GrowthActivationPage() {
             <div className="px-3 pb-4">
               <ResponsiveContainer width="100%" height={280}>
                 <LineChart
-                  data={trendData}
+                  data={growthTrendData}
                   margin={{ top: 10, right: 20, left: 10, bottom: 5 }}
                 >
                   <CartesianGrid
                     horizontal
                     vertical={false}
-                    stroke="#EAEAEA"
+                    stroke="var(--color-gray-200)"
                   />
                   <XAxis
                     dataKey="date"
-                    tick={{ fill: "#A3A3A3", fontSize: 12, fontWeight: 500 }}
+                    tick={{ fill: "var(--color-gray-400)", fontSize: 12, fontWeight: 500 }}
                     axisLine={false}
                     tickLine={false}
                   />
                   <YAxis
-                    tick={{ fill: "#A3A3A3", fontSize: 12, fontWeight: 500 }}
+                    tick={{ fill: "var(--color-gray-400)", fontSize: 12, fontWeight: 500 }}
                     axisLine={false}
                     tickLine={false}
                     width={30}
@@ -623,7 +492,7 @@ export default function GrowthActivationPage() {
                     wrapperStyle={{
                       fontSize: "12px",
                       fontWeight: 500,
-                      color: "#555556",
+                      color: "var(--color-gray-600)",
                       paddingTop: "12px",
                     }}
                   />
@@ -677,22 +546,22 @@ export default function GrowthActivationPage() {
             <div className="px-3 pb-4">
               <ResponsiveContainer width="100%" height={280}>
                 <BarChart
-                  data={locationData}
+                  data={growthLocationData}
                   margin={{ top: 10, right: 20, left: 10, bottom: 5 }}
                 >
                   <CartesianGrid
                     horizontal
                     vertical={false}
-                    stroke="#EAEAEA"
+                    stroke="var(--color-gray-200)"
                   />
                   <XAxis
                     dataKey="name"
-                    tick={{ fill: "#A3A3A3", fontSize: 12, fontWeight: 500 }}
+                    tick={{ fill: "var(--color-gray-400)", fontSize: 12, fontWeight: 500 }}
                     axisLine={false}
                     tickLine={false}
                   />
                   <YAxis
-                    tick={{ fill: "#A3A3A3", fontSize: 12, fontWeight: 500 }}
+                    tick={{ fill: "var(--color-gray-400)", fontSize: 12, fontWeight: 500 }}
                     axisLine={false}
                     tickLine={false}
                     width={35}
@@ -712,9 +581,9 @@ export default function GrowthActivationPage() {
                     }
                     onMouseLeave={() => setHoveredBarIndex(null)}
                   >
-                    {locationData.map((_, index) => (
+                    {growthLocationData.map((entry, index) => (
                       <Cell
-                        key={index}
+                        key={entry.name}
                         opacity={
                           hoveredBarIndex === null || hoveredBarIndex === index
                             ? 1

@@ -24,6 +24,7 @@
 
   /* Brand Colors */
   --color-brand-primary: #FCDD00;
+  --color-brand-primary-soft: #FAF3C7;
   --color-brand-dark: #121314;
 
   /* Semantic Colors */
@@ -125,6 +126,17 @@
   --color-table-text-primary: var(--color-gray-950);
   --color-table-text-warning: var(--color-warning);
   --color-pagination-text: var(--color-gray-400);
+
+  /* Input / Form */
+  --color-input-soft: #F8F8F8;
+
+  /* Extended status colors (used in stage indicator dots/bars and badges) */
+  --color-status-purple: #8B5CF6;
+  --color-status-cyan: #06B6D4;
+  --color-status-amber: #F59E0B;
+  --color-success-bright: #22C55E;
+  --color-status-pink-text: #DB2777;
+  --color-status-pink-bg: #FDF2F8;
 
   /* ============================================
      RADIUS TOKENS

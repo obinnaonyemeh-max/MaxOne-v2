@@ -311,7 +311,11 @@ export default function ActivationReadinessPage() {
           </div>
 
           <div className="flex-1 overflow-y-auto">
-            <DataTable columns={columns} data={filtered} />
+            <DataTable
+              columns={columns}
+              data={filtered}
+              onRowClick={updateModal.open}
+            />
           </div>
         </div>
 
@@ -356,8 +360,7 @@ export default function ActivationReadinessPage() {
             <p className="mt-2 text-breadcrumb-root font-medium" style={{ fontSize: "13px" }}>
               Download the template, fill in the activation stage details for each vehicle, and upload the completed file to apply updates across all records.
             </p>
-            <a href="#" className="mt-4 inline-block underline font-medium text-status-warning"
-              style={{ fontSize: "14px" }}
+            <a href="#" className="mt-4 inline-block underline font-medium text-status-warning" style={{ fontSize: "14px" }}
               onClick={(e) => e.preventDefault()}>
               Download template sheet
             </a>

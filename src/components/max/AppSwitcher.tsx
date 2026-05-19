@@ -36,7 +36,7 @@ function AppLogo({ app, size = "default" }: { app: App; size?: "default" | "smal
         "flex items-center justify-center rounded-lg shrink-0",
         sizeClasses
       )}
-      style={{ backgroundColor: "#FAF3C7" }}
+      style={{ backgroundColor: "var(--color-brand-primary-soft)" }}
     >
       {app.logo ? (
         <img src={app.logo} alt={app.name} className={iconSizeClasses} />
@@ -108,7 +108,7 @@ export function AppSwitcher({ isCollapsed = false, onAppChange }: AppSwitcherPro
             "flex w-full items-center gap-3 rounded-lg px-2 py-2 transition-colors",
             "hover:bg-sidebar-hover"
           )}
-          style={{ backgroundColor: "#F9F9F9" }}
+          style={{ backgroundColor: "var(--color-gray-50)" }}
         >
           <AppLogo app={selectedApp} />
           <span className="flex-1 text-left font-semibold text-gray-900 truncate" style={{ fontSize: "13px" }}>

@@ -38,6 +38,7 @@ All colors are defined as CSS custom properties in `src/index.css`.
 | Token | Value | Usage |
 |-------|-------|-------|
 | `--color-brand-primary` | #FCDD00 | MaxOne yellow |
+| `--color-brand-primary-soft` | #FAF3C7 | Pale-yellow app icon tint (AppSwitcher) |
 | `--color-brand-dark` | #121314 | Dark brand color |
 
 ### Semantic Status Colors
@@ -45,11 +46,17 @@ All colors are defined as CSS custom properties in `src/index.css`.
 | Token | Value | Usage |
 |-------|-------|-------|
 | `--color-success` | #16B04F | Success states |
+| `--color-success-bright` | #22C55E | Brighter success accent (utilization bars, callouts) |
 | `--color-warning` | #E88E15 | Warning states |
 | `--color-danger` | #DC2626 | Error/danger states |
 | `--color-info` | #1855FC | Informational states |
 | `--color-status-closed` | #6F2191 | Closed/completed status |
 | `--color-status-outright-sales` | #7BB924 | Outright sales status |
+| `--color-status-purple` | #8B5CF6 | Tracking / Pending Write-Off stage dots |
+| `--color-status-cyan` | #06B6D4 | Tracking IoT / Tel. Revalidation stage dots |
+| `--color-status-amber` | #F59E0B | Amber stat indicator (warning-leaning callouts) |
+| `--color-status-pink-text` | #DB2777 | StatusBadge "pink" variant foreground |
+| `--color-status-pink-bg` | #FDF2F8 | StatusBadge "pink" variant background |
 
 ## Layer 2: Semantic Tokens
 
@@ -96,8 +103,11 @@ These tokens provide meaning and enable theming (e.g., dark mode).
 ```css
 --color-border: var(--color-gray-200);
 --color-input: var(--color-gray-50);
+--color-input-soft: #F8F8F8;            /* Soft-grey form field background */
 --color-ring: var(--color-gray-950);
 ```
+
+Use `bg-input-soft` on form-field surfaces (text inputs, select triggers, date pickers in the Add/Edit modals).
 
 ## Layer 3: Component Tokens
 
@@ -270,3 +280,8 @@ Example future implementation:
 | Primary button | `bg-primary text-primary-foreground` |
 | Success indicator | `bg-status-success` or `text-status-success` |
 | Error indicator | `bg-status-danger` or `text-status-danger` |
+| Form field surface | `bg-input-soft` |
+| Tracking/Revalidation dot | `bg-status-cyan` or `var(--color-status-cyan)` |
+| Pending write-off dot | `bg-status-purple` or `var(--color-status-purple)` |
+| Amber stat indicator | `var(--color-status-amber)` |
+| StatusBadge pink variant | `bg-status-pink-bg text-status-pink-text` |

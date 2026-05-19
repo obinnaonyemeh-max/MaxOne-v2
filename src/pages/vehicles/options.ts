@@ -1,0 +1,7 @@
+export const vehicleTypes = ["2 Wheeler", "3 Wheeler", "4 Wheeler"]
+export const manufacturers = ["Honda", "Toyota", "Yamaha", "Bajaj", "TVS", "Suzuki"]
+export const models = ["Model A", "Model B", "Model C", "Model D"]
+export const trims = ["Standard", "Premium", "Sport", "Luxury"]
+export const platformTypes = ["Electric", "Petrol", "Diesel", "Hybrid"]
+export const financialPartners = ["Access Bank", "GTBank", "First Bank", "Zenith Bank", "UBA"]
+export const locations = ["Ikeja", "Lekki", "Victoria Island", "Yaba", "Surulere", "Gbagada"]

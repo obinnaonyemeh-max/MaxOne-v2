@@ -78,7 +78,7 @@ export function Pagination({
         className
       )}
     >
-      <p className="font-medium text-pagination-text" style={{ fontSize: '13px' }}>
+      <p className="font-medium text-pagination-text" style={{ fontSize: "13px" }}>
         Showing{" "}
         <span className="font-medium text-sidebar-item-active">
           {startItem}-{endItem}
@@ -105,8 +105,7 @@ export function Pagination({
           page === "ellipsis" ? (
             <span
               key={`ellipsis-${index}`}
-              className="px-2 font-medium text-sidebar-item-active"
-              style={{ fontSize: '13px' }}
+              className="px-2 font-medium text-sidebar-item-active" style={{ fontSize: "13px" }}
             >
               ...
             </span>
@@ -142,7 +141,7 @@ export function Pagination({
 
       {onPageSizeChange && (
         <div className="flex items-center gap-2">
-          <span className="font-medium text-pagination-text" style={{ fontSize: '13px' }}>Showing per page</span>
+          <span className="font-medium text-pagination-text" style={{ fontSize: "13px" }}>Showing per page</span>
           <Select
             value={pageSize.toString()}
             onValueChange={(value) => onPageSizeChange(Number(value))}

@@ -102,7 +102,7 @@ export function AssignmentHistoryCard({
             </div>
           )}
           <div>
-            <p className="font-medium text-sidebar-item-active" style={{ fontSize: '15px' }}>
+            <p className="font-medium text-sidebar-item-active" style={{ fontSize: "14px" }}>
               {currentAssignment.assigneeName}
             </p>
             <div className="flex items-center gap-2 mt-1">

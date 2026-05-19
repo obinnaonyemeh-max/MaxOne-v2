@@ -67,11 +67,11 @@ export function Modal({
                     <BackButton onClick={onBack} />
                   )}
                   <div className="flex flex-col gap-1">
-                    <DialogTitle className="font-semibold text-sidebar-item-active" style={{ fontSize: '16px' }}>
+                    <DialogTitle className="font-semibold text-sidebar-item-active" style={{ fontSize: "16px" }}>
                       {title}
                     </DialogTitle>
                     {subtitle && (
-                      <DialogDescription className="font-medium text-breadcrumb-root" style={{ fontSize: '13px' }}>
+                      <DialogDescription className="font-medium text-breadcrumb-root" style={{ fontSize: "13px" }}>
                         {subtitle}
                       </DialogDescription>
                     )}

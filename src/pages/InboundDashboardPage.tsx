@@ -21,20 +21,10 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 
-interface InboundBatchRecord {
-  id: string
-  batchId: string
-  oem: string
-  vehicleModel: string
-  quantity: number
-  currentStage: string
-  destination: string
-  daysInStage: string
-  eta: string
-}
+import { mockInboundBatches, type InboundBatchRecord } from "@/data/mockInboundBatches"
 
-const COLOR_STATUS_INFO = "#1855FC"
-const COLOR_GRAY_500 = "#737373"
+const COLOR_STATUS_INFO = "var(--color-status-info)"
+const COLOR_GRAY_500 = "var(--color-gray-500)"
 
 const inboundStats = [
   { title: "In Production", value: 0, subtitle: "0 batches, Avg 0d", indicatorColor: COLOR_GRAY_500 },
@@ -85,12 +75,6 @@ const defaultInboundFilters: GenericFilterState = {
   oem: [],
   destination: [],
 }
-
-const mockInboundBatches: InboundBatchRecord[] = [
-  { id: "1", batchId: "BATCH-2026-003", oem: "King", vehicleModel: "MAX M4", quantity: 2500, currentStage: "In Transit", destination: "Nigeria / Lagos", daysInStage: "0d", eta: "81 days" },
-  { id: "2", batchId: "BATCH-2026-002", oem: "TailG", vehicleModel: "Jidi", quantity: 400, currentStage: "Identifier Upload", destination: "Ghana / Accra", daysInStage: "1d", eta: "71 days" },
-  { id: "3", batchId: "BATCH-2026-001", oem: "Spiro", vehicleModel: "Ekon", quantity: 1000, currentStage: "Identifier Upload", destination: "Nigeria / Lagos", daysInStage: "1d", eta: "80 days" },
-]
 
 const columns: ColumnDef<InboundBatchRecord>[] = [
   {

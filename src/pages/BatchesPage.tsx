@@ -32,27 +32,7 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { Calendar } from "@/components/ui/calendar"
 
-interface BatchRecord {
-  id: string
-  batchId: string
-  oem: string
-  model: string
-  qty: number
-  stage: string
-  destination: string
-  eta: string
-}
-
-const mockBatches: BatchRecord[] = [
-  { id: "1", batchId: "BATCH-12-3056", oem: "TailG", model: "Jidi", qty: 20000, stage: "At Port", destination: "Ghana / Accra", eta: "100d" },
-  { id: "2", batchId: "BATCH-0990", oem: "Spiro", model: "Ekon", qty: 5000, stage: "Identifier Upload", destination: "Nigeria / Lagos", eta: "105d" },
-  { id: "3", batchId: "BATCH-2026-003", oem: "King", model: "MAX M4", qty: 2500, stage: "In Transit", destination: "Nigeria / Lagos", eta: "75d" },
-  { id: "4", batchId: "BATCH-2026-002", oem: "TailG", model: "Jidi", qty: 400, stage: "Ready for Activation", destination: "Ghana / Accra", eta: "65d" },
-  { id: "5", batchId: "BATCH-2026-001", oem: "Spiro", model: "Ekon", qty: 1000, stage: "Identifier Upload", destination: "Nigeria / Lagos", eta: "74d" },
-  { id: "6", batchId: "BATCH-2026-006", oem: "King", model: "MAX M4", qty: 3000, stage: "In Production", destination: "Nigeria / Lagos", eta: "120d" },
-  { id: "7", batchId: "BATCH-2026-007", oem: "TailG", model: "Jidi", qty: 1500, stage: "Clearing", destination: "Ghana / Accra", eta: "45d" },
-  { id: "8", batchId: "BATCH-2026-008", oem: "Spiro", model: "Ekon", qty: 800, stage: "Warehouse QA", destination: "Nigeria / Lagos", eta: "30d" },
-]
+import { mockBatches, type BatchRecord } from "@/data/mockBatches"
 
 const stageVariantMap: Record<string, "success" | "danger" | "warning" | "info" | "default"> = {
   "At Port": "warning",
@@ -300,17 +280,17 @@ export default function BatchesPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="flex flex-col gap-2">
-                <label className="text-gray-400 font-medium" style={{ fontSize: '13px' }}>Batch ID</label>
-                <Input placeholder="e.g. BATCH-2026-001" className="h-12 bg-[#F8F8F8]" />
+                <label className="text-gray-400 font-medium" style={{ fontSize: "13px" }}>Batch ID</label>
+                <Input placeholder="e.g. BATCH-2026-001" className="h-12 bg-input-soft" />
               </div>
               <div className="flex flex-col gap-2">
-                <label className="text-gray-400 font-medium" style={{ fontSize: '13px' }}>Quantity</label>
-                <Input placeholder="Enter quantity" className="h-12 bg-[#F8F8F8]" type="number" />
+                <label className="text-gray-400 font-medium" style={{ fontSize: "13px" }}>Quantity</label>
+                <Input placeholder="Enter quantity" className="h-12 bg-input-soft" type="number" />
               </div>
               <div className="flex flex-col gap-2">
-                <label className="text-gray-400 font-medium" style={{ fontSize: '13px' }}>Manufacturer / OEM</label>
+                <label className="text-gray-400 font-medium" style={{ fontSize: "13px" }}>Manufacturer / OEM</label>
                 <Select>
-                  <SelectTrigger className="h-12 w-full bg-[#F8F8F8]">
+                  <SelectTrigger className="h-12 w-full bg-input-soft">
                     <SelectValue placeholder="Select manufacturer / OEM" />
                   </SelectTrigger>
                   <SelectContent>
@@ -321,9 +301,9 @@ export default function BatchesPage() {
                 </Select>
               </div>
               <div className="flex flex-col gap-2">
-                <label className="text-gray-400 font-medium" style={{ fontSize: '13px' }}>Vehicle Type / Model</label>
+                <label className="text-gray-400 font-medium" style={{ fontSize: "13px" }}>Vehicle Type / Model</label>
                 <Select>
-                  <SelectTrigger className="h-12 w-full bg-[#F8F8F8]">
+                  <SelectTrigger className="h-12 w-full bg-input-soft">
                     <SelectValue placeholder="Select vehicle type / model" />
                   </SelectTrigger>
                   <SelectContent>
@@ -336,30 +316,30 @@ export default function BatchesPage() {
             </div>
             <div className="grid grid-cols-3 gap-4">
               <div className="flex flex-col gap-2">
-                <label className="text-gray-400 font-medium" style={{ fontSize: '13px' }}>Trim</label>
-                <Input placeholder="Enter trim" className="h-12 bg-[#F8F8F8]" />
+                <label className="text-gray-400 font-medium" style={{ fontSize: "13px" }}>Trim</label>
+                <Input placeholder="Enter trim" className="h-12 bg-input-soft" />
               </div>
               <div className="flex flex-col gap-2">
-                <label className="text-gray-400 font-medium" style={{ fontSize: '13px' }}>Destination Country</label>
-                <Input placeholder="Enter country" className="h-12 bg-[#F8F8F8]" />
+                <label className="text-gray-400 font-medium" style={{ fontSize: "13px" }}>Destination Country</label>
+                <Input placeholder="Enter country" className="h-12 bg-input-soft" />
               </div>
               <div className="flex flex-col gap-2">
-                <label className="text-gray-400 font-medium" style={{ fontSize: '13px' }}>Destination City</label>
-                <Input placeholder="Enter city" className="h-12 bg-[#F8F8F8]" />
+                <label className="text-gray-400 font-medium" style={{ fontSize: "13px" }}>Destination City</label>
+                <Input placeholder="Enter city" className="h-12 bg-input-soft" />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="flex flex-col gap-2">
-                <label className="text-gray-400 font-medium" style={{ fontSize: '13px' }}>Payment Reference</label>
-                <Input placeholder="Enter payment reference" className="h-12 bg-[#F8F8F8]" />
+                <label className="text-gray-400 font-medium" style={{ fontSize: "13px" }}>Payment Reference</label>
+                <Input placeholder="Enter payment reference" className="h-12 bg-input-soft" />
               </div>
               <div className="flex flex-col gap-2">
-                <label className="text-gray-400 font-medium" style={{ fontSize: '13px' }}>Expected Delivery Date</label>
+                <label className="text-gray-400 font-medium" style={{ fontSize: "13px" }}>Expected Delivery Date</label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
-                      className="h-12 w-full justify-start text-left font-normal bg-[#F8F8F8]"
+                      className="h-12 w-full justify-start text-left font-normal bg-input-soft"
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
                       {expectedDeliveryDate ? format(expectedDeliveryDate, "PPP") : <span className="text-muted-foreground">Pick a date</span>}
@@ -377,9 +357,9 @@ export default function BatchesPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="flex flex-col gap-2">
-                <label className="text-gray-400 font-medium" style={{ fontSize: '13px' }}>Stage</label>
+                <label className="text-gray-400 font-medium" style={{ fontSize: "13px" }}>Stage</label>
                 <Select defaultValue="In Production">
-                  <SelectTrigger className="h-12 w-full bg-[#F8F8F8]">
+                  <SelectTrigger className="h-12 w-full bg-input-soft">
                     <SelectValue placeholder="Select stage" />
                   </SelectTrigger>
                   <SelectContent>
@@ -405,33 +385,33 @@ export default function BatchesPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="flex flex-col gap-2">
-                <label className="text-gray-400 font-medium" style={{ fontSize: '13px' }}>Container Number</label>
+                <label className="text-gray-400 font-medium" style={{ fontSize: "13px" }}>Container Number</label>
                 <TagInput
                   value={containerNumbers}
                   onChange={setContainerNumbers}
                   placeholder="Enter container number"
                 />
-                <span className="flex items-center gap-1 text-gray-950" style={{ fontSize: '11px' }}>
+                <span className="flex items-center gap-1 text-gray-950" style={{ fontSize: "11px" }}>
                   <Info className="h-3 w-3 shrink-0" />
                   Separate multiple container numbers with a comma.
                 </span>
               </div>
               <div className="flex flex-col gap-2">
-                <label className="text-gray-400 font-medium" style={{ fontSize: '13px' }}>Shipping Line</label>
-                <Input placeholder="Enter shipping line" className="h-12 bg-[#F8F8F8]" />
+                <label className="text-gray-400 font-medium" style={{ fontSize: "13px" }}>Shipping Line</label>
+                <Input placeholder="Enter shipping line" className="h-12 bg-input-soft" />
               </div>
               <div className="flex flex-col gap-2">
-                <label className="text-gray-400 font-medium" style={{ fontSize: '13px' }}>Port of Arrival</label>
-                <Input placeholder="Enter port of arrival" className="h-12 bg-[#F8F8F8]" />
+                <label className="text-gray-400 font-medium" style={{ fontSize: "13px" }}>Port of Arrival</label>
+                <Input placeholder="Enter port of arrival" className="h-12 bg-input-soft" />
               </div>
               <div className="flex flex-col gap-2">
-                <label className="text-gray-400 font-medium" style={{ fontSize: '13px' }}>Invoice / PO Reference</label>
-                <Input placeholder="Enter invoice or PO reference" className="h-12 bg-[#F8F8F8]" />
+                <label className="text-gray-400 font-medium" style={{ fontSize: "13px" }}>Invoice / PO Reference</label>
+                <Input placeholder="Enter invoice or PO reference" className="h-12 bg-input-soft" />
               </div>
             </div>
             <div className="flex flex-col gap-2">
-              <label className="text-gray-400 font-medium" style={{ fontSize: '13px' }}>Notes</label>
-              <Textarea placeholder="Enter any additional notes" className="min-h-[120px] bg-[#F8F8F8]" />
+              <label className="text-gray-400 font-medium" style={{ fontSize: "13px" }}>Notes</label>
+              <Textarea placeholder="Enter any additional notes" className="min-h-[120px] bg-input-soft" />
             </div>
           </div>
         </div>

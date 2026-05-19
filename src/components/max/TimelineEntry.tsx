@@ -78,7 +78,7 @@ export function TimelineEntry({ entry, className }: TimelineEntryProps) {
         {formatDescription(entry.description.template, entry.description.highlights)}
       </p>
 
-      <div className="mt-2 flex items-center gap-1.5" style={{ fontSize: '12px' }}>
+      <div className="mt-2 flex items-center gap-1.5" style={{ fontSize: "12px" }}>
         <span className="text-breadcrumb-root font-medium">{entry.actor.action}</span>
         {entry.actor.avatar ? (
           <img

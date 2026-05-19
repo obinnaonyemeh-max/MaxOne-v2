@@ -382,7 +382,7 @@ function NavSection({
         onClick={() => onToggleSectionExpand(section.id)}
         className="flex w-full items-center justify-between px-3 py-1.5 hover:bg-sidebar-hover rounded transition-colors"
       >
-        <span 
+        <span
           className="font-medium text-sidebar-label uppercase"
           style={{ fontSize: '11px', letterSpacing: '1px' }}
         >

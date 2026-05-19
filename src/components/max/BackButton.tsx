@@ -12,7 +12,7 @@ export function BackButton({ onClick, className }: BackButtonProps) {
       type="button"
       onClick={onClick}
       className={cn(
-        "p-[7px] bg-[#FAFAFA] border border-[#E5E5E6] transition-colors hover:bg-gray-200",
+        "p-[7px] bg-gray-50 border border-gray-200 transition-colors hover:bg-gray-200",
         className
       )}
       style={{

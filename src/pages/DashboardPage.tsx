@@ -10,14 +10,14 @@ import { ActivationQueueCard, type ActivationQueueItem } from "@/components/max/
 import { HorizontalBarChart, type BarChartSeries } from "@/components/max/HorizontalBarChart"
 
 
-const COLOR_BRAND_PRIMARY = "#FCDD00"
-const COLOR_BADGE_ACTIVE = "#008356"
-const COLOR_STATUS_WARNING = "#E88E15"
-const COLOR_GRAY_500 = "#737373"
-const COLOR_STATUS_INFO = "#1855FC"
-const COLOR_STATUS_SUCCESS = "#16B04F"
-const COLOR_STATUS_CLOSED = "#6F2191"
-const COLOR_STATUS_OUTRIGHT_SALES = "#7BB924"
+const COLOR_BRAND_PRIMARY = "var(--color-brand-primary)"
+const COLOR_BADGE_ACTIVE = "var(--color-badge-active-text)"
+const COLOR_STATUS_WARNING = "var(--color-warning)"
+const COLOR_GRAY_500 = "var(--color-gray-500)"
+const COLOR_STATUS_INFO = "var(--color-status-info)"
+const COLOR_STATUS_SUCCESS = "var(--color-success)"
+const COLOR_STATUS_CLOSED = "var(--color-status-closed)"
+const COLOR_STATUS_OUTRIGHT_SALES = "var(--color-status-outright-sales)"
 
 const dashboardStats = [
   {
@@ -138,13 +138,13 @@ const lifecycleStages: LifecycleStage[] = [
 ]
 
 const DISTRIBUTION_COLORS = {
-  active: "#008356",
-  portfolioInactive: "#E88E15",
-  inactive: "#737373",
-  inbound: "#1855FC",
-  hpComplete: "#16B04F",
-  closed: "#6F2191",
-  readyForActivation: "#7BB924",
+  active: "var(--color-badge-active-text)",
+  portfolioInactive: "var(--color-warning)",
+  inactive: "var(--color-gray-500)",
+  inbound: "var(--color-status-info)",
+  hpComplete: "var(--color-success)",
+  closed: "var(--color-status-closed)",
+  readyForActivation: "var(--color-status-outright-sales)",
 }
 
 const randomValue = (min: number, max: number) => 
@@ -180,7 +180,7 @@ const activeFleetSeries: BarChartSeries[] = [
   {
     name: "Active",
     data: [180, 95, 165, 210, 120, 240, 45],
-    color: "#008356",
+    color: "var(--color-badge-active-text)",
   },
 ]
 
@@ -188,12 +188,12 @@ const inactiveFleetSeries: BarChartSeries[] = [
   {
     name: "Temporarily Inactive",
     data: [160, 80, 175, 195, 140, 185, 55],
-    color: "#E88E15",
+    color: "var(--color-warning)",
   },
   {
     name: "Inactive",
     data: [40, 25, 35, 30, 45, 25, 20],
-    color: "#737373",
+    color: "var(--color-gray-500)",
   },
 ]
 

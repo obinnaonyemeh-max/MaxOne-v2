@@ -78,18 +78,18 @@ export function HorizontalBarChart({
           >
             <CartesianGrid
               horizontal={false}
-              stroke="#EAEAEA"
+              stroke="var(--color-gray-200)"
             />
             <XAxis
               type="number"
-              tick={{ fill: "#A3A3A3", fontSize: 12, fontWeight: 500 }}
+              tick={{ fill: "var(--color-gray-400)", fontSize: 12, fontWeight: 500 }}
               axisLine={false}
               tickLine={false}
             />
             <YAxis
               type="category"
               dataKey="name"
-              tick={{ fill: "#555556", fontSize: 12, fontWeight: 500 }}
+              tick={{ fill: "var(--color-gray-600)", fontSize: 12, fontWeight: 500 }}
               axisLine={false}
               tickLine={false}
               width={70}
@@ -101,7 +101,7 @@ export function HorizontalBarChart({
                 return (
                   <div
                     style={{
-                      backgroundColor: "#1E1E1E",
+                      backgroundColor: "var(--color-gray-900)",
                       borderRadius: "8px",
                       padding: "10px 14px",
                       display: "flex",
@@ -110,7 +110,7 @@ export function HorizontalBarChart({
                       boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
                     }}
                   >
-                    <span style={{ color: "#A3A3A3", fontSize: "12px", fontWeight: 500 }}>
+                    <span style={{ color: "var(--color-gray-400)", fontSize: "12px", fontWeight: 500 }}>
                       {label}
                     </span>
                     {payload.map((entry) => (
@@ -142,7 +142,7 @@ export function HorizontalBarChart({
                 align="right"
                 iconType="circle"
                 iconSize={8}
-                wrapperStyle={{ fontSize: "12px", fontWeight: 500, color: "#555556" }}
+                wrapperStyle={{ fontSize: "12px", fontWeight: 500, color: "var(--color-gray-600)" }}
               />
             )}
             {series.map((s, seriesIndex) => (
@@ -160,9 +160,9 @@ export function HorizontalBarChart({
                 onMouseEnter={onBarEnter}
                 onMouseLeave={onBarLeave}
               >
-                {chartData.map((_, index) => (
+                {chartData.map((entry, index) => (
                   <Cell
-                    key={index}
+                    key={`${s.name}-${entry.name}`}
                     opacity={activeIndex === null || activeIndex === index ? 1 : 0.35}
                     style={{ transition: "opacity 0.2s ease", cursor: "pointer" }}
                   />

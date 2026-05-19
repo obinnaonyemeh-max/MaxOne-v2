@@ -81,7 +81,7 @@ export function DistributionChart({
                   return (
                     <div
                       style={{
-                        backgroundColor: "#1E1E1E",
+                        backgroundColor: "var(--color-gray-900)",
                         borderRadius: "8px",
                         padding: "8px 14px",
                         display: "flex",

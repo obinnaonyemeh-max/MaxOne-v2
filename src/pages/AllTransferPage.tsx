@@ -30,11 +30,11 @@ import {
   flagVariantMap,
 } from "@/data/mockTransferRecords"
 
-const COLOR_STATUS_WARNING = "#E88E15"
-const COLOR_STATUS_INFO = "#1855FC"
-const COLOR_STATUS_DANGER = "#DC2626"
-const COLOR_STATUS_SUCCESS = "#16B04F"
-const COLOR_GRAY_500 = "#737373"
+const COLOR_STATUS_WARNING = "var(--color-warning)"
+const COLOR_STATUS_INFO = "var(--color-status-info)"
+const COLOR_STATUS_DANGER = "var(--color-danger)"
+const COLOR_STATUS_SUCCESS = "var(--color-success)"
+const COLOR_GRAY_500 = "var(--color-gray-500)"
 
 
 function getVehicleIcon(assetType: string) {

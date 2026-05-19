@@ -45,8 +45,8 @@ export function VehicleOverviewCard({
       </div>
 
       <div className="space-y-3">
-        {details.map((detail, index) => (
-          <div key={index} className="flex items-center justify-between">
+        {details.map((detail) => (
+          <div key={detail.label} className="flex items-center justify-between">
             <span className="text-sm text-breadcrumb-root font-medium">
               {detail.label}
             </span>

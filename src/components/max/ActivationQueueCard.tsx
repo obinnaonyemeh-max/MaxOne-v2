@@ -61,7 +61,7 @@ export function ActivationQueueCard({
             <tbody>
               {data.map((item, index) => (
                 <tr
-                  key={index}
+                  key={item.activationType}
                   className={cn(
                     index < data.length - 1 && "border-b border-gray-100"
                   )}

@@ -62,7 +62,7 @@ export default function VehicleDetailsPage() {
                       : navigate(-1)
                   }
                 />
-                <h1 className="flex items-end gap-1 font-semibold text-sidebar-item-active" style={{ fontSize: '22px' }}>
+                <h1 className="flex items-end gap-1 font-semibold text-sidebar-item-active" style={{ fontSize: "22px" }}>
                   {vehicle.assetId}
                   <span className="mb-2 h-1.5 w-1.5 rounded-full bg-brand-primary" />
                 </h1>

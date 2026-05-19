@@ -46,8 +46,7 @@ export function DataTable<TData, TValue>({
               {columns.map((column, index) => (
                 <TableHead
                   key={index}
-                  className="h-11 bg-table-header-bg text-table-header-text font-medium first:rounded-l-lg last:rounded-r-lg first:pl-4 last:pr-4"
-                  style={{ fontSize: '13px' }}
+                  className="h-11 bg-table-header-bg text-table-header-text font-medium first:rounded-l-lg last:rounded-r-lg first:pl-4 last:pr-4" style={{ fontSize: "13px" }}
                 >
                   {typeof column.header === "string"
                     ? column.header
@@ -84,8 +83,7 @@ export function DataTable<TData, TValue>({
               {headerGroup.headers.map((header) => (
                 <TableHead
                   key={header.id}
-                  className="h-11 bg-table-header-bg text-table-header-text font-medium first:rounded-l-lg last:rounded-r-lg first:pl-4 last:pr-4"
-                  style={{ fontSize: '13px' }}
+                  className="h-11 bg-table-header-bg text-table-header-text font-medium first:rounded-l-lg last:rounded-r-lg first:pl-4 last:pr-4" style={{ fontSize: "13px" }}
                 >
                   {header.isPlaceholder
                     ? null

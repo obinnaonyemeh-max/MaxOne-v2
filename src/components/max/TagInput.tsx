@@ -60,7 +60,7 @@ export function TagInput({
     <div
       ref={containerRef}
       className={cn(
-        "flex h-12 w-full items-center gap-1.5 overflow-x-auto whitespace-nowrap rounded-md border border-input bg-[#F8F8F8] px-3 transition-[color,box-shadow]",
+        "flex h-12 w-full items-center gap-1.5 overflow-x-auto whitespace-nowrap rounded-md border border-input bg-input-soft px-3 transition-[color,box-shadow]",
         "[scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
         "focus-within:border-brand-primary focus-within:ring-[2px] focus-within:ring-brand-primary/10",
         disabled && "pointer-events-none cursor-not-allowed opacity-50",
@@ -71,8 +71,7 @@ export function TagInput({
       {value.map((tag, i) => (
         <span
           key={`${tag}-${i}`}
-          className="inline-flex shrink-0 items-center gap-1 rounded-md bg-gray-200 px-2 py-1 font-medium text-[#121314]"
-          style={{ fontSize: "13px" }}
+          className="inline-flex shrink-0 items-center gap-1 rounded-md bg-gray-200 px-2 py-1 font-medium text-brand-dark" style={{ fontSize: "13px" }}
         >
           {tag}
           <button
@@ -103,8 +102,7 @@ export function TagInput({
         onBlur={() => { if (draft.trim()) commit(draft) }}
         placeholder={value.length === 0 ? placeholder : ""}
         disabled={disabled}
-        className="flex-1 min-w-[80px] bg-transparent outline-none font-medium text-[#121314] placeholder:font-medium placeholder:text-[#888989]"
-        style={{ fontSize: "14px" }}
+        className="flex-1 min-w-[80px] bg-transparent outline-none font-medium text-brand-dark placeholder:font-medium placeholder:text-gray-500" style={{ fontSize: "14px" }}
       />
     </div>
   )

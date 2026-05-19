@@ -32,7 +32,7 @@ export default function ScrapDetailPage() {
       <header className="px-6 py-6 shrink-0">
         <div className="flex items-center gap-3">
           <BackButton onClick={() => navigate("/scrap-management")} />
-          <h1 className="flex items-end gap-1 font-semibold text-sidebar-item-active" style={{ fontSize: '22px' }}>
+          <h1 className="flex items-end gap-1 font-semibold text-sidebar-item-active" style={{ fontSize: "22px" }}>
             Scrap Detail – {record.assetId}
             <span className="mb-2 h-1.5 w-1.5 rounded-full bg-brand-primary" />
           </h1>

@@ -1,27 +1,55 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
+import { CheckCircle2 } from "lucide-react"
 
 import { TopBar, BackButton, StatusTimeline } from "@/components/max"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { getBatchDetails } from "@/data/mockBatchDetails"
 
-import { getNextStage } from "./batch-details/options"
+import { getNextStage, stageVariantMap } from "./batch-details/options"
 import { OverviewTab } from "./batch-details/OverviewTab"
 import { VehicleIdsTab } from "./batch-details/VehicleIdsTab"
 import { RegistrationPrepTab } from "./batch-details/RegistrationPrepTab"
 import { DocumentsTab } from "./batch-details/DocumentsTab"
 import { AddIdentifierModal } from "./batch-details/AddIdentifierModal"
 import { UploadDocumentModal } from "./batch-details/UploadDocumentModal"
+import { MoveStageModal } from "./batch-details/MoveStageModal"
 
 export default function BatchDetailsPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const batch = getBatchDetails(id || "1")
-  const nextStage = getNextStage(batch.stage)
+  const baseBatch = getBatchDetails(id || "1")
+
+  const [stage, setStage] = useState(baseBatch.stage)
+  const nextStage = getNextStage(stage)
+  const stageVariant = stageVariantMap[stage] ?? "default"
+  const batch = { ...baseBatch, stage, stageVariant }
 
   const [showAddIdentifier, setShowAddIdentifier] = useState(false)
   const [showUploadDoc, setShowUploadDoc] = useState(false)
+  const [showMoveStage, setShowMoveStage] = useState(false)
+  const [toast, setToast] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!toast) return
+    const t = setTimeout(() => setToast(null), 2500)
+    return () => clearTimeout(t)
+  }, [toast])
+
+  const advanceStage = (target: string) => {
+    setStage(target)
+    setToast(`Batch moved to ${target}`)
+  }
+
+  const handleMoveClick = () => {
+    if (!nextStage) return
+    if (nextStage === "In Transit") {
+      setShowMoveStage(true)
+    } else {
+      advanceStage(nextStage)
+    }
+  }
 
   return (
     <>
@@ -51,7 +79,10 @@ export default function BatchDetailsPage() {
             </div>
             {nextStage && (
               <div className="flex items-center gap-3">
-                <Button className="h-10 gap-2 bg-sidebar-item-active hover:bg-sidebar-item-active/90">
+                <Button
+                  onClick={handleMoveClick}
+                  className="h-10 gap-2 bg-sidebar-item-active hover:bg-sidebar-item-active/90"
+                >
                   Move to {nextStage}
                 </Button>
               </div>
@@ -123,6 +154,21 @@ export default function BatchDetailsPage() {
 
       <AddIdentifierModal open={showAddIdentifier} onOpenChange={setShowAddIdentifier} />
       <UploadDocumentModal open={showUploadDoc} onOpenChange={setShowUploadDoc} />
+      {nextStage && (
+        <MoveStageModal
+          open={showMoveStage}
+          onOpenChange={setShowMoveStage}
+          nextStage={nextStage}
+          onConfirm={() => advanceStage(nextStage)}
+        />
+      )}
+
+      {toast && (
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-lg border border-border bg-content-card px-4 py-3 shadow-lg">
+          <CheckCircle2 className="h-5 w-5 text-success" />
+          <span className="text-sm font-medium text-table-text">{toast}</span>
+        </div>
+      )}
     </>
   )
 }

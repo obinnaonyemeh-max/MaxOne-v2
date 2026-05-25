@@ -1,6 +1,16 @@
 import type { RegistrationRecord } from "@/data/mockBatchDetailRows"
 import type { FilterSection, GenericFilterState } from "@/components/max"
 
+export const stageVariantMap: Record<string, "success" | "danger" | "warning" | "info" | "default"> = {
+  "At Port": "warning",
+  "Identifier Upload": "info",
+  "In Transit": "info",
+  "In Production": "default",
+  "Clearing": "warning",
+  "Warehouse QA": "default",
+  "Ready for Activation": "success",
+}
+
 export const stageOrder = [
   "In Production",
   "Identifier Upload",

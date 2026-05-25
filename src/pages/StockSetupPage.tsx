@@ -35,7 +35,7 @@ type DeleteTarget =
 
 const deleteTitle: Record<NonNullable<DeleteTarget>["kind"], string> = {
   manufacturer: "Delete Manufacturer",
-  "vehicle-type": "Delete Vehicle Type",
+  "vehicle-type": "Delete Vehicle Classification",
   model: "Delete Model",
   trim: "Delete Trim",
 }
@@ -75,7 +75,7 @@ export default function StockSetupPage() {
           setDeleteTarget({
             kind: "vehicle-type",
             id: row.id,
-            label: `${row.manufacturer} ${row.model} ${row.trim}`,
+            label: row.name,
           }),
       }),
     [],
@@ -134,7 +134,7 @@ export default function StockSetupPage() {
             Manufacturers
           </TabsTrigger>
           <TabsTrigger value="vehicle-types" className="px-4 py-2" style={{ fontSize: "14px" }}>
-            Vehicle Types
+            Vehicle Classification
           </TabsTrigger>
           <TabsTrigger value="models" className="px-4 py-2" style={{ fontSize: "14px" }}>
             Models
@@ -158,8 +158,8 @@ export default function StockSetupPage() {
         <TabsContent value="vehicle-types" className="flex-1 flex flex-col min-h-0 mt-4">
           <TabPanel
             count={mockVehicleTypes.length}
-            countLabel="vehicle types"
-            addLabel="Add Vehicle Type"
+            countLabel="vehicle classifications"
+            addLabel="Add Vehicle Classification"
             onAdd={() => setShowAddVehicleType(true)}
             columns={vehicleTypeColumns}
             data={mockVehicleTypes}

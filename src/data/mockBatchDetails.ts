@@ -38,7 +38,7 @@ export const mockBatchDetails: Record<string, BatchDetails> = {
     stageVariant: "warning",
     batchInfo: {
       oem: "TailG",
-      model: "Jidi",
+      model: "Jidi V1 Standard",
       trim: "V1",
       quantityOrdered: 20000,
       quantityReceived: 5000,
@@ -130,7 +130,7 @@ export const mockBatchDetails: Record<string, BatchDetails> = {
           template: "Production started for {quantity} units of {model}",
           highlights: {
             quantity: "20,000",
-            model: "Jidi",
+            model: "Jidi V1 Standard",
           },
         },
         actor: {
@@ -151,7 +151,7 @@ export const mockBatchDetails: Record<string, BatchDetails> = {
     stageVariant: "info",
     batchInfo: {
       oem: "Spiro",
-      model: "Ekon",
+      model: "Ekon V2 Standard",
       trim: "Ekon V2",
       quantityOrdered: 5000,
       quantityReceived: 1250,
@@ -201,7 +201,7 @@ export const mockBatchDetails: Record<string, BatchDetails> = {
           template: "Production started for {quantity} units of {model}",
           highlights: {
             quantity: "5,000",
-            model: "Ekon",
+            model: "Ekon V2 Standard",
           },
         },
         actor: {
@@ -222,7 +222,7 @@ export const mockBatchDetails: Record<string, BatchDetails> = {
     stageVariant: "info",
     batchInfo: {
       oem: "King",
-      model: "MAX M4",
+      model: "MAX M4 Cargo",
       trim: "MM4",
       quantityOrdered: 2500,
       quantityReceived: 625,
@@ -293,7 +293,7 @@ export const mockBatchDetails: Record<string, BatchDetails> = {
           template: "Production started for {quantity} units of {model}",
           highlights: {
             quantity: "2,500",
-            model: "MAX M4",
+            model: "MAX M4 Cargo",
           },
         },
         actor: {
@@ -314,7 +314,7 @@ export const mockBatchDetails: Record<string, BatchDetails> = {
     stageVariant: "success",
     batchInfo: {
       oem: "TailG",
-      model: "Jidi",
+      model: "Jidi V1 Standard",
       trim: "V1",
       quantityOrdered: 400,
       quantityReceived: 100,
@@ -465,7 +465,7 @@ export const mockBatchDetails: Record<string, BatchDetails> = {
           template: "Production started for {quantity} units of {model}",
           highlights: {
             quantity: "400",
-            model: "Jidi",
+            model: "Jidi V1 Standard",
           },
         },
         actor: {
@@ -486,7 +486,7 @@ export const mockBatchDetails: Record<string, BatchDetails> = {
     stageVariant: "info",
     batchInfo: {
       oem: "Spiro",
-      model: "Ekon",
+      model: "Ekon V2 Standard",
       trim: "Ekon V2",
       quantityOrdered: 1000,
       quantityReceived: 250,
@@ -536,7 +536,7 @@ export const mockBatchDetails: Record<string, BatchDetails> = {
           template: "Production started for {quantity} units of {model}",
           highlights: {
             quantity: "1,000",
-            model: "Ekon",
+            model: "Ekon V2 Standard",
           },
         },
         actor: {
@@ -557,7 +557,7 @@ export const mockBatchDetails: Record<string, BatchDetails> = {
     stageVariant: "default",
     batchInfo: {
       oem: "King",
-      model: "MAX M4",
+      model: "MAX M4 Cargo",
       trim: "MM4",
       quantityOrdered: 3000,
       quantityReceived: 750,
@@ -587,7 +587,7 @@ export const mockBatchDetails: Record<string, BatchDetails> = {
           template: "Production started for {quantity} units of {model}",
           highlights: {
             quantity: "3,000",
-            model: "MAX M4",
+            model: "MAX M4 Cargo",
           },
         },
         actor: {
@@ -608,7 +608,7 @@ export const mockBatchDetails: Record<string, BatchDetails> = {
     stageVariant: "warning",
     batchInfo: {
       oem: "TailG",
-      model: "Jidi",
+      model: "Jidi V1 Standard",
       trim: "V1",
       quantityOrdered: 1500,
       quantityReceived: 375,
@@ -719,7 +719,7 @@ export const mockBatchDetails: Record<string, BatchDetails> = {
           template: "Production started for {quantity} units of {model}",
           highlights: {
             quantity: "1,500",
-            model: "Jidi",
+            model: "Jidi V1 Standard",
           },
         },
         actor: {
@@ -740,7 +740,7 @@ export const mockBatchDetails: Record<string, BatchDetails> = {
     stageVariant: "default",
     batchInfo: {
       oem: "Spiro",
-      model: "Ekon",
+      model: "Ekon V2 Standard",
       trim: "Ekon V2",
       quantityOrdered: 800,
       quantityReceived: 200,
@@ -871,7 +871,7 @@ export const mockBatchDetails: Record<string, BatchDetails> = {
           template: "Production started for {quantity} units of {model}",
           highlights: {
             quantity: "800",
-            model: "Ekon",
+            model: "Ekon V2 Standard",
           },
         },
         actor: {

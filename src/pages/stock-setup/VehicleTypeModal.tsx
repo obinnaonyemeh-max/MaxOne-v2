@@ -23,14 +23,14 @@ export function VehicleTypeModal({
     <Modal
       open={open}
       onOpenChange={onOpenChange}
-      title={editing ? "Edit Vehicle Type" : "Add Vehicle Type"}
-      subtitle={editing ? "Update the vehicle type details below." : "Enter the vehicle type details below."}
+      title={editing ? "Edit Vehicle Classification" : "Add Vehicle Classification"}
+      subtitle={editing ? "Update the vehicle classification details below." : "Enter the vehicle classification details below."}
       maxHeight="85vh"
       className="max-w-2xl"
       primaryAction={{
-        label: editing ? "Update Vehicle Type" : "Create Vehicle Type",
+        label: editing ? "Update Vehicle Classification" : "Create Vehicle Classification",
         onClick: () => {
-          console.log(editing ? "Update vehicle type submitted" : "Create vehicle type submitted")
+          console.log(editing ? "Update vehicle classification submitted" : "Create vehicle classification submitted")
           onOpenChange(false)
         },
         icon: true,
@@ -43,6 +43,20 @@ export function VehicleTypeModal({
       <div key={editing?.id ?? "new"} className="space-y-8">
         <FormSection title="Vehicle Details">
           <div className="grid grid-cols-2 gap-4">
+            <FormField label="Name">
+              <Input placeholder="Enter name" className="h-12 bg-input-soft" defaultValue={editing?.name ?? ""} />
+            </FormField>
+            <FormField label="Vehicle Type">
+              <Select defaultValue={editing?.vehicleType ?? ""}>
+                <SelectTrigger className="h-12 w-full bg-input-soft">
+                  <SelectValue placeholder="Select vehicle type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="2 Wheeler">2 Wheeler</SelectItem>
+                  <SelectItem value="3 Wheeler">3 Wheeler</SelectItem>
+                </SelectContent>
+              </Select>
+            </FormField>
             <FormField label="Manufacturer">
               <Select defaultValue={editing?.manufacturer ?? ""}>
                 <SelectTrigger className="h-12 w-full bg-input-soft">

@@ -33,6 +33,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Calendar } from "@/components/ui/calendar"
 
 import { mockBatches, type BatchRecord } from "@/data/mockBatches"
+import { mockVehicleTypes } from "@/data/mockStockSetup"
 
 const stageVariantMap: Record<string, "success" | "danger" | "warning" | "info" | "default"> = {
   "At Port": "warning",
@@ -65,7 +66,7 @@ const batchColumns: ColumnDef<BatchRecord>[] = [
   },
   {
     accessorKey: "model",
-    header: "Model",
+    header: "Name",
     cell: ({ row }) => (
       <span className="font-medium text-table-text" style={{ fontSize: "14px" }}>
         {row.original.model}
@@ -301,15 +302,15 @@ export default function BatchesPage() {
                 </Select>
               </div>
               <div className="flex flex-col gap-2">
-                <label className="text-gray-400 font-medium" style={{ fontSize: "13px" }}>Vehicle Type / Model</label>
+                <label className="text-gray-400 font-medium" style={{ fontSize: "13px" }}>Name</label>
                 <Select>
                   <SelectTrigger className="h-12 w-full bg-input-soft">
-                    <SelectValue placeholder="Select vehicle type / model" />
+                    <SelectValue placeholder="Select name" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="MAX M4">MAX M4</SelectItem>
-                    <SelectItem value="Ekon">Ekon</SelectItem>
-                    <SelectItem value="Jidi">Jidi</SelectItem>
+                    {mockVehicleTypes.map((vt) => (
+                      <SelectItem key={vt.id} value={vt.name}>{vt.name}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>

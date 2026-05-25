@@ -9,6 +9,8 @@ export interface ManufacturerRecord {
 
 export interface VehicleTypeRecord {
   id: string
+  name: string
+  vehicleType: string
   model: string
   manufacturer: string
   trim: string
@@ -36,9 +38,9 @@ export const mockManufacturers = [
 ] satisfies ManufacturerRecord[]
 
 export const mockVehicleTypes = [
-  { id: "1", model: "Ekon", manufacturer: "Spiro", trim: "Ekon V2", category: "Electric Vehicle", battery: "3.3kWh", range: "400km" },
-  { id: "2", model: "Jidi", manufacturer: "TailG", trim: "V1", category: "Electric Vehicle", battery: "3.3kWh", range: "400km" },
-  { id: "3", model: "MAX M4", manufacturer: "King", trim: "MM4", category: "Internal Combustion Engine", battery: "60kWh", range: "400km" },
+  { id: "1", name: "Ekon V2 Standard", vehicleType: "2 Wheeler", model: "Ekon", manufacturer: "Spiro", trim: "Ekon V2", category: "Electric Vehicle", battery: "3.3kWh", range: "400km" },
+  { id: "2", name: "Jidi V1 Standard", vehicleType: "2 Wheeler", model: "Jidi", manufacturer: "TailG", trim: "V1", category: "Electric Vehicle", battery: "3.3kWh", range: "400km" },
+  { id: "3", name: "MAX M4 Cargo", vehicleType: "3 Wheeler", model: "MAX M4", manufacturer: "King", trim: "MM4", category: "Internal Combustion Engine", battery: "60kWh", range: "400km" },
 ] satisfies VehicleTypeRecord[]
 
 export const mockModels = [

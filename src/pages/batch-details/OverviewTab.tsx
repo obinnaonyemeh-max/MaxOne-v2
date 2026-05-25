@@ -11,7 +11,7 @@ export function OverviewTab({ batch }: { batch: BatchDetails }) {
           items={[
             { label: "Batch ID", value: batch.batchId },
             { label: "OEM / Manufacturer", value: batch.batchInfo.oem },
-            { label: "Model", value: batch.batchInfo.model },
+            { label: "Name", value: batch.batchInfo.model },
             { label: "Trim", value: batch.batchInfo.trim },
             { label: "Quantity Ordered", value: batch.batchInfo.quantityOrdered.toLocaleString() },
             { label: "Quantity Received", value: batch.batchInfo.quantityReceived.toLocaleString() },

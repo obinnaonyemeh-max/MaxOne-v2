@@ -79,7 +79,9 @@ export function getManufacturerColumns(actions: RowActions<ManufacturerRecord>):
 
 export function getVehicleTypeColumns(actions: RowActions<VehicleTypeRecord>): ColumnDef<VehicleTypeRecord>[] {
   return [
-    { accessorKey: "model", header: "Model", cell: ({ row }) => primaryCell(row.original.model) },
+    { accessorKey: "name", header: "Name", cell: ({ row }) => primaryCell(row.original.name) },
+    { accessorKey: "vehicleType", header: "Vehicle Type", cell: ({ row }) => secondaryCell(row.original.vehicleType) },
+    { accessorKey: "model", header: "Model", cell: ({ row }) => secondaryCell(row.original.model) },
     { accessorKey: "manufacturer", header: "Manufacturer", cell: ({ row }) => secondaryCell(row.original.manufacturer) },
     { accessorKey: "trim", header: "Trim", cell: ({ row }) => secondaryCell(row.original.trim) },
     { accessorKey: "category", header: "Category", cell: ({ row }) => secondaryCell(row.original.category) },

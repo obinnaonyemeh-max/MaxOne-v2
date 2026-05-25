@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
-import { CheckCircle2 } from "lucide-react"
 
 import { TopBar, BackButton, StatusTimeline } from "@/components/max"
 import { Button } from "@/components/ui/button"
@@ -164,8 +163,8 @@ export default function BatchDetailsPage() {
       )}
 
       {toast && (
-        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-lg border border-border bg-content-card px-4 py-3 shadow-lg">
-          <CheckCircle2 className="h-5 w-5 text-success" />
+        <div className="fixed top-6 left-1/2 z-50 flex -translate-x-1/2 items-center gap-3 rounded-lg border border-border bg-content-card px-4 py-3 shadow-lg">
+          <img src="/images/success_Checkmark.svg" alt="Success" className="h-6 w-6" />
           <span className="text-sm font-medium text-table-text">{toast}</span>
         </div>
       )}

@@ -19,6 +19,7 @@ import ClosedAssetDetailPage from "@/pages/ClosedAssetDetailPage"
 import AllTransferPage from "@/pages/AllTransferPage"
 import TransferDetailPage from "@/pages/TransferDetailPage"
 import ActivationReadinessPage from "@/pages/ActivationReadinessPage"
+import VehicleDocumentsPage from "@/pages/VehicleDocumentsPage"
 
 export default function App() {
   return (
@@ -48,6 +49,7 @@ export default function App() {
         <Route path="/transfer/all" element={<AllTransferPage />} />
         <Route path="/transfer/all/:id" element={<TransferDetailPage />} />
         <Route path="/activation/readiness" element={<ActivationReadinessPage />} />
+        <Route path="/vehicle-document" element={<VehicleDocumentsPage />} />
       </Routes>
     </AppLayout>
   )

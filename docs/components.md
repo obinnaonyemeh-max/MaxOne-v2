@@ -20,6 +20,9 @@ This document catalogs all reusable components in the MaxOne design system. Thes
 - [Form/Filter Components](#formfilter-components)
   - [FilterBar](#filterbar)
   - [FilterPopover](#filterpopover)
+- [Feedback Components](#feedback-components)
+  - [Banner](#banner)
+  - [Toast](#toast)
 - [Color Tokens](#color-tokens)
 
 ---
@@ -806,6 +809,71 @@ import { AlertTriangle } from "lucide-react"
 
 ---
 
+### Toast
+
+Lightweight, non-modal confirmation message pinned to the top-center of the viewport. Used to acknowledge a completed action (stage advance, save, upload) without interrupting flow. Auto-dismisses after a short timeout.
+
+#### Import
+
+```tsx
+import { Toast, useToast, type ToastProps, type ToastVariant } from "@/components/max"
+```
+
+#### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `message` | `string \| null` | required | Text to display. When `null`, the toast renders nothing. |
+| `variant` | `"success" \| "error"` | `"success"` | Controls icon and text color |
+| `className` | `string` | — | Additional classes for the wrapper |
+
+#### Variant Styles
+
+| Variant | Icon | Border | Text color | Use case |
+|---------|------|--------|------------|----------|
+| `success` | `/images/success_Checkmark.svg` | `border-border` | `text-table-text` | Action confirmations (saved, moved, uploaded) |
+| `error` | `/images/rejected.png` (same illustration used by `ConfirmModal` destructive variant) | `border-status-danger/30` | `text-status-danger` | Failed actions, validation errors |
+
+#### `useToast(durationMs?)` hook
+
+Convenience hook that pairs with `<Toast />` and handles auto-dismiss.
+
+| Return | Type | Description |
+|--------|------|-------------|
+| `message` | `string \| null` | Current toast message — pass straight into `<Toast message={...} />` |
+| `variant` | `ToastVariant` | Current variant — pass straight into `<Toast variant={...} />` |
+| `showToast` | `(msg: string \| null, variant?: ToastVariant) => void` | Display a message; auto-clears after `durationMs` (default `2500`). Defaults to `"success"`. |
+| `showError` | `(msg: string) => void` | Shortcut for `showToast(msg, "error")` |
+
+#### Usage
+
+```tsx
+import { Toast, useToast } from "@/components/max"
+
+function MyPage() {
+  const { message, variant, showToast, showError } = useToast()
+
+  return (
+    <>
+      <Button onClick={() => showToast("Batch moved to In Transit")}>Move stage</Button>
+      <Button onClick={() => showError("Failed to move batch")}>Force failure</Button>
+      <Toast message={message} variant={variant} />
+    </>
+  )
+}
+```
+
+#### Styling Notes
+
+- Position: `fixed top-6 left-1/2 -translate-x-1/2 z-50` — anchored top-center, sits above page chrome
+- Surface: `bg-content-card`, `rounded-lg`, `shadow-lg`; border color follows variant
+- Padding: `px-4 py-3`
+- Icon: 24×24, leading
+- Message text: 14px, `font-medium`; color follows variant
+- Default auto-dismiss is 2.5s — override with `useToast(durationMs)`
+
+---
+
 ## Color Tokens
 
 The design system uses custom Tailwind color tokens defined in `src/index.css`:
@@ -865,3 +933,5 @@ The design system uses custom Tailwind color tokens defined in `src/index.css`:
 | Date | Component | Change |
 |------|-----------|--------|
 | 2026-03-07 | All | Initial documentation created |
+| 2026-05-28 | Toast | Promoted inline batch-details toast into a reusable `Toast` component + `useToast` hook |
+| 2026-05-28 | Toast | Added `error` variant + `showError` hook shortcut |

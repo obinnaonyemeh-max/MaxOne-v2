@@ -238,6 +238,20 @@ export default function DisposalManagementPage() {
       />
 
       <div className="px-6 flex flex-col flex-1 min-h-0">
+        <button
+          type="button"
+          onClick={() => setBreachFilter(!breachFilter)}
+          className="mb-3 shrink-0 w-full text-left transition-opacity hover:opacity-90"
+        >
+          <Banner
+            variant="danger"
+            icon={<AlertTriangle className="h-5 w-5 text-status-danger" />}
+            title={`${breachCount} Vehicles in SLA Breach`}
+            description="Click to filter breached vehicles"
+            className={breachFilter ? "border-status-danger" : ""}
+          />
+        </button>
+
         <div className="grid grid-cols-5 gap-2 shrink-0">
           <StatCard
             title="Total in Disposal"
@@ -253,20 +267,6 @@ export default function DisposalManagementPage() {
             />
           ))}
         </div>
-
-        <button
-          type="button"
-          onClick={() => setBreachFilter(!breachFilter)}
-          className="mt-3 shrink-0 w-full text-left transition-opacity hover:opacity-90"
-        >
-          <Banner
-            variant="danger"
-            icon={<AlertTriangle className="h-5 w-5 text-status-danger" />}
-            title={`${breachCount} Vehicles in SLA Breach`}
-            description="Click to filter breached vehicles"
-            className={breachFilter ? "border-status-danger" : ""}
-          />
-        </button>
 
         <div className="mt-4 flex-1 flex flex-col min-h-0 rounded-t-[14px] rounded-b-[4px] border border-table-border">
           <div className="flex flex-wrap items-center justify-between gap-3 px-2 py-2 shrink-0">

@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 
-import { TopBar, BackButton, StatusTimeline } from "@/components/max"
+import { TopBar, BackButton, StatusTimeline, Toast, useToast } from "@/components/max"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { getBatchDetails } from "@/data/mockBatchDetails"
@@ -28,17 +28,11 @@ export default function BatchDetailsPage() {
   const [showAddIdentifier, setShowAddIdentifier] = useState(false)
   const [showUploadDoc, setShowUploadDoc] = useState(false)
   const [showMoveStage, setShowMoveStage] = useState(false)
-  const [toast, setToast] = useState<string | null>(null)
-
-  useEffect(() => {
-    if (!toast) return
-    const t = setTimeout(() => setToast(null), 2500)
-    return () => clearTimeout(t)
-  }, [toast])
+  const { message: toast, variant: toastVariant, showToast } = useToast()
 
   const advanceStage = (target: string) => {
     setStage(target)
-    setToast(`Batch moved to ${target}`)
+    showToast(`Batch moved to ${target}`)
   }
 
   const handleMoveClick = () => {
@@ -162,12 +156,7 @@ export default function BatchDetailsPage() {
         />
       )}
 
-      {toast && (
-        <div className="fixed top-6 left-1/2 z-50 flex -translate-x-1/2 items-center gap-3 rounded-lg border border-border bg-content-card px-4 py-3 shadow-lg">
-          <img src="/images/success_Checkmark.svg" alt="Success" className="h-6 w-6" />
-          <span className="text-sm font-medium text-table-text">{toast}</span>
-        </div>
-      )}
+      <Toast message={toast} variant={toastVariant} />
     </>
   )
 }

@@ -64,6 +64,12 @@ export const sidebarSections: SidebarSection[] = [
         icon: "/images/memo_circle_check_menu.svg",
         href: "/activation/readiness",
       },
+      {
+        id: "vehicle-document",
+        label: "Vehicle Document",
+        icon: "/images/document_menu.svg",
+        href: "/vehicle-document",
+      },
     ],
   },
   {

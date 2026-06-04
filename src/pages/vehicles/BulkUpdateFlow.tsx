@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react"
 
-import { Modal, LoaderModal } from "@/components/max"
-
-import { FileDropZone } from "./FormControls"
+import { Modal, LoaderModal, DocUpload } from "@/components/max"
 
 type BulkUpdateStep = "upload" | "validating" | "validated" | "importing" | "imported"
 
@@ -55,9 +53,14 @@ export function BulkUpdateFlow({ open, onClose }: BulkUpdateFlowProps) {
       >
         <div className="flex gap-8">
           <div className="w-[280px] shrink-0">
-            <FileDropZone
-              file={file}
+            <DocUpload
+              uploadedFile={file}
               onFileSelect={setFile}
+              accept=".xlsx,.xls,.csv"
+              maxSizeLabel=""
+              label="Drag and drop filled template sheet"
+              icon={<img src="/images/xls.svg" alt="XLS" className="mx-auto h-12 w-auto mb-2" />}
+              minHeightClass="min-h-[280px]"
             />
           </div>
 

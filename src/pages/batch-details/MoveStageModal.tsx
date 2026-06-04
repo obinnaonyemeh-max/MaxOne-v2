@@ -1,8 +1,8 @@
 import { useState } from "react"
 
-import { Modal } from "@/components/max"
+import { Modal, DocUpload } from "@/components/max"
 import { Input } from "@/components/ui/input"
-import { FormSection, FormField, DocDropZone } from "./FormControls"
+import { FormSection, FormField } from "./FormControls"
 
 export function MoveStageModal({
   open,
@@ -57,7 +57,12 @@ export function MoveStageModal({
 
         <FormSection title="Upload CSV">
           <FormField label="Vehicle Identifiers CSV">
-            <DocDropZone onFileSelect={setCsvFile} file={csvFile} />
+            <DocUpload
+              uploadedFile={csvFile}
+              onFileSelect={setCsvFile}
+              accept=".csv"
+              maxSizeLabel="CSV up to 10MB"
+            />
           </FormField>
         </FormSection>
       </div>

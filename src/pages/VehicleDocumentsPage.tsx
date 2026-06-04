@@ -319,7 +319,18 @@ export default function VehicleDocumentsPage() {
               <ul className="mt-2 space-y-1">
                 {complianceAlerts.map((a) => (
                   <li key={a.vehicleId} className="text-sm">
-                    <span className="font-medium text-foreground">{a.vehicleId}</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const record = mockVehicleDocuments.find(
+                          (r) => r.vehicleId === a.vehicleId
+                        )
+                        if (record) setSelectedRecord(record)
+                      }}
+                      className="font-medium text-foreground underline decoration-dotted underline-offset-2 hover:opacity-80 transition-opacity cursor-pointer"
+                    >
+                      {a.vehicleId}
+                    </button>
                     <span className="text-muted-foreground"> — {a.message}</span>
                   </li>
                 ))}

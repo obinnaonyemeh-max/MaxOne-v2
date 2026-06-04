@@ -692,6 +692,44 @@ const [containers, setContainers] = useState<string[]>([])
 
 ---
 
+### DocUpload
+
+The unified file-upload widget used everywhere a document/file is uploaded (Vehicle Documents, batch details, transfer detail). Renders three states: an idle drag-and-drop zone, an animated upload progress bar, and an uploaded state showing a PDF/image preview thumbnail with a hover "Replace" action. `DocDropZone` is the low-level idle dropzone primitive that `DocUpload` composes — prefer `DocUpload` in pages and modals.
+
+**Props**
+
+| Prop | Type | Required | Description |
+|------|------|----------|-------------|
+| `uploadedFile` | `File \| null` | yes | Current file; pass `null` to start in the idle state |
+| `onFileSelect` | `(file: File) => void` | yes | Called once the (simulated) upload completes |
+| `accept` | `string` | no | Accepted file extensions/MIME types. Defaults to `".pdf,.doc,.docx"`. Applied to both the dropzone and the Replace input. |
+| `maxSizeLabel` | `string` | no | Helper text under the idle prompt. Defaults to `"PDF, DOC up to 10MB"`. Pass `""` to hide it. |
+| `label` | `string` | no | Idle prompt heading. Defaults to `"Drag and drop your document"`. |
+| `icon` | `React.ReactNode` | no | Custom idle icon (e.g. an XLS template glyph). Defaults to a generic upload icon. |
+| `minHeightClass` | `string` | no | Tailwind min-height class applied to every state so the box keeps a stable size (e.g. `"min-h-[280px]"`). Defaults to `"min-h-[100px]"`. |
+
+**Usage**
+
+```tsx
+import { DocUpload } from "@/components/max"
+
+const [file, setFile] = useState<File | null>(null)
+
+<DocUpload
+  uploadedFile={file}
+  onFileSelect={setFile}
+  accept=".csv"
+  maxSizeLabel="CSV up to 10MB"
+/>
+```
+
+**Notes**
+
+- PDF previews are rendered via `pdfjs-dist`; image files preview directly. Other types fall back to a generic document thumbnail.
+- `onFileSelect` fires after the progress animation reaches 100%, not on initial selection.
+
+---
+
 ## Dialog Components
 
 ### ConfirmModal

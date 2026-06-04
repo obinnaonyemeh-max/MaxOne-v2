@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react"
+import { useMemo, useState } from "react"
 import { type ColumnDef } from "@tanstack/react-table"
 import { Search, SlidersHorizontal } from "lucide-react"
 
@@ -10,6 +10,7 @@ import {
   Pagination,
   Modal,
   LoaderModal,
+  DocUpload,
   GenericFilterPopover,
   getActiveFilterCount,
   type FilterSection,
@@ -157,46 +158,6 @@ function makeColumns(onUpdate: (r: ActivationRecord) => void): ColumnDef<Activat
 }
 
 type BulkStep = "upload" | "validating" | "validated" | "importing" | "imported"
-
-function FileDropZone({ file, onFileSelect }: { file: File | null; onFileSelect: (f: File) => void }) {
-  const [isDragOver, setIsDragOver] = useState(false)
-  const inputRef = useRef<HTMLInputElement>(null)
-
-  return (
-    <div
-      onClick={() => inputRef.current?.click()}
-      onDragOver={(e) => { e.preventDefault(); setIsDragOver(true) }}
-      onDragLeave={(e) => { e.preventDefault(); setIsDragOver(false) }}
-      onDrop={(e) => {
-        e.preventDefault()
-        setIsDragOver(false)
-        const f = e.dataTransfer.files[0]
-        if (f) onFileSelect(f)
-      }}
-      className={`flex flex-col items-center justify-center gap-4 rounded-lg border-2 border-dashed p-8 cursor-pointer transition-colors min-h-[280px] ${
-        isDragOver ? "border-brand-primary bg-brand-primary/5" : file ? "border-green-400 bg-green-50" : "border-gray-300 bg-gray-50"
-      }`}
-    >
-      <input ref={inputRef} type="file" accept=".xlsx,.xls,.csv" className="hidden"
-        onChange={(e) => { const f = e.target.files?.[0]; if (f) onFileSelect(f) }} />
-      <img src="/images/xls.svg" alt="XLS" className="h-12 w-auto" />
-      {file ? (
-        <div className="text-center">
-          <p className="font-medium text-green-600" style={{ fontSize: "14px" }}>{file.name}</p>
-          <p className="mt-1 text-green-500" style={{ fontSize: "12px" }}>File uploaded successfully</p>
-        </div>
-      ) : (
-        <div className="text-center">
-          <p className="font-medium text-sidebar-item" style={{ fontSize: "14px" }}>Drag and drop filled template sheet</p>
-          <p className="mt-1" style={{ fontSize: "14px" }}>
-            <span className="text-sidebar-item">or </span>
-            <span className="text-status-info underline">click to upload</span>
-          </p>
-        </div>
-      )}
-    </div>
-  )
-}
 
 export default function ActivationReadinessPage() {
   const [searchQuery, setSearchQuery] = useState("")
@@ -351,7 +312,15 @@ export default function ActivationReadinessPage() {
       >
         <div className="flex gap-8">
           <div className="w-[280px] shrink-0">
-            <FileDropZone file={bulkFile} onFileSelect={setBulkFile} />
+            <DocUpload
+              uploadedFile={bulkFile}
+              onFileSelect={setBulkFile}
+              accept=".xlsx,.xls,.csv"
+              maxSizeLabel=""
+              label="Drag and drop filled template sheet"
+              icon={<img src="/images/xls.svg" alt="XLS" className="mx-auto h-12 w-auto mb-2" />}
+              minHeightClass="min-h-[280px]"
+            />
           </div>
           <div className="flex-1">
             <h4 className="font-semibold text-sidebar-item-active" style={{ fontSize: "16px" }}>

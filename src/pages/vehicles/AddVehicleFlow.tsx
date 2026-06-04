@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { format } from "date-fns"
 import { Calendar as CalendarIcon } from "lucide-react"
 
-import { Modal, LoaderModal } from "@/components/max"
+import { Modal, LoaderModal, DocUpload } from "@/components/max"
 import { Input } from "@/components/ui/input"
 import {
   Select,
@@ -21,7 +21,6 @@ import { Button } from "@/components/ui/button"
 
 import {
   AddVehicleOptionCard,
-  FileDropZone,
   FormField,
   FormSection,
 } from "./FormControls"
@@ -293,9 +292,14 @@ export function AddVehicleFlow({ open, onClose }: AddVehicleFlowProps) {
       >
         <div className="flex gap-6">
           <div className="w-[280px] shrink-0">
-            <FileDropZone
+            <DocUpload
+              uploadedFile={uploadedFile}
               onFileSelect={setUploadedFile}
-              file={uploadedFile}
+              accept=".xlsx,.xls,.csv"
+              maxSizeLabel=""
+              label="Drag and drop filled template sheet"
+              icon={<img src="/images/xls.svg" alt="XLS" className="mx-auto h-12 w-auto mb-2" />}
+              minHeightClass="min-h-[280px]"
             />
           </div>
 

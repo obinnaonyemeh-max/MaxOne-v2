@@ -1,7 +1,7 @@
 import { useState } from "react"
-import { Modal } from "@/components/max"
+import { Modal, DocUpload } from "@/components/max"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { FormSection, FormField, DocDropZone } from "./FormControls"
+import { FormSection, FormField } from "./FormControls"
 import { documentTypeOptions } from "./options"
 
 export function UploadDocumentModal({
@@ -55,9 +55,10 @@ export function UploadDocumentModal({
             </Select>
           </FormField>
           <FormField label="File">
-            <DocDropZone
-              file={uploadDocFile}
+            <DocUpload
+              uploadedFile={uploadDocFile}
               onFileSelect={setUploadDocFile}
+              accept=".pdf,.doc,.docx,.xlsx,.xls,.csv,.png,.jpg,.jpeg"
             />
           </FormField>
         </FormSection>

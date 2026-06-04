@@ -126,7 +126,7 @@ export function DocumentChecklistModal({ record, onClose, onUpload, onReplace }:
                       ? "text-status-warning"
                       : "text-status-danger"
                 )}
-                style={{ fontSize: "20px" }}
+                style={{ fontSize: "14px" }}
               >
                 {record.completion}%
               </p>

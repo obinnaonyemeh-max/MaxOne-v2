@@ -7,6 +7,8 @@ export interface DocDropZoneProps {
   onFileSelect: (file: File) => void
   accept?: string
   maxSizeLabel?: string
+  label?: string
+  icon?: React.ReactNode
   className?: string
 }
 
@@ -15,6 +17,8 @@ export function DocDropZone({
   onFileSelect,
   accept = ".pdf,.doc,.docx",
   maxSizeLabel = "PDF, DOC up to 10MB",
+  label = "Drag and drop your document",
+  icon,
   className,
 }: DocDropZoneProps) {
   const [isDragOver, setIsDragOver] = useState(false)
@@ -59,13 +63,13 @@ export function DocDropZone({
         </div>
       ) : (
         <div className="text-center">
-          <Upload className="mx-auto h-7 w-7 text-gray-400 mb-2" />
-          <p className="font-medium text-sidebar-item text-sm">Drag and drop your document</p>
+          {icon ?? <Upload className="mx-auto h-7 w-7 text-gray-400 mb-2" />}
+          <p className="font-medium text-sidebar-item text-sm">{label}</p>
           <p className="mt-1 text-sm">
             <span className="text-sidebar-item">or </span>
             <span className="text-status-info underline">click to upload</span>
           </p>
-          <p className="mt-2 text-muted-foreground text-xs">{maxSizeLabel}</p>
+          {maxSizeLabel && <p className="mt-2 text-muted-foreground text-xs">{maxSizeLabel}</p>}
         </div>
       )}
     </div>

@@ -134,7 +134,7 @@ export const columns: ColumnDef<Vehicle>[] = [
   },
   {
     accessorKey: "driverSafetyScore",
-    header: "Driver Safety Score",
+    header: "Driver Safety Performance",
     cell: ({ row }) => {
       const score = row.original.driverSafetyScore
       if (score === null) return <span className="text-muted-foreground">-</span>

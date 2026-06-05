@@ -245,6 +245,39 @@ export const driverGrowthSidebarSections: SidebarSection[] = [
   },
 ]
 
+export const driverExperienceSidebarSections: SidebarSection[] = [
+  {
+    id: "driver-experience",
+    label: "Driver Experience",
+    items: [
+      {
+        id: "champion-360",
+        label: "Champion 360",
+        icon: "/images/agent_menu.svg",
+        href: "/champion-360",
+      },
+      {
+        id: "ticket-management",
+        label: "Ticket Management",
+        icon: "/images/issues_menu.svg",
+        href: "/ticket-management",
+      },
+      {
+        id: "driver-safety-score",
+        label: "Drivers Safety Performance",
+        icon: "/images/driver_safety_menu.svg",
+        href: "/driver-safety-score",
+      },
+      {
+        id: "welfare-performance",
+        label: "Welfare & Performance",
+        icon: "/images/fleet_performance_menu.svg",
+        href: "/welfare-performance",
+      },
+    ],
+  },
+]
+
 export const sidebarUser: SidebarUser = {
   name: "Desmond Nsogbuwa",
   role: "Fleet Manager",

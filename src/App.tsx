@@ -1,4 +1,5 @@
 import { Routes, Route, Navigate } from "react-router-dom"
+import { Agentation } from "agentation"
 import { AppLayout } from "@/components/max/AppLayout"
 import DashboardPage from "@/pages/DashboardPage"
 import VehiclesPage from "@/pages/VehiclesPage"
@@ -19,10 +20,17 @@ import ClosedAssetDetailPage from "@/pages/ClosedAssetDetailPage"
 import AllTransferPage from "@/pages/AllTransferPage"
 import TransferDetailPage from "@/pages/TransferDetailPage"
 import ActivationReadinessPage from "@/pages/ActivationReadinessPage"
+import Champion360Page from "@/pages/Champion360Page"
+import ChampionDetailPage from "@/pages/ChampionDetailPage"
+import TicketManagementPage from "@/pages/TicketManagementPage"
+import CreateTicketPage from "@/pages/CreateTicketPage"
+import DriverSafetyScorePage from "@/pages/DriverSafetyScorePage"
+import WelfarePerformancePage from "@/pages/WelfarePerformancePage"
 
 export default function App() {
   return (
     <AppLayout>
+      {import.meta.env.DEV && <Agentation endpoint="http://localhost:4747" />}
       <Routes>
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="/dashboard" element={<DashboardPage />} />
@@ -48,6 +56,12 @@ export default function App() {
         <Route path="/transfer/all" element={<AllTransferPage />} />
         <Route path="/transfer/all/:id" element={<TransferDetailPage />} />
         <Route path="/activation/readiness" element={<ActivationReadinessPage />} />
+        <Route path="/champion-360" element={<Champion360Page />} />
+        <Route path="/champion-360/:id" element={<ChampionDetailPage />} />
+        <Route path="/ticket-management" element={<TicketManagementPage />} />
+        <Route path="/ticket-management/create" element={<CreateTicketPage />} />
+        <Route path="/driver-safety-score" element={<DriverSafetyScorePage />} />
+        <Route path="/welfare-performance" element={<WelfarePerformancePage />} />
       </Routes>
     </AppLayout>
   )

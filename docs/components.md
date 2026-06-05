@@ -20,6 +20,17 @@ This document catalogs all reusable components in the MaxOne design system. Thes
 - [Form/Filter Components](#formfilter-components)
   - [FilterBar](#filterbar)
   - [FilterPopover](#filterpopover)
+  - [LocationAutocomplete](#locationautocomplete)
+  - [DatePickerField](#datepickerfield)
+  - [DocDropZone](#docdropzone)
+- [Data Card Components](#data-card-components)
+  - [InfoCard](#infocard)
+  - [InfoGrid](#infogrid)
+  - [ChampionInformation](#championinformation)
+- [Sheet Components](#sheet-components)
+  - [TicketDetailSheet](#ticketdetailsheet)
+- [Page Patterns](#page-patterns)
+  - [Create Ticket Wizard](#create-ticket-wizard)
 - [Color Tokens](#color-tokens)
 
 ---
@@ -46,12 +57,21 @@ src/components/
     ├── Sidebar.tsx
     ├── TopBar.tsx
     ├── PageHeader.tsx
+    ├── BackButton.tsx
     ├── StatusTabs.tsx
     ├── FilterBar.tsx
     ├── FilterPopover.tsx
     ├── DataTable.tsx
     ├── StatusBadge.tsx
     ├── Pagination.tsx
+    ├── InfoCard.tsx
+    ├── InfoGrid.tsx
+    ├── ChampionInformation.tsx
+    ├── LocationAutocomplete.tsx
+    ├── DatePickerField.tsx
+    ├── DocDropZone.tsx
+    ├── ConfirmModal.tsx
+    ├── TicketDetailSheet.tsx
     └── index.ts   # Barrel export
 ```
 
@@ -65,11 +85,20 @@ import {
   Sidebar,
   TopBar,
   PageHeader,
+  BackButton,
   StatusTabs,
   FilterBar,
   DataTable,
   StatusBadge,
   Pagination,
+  InfoCard,
+  InfoGrid,
+  ChampionInformation,
+  LocationAutocomplete,
+  DatePickerField,
+  DocDropZone,
+  ConfirmModal,
+  TicketDetailSheet,
 } from "@/components/max"
 ```
 
@@ -649,6 +678,129 @@ const [filters, setFilters] = useState<FilterState>({
 
 ---
 
+### LocationAutocomplete
+
+Text input with a MapPin icon and a filtered dropdown of location suggestions. As the user types, matching locations appear in a popover below the input. Clicking a suggestion fills the input.
+
+#### Import
+
+```tsx
+import { LocationAutocomplete } from "@/components/max"
+```
+
+#### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `value` | `string` | required | Current input value |
+| `onChange` | `(value: string) => void` | required | Called on input change or suggestion selection |
+| `suggestions` | `string[]` | 23 Nigerian city addresses | Pool of strings to filter against |
+| `placeholder` | `string` | `"Search for a location..."` | Input placeholder |
+| `className` | `string` | - | Additional classes on the wrapper |
+
+#### Usage
+
+```tsx
+<LocationAutocomplete
+  value={locationDescription}
+  onChange={(v) => setLocationDescription(v)}
+  placeholder="Search for a location..."
+/>
+```
+
+#### Features
+
+- MapPin icon inside the input and beside each suggestion row
+- Click-outside-to-close via `useRef` + `useEffect`
+- Dropdown appears only when the input has a non-empty query with matches
+- Default suggestions cover Lagos, Abuja, Kano, Ibadan, and Port Harcourt
+
+#### Styling Notes
+
+- Input: `pl-9 h-9` to accommodate the left MapPin icon
+- Dropdown: `z-20`, `max-h-48 overflow-y-auto`, white background with `shadow-md`
+- Suggestion rows: `text-sm font-medium text-sidebar-item-active`, `hover:bg-gray-50`
+
+---
+
+### DatePickerField
+
+Single-date picker built on the shadcn Calendar + Popover. Renders as a button showing the selected date or placeholder, opens a calendar popover on click.
+
+#### Import
+
+```tsx
+import { DatePickerField } from "@/components/max"
+```
+
+#### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `value` | `Date \| undefined` | required | Currently selected date |
+| `onChange` | `(date: Date \| undefined) => void` | required | Called when a date is selected |
+| `placeholder` | `string` | `"Pick a date"` | Text shown when no date is selected |
+| `dateFormat` | `string` | `"dd MMM yyyy"` | date-fns format string for display |
+| `className` | `string` | - | Classes for the popover content |
+| `triggerClassName` | `string` | - | Classes for the trigger button |
+
+#### Usage
+
+```tsx
+<DatePickerField
+  value={selectedDate}
+  onChange={setSelectedDate}
+  placeholder="Select date"
+/>
+```
+
+#### Styling Notes
+
+- Trigger button: `h-9 w-full`, `bg-white`, CalendarIcon on the left
+- Placeholder text: `text-muted-foreground`; selected date: `text-foreground`
+
+---
+
+### DocDropZone
+
+Drag-and-drop file upload zone with click-to-upload fallback. Shows a different visual state when a file is selected.
+
+#### Import
+
+```tsx
+import { DocDropZone } from "@/components/max"
+```
+
+#### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `file` | `File \| null` | required | Currently selected file (for single-file display) |
+| `onFileSelect` | `(file: File) => void` | required | Called when a file is dropped or selected |
+| `accept` | `string` | `".pdf,.doc,.docx"` | Accepted file types string |
+| `maxSizeLabel` | `string` | `"PDF, DOC up to 10MB"` | Hint text shown below the upload prompt |
+| `className` | `string` | - | Additional classes |
+
+#### Usage
+
+```tsx
+<DocDropZone
+  file={null}
+  onFileSelect={handleFileUpload}
+  accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+  maxSizeLabel="PDF, DOC, JPG, PNG up to 10MB"
+/>
+```
+
+#### Styling Notes
+
+- Default: `border-gray-300 bg-gray-50`, dashed border
+- Drag over: `border-brand-primary bg-brand-primary/5`
+- File selected: `border-status-success/40 bg-status-success/5`, green Upload icon and file name
+- Upload icon and "click to upload" link styled with `text-status-info underline`
+
+---
+
 ## Form/Input Components
 
 ### TagInput
@@ -704,16 +856,26 @@ Centered confirmation dialog for destructive or affirmative actions (delete, arc
 | `title` | `string` | yes | Heading shown below the icon (16px semibold, `text-sidebar-item-active`) |
 | `subtitle` | `string` | no | Body copy below the title (13px medium, `text-breadcrumb-root`) |
 | `icon` | `ComponentType<SVGProps<SVGSVGElement>>` | no | Lucide icon component, defaults to `AlertTriangle` |
-| `variant` | `"destructive" \| "default"` | no | `destructive` (default) uses `status-danger` tokens (red icon background + red primary button); `default` uses `status-info` + `brand-dark` |
+| `variant` | `"destructive" \| "default" \| "warning" \| "success"` | no | Controls icon/button colors (see Variant Styles below) |
 | `primaryAction` | `{ label, onClick, disabled? }` | yes | Right-most footer button (Delete / Confirm) |
 | `secondaryAction` | `{ label, onClick, disabled? }` | no | Outline button to its left (typically Cancel) |
 | `className` | `string` | no | Extra classes applied to the `DialogContent`. Defaults to `max-w-sm`. |
+
+**Variant Styles**
+
+| Variant | Icon | Icon BG | Primary Button | Use Case |
+|---------|------|---------|----------------|----------|
+| `destructive` | `rejected.png` image | — | `bg-status-danger` red | Delete, remove actions |
+| `warning` | AlertTriangle (Lucide) | `status-warning/10` | `bg-status-warning` orange | Cancel flows, caution |
+| `success` | `success_Checkmark.svg` image | — | `bg-brand-dark` dark | Completion confirmations |
+| `default` | AlertTriangle (Lucide) | `status-info/10` | `bg-brand-dark` dark | Generic confirmations |
 
 **Usage**
 
 ```tsx
 import { ConfirmModal } from "@/components/max"
 
+// Destructive variant (delete)
 <ConfirmModal
   open={deleteTarget !== null}
   onOpenChange={(o) => { if (!o) setDeleteTarget(null) }}
@@ -723,13 +885,25 @@ import { ConfirmModal } from "@/components/max"
   primaryAction={{ label: "Delete", onClick: handleDelete }}
   secondaryAction={{ label: "Cancel", onClick: () => setDeleteTarget(null) }}
 />
+
+// Warning variant (cancel flow)
+<ConfirmModal
+  open={showCancelDialog}
+  onOpenChange={setShowCancelDialog}
+  variant="warning"
+  title="Cancel ticket creation?"
+  subtitle="All progress will be lost and you'll be returned to the Ticket Management page."
+  primaryAction={{ label: "Yes, cancel", onClick: handleConfirmCancel }}
+  secondaryAction={{ label: "Continue editing", onClick: () => setShowCancelDialog(false) }}
+/>
 ```
 
 **Notes**
 
 - Use for binary confirm/cancel decisions only — for forms with inputs, use `Modal` instead
 - Typography matches `Modal` (same title/subtitle styles) so the two read as part of the same family
-- Icon background uses 10% opacity of the same token as the icon color
+- `destructive` and `success` variants render static images instead of the Lucide icon circle
+- `warning` and `default` variants render a Lucide icon inside a tinted circle (10% opacity background)
 
 ---
 
@@ -806,6 +980,325 @@ import { AlertTriangle } from "lucide-react"
 
 ---
 
+## Data Card Components
+
+### InfoCard
+
+Lightweight container card for grouped information sections. Renders a section title (uppercase, with a small blue dot) above arbitrary children.
+
+#### Import
+
+```tsx
+import { InfoCard } from "@/components/max"
+```
+
+#### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `title` | `string` | required | Section heading (rendered uppercase, 11px) |
+| `children` | `ReactNode` | required | Card body content |
+| `className` | `string` | - | Additional classes on the wrapper |
+
+#### Usage
+
+```tsx
+<InfoCard title="Selection Summary">
+  <InfoGrid columns={2} items={[
+    { label: "Champion", value: "Akin Bello" },
+    { label: "Category", value: "Incident Safety" },
+  ]} />
+</InfoCard>
+```
+
+#### Styling Notes
+
+- Background: `bg-gray-50`, border `border-gray-100`, rounded `rounded-md`, padding `p-5`
+- Title: 11px uppercase, `font-semibold`, `text-sidebar-item-active`, `letter-spacing: 0.4px`
+- Blue dot indicator (1.5×1.5, `bg-status-info`) to the left of the title
+
+---
+
+### InfoGrid
+
+Renders a grid of label/value pairs. Supports 2, 3, or 4 columns, with an optional divider mode that adds border separators between cells.
+
+#### Import
+
+```tsx
+import { InfoGrid } from "@/components/max"
+```
+
+#### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `items` | `{ label: string; value: ReactNode }[]` | required | Data items to display |
+| `columns` | `2 \| 3 \| 4` | `4` | Number of grid columns |
+| `showDividers` | `boolean` | `false` | Show border dividers between cells |
+| `className` | `string` | - | Additional classes |
+
+#### Usage
+
+```tsx
+<InfoGrid
+  columns={2}
+  items={[
+    { label: "Champion", value: "Akin Bello" },
+    { label: "Category", value: "Incident Safety" },
+    { label: "Priority", value: <StatusBadge variant="danger" withDot size="sm">High</StatusBadge> },
+  ]}
+/>
+```
+
+#### Styling Notes
+
+- Labels: `text-xs text-breadcrumb-root font-medium`
+- Values: `font-medium text-sidebar-item-active`, 14px
+- Dividers (when `showDividers`): `border-r` and `border-b` with `border-gray-100`
+- Gap: `gap-4` in non-divider mode
+
+---
+
+### ChampionInformation
+
+Full champion profile card showing avatar, name, risk level badge, and key details (phone, location, onboarded date, last pinged, contract status).
+
+#### Import
+
+```tsx
+import { ChampionInformation } from "@/components/max"
+```
+
+#### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `name` | `string` | required | Champion full name |
+| `avatarUrl` | `string` | `"/images/champvatar.png"` | Avatar image URL |
+| `riskLevel` | `"High Risk" \| "Medium Risk" \| "Low Risk"` | - | Risk level badge |
+| `phoneNumber` | `string` | required | Phone number |
+| `location` | `string` | required | Location text |
+| `onboardedDate` | `string` | required | Onboarded date string |
+| `lastPingedOn` | `string` | required | Last pinged date string |
+| `contractStatus` | `"Early Arrears" \| "Active" \| "Inactive" \| "Defaulting"` | required | Contract status (renders as StatusBadge) |
+| `className` | `string` | - | Additional classes |
+
+#### Usage
+
+```tsx
+<ChampionInformation
+  name="Akin Bello"
+  riskLevel="High Risk"
+  phoneNumber="+234 801 234 5678"
+  location="Ikeja, Lagos"
+  onboardedDate="15 Jan 2024"
+  lastPingedOn="28 May 2025"
+  contractStatus="Active"
+/>
+```
+
+#### Styling Notes
+
+- Outer card: `bg-content-card`, `border border-border`, `rounded-lg`, padding `pt-6 pb-5 px-5`
+- Inner name section: `bg-[#fcfcfc]`, `border border-[#f3f3f3]`, avatar 54×54px
+- Risk level badge: High = red (`#ffecec`/`#dc2626`), Medium/Low = amber (`#fff3e0`/`#f59e0b`)
+- Detail rows: 13px, `font-medium`, labels in `text-breadcrumb-root`, values in `text-sidebar-item-active`
+
+---
+
+## Sheet Components
+
+### TicketDetailSheet
+
+Full-height side sheet for viewing ticket details. Structured as a sticky header, scrollable body with multiple InfoCard sections, and a sticky footer with action buttons.
+
+#### Import
+
+```tsx
+import { TicketDetailSheet } from "@/components/max"
+```
+
+#### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `ticket` | `TicketDetail \| null` | required | Ticket data (renders nothing if null) |
+| `isOpen` | `boolean` | required | Whether the sheet is visible |
+| `onClose` | `() => void` | required | Called when the sheet requests closing |
+
+#### Sections
+
+1. **Header** — Ticket ID, status/priority/SLA badges, category and creation date
+2. **Incident Details** — InfoGrid with location, reporter, dates, vehicle plate, creator comment, file attachments with type-specific icons
+3. **Call Recordings** — Placeholder section
+4. **Champion Details** — Name and ID with "View Champion" link button
+5. **Assigned Agent** — Agent name and department with "View Agent" link button
+6. **Vehicle Details** — Full vehicle info grid (ID, plate, type, model, brand, status, location, utilization)
+7. **Contract Details** — Contract ID, type, dates, status
+8. **SLA Tracking** — StatusTimeline component
+9. **Footer** — Assign/Reassign, Escalate, Close Ticket buttons
+
+#### Attachment Icons
+
+File-type icons are mapped by extension:
+
+| Extension | Icon | Color |
+|-----------|------|-------|
+| jpg, jpeg, png | `Image` | `text-status-warning` (yellow) |
+| pdf | `FileText` | `text-status-danger` (red) |
+| doc, docx | `FileText` | `text-status-info` (blue) |
+| xls, xlsx, csv | `FileSpreadsheet` | `text-badge-active-text` (green) |
+| Other | `File` | `text-breadcrumb-root` (gray) |
+
+#### Styling Notes
+
+- Maximum width: `max-w-[40vw]` (40% of viewport)
+- Body: `overflow-y-auto`, `space-y-5` between sections
+- Footer: Sticky, three action buttons (outline, warning-outline, destructive)
+
+---
+
+## Page Patterns
+
+### Create Ticket Wizard
+
+A full-page, 4-step wizard at `/ticket-management/create` for creating support tickets. Uses `useReducer` for state management with a discriminated union action type.
+
+#### Route
+
+```
+/ticket-management/create → CreateTicketPage
+```
+
+#### File Structure
+
+```
+src/pages/
+├── CreateTicketPage.tsx           # Barrel re-export
+└── create-ticket/
+    ├── types.ts                   # WizardState, WizardAction, TicketCategory, etc.
+    ├── CreateTicketPage.tsx        # Orchestrator with useReducer
+    ├── StepIndicator.tsx           # Horizontal 4-step progress bar
+    ├── WizardFooter.tsx            # Cancel / Back / Next / Submit buttons
+    ├── StepSelectChampion.tsx      # Step 1: Search and select a champion
+    ├── StepSelectCategory.tsx      # Step 2: Grid of 12 category cards
+    ├── StepSelectSubcategory.tsx   # Step 3: List of subcategories
+    └── StepTicketDetails.tsx       # Step 4: Form + summary sidebar
+
+src/data/
+└── mockTicketCategories.ts        # 12 categories, ~30 subcategories
+```
+
+#### Wizard Steps
+
+| Step | Component | Validation Rule |
+|------|-----------|-----------------|
+| 1 | `StepSelectChampion` | Champion must be selected |
+| 2 | `StepSelectCategory` | Category must be selected |
+| 3 | `StepSelectSubcategory` | Subcategory must be selected |
+| 4 | `StepTicketDetails` | Platform, reporter, priority, city, date, and incident description all non-empty |
+
+#### State Management
+
+The wizard uses a `useReducer` with `WizardState` and `WizardAction` (discriminated union):
+
+```tsx
+type WizardAction =
+  | { type: "SET_STEP"; step: WizardStep }
+  | { type: "SET_CHAMPION_SEARCH"; query: string }
+  | { type: "SELECT_CHAMPION"; champion: ChampionDetails }
+  | { type: "CLEAR_CHAMPION" }
+  | { type: "SET_CATEGORY_SEARCH"; query: string }
+  | { type: "SELECT_CATEGORY"; category: TicketCategory }
+  | { type: "SELECT_SUBCATEGORY"; subcategory: TicketSubcategory }
+  | { type: "UPDATE_DETAILS"; field: keyof TicketDetailsForm; value: ... }
+  | { type: "ADD_ATTACHMENT"; file: File }
+  | { type: "REMOVE_ATTACHMENT"; index: number }
+  | { type: "RESET" }
+```
+
+Key transitions:
+- `SELECT_CATEGORY` resets `selectedSubcategory` to null
+- `SELECT_SUBCATEGORY` pre-fills `details.priority` from the subcategory's `priorityLevel`
+
+#### StepIndicator
+
+Horizontal progress bar with 4 numbered circles connected by lines.
+
+| State | Circle | Line |
+|-------|--------|------|
+| Completed | `bg-brand-primary/10`, dark check icon (`h-3 w-3`) | `bg-gray-300` |
+| Active | `bg-brand-dark text-white` | `bg-gray-200` |
+| Pending | `bg-gray-100 text-breadcrumb-root` | `bg-gray-200` |
+
+Circle size: `h-6 w-6`, font `text-xs`.
+
+#### WizardFooter
+
+| Position | Button | Condition |
+|----------|--------|-----------|
+| Left | Cancel (outline) | Always visible |
+| Right | Back (outline) | Visible when step > 1 |
+| Right | Next (brand-dark) | Steps 1–3, disabled when validation fails |
+| Right | Submit Ticket (brand-dark) | Step 4 only, shows `Loader2` spinner when submitting |
+
+#### Step 4: Ticket Details Layout
+
+Two-column layout (`grid grid-cols-5 gap-6`):
+
+**Left column (col-span-3):**
+- Ticket Information — Platform (Select), Reporter (Input), Priority (Select, pre-filled), City (Select)
+- Incident Details — LocationAutocomplete, Date (DatePickerField), Time (Input), Incident Description (Textarea rows=8)
+- Attachments — DocDropZone + file list with type-specific icons and remove buttons
+
+**Right column (col-span-2):**
+- Champion card — Avatar, name, risk level badge, phone number, contract status
+- Selection Summary — InfoCard with InfoGrid showing Champion, Category, Subcategory, Concerned Team, SLA, Priority
+- Ticket Script Preview — InfoCard with dynamic sentence: "Champion {name} reported a {subcategory} issue via {platform} at {location} on {date}. {description}"
+
+#### Behaviors
+
+- **Cancel** shows a `ConfirmModal` (variant `"warning"`) before navigating back
+- **Submit** sets `isSubmitting` state, shows loading spinner, then fires a `sonner` toast and navigates to `/ticket-management`
+- **Back** preserves all selections from previous steps
+- Content container: `max-w-3xl mx-auto`
+
+#### Mock Data
+
+`src/data/mockTicketCategories.ts` exports:
+
+- `ticketCategories: TicketCategory[]` — 12 categories (Incident Safety, Phone Number Update, Documentation, Portfolio, Telematics, Prospect, Fleet, Reverification, Leave Request, Others, Reactivation, HMO/Insurance) each with a Lucide icon name string and subcategory count
+- `ticketSubcategories: TicketSubcategory[]` — ~30 subcategories with `categoryId`, `concernedTeam`, `slaTime`, `priorityLevel`
+- `getSubcategoriesByCategoryId(categoryId: string): TicketSubcategory[]`
+
+---
+
+## Toast Notifications
+
+The application uses **sonner** for toast notifications. The `<Toaster>` component is mounted once in `AppLayout`.
+
+#### Setup
+
+```tsx
+// In src/components/max/AppLayout.tsx
+import { Toaster } from "sonner"
+
+<Toaster position="top-right" richColors />
+```
+
+#### Usage
+
+```tsx
+import { toast } from "sonner"
+
+toast.success("Ticket created successfully", {
+  description: `Ticket for ${championName} has been submitted.`,
+})
+```
+
+---
+
 ## Color Tokens
 
 The design system uses custom Tailwind color tokens defined in `src/index.css`:
@@ -864,4 +1357,13 @@ The design system uses custom Tailwind color tokens defined in `src/index.css`:
 
 | Date | Component | Change |
 |------|-----------|--------|
+| 2026-06-01 | Create Ticket Wizard | Added 4-step wizard page at `/ticket-management/create` with champion search, category grid, subcategory list, and ticket details form |
+| 2026-06-01 | LocationAutocomplete | New reusable component — map-style text field with dropdown location suggestions |
+| 2026-06-01 | ConfirmModal | Added `warning` and `success` variants with distinct icon/button styles |
+| 2026-06-01 | TicketDetailSheet | Reduced max width to 40vw; added file-type icons (Image, FileText, FileSpreadsheet) to attachment tags |
+| 2026-06-01 | AppLayout | Integrated `sonner` Toaster for app-wide toast notifications |
+| 2026-06-01 | InfoCard, InfoGrid, ChampionInformation | Documented existing components |
+| 2026-06-01 | DatePickerField, DocDropZone | Documented existing components |
+| 2026-06-01 | mockTicketCategories | New mock data file — 12 categories, ~30 subcategories with team/SLA/priority metadata |
+| 2026-06-01 | mockTicketDetail | Widened attachment type to `string`; added docx and xlsx file samples |
 | 2026-03-07 | All | Initial documentation created |

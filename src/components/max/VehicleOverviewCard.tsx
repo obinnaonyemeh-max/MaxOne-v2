@@ -4,7 +4,7 @@ import { StatusBadge } from "./StatusBadge"
 type OverviewStatusVariant = "success" | "warning" | "info" | "danger" | "default" | "refurb"
 
 interface VehicleOverviewProps {
-  status: string
+  status?: string
   statusVariant?: OverviewStatusVariant
   imageUrl: string
   details: {
@@ -29,11 +29,13 @@ export function VehicleOverviewCard({
         Vehicle Overview
       </h3>
 
-      <div className="flex justify-center mb-4">
-        <StatusBadge variant={statusVariant} withDot>
-          {status}
-        </StatusBadge>
-      </div>
+      {status && (
+        <div className="flex justify-center mb-4">
+          <StatusBadge variant={statusVariant} withDot>
+            {status}
+          </StatusBadge>
+        </div>
+      )}
 
       <div className="flex justify-center py-4 mb-4">
         <img

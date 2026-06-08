@@ -1,8 +1,9 @@
 import { useState, type ReactNode } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
+import { Toaster } from "sonner"
 import { PageLayout } from "./PageLayout"
 import { Sidebar, type SidebarItem, type SidebarSection } from "./Sidebar"
-import { sidebarSections, driverGrowthSidebarSections, sidebarUser } from "@/data/sidebarConfig"
+import { sidebarSections, driverGrowthSidebarSections, driverExperienceSidebarSections, sidebarUser } from "@/data/sidebarConfig"
 
 function markActiveSections(sections: SidebarSection[], pathname: string): SidebarSection[] {
   return sections.map((section) => ({
@@ -23,6 +24,7 @@ function markActiveItem(item: SidebarItem, pathname: string): SidebarItem {
 const appDefaultRoutes: Record<string, string> = {
   "fleet-operations": "/dashboard",
   "driver-growth": "/growth-activation",
+  "driver-experience": "/champion-360",
 }
 
 interface AppLayoutProps {
@@ -34,9 +36,10 @@ export function AppLayout({ children }: AppLayoutProps) {
   const location = useLocation()
   const [selectedAppId, setSelectedAppId] = useState("fleet-operations")
 
-  const sections = selectedAppId === "driver-growth"
-    ? driverGrowthSidebarSections
-    : sidebarSections
+  const sections =
+    selectedAppId === "driver-growth" ? driverGrowthSidebarSections :
+    selectedAppId === "driver-experience" ? driverExperienceSidebarSections :
+    sidebarSections
 
   const activeSections = markActiveSections(sections, location.pathname)
 
@@ -55,19 +58,22 @@ export function AppLayout({ children }: AppLayoutProps) {
   }
 
   return (
-    <PageLayout
-      sidebar={({ isCollapsed, onToggleCollapse }) => (
-        <Sidebar
-          sections={activeSections}
-          user={sidebarUser}
-          onItemClick={handleSidebarItemClick}
-          isCollapsed={isCollapsed}
-          onToggleCollapse={onToggleCollapse}
-          onAppChange={handleAppChange}
-        />
-      )}
-    >
-      {children}
-    </PageLayout>
+    <>
+      <Toaster position="top-right" richColors />
+      <PageLayout
+        sidebar={({ isCollapsed, onToggleCollapse }) => (
+          <Sidebar
+            sections={activeSections}
+            user={sidebarUser}
+            onItemClick={handleSidebarItemClick}
+            isCollapsed={isCollapsed}
+            onToggleCollapse={onToggleCollapse}
+            onAppChange={handleAppChange}
+          />
+        )}
+      >
+        {children}
+      </PageLayout>
+    </>
   )
 }

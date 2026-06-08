@@ -430,7 +430,7 @@ export default function DriverSafetyScorePage() {
                     name="Events"
                     radius={[4, 4, 0, 0]}
                     barSize={40}
-                    onClick={(data: { name: string }) => {
+                    onClick={(data: { name?: string }) => {
                       const incident = mockCriticalEvents.find((e) => e.name === data.name)
                       if (incident) setSelectedIncident(incident)
                     }}

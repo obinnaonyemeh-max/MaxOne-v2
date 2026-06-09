@@ -39,5 +39,6 @@ export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "./Tool
 export { TicketDetailSheet } from "./TicketDetailSheet"
 export { DriverDetailSheet } from "./DriverDetailSheet"
 export { IncidentChampionsSheet } from "./IncidentChampionsSheet"
+export { WelfareDetailSheet, type WelfareChampion } from "./WelfareDetailSheet"
 export { LocationAutocomplete, type LocationAutocompleteProps } from "./LocationAutocomplete"
 export { MaxIDCard, type MaxIDCardVariant } from "./MaxIDCard"

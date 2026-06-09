@@ -1,4 +1,4 @@
-import { useRef, useCallback } from "react"
+import { useState, useRef, useCallback } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { type ColumnDef } from "@tanstack/react-table"
 
@@ -17,7 +17,26 @@ import {
   MaxIDCard,
 } from "@/components/max"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import { getChampionDetails, type WalletTransaction } from "@/data/mockChampionDetails"
+import { Phone, MessageSquare, MessageCircle, User, Plus, History } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogFooter,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { Textarea } from "@/components/ui/textarea"
+import { Input } from "@/components/ui/input"
+import { getChampionDetails, type WalletTransaction, type WelfareNote, type ChampionDetails } from "@/data/mockChampionDetails"
 import {
   type TicketRecord,
   statusVariantMap as ticketStatusVariantMap,
@@ -144,10 +163,86 @@ const ticketColumns: ColumnDef<TicketRecord>[] = [
   },
 ]
 
+type LeaveRecord = ChampionDetails["timeOff"]["history"][number]
+
+const leaveStatusVariantMap: Record<LeaveRecord["status"], "success" | "warning" | "danger"> = {
+  Approved: "success",
+  Pending: "warning",
+  Declined: "danger",
+}
+
+const leaveTypeVariantMap: Record<LeaveRecord["type"], "info" | "danger" | "warning"> = {
+  Annual: "info",
+  Emergency: "danger",
+  Sick: "warning",
+}
+
+const leaveHistoryColumns: ColumnDef<LeaveRecord>[] = [
+  {
+    accessorKey: "type",
+    header: "Type",
+    cell: ({ row }) => (
+      <StatusBadge variant={leaveTypeVariantMap[row.original.type]} withDot={false} size="sm">
+        {row.original.type}
+      </StatusBadge>
+    ),
+  },
+  {
+    id: "duration",
+    header: "Duration",
+    cell: ({ row }) => (
+      <span className="font-medium text-table-text" style={{ fontSize: "14px" }}>
+        {row.original.startDate} – {row.original.endDate}
+      </span>
+    ),
+  },
+  {
+    accessorKey: "status",
+    header: "Status",
+    cell: ({ row }) => (
+      <StatusBadge variant={leaveStatusVariantMap[row.original.status]} withDot>
+        {row.original.status}
+      </StatusBadge>
+    ),
+  },
+  {
+    accessorKey: "approvedBy",
+    header: "Approved By",
+    cell: ({ row }) => (
+      <span className="font-medium text-table-text" style={{ fontSize: "14px" }}>
+        {row.original.approvedBy}
+      </span>
+    ),
+  },
+]
+
+const channelIcons: Record<WelfareNote["channel"], React.ReactNode> = {
+  "Phone Call": <Phone className="h-3.5 w-3.5" />,
+  SMS: <MessageSquare className="h-3.5 w-3.5" />,
+  WhatsApp: <MessageCircle className="h-3.5 w-3.5" />,
+  "In-Person": <User className="h-3.5 w-3.5" />,
+}
+
+const incidentStatusVariantMap: Record<WelfareNote["incidentStatus"], "success" | "warning" | "info"> = {
+  Resolved: "success",
+  "In-Progress": "warning",
+  Open: "info",
+}
+
+const interactionTypeVariantMap: Record<WelfareNote["interactionType"], "default" | "info" | "danger"> = {
+  "Routine Check-In": "default",
+  "Incident Follow-up": "info",
+  "Welfare Complaint": "danger",
+}
+
 export default function ChampionDetailPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const champion = getChampionDetails(id || "1")
+
+  const [showCreateTimeOff, setShowCreateTimeOff] = useState(false)
+  const [showLeaveHistory, setShowLeaveHistory] = useState(false)
+  const [timeOffForm, setTimeOffForm] = useState({ type: "", startDate: "", endDate: "", reason: "" })
 
   const tabsScrollRef = useRef<HTMLDivElement>(null)
   const dragState = useRef({ isDown: false, startX: 0, scrollLeft: 0 })
@@ -253,7 +348,7 @@ export default function ChampionDetailPage() {
                   <TabsTrigger value="welfare" className={tabTriggerClass}>Welfare Notes</TabsTrigger>
                   <TabsTrigger value="hmo" className={tabTriggerClass}>HMO Details</TabsTrigger>
                   <TabsTrigger value="timeoff" className={tabTriggerClass}>Time-Off</TabsTrigger>
-                  <TabsTrigger value="communication" className={tabTriggerClass}>Communication</TabsTrigger>
+
                 </TabsList>
               </div>
 
@@ -371,8 +466,14 @@ export default function ChampionDetailPage() {
 
               {/* FieldOps History Tab */}
               <TabsContent value="fieldops" className="mt-0 flex-1 min-h-0 overflow-y-auto">
-                <div className="bg-content-card p-6 h-fit rounded-lg border border-border">
-                  <StatusTimeline entries={champion.fieldOps} />
+                <div className="flex flex-col gap-3">
+                  <div className="bg-[#f9f8f6] border border-[#f3f3f3] rounded-lg p-4 flex items-center gap-2">
+                    <span className="text-2xl font-semibold text-sidebar-item-active">{champion.fieldOps.length}</span>
+                    <span className="text-sm text-breadcrumb-root">Total Field Operations</span>
+                  </div>
+                  <div className="bg-content-card p-6 h-fit rounded-lg border border-border">
+                    <StatusTimeline entries={champion.fieldOps} />
+                  </div>
                 </div>
               </TabsContent>
 
@@ -398,20 +499,97 @@ export default function ChampionDetailPage() {
 
               {/* Tickets Tab */}
               <TabsContent value="tickets" className="mt-0 flex-1 min-h-0 overflow-y-auto">
-                <div className="mt-0 rounded-[14px] border border-table-border overflow-hidden">
-                  <div className="px-4 py-3 bg-content-card border-b border-table-border">
-                    <h3 className="font-semibold text-sm text-sidebar-item-active">Ticket Records</h3>
+                <div className="flex flex-col gap-3">
+                  <div className="bg-[#f9f8f6] border border-[#f3f3f3] rounded-lg p-4 flex items-center gap-6">
+                    <div className="flex items-center gap-2">
+                      <span className="text-2xl font-semibold text-sidebar-item-active">{champion.tickets.length}</span>
+                      <span className="text-sm text-breadcrumb-root">Total Tickets</span>
+                    </div>
+                    <div className="h-8 w-px bg-border" />
+                    <div className="flex items-center gap-2">
+                      <span className="text-2xl font-semibold text-status-warning">{champion.tickets.filter((t) => t.status === "Open" || t.status === "In Progress").length}</span>
+                      <span className="text-sm text-breadcrumb-root">Open</span>
+                    </div>
                   </div>
-                  <DataTable columns={ticketColumns} data={champion.tickets} />
+                  <div className="rounded-[14px] border border-table-border overflow-hidden">
+                    <div className="px-4 py-3 bg-content-card border-b border-table-border">
+                      <h3 className="font-semibold text-sm text-sidebar-item-active">Ticket Records</h3>
+                    </div>
+                    <DataTable columns={ticketColumns} data={champion.tickets} />
+                  </div>
                 </div>
               </TabsContent>
 
               {/* Welfare Notes Tab */}
               <TabsContent value="welfare" className="mt-0 flex-1 min-h-0 overflow-y-auto">
-                <div className="bg-content-card p-6 h-fit rounded-lg border border-border">
-                  <p className="text-sm text-breadcrumb-root">
-                    Welfare notes will be displayed here.
-                  </p>
+                <div className="flex flex-col gap-5">
+                  {/* Summary widget */}
+                  <div className="bg-[#f9f8f6] border border-[#f3f3f3] rounded-lg p-4 flex items-center gap-6">
+                    <div className="flex items-center gap-2">
+                      <span className="text-2xl font-semibold text-sidebar-item-active">{champion.welfareNotes.length}</span>
+                      <span className="text-sm text-breadcrumb-root">Total Notes</span>
+                    </div>
+                    <div className="h-8 w-px bg-border" />
+                    <div className="flex items-center gap-2">
+                      <span className="text-2xl font-semibold text-status-warning">{champion.welfareNotes.filter((n) => n.followUpRequired).length}</span>
+                      <span className="text-sm text-breadcrumb-root">Needs Follow-up</span>
+                    </div>
+                  </div>
+
+                  {champion.welfareNotes.map((note) => (
+                    <div
+                      key={note.id}
+                      className="bg-content-card rounded-lg border border-border p-4 transition-colors hover:border-gray-950"
+                    >
+                      {/* Header: date, logged by, badges */}
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-medium text-sidebar-item-active">{note.date}</span>
+                          <span className="text-xs text-breadcrumb-root">by {note.loggedBy}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <StatusBadge variant={interactionTypeVariantMap[note.interactionType]} withDot={false} size="sm">
+                            {note.interactionType}
+                          </StatusBadge>
+                          <StatusBadge variant={incidentStatusVariantMap[note.incidentStatus]} withDot size="sm">
+                            {note.incidentStatus}
+                          </StatusBadge>
+                        </div>
+                      </div>
+
+                      {/* Channel pill */}
+                      <div className="flex items-center gap-1.5 text-xs text-breadcrumb-root mb-2">
+                        {channelIcons[note.channel]}
+                        <span>{note.channel}</span>
+                        {note.followUpRequired && (
+                          <span className="ml-2 inline-flex items-center rounded-full bg-status-warning/10 px-2 py-0.5 text-[11px] font-medium text-status-warning">
+                            Follow-up Required
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Summary */}
+                      <p className="text-sm text-table-text leading-relaxed">{note.summary}</p>
+
+                      {/* Issues & Action */}
+                      {(note.issuesRaised || note.actionTaken) && (
+                        <div className="mt-3 pt-3 border-t border-border grid grid-cols-2 gap-4">
+                          {note.issuesRaised && (
+                            <div>
+                              <span className="text-[11px] font-medium text-breadcrumb-root uppercase tracking-wide">Issues Raised</span>
+                              <p className="text-sm text-table-text mt-0.5">{note.issuesRaised}</p>
+                            </div>
+                          )}
+                          {note.actionTaken && (
+                            <div>
+                              <span className="text-[11px] font-medium text-breadcrumb-root uppercase tracking-wide">Action Taken</span>
+                              <p className="text-sm text-table-text mt-0.5">{note.actionTaken}</p>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  ))}
                 </div>
               </TabsContent>
 
@@ -437,25 +615,189 @@ export default function ChampionDetailPage() {
 
               {/* Time-Off Tab */}
               <TabsContent value="timeoff" className="mt-0 flex-1 min-h-0 overflow-y-auto">
-                <div className="bg-content-card p-6 h-fit rounded-lg border border-border">
-                  <p className="text-sm text-breadcrumb-root">
-                    Time-off records will be displayed here.
-                  </p>
-                </div>
-              </TabsContent>
+                <div className="flex flex-col gap-3">
+                  {/* Header bar */}
+                  <div className="bg-[#f9f8f6] border border-[#f3f3f3] rounded-lg px-5 py-4 flex items-center justify-between">
+                    <h3 className="font-semibold text-sm text-sidebar-item-active">
+                      Time Off Schedule
+                    </h3>
+                    <div className="flex items-center gap-3">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowLeaveHistory(true)}
+                      >
+                        <History className="h-3.5 w-3.5" />
+                        See Leave History
+                      </Button>
+                      <Button
+                        size="sm"
+                        disabled={champion.timeOff.currentStatus === "on-leave"}
+                        onClick={() => {
+                          const emergencyOnly = champion.timeOff.leavesAvailable === 0
+                          setTimeOffForm({ type: emergencyOnly ? "Emergency" : "", startDate: "", endDate: "", reason: "" })
+                          setShowCreateTimeOff(true)
+                        }}
+                      >
+                        <Plus className="h-3.5 w-3.5" />
+                        Create Time Off
+                      </Button>
+                    </div>
+                  </div>
 
-              {/* Communication Tab */}
-              <TabsContent value="communication" className="mt-0 flex-1 min-h-0 overflow-y-auto">
-                <div className="bg-content-card p-6 h-fit rounded-lg border border-border">
-                  <p className="text-sm text-breadcrumb-root">
-                    Communication history will be displayed here.
-                  </p>
+                  {/* Status + Metrics card */}
+                  <div className="bg-content-card rounded-lg border border-border overflow-hidden">
+                    {/* Status row */}
+                    <div className="flex items-center justify-between px-5 py-4 border-b border-border">
+                      <span className="text-sm font-medium text-sidebar-item-active">Time-off Status</span>
+                      {champion.timeOff.currentStatus === "none" && (
+                        <span className="inline-flex items-center rounded-md border border-border bg-gray-50 px-3 py-1.5 text-xs font-semibold text-table-text uppercase tracking-wide">
+                          No Open Time-Off Request Exists
+                        </span>
+                      )}
+                      {champion.timeOff.currentStatus === "on-leave" && champion.timeOff.currentLeave && (
+                        <StatusBadge variant="success" withDot size="sm">
+                          Currently on Leave &middot; {champion.timeOff.currentLeave.startDate} – {champion.timeOff.currentLeave.endDate}
+                        </StatusBadge>
+                      )}
+                      {champion.timeOff.currentStatus === "no-available" && (
+                        <StatusBadge variant="warning" withDot size="sm">
+                          No Available Time-Offs to Give
+                        </StatusBadge>
+                      )}
+                    </div>
+
+                    {/* Metrics grid */}
+                    <div className="grid grid-cols-3">
+                      {/* Row 1 */}
+                      <div className="flex items-center justify-between px-5 py-7 border-b border-r border-border">
+                        <span className="text-sm font-medium text-table-text leading-tight">Number of Eligible<br />leaves available</span>
+                        <span className="text-3xl font-bold text-sidebar-item-active tabular-nums">
+                          {String(champion.timeOff.leavesAvailable).padStart(2, "0")}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between px-5 py-7 border-b border-r border-border">
+                        <span className="text-sm font-medium text-table-text leading-tight">Number of Eligible<br />Leaves earned</span>
+                        <span className="text-3xl font-bold text-sidebar-item-active tabular-nums">
+                          {String(champion.timeOff.leavesEarned).padStart(2, "0")}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between px-5 py-7 border-b border-border">
+                        <span className="text-sm font-medium text-table-text leading-tight">Number of Eligible<br />leaves taken</span>
+                        <span className="text-3xl font-bold text-sidebar-item-active tabular-nums">
+                          {String(champion.timeOff.eligibleLeavesTaken).padStart(2, "0")}
+                        </span>
+                      </div>
+                      {/* Row 2 */}
+                      <div className="flex items-center justify-between px-5 py-7">
+                        <span className="text-sm font-medium text-table-text leading-tight">Number of Emergency<br />leaves taken</span>
+                        <span className="text-3xl font-bold text-sidebar-item-active tabular-nums">
+                          {String(champion.timeOff.emergencyLeavesTaken).padStart(2, "0")}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </TabsContent>
             </Tabs>
           </div>
         </div>
       </div>
+
+      {/* Create Time Off Modal */}
+      <Dialog open={showCreateTimeOff} onOpenChange={setShowCreateTimeOff}>
+        <DialogContent className="max-w-sm p-0">
+          <DialogHeader className="px-6 pt-6 pb-4 border-b border-gray-100">
+            <DialogTitle>Create Time Off</DialogTitle>
+            <DialogDescription>
+              {champion.name} &middot; {champion.championId}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="px-6 py-5 space-y-4">
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-breadcrumb-root">Leave Type</label>
+              <Select
+                value={timeOffForm.type}
+                onValueChange={(v) => setTimeOffForm((f) => ({ ...f, type: v }))}
+              >
+                <SelectTrigger className="h-9 w-full">
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent>
+                  {champion.timeOff.leavesAvailable > 0 && (
+                    <>
+                      <SelectItem value="Annual">Annual</SelectItem>
+                      <SelectItem value="Sick">Sick</SelectItem>
+                    </>
+                  )}
+                  <SelectItem value="Emergency">Emergency</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-breadcrumb-root">Start Date</label>
+                <Input
+                  type="date"
+                  className="h-9 text-sm"
+                  value={timeOffForm.startDate}
+                  onChange={(e) => setTimeOffForm((f) => ({ ...f, startDate: e.target.value }))}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-breadcrumb-root">End Date</label>
+                <Input
+                  type="date"
+                  className="h-9 text-sm"
+                  value={timeOffForm.endDate}
+                  onChange={(e) => setTimeOffForm((f) => ({ ...f, endDate: e.target.value }))}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-breadcrumb-root">Reason</label>
+              <Textarea
+                value={timeOffForm.reason}
+                onChange={(e) => setTimeOffForm((f) => ({ ...f, reason: e.target.value }))}
+                placeholder="Provide a reason for the time off..."
+                rows={3}
+                className="text-sm"
+              />
+            </div>
+          </div>
+
+          <DialogFooter className="px-6 py-4 border-t border-gray-100">
+            <Button variant="outline" className="h-9" onClick={() => setShowCreateTimeOff(false)}>
+              Cancel
+            </Button>
+            <Button
+              className="h-9 bg-brand-dark text-white hover:bg-brand-dark/90"
+              disabled={!timeOffForm.type || !timeOffForm.startDate || !timeOffForm.endDate}
+              onClick={() => setShowCreateTimeOff(false)}
+            >
+              Submit Request
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Leave History Modal */}
+      <Dialog open={showLeaveHistory} onOpenChange={setShowLeaveHistory}>
+        <DialogContent className="max-w-2xl p-0">
+          <DialogHeader className="px-6 pt-6 pb-4 border-b border-gray-100">
+            <DialogTitle>Leave History</DialogTitle>
+            <DialogDescription>
+              {champion.name} &middot; {champion.championId}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="max-h-[60vh] overflow-y-auto">
+            <DataTable columns={leaveHistoryColumns} data={champion.timeOff.history} />
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   )
 }

@@ -16,6 +16,7 @@ export interface ModalAction {
   onClick: () => void
   disabled?: boolean
   icon?: boolean
+  className?: string
 }
 
 export interface ModalProps {
@@ -113,7 +114,7 @@ export function Modal({
                     variant="outline"
                     onClick={secondaryAction.onClick}
                     disabled={secondaryAction.disabled}
-                    className="h-10 px-4"
+                    className={cn("h-10 px-4", secondaryAction.className)}
                   >
                     {secondaryAction.label}
                   </Button>

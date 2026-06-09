@@ -1,3 +1,4 @@
+import type React from "react"
 import { CalendarIcon } from "lucide-react"
 import { format } from "date-fns"
 import { Button } from "@/components/ui/button"
@@ -12,6 +13,7 @@ export interface DatePickerFieldProps {
   dateFormat?: string
   className?: string
   triggerClassName?: string
+  disabled?: React.ComponentProps<typeof Calendar>["disabled"]
 }
 
 export function DatePickerField({
@@ -21,6 +23,7 @@ export function DatePickerField({
   dateFormat = "dd MMM yyyy",
   className,
   triggerClassName,
+  disabled,
 }: DatePickerFieldProps) {
   return (
     <Popover>
@@ -39,7 +42,7 @@ export function DatePickerField({
         </Button>
       </PopoverTrigger>
       <PopoverContent className={cn("w-auto p-0", className)} align="start">
-        <Calendar mode="single" selected={value} onSelect={onChange} />
+        <Calendar mode="single" selected={value} onSelect={onChange} disabled={disabled} />
       </PopoverContent>
     </Popover>
   )

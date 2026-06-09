@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react"
+import { useNavigate } from "react-router-dom"
 import { type ColumnDef } from "@tanstack/react-table"
 import { Search, SlidersHorizontal, AlertTriangle } from "lucide-react"
 
@@ -29,6 +30,11 @@ import {
 
 import { mockDisposalRecords, type DisposalRecord } from "@/data/mockDisposal"
 
+const eventStats = [
+  { title: "Assigned to Upcoming Event", value: 4, indicatorColor: "var(--color-status-cyan)" },
+  { title: "Unallocated (Prev. Event)", value: 2, indicatorColor: "var(--color-status-amber)" },
+]
+
 const stageStats = [
   { title: "Pending Auction", value: 3, indicatorColor: "var(--color-status-warning)" },
   { title: "Auctioned – Awaiting Pickup", value: 2, indicatorColor: "var(--color-status-info)" },
@@ -46,6 +52,15 @@ const filterSections: FilterSection[] = [
       { value: "Auctioned – Awaiting Pickup", label: "Auctioned – Awaiting Pickup" },
       { value: "Disposed", label: "Disposed" },
       { value: "Disposed – Pending Write-Off", label: "Disposed – Pending Write-Off" },
+    ],
+  },
+  {
+    id: "condition",
+    title: "Condition",
+    options: [
+      { value: "Excellent", label: "Excellent" },
+      { value: "Salvage", label: "Salvage" },
+      { value: "Fair", label: "Fair" },
     ],
   },
   {
@@ -69,6 +84,7 @@ const filterSections: FilterSection[] = [
 
 const defaultFilters: GenericFilterState = {
   stage: [],
+  condition: [],
   location: [],
   sla: [],
 }
@@ -83,6 +99,12 @@ const stageVariantMap: Record<string, "warning" | "info" | "success" | "refurb" 
 const slaVariantMap: Record<string, "danger" | "success" | "warning"> = {
   "Breached": "danger",
   "Within SLA": "success",
+}
+
+const conditionVariantMap: Record<string, "danger" | "success" | "warning"> = {
+  "Excellent": "success",
+  "Salvage": "warning",
+  "Fair": "danger",
 }
 
 const columns: ColumnDef<DisposalRecord>[] = [
@@ -150,6 +172,20 @@ const columns: ColumnDef<DisposalRecord>[] = [
     ),
   },
   {
+    accessorKey: "condition",
+    header: "Condition",
+    cell: ({ row }) =>
+      row.original.condition ? (
+        <StatusBadge variant={conditionVariantMap[row.original.condition] || "default"}>
+          {row.original.condition}
+        </StatusBadge>
+      ) : (
+        <span className="font-medium text-table-text" style={{ fontSize: "14px" }}>
+          –
+        </span>
+      ),
+  },
+  {
     accessorKey: "duration",
     header: "Status Duration",
     cell: ({ row }) => (
@@ -178,7 +214,10 @@ const columns: ColumnDef<DisposalRecord>[] = [
   },
 ]
 
+const auctionLinkedStages = ["Pending Auction", "Auctioned – Awaiting Pickup"]
+
 export default function DisposalManagementPage() {
+  const navigate = useNavigate()
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(25)
   const [filters, setFilters] = useState<GenericFilterState>(defaultFilters)
@@ -194,6 +233,10 @@ export default function DisposalManagementPage() {
   const breachCount = mockDisposalRecords.filter((r) => r.sla === "Breached").length
 
   const handleRowClick = (row: DisposalRecord) => {
+    if (auctionLinkedStages.includes(row.disposalStage)) {
+      navigate(`/auction/disposal/vehicle/${row.assetId}`)
+      return
+    }
     setSelectedRecord(row)
   }
 
@@ -206,6 +249,9 @@ export default function DisposalManagementPage() {
 
     if (filters.stage?.length) {
       result = result.filter((r) => filters.stage!.includes(r.disposalStage))
+    }
+    if (filters.condition?.length) {
+      result = result.filter((r) => filters.condition!.includes(r.condition))
     }
     if (filters.location?.length) {
       result = result.filter((r) => filters.location!.includes(r.location))
@@ -237,7 +283,7 @@ export default function DisposalManagementPage() {
         className="shrink-0"
       />
 
-      <div className="px-6 flex flex-col flex-1 min-h-0">
+      <div className="px-6 flex flex-col flex-1 min-h-0 overflow-y-auto overflow-x-hidden">
         <button
           type="button"
           onClick={() => setBreachFilter(!breachFilter)}
@@ -252,13 +298,26 @@ export default function DisposalManagementPage() {
           />
         </button>
 
-        <div className="grid grid-cols-5 gap-2 shrink-0">
+        <div className="grid grid-cols-4 gap-2 shrink-0">
           <StatCard
             title="Total in Disposal"
             value={mockDisposalRecords.length}
             indicatorColor="var(--color-gray-400)"
           />
-          {stageStats.map((stat) => (
+          <StatCard
+            title={stageStats[0].title}
+            value={stageStats[0].value}
+            indicatorColor={stageStats[0].indicatorColor}
+          />
+          {eventStats.map((stat) => (
+            <StatCard
+              key={stat.title}
+              title={stat.title}
+              value={stat.value}
+              indicatorColor={stat.indicatorColor}
+            />
+          ))}
+          {stageStats.slice(1).map((stat) => (
             <StatCard
               key={stat.title}
               title={stat.title}
@@ -268,7 +327,7 @@ export default function DisposalManagementPage() {
           ))}
         </div>
 
-        <div className="mt-4 flex-1 flex flex-col min-h-0 rounded-t-[14px] rounded-b-[4px] border border-table-border">
+        <div className="mt-4 flex flex-col rounded-t-[14px] rounded-b-[4px] border border-table-border">
           <div className="flex flex-wrap items-center justify-between gap-3 px-2 py-2 shrink-0">
             <div className="flex items-center gap-2">
               <Popover>
@@ -327,7 +386,7 @@ export default function DisposalManagementPage() {
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto">
+          <div className="overflow-x-auto">
             <DataTable columns={columns} data={filteredRecords} onRowClick={handleRowClick} />
           </div>
         </div>

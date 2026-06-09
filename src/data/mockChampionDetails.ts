@@ -10,6 +10,19 @@ export interface WalletTransaction {
   status: "Successful" | "Pending" | "Failed"
 }
 
+export interface WelfareNote {
+  id: string
+  date: string
+  loggedBy: string
+  channel: "Phone Call" | "SMS" | "WhatsApp" | "In-Person"
+  interactionType: "Routine Check-In" | "Incident Follow-up" | "Welfare Complaint"
+  summary: string
+  issuesRaised: string
+  actionTaken: string
+  followUpRequired: boolean
+  incidentStatus: "Open" | "In-Progress" | "Resolved"
+}
+
 export interface ChampionDetails {
   id: string
   name: string
@@ -95,6 +108,25 @@ export interface ChampionDetails {
   fieldOps: TimelineEntryData[]
 
   tickets: TicketRecord[]
+
+  welfareNotes: WelfareNote[]
+
+  timeOff: {
+    leavesAvailable: number
+    leavesEarned: number
+    eligibleLeavesTaken: number
+    emergencyLeavesTaken: number
+    currentStatus: "none" | "on-leave" | "no-available"
+    currentLeave?: { startDate: string; endDate: string }
+    history: {
+      id: string
+      type: "Annual" | "Emergency" | "Sick"
+      startDate: string
+      endDate: string
+      status: "Approved" | "Pending" | "Declined"
+      approvedBy: string
+    }[]
+  }
 
   hmo: {
     provider: string
@@ -265,6 +297,82 @@ export const mockChampionDetails: Record<string, ChampionDetails> = {
         address: "8 Obafemi Awolowo Way, Ikeja, Lagos",
       },
     ],
+    welfareNotes: [
+      {
+        id: "wn1",
+        date: "7 Jun 2026",
+        loggedBy: "Ngozi Eze",
+        channel: "Phone Call",
+        interactionType: "Routine Check-In",
+        summary: "Spoke with Adewale about his general wellbeing and work conditions. He mentioned being satisfied with the current vehicle condition but expressed concern about rising fuel costs affecting his daily earnings.",
+        issuesRaised: "Fuel cost increase impacting take-home earnings",
+        actionTaken: "Advised on fuel-efficient routes and escalated fuel subsidy request to management",
+        followUpRequired: true,
+        incidentStatus: "Open",
+      },
+      {
+        id: "wn2",
+        date: "1 Jun 2026",
+        loggedBy: "Fatima Bello",
+        channel: "In-Person",
+        interactionType: "Incident Follow-up",
+        summary: "Followed up on the minor accident reported on 28 May. Adewale confirmed he has fully recovered and the vehicle has been repaired. No lingering health issues.",
+        issuesRaised: "",
+        actionTaken: "Confirmed recovery, closed incident follow-up. Updated health records.",
+        followUpRequired: false,
+        incidentStatus: "Resolved",
+      },
+      {
+        id: "wn3",
+        date: "25 May 2026",
+        loggedBy: "Ngozi Eze",
+        channel: "WhatsApp",
+        interactionType: "Welfare Complaint",
+        summary: "Adewale reported that he was involved in a minor road incident. No serious injuries but requested time off for medical check-up. Expressed frustration about road conditions in his assigned area.",
+        issuesRaised: "Minor road incident, poor road conditions in Ikeja axis",
+        actionTaken: "Approved 2-day medical leave. Logged road condition complaint for operations review.",
+        followUpRequired: true,
+        incidentStatus: "In-Progress",
+      },
+      {
+        id: "wn4",
+        date: "15 May 2026",
+        loggedBy: "Chidi Okafor",
+        channel: "Phone Call",
+        interactionType: "Routine Check-In",
+        summary: "Routine bi-weekly welfare check. Adewale reported no issues. Satisfied with support from the operations team. Mentioned interest in upgrading to a 3-wheeler vehicle.",
+        issuesRaised: "",
+        actionTaken: "Noted vehicle upgrade interest, forwarded to contracts team",
+        followUpRequired: false,
+        incidentStatus: "Resolved",
+      },
+      {
+        id: "wn5",
+        date: "2 May 2026",
+        loggedBy: "Fatima Bello",
+        channel: "SMS",
+        interactionType: "Routine Check-In",
+        summary: "Sent routine check-in message. Adewale responded confirming he is doing well and has no complaints at this time.",
+        issuesRaised: "",
+        actionTaken: "No action required. Logged for records.",
+        followUpRequired: false,
+        incidentStatus: "Resolved",
+      },
+    ],
+    timeOff: {
+      leavesAvailable: 26,
+      leavesEarned: 30,
+      eligibleLeavesTaken: 4,
+      emergencyLeavesTaken: 1,
+      currentStatus: "none",
+      history: [
+        { id: "to1", type: "Annual", startDate: "10 Mar 2026", endDate: "14 Mar 2026", status: "Approved", approvedBy: "Samson Oluwaseun" },
+        { id: "to2", type: "Sick", startDate: "26 May 2026", endDate: "27 May 2026", status: "Approved", approvedBy: "Fatima Bello" },
+        { id: "to3", type: "Emergency", startDate: "2 Jan 2026", endDate: "3 Jan 2026", status: "Approved", approvedBy: "Tunde Bakare" },
+        { id: "to4", type: "Annual", startDate: "20 Jun 2026", endDate: "25 Jun 2026", status: "Pending", approvedBy: "—" },
+        { id: "to5", type: "Sick", startDate: "15 Nov 2025", endDate: "15 Nov 2025", status: "Declined", approvedBy: "Ngozi Eze" },
+      ],
+    },
     hmo: {
       provider: "Hygeia HMO",
       planType: "Basic Plan",
@@ -408,6 +516,57 @@ export const mockChampionDetails: Record<string, ChampionDetails> = {
         address: "10 Akin Adesola Street, Victoria Island, Lagos",
       },
     ],
+    welfareNotes: [
+      {
+        id: "wn1",
+        date: "5 Jun 2026",
+        loggedBy: "Emeka Nwankwo",
+        channel: "Phone Call",
+        interactionType: "Routine Check-In",
+        summary: "Bi-weekly check-in call with Chinedu. He is doing well and has no complaints. Positive feedback about recent vehicle maintenance support.",
+        issuesRaised: "",
+        actionTaken: "No action required. Logged for records.",
+        followUpRequired: false,
+        incidentStatus: "Resolved",
+      },
+      {
+        id: "wn2",
+        date: "22 May 2026",
+        loggedBy: "Ngozi Eze",
+        channel: "In-Person",
+        interactionType: "Routine Check-In",
+        summary: "In-person welfare check at Chinedu's operating area. Champion is in good health and maintaining excellent vehicle condition. Discussed upcoming contract renewal.",
+        issuesRaised: "Questions about contract renewal terms",
+        actionTaken: "Provided preliminary contract renewal information, scheduled meeting with contracts team",
+        followUpRequired: true,
+        incidentStatus: "Open",
+      },
+      {
+        id: "wn3",
+        date: "10 May 2026",
+        loggedBy: "Femi Adeyemi",
+        channel: "WhatsApp",
+        interactionType: "Incident Follow-up",
+        summary: "Followed up on GPS anomaly false alarm from 15 May. Confirmed with Chinedu that there are no ongoing issues with the vehicle tracking system.",
+        issuesRaised: "",
+        actionTaken: "Closed GPS anomaly incident. System calibration confirmed by tech team.",
+        followUpRequired: false,
+        incidentStatus: "Resolved",
+      },
+    ],
+    timeOff: {
+      leavesAvailable: 18,
+      leavesEarned: 20,
+      eligibleLeavesTaken: 2,
+      emergencyLeavesTaken: 0,
+      currentStatus: "on-leave",
+      currentLeave: { startDate: "7 Jun 2026", endDate: "12 Jun 2026" },
+      history: [
+        { id: "to1", type: "Annual", startDate: "7 Jun 2026", endDate: "12 Jun 2026", status: "Approved", approvedBy: "Emeka Nwankwo" },
+        { id: "to2", type: "Annual", startDate: "10 Feb 2026", endDate: "12 Feb 2026", status: "Approved", approvedBy: "Femi Adeyemi" },
+        { id: "to3", type: "Sick", startDate: "5 Dec 2025", endDate: "5 Dec 2025", status: "Approved", approvedBy: "Ngozi Eze" },
+      ],
+    },
     hmo: {
       provider: "Leadway Health",
       planType: "Standard Plan",

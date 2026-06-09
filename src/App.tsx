@@ -26,7 +26,8 @@ import ChampionDetailPage from "@/pages/ChampionDetailPage"
 import TicketManagementPage from "@/pages/TicketManagementPage"
 import CreateTicketPage from "@/pages/CreateTicketPage"
 import DriverSafetyScorePage from "@/pages/DriverSafetyScorePage"
-import WelfarePerformancePage from "@/pages/WelfarePerformancePage"
+import WelfarePage from "@/pages/WelfarePage"
+import PerformancePage from "@/pages/PerformancePage"
 
 export default function App() {
   return (
@@ -63,7 +64,8 @@ export default function App() {
         <Route path="/ticket-management" element={<TicketManagementPage />} />
         <Route path="/ticket-management/create" element={<CreateTicketPage />} />
         <Route path="/driver-safety-score" element={<DriverSafetyScorePage />} />
-        <Route path="/welfare-performance" element={<WelfarePerformancePage />} />
+        <Route path="/welfare" element={<WelfarePage />} />
+        <Route path="/performance" element={<PerformancePage />} />
       </Routes>
     </AppLayout>
   )

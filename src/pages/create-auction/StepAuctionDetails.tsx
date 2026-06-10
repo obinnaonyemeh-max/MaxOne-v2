@@ -77,7 +77,7 @@ export function StepAuctionDetails({ form, onUpdateField, onStartDateChange }: S
             />
           </FormField>
 
-          <FormField label="Min bid price (%)">
+          <FormField label="Min bid price (%)" hint="Percentage of the buyout price">
             <Input
               type="number"
               value={form.minBid}
@@ -85,6 +85,21 @@ export function StepAuctionDetails({ form, onUpdateField, onStartDateChange }: S
               placeholder="100"
               className="h-9 bg-[#F8F8F8]"
             />
+          </FormField>
+
+          <FormField label="Minimum increment" hint="Smallest amount a bid can increase by">
+            <div className="relative">
+              <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 font-medium text-gray-400" style={{ fontSize: "13px" }}>
+                ₦
+              </span>
+              <Input
+                type="number"
+                value={form.minIncrement}
+                onChange={(e) => onUpdateField("minIncrement", e.target.value)}
+                placeholder="50,000"
+                className="h-9 bg-[#F8F8F8] pl-7"
+              />
+            </div>
           </FormField>
         </div>
       </FormSection>

@@ -9,8 +9,8 @@ const conditionMeta: Record<
   { Icon: LucideIcon; label: string; color: string; bg: string }
 > = {
   GOOD: { Icon: CheckCircle2, label: "Good", color: "text-status-success", bg: "bg-status-success" },
-  FAIR: { Icon: AlertTriangle, label: "Fair", color: "text-status-warning", bg: "bg-status-warning" },
-  POOR: { Icon: XCircle, label: "Poor", color: "text-status-danger", bg: "bg-status-danger" },
+  FAIR: { Icon: AlertTriangle, label: "Needs Repair", color: "text-status-warning", bg: "bg-status-warning" },
+  POOR: { Icon: XCircle, label: "Needs Replacement", color: "text-status-danger", bg: "bg-status-danger" },
   "N/A": { Icon: HelpCircle, label: "N/A", color: "text-gray-400", bg: "bg-gray-300" },
 }
 

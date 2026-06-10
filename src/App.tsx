@@ -17,7 +17,6 @@ import CreateAuctionPage from "@/pages/create-auction/CreateAuctionPage"
 import AuctionDetailPage from "@/pages/AuctionDetailPage"
 import AuctionVehicleDetailPage from "@/pages/AuctionVehicleDetailPage"
 import ConversionRequestPage from "@/pages/ConversionRequestPage"
-import DepotCheckoutPage from "@/pages/DepotCheckoutPage"
 import ScrapManagementPage from "@/pages/ScrapManagementPage"
 import ScrapDetailPage from "@/pages/ScrapDetailPage"
 import ClosedAssetsPage from "@/pages/ClosedAssetsPage"
@@ -59,7 +58,6 @@ export default function App() {
         <Route path="/auction/create" element={<CreateAuctionPage />} />
         <Route path="/auction/:id" element={<AuctionDetailPage />} />
         <Route path="/auction/:id/vehicle/:vehicleId" element={<AuctionVehicleDetailPage />} />
-        <Route path="/depot-checkout" element={<DepotCheckoutPage />} />
         <Route path="/conversion-request" element={<ConversionRequestPage />} />
         <Route path="/scrap-management" element={<ScrapManagementPage />} />
         <Route path="/scrap-management/:id" element={<ScrapDetailPage />} />

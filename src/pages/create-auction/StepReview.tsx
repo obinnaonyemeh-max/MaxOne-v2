@@ -17,7 +17,8 @@ interface StepReviewProps {
 }
 
 export function StepReview({ form, selectedVehicles, buyoutPrices }: StepReviewProps) {
-  const minBidDisplay = form.minBid ? `₦${form.minBid}` : "—"
+  const minBidDisplay = form.minBid ? `${form.minBid}%` : "—"
+  const minIncrementDisplay = form.minIncrement ? `₦${form.minIncrement}` : "—"
 
   const columns: ColumnDef<AuctionVehicle>[] = [
     {
@@ -81,11 +82,19 @@ export function StepReview({ form, selectedVehicles, buyoutPrices }: StepReviewP
     {
       id: "minBid",
       header: "Min Bid",
-      cell: () => (
-        <span className="font-medium text-table-text" style={{ fontSize: "14px" }}>
-          {minBidDisplay}
-        </span>
-      ),
+      cell: ({ row }) => {
+        const buyout = Number(buyoutPrices[row.original.id])
+        const pct = Number(form.minBid)
+        const value =
+          buyoutPrices[row.original.id] && form.minBid && !isNaN(buyout) && !isNaN(pct)
+            ? `₦${Math.round((buyout * pct) / 100).toLocaleString()}`
+            : "—"
+        return (
+          <span className="font-medium text-table-text" style={{ fontSize: "14px" }}>
+            {value}
+          </span>
+        )
+      },
     },
   ]
 
@@ -107,6 +116,7 @@ export function StepReview({ form, selectedVehicles, buyoutPrices }: StepReviewP
             { label: "Start date", value: form.startDate ? form.startDate.toLocaleDateString("en-GB") : "—" },
             { label: "End date", value: form.endDate ? form.endDate.toLocaleDateString("en-GB") : "—" },
             { label: "Min bid price", value: minBidDisplay },
+            { label: "Minimum increment", value: minIncrementDisplay },
             { label: "Vehicles assigned", value: `${selectedVehicles.length} vehicles` },
           ]}
         />

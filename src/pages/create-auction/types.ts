@@ -4,6 +4,7 @@ export interface AuctionForm {
   startDate?: Date
   endDate?: Date
   minBid: string
+  minIncrement: string
 }
 
 export type AuctionStep = 1 | 2 | 3

@@ -121,11 +121,6 @@ export const sidebarSections: SidebarSection[] = [
             href: "/auction",
           },
           {
-            id: "depot-checkout",
-            label: "Depot Checkout",
-            href: "/depot-checkout",
-          },
-          {
             id: "scrap-management",
             label: "Scrap Management",
             href: "/scrap-management",

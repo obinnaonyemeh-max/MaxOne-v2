@@ -1,5 +1,5 @@
+import { useState } from "react"
 import { type ColumnDef } from "@tanstack/react-table"
-import { useNavigate } from "react-router-dom"
 
 import { Banner, DataTable, StatusBadge, VehicleIcon } from "@/components/max"
 import { StatCard } from "@/components/max/StatCard"
@@ -42,8 +42,6 @@ const statusVariant: Record<AllocatedVehicle["status"], "info" | "warning"> = {
 }
 
 function AllocatedAction({ action }: { action: AllocatedVehicle["action"] }) {
-  const navigate = useNavigate()
-
   if (action === "Reallocate") {
     return (
       <Button
@@ -59,14 +57,7 @@ function AllocatedAction({ action }: { action: AllocatedVehicle["action"] }) {
     return textCell("Collected")
   }
   return (
-    <Button
-      variant="outline"
-      size="sm"
-      onClick={(e) => {
-        e.stopPropagation()
-        navigate("/depot-checkout")
-      }}
-    >
+    <Button variant="outline" size="sm" onClick={(e) => e.stopPropagation()}>
       {action}
     </Button>
   )
@@ -112,35 +103,39 @@ const allocatedColumns: ColumnDef<AllocatedVehicle>[] = [
   },
 ]
 
-const unallocatedColumns: ColumnDef<UnallocatedVehicle>[] = [
-  {
-    accessorKey: "vehicleId",
-    header: "Vehicle ID",
-    cell: ({ row }) => identityCell(row.original.type, row.original.vehicleId),
-  },
-  { accessorKey: "plateNumber", header: "Plate No.", cell: ({ row }) => textCell(row.original.plateNumber) },
-  { accessorKey: "makeModel", header: "Make / Model", cell: ({ row }) => textCell(row.original.makeModel) },
-  { accessorKey: "location", header: "Location", cell: ({ row }) => textCell(row.original.location) },
-  { accessorKey: "reason", header: "Reason", cell: ({ row }) => textCell(row.original.reason) },
-  {
-    id: "action",
-    header: "Action",
-    cell: () => (
-      <div className="flex items-center gap-2">
-        <Button
-          size="sm"
-          className="bg-brand-dark text-white hover:bg-brand-dark/90"
-          onClick={(e) => e.stopPropagation()}
-        >
-          Re-auction
-        </Button>
-        <Button variant="outline" size="sm" onClick={(e) => e.stopPropagation()}>
-          Return to Pool
-        </Button>
-      </div>
-    ),
-  },
-]
+function makeUnallocatedColumns(
+  onReturnToPool: (vehicleId: string) => void
+): ColumnDef<UnallocatedVehicle>[] {
+  return [
+    {
+      accessorKey: "vehicleId",
+      header: "Vehicle ID",
+      cell: ({ row }) => identityCell(row.original.type, row.original.vehicleId),
+    },
+    { accessorKey: "plateNumber", header: "Plate No.", cell: ({ row }) => textCell(row.original.plateNumber) },
+    { accessorKey: "makeModel", header: "Make / Model", cell: ({ row }) => textCell(row.original.makeModel) },
+    { accessorKey: "location", header: "Location", cell: ({ row }) => textCell(row.original.location) },
+    { accessorKey: "reason", header: "Reason", cell: ({ row }) => textCell(row.original.reason) },
+    {
+      id: "action",
+      header: "Action",
+      cell: ({ row }) => (
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation()
+              onReturnToPool(row.original.vehicleId)
+            }}
+          >
+            Return to Pool
+          </Button>
+        </div>
+      ),
+    },
+  ]
+}
 
 const sectionLabel = "text-xs font-semibold uppercase tracking-wide text-gray-400"
 const tableCard = "mt-2 rounded-t-[14px] rounded-b-[4px] border border-table-border overflow-x-auto py-2"
@@ -151,6 +146,14 @@ interface ClosedAllocationResultsProps {
 }
 
 export function ClosedAllocationResults({ result, onVehicleClick }: ClosedAllocationResultsProps) {
+  const [unallocatedVehicles, setUnallocatedVehicles] = useState(result.unallocatedVehicles)
+
+  const handleReturnToPool = (vehicleId: string) => {
+    setUnallocatedVehicles((prev) => prev.filter((v) => v.vehicleId !== vehicleId))
+  }
+
+  const unallocatedColumns = makeUnallocatedColumns(handleReturnToPool)
+
   return (
     <>
       <Banner
@@ -162,7 +165,7 @@ export function ClosedAllocationResults({ result, onVehicleClick }: ClosedAlloca
 
       <div className="mt-4 grid grid-cols-4 gap-2 shrink-0">
         <StatCard title="Allocated" value={result.allocated} indicatorColor="var(--color-status-success)" />
-        <StatCard title="Unallocated" value={result.unallocated} indicatorColor="var(--color-status-danger)" />
+        <StatCard title="Unallocated" value={unallocatedVehicles.length} indicatorColor="var(--color-status-danger)" />
         <StatCard title="Total Revenue" value={result.totalRevenue} indicatorColor="var(--color-status-info)" />
         <StatCard title="Fill Rate" value={`${result.fillRate}%`} indicatorColor="var(--color-gray-400)" />
       </div>
@@ -183,7 +186,7 @@ export function ClosedAllocationResults({ result, onVehicleClick }: ClosedAlloca
         <div className={tableCard}>
           <DataTable
             columns={unallocatedColumns}
-            data={result.unallocatedVehicles}
+            data={unallocatedVehicles}
             emptyMessage="All vehicles were allocated."
             onRowClick={(row) => onVehicleClick(row.vehicleId)}
           />

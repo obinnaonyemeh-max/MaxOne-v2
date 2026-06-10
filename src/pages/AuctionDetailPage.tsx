@@ -230,12 +230,12 @@ export default function AuctionDetailPage() {
           <div className="flex items-center gap-3">
             <BackButton onClick={() => navigate("/auction")} />
             <h1 className="flex items-end gap-1 font-semibold text-sidebar-item-active" style={{ fontSize: "22px" }}>
-              Allocation Results
+              {event.title}
               <span className="mb-2 h-1.5 w-1.5 rounded-full bg-brand-primary" />
             </h1>
           </div>
           <p className="mt-1 text-sm font-medium text-breadcrumb-root">
-            {event.title} · {event.status} · {event.vehicles} vehicles
+            {event.status} · {event.vehicles} vehicles
           </p>
         </header>
         {canCancel && (

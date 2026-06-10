@@ -30,11 +30,6 @@ import {
 
 import { mockDisposalRecords, type DisposalRecord } from "@/data/mockDisposal"
 
-const eventStats = [
-  { title: "Assigned to Upcoming Event", value: 4, indicatorColor: "var(--color-status-cyan)" },
-  { title: "Unallocated (Prev. Event)", value: 2, indicatorColor: "var(--color-status-amber)" },
-]
-
 const stageStats = [
   { title: "Pending Auction", value: 3, indicatorColor: "var(--color-status-warning)" },
   { title: "Auctioned – Awaiting Pickup", value: 2, indicatorColor: "var(--color-status-info)" },
@@ -70,6 +65,13 @@ const filterSections: FilterSection[] = [
       { value: "Nairobi", label: "Nairobi" },
       { value: "Mombasa", label: "Mombasa" },
       { value: "Kisumu", label: "Kisumu" },
+      { value: "Nakuru", label: "Nakuru" },
+      { value: "Eldoret", label: "Eldoret" },
+      { value: "Thika", label: "Thika" },
+      { value: "Nyeri", label: "Nyeri" },
+      { value: "Machakos", label: "Machakos" },
+      { value: "Kitale", label: "Kitale" },
+      { value: "Kakamega", label: "Kakamega" },
     ],
   },
   {
@@ -298,7 +300,7 @@ export default function DisposalManagementPage() {
           />
         </button>
 
-        <div className="grid grid-cols-4 gap-2 shrink-0">
+        <div className="grid grid-cols-5 gap-2 shrink-0">
           <StatCard
             title="Total in Disposal"
             value={mockDisposalRecords.length}
@@ -309,14 +311,6 @@ export default function DisposalManagementPage() {
             value={stageStats[0].value}
             indicatorColor={stageStats[0].indicatorColor}
           />
-          {eventStats.map((stat) => (
-            <StatCard
-              key={stat.title}
-              title={stat.title}
-              value={stat.value}
-              indicatorColor={stat.indicatorColor}
-            />
-          ))}
           {stageStats.slice(1).map((stat) => (
             <StatCard
               key={stat.title}
@@ -342,7 +336,7 @@ export default function DisposalManagementPage() {
                     )}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-2" align="start">
+                <PopoverContent className="w-auto p-2" align="start" side="bottom" avoidCollisions={false}>
                   <GenericFilterPopover
                     sections={filterSections}
                     filters={filters}

@@ -26,6 +26,7 @@ export default function CreateAuctionPage() {
     startDate: undefined,
     endDate: undefined,
     minBid: "",
+    minIncrement: "",
   })
   const [selectedVehicleIds, setSelectedVehicleIds] = useState<string[]>([])
   const [buyoutPrices, setBuyoutPrices] = useState<Record<string, string>>({})
@@ -38,6 +39,7 @@ export default function CreateAuctionPage() {
   const [bulkUploadOpen, setBulkUploadOpen] = useState(false)
 
   const filteredVehicles = auctionableVehicles.filter((v) => {
+    if (form.location && v.location !== form.location) return false
     if (vehicleFilters.condition?.length && !vehicleFilters.condition.includes(v.condition)) return false
     if (vehicleFilters.type?.length && !vehicleFilters.type.includes(v.type)) return false
     if (vehicleFilters.location?.length && !vehicleFilters.location.includes(v.location)) return false

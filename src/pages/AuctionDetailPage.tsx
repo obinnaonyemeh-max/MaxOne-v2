@@ -33,7 +33,7 @@ import {
   defaultAllocationFilters,
   type AllocationVehicle,
 } from "@/data/mockAuction"
-import { vehicleTypeLabel } from "@/lib/utils"
+import { vehicleTypeLabel, cn } from "@/lib/utils"
 import { ClosedAllocationResults } from "./auction-detail/ClosedAllocationResults"
 
 const statusVariantMap: Record<AllocationVehicle["auctionStatus"], "success" | "info" | "warning"> = {
@@ -87,24 +87,26 @@ export default function AuctionDetailPage() {
     if (isUpcoming) {
       return <span className="text-gray-400" style={{ fontSize: "14px" }}>-</span>
     }
-    if (isActive) {
+    if (vehicle.bids === 0 || !vehicle.leadingBidId) {
       return (
         <span className="italic text-gray-400" style={{ fontSize: "14px" }}>
-          {vehicle.bids > 0 ? "Hidden — auction active" : "No bids yet"}
+          No bids yet
         </span>
       )
     }
-    if (vehicle.bids === 0 || !vehicle.winningBid) {
-      return (
-        <span className="italic text-gray-400" style={{ fontSize: "14px" }}>
-          No bids
-        </span>
-      )
-    }
+    const isWon = vehicle.auctionStatus === "Sold"
     return (
-      <span className="font-semibold text-table-text-primary" style={{ fontSize: "14px" }}>
-        {vehicle.winningBid}
-      </span>
+      <div className="flex flex-col">
+        <span className="font-medium text-table-text" style={{ fontSize: "14px" }}>
+          {vehicle.leadingBidId}
+        </span>
+        <span
+          className={cn("font-medium", isWon ? "text-status-info" : "text-status-success")}
+          style={{ fontSize: "11px" }}
+        >
+          {isWon ? "Won" : "Leading"}
+        </span>
+      </div>
     )
   }
 
@@ -172,7 +174,7 @@ export default function AuctionDetailPage() {
     },
     {
       accessorKey: "winningBid",
-      header: "Winning Bid",
+      header: "Winning / Leading Bid",
       cell: ({ row }) => renderWinningBid(row.original),
     },
   ]

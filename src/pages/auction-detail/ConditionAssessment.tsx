@@ -65,12 +65,12 @@ export function ConditionAssessment({ parts }: ConditionAssessmentProps) {
         ))}
       </div>
 
-      <div className="mt-6 grid grid-cols-2 gap-x-6 gap-y-5 sm:grid-cols-3 lg:grid-cols-4">
+      <div className="mt-6 grid grid-cols-2 border-l border-t border-border sm:grid-cols-3 lg:grid-cols-4">
         {parts.map((part) => {
           const { Icon, color, bg, label } = conditionMeta[part.condition]
           const customIcon = partIcons[part.name]
           return (
-            <div key={part.id} className="flex items-start gap-3">
+            <div key={part.id} className="flex items-start gap-3 border-b border-r border-border p-4">
               {customIcon ? (
                 <span
                   className={cn("mt-0.5 h-5 w-5 shrink-0", bg)}
@@ -94,9 +94,6 @@ export function ConditionAssessment({ parts }: ConditionAssessmentProps) {
                 </p>
                 <p className={cn("font-medium", color)} style={{ fontSize: "12px" }}>
                   {label}
-                </p>
-                <p className="text-muted-foreground" style={{ fontSize: "13px" }}>
-                  {part.note}
                 </p>
               </div>
             </div>

@@ -79,6 +79,7 @@ export interface AllocationVehicle {
   auctionStatus: "Available" | "Sold" | "Reserved"
   bids: number
   winningBid: string | null
+  leadingBidId?: string
 }
 
 export interface AuctionAllocation {
@@ -132,12 +133,12 @@ export const mockAuctionAllocations: AuctionAllocation[] = [
     uniqueBidders: 18,
     endsInSeconds: 9606,
     vehicles: [
-      { id: "1", vehicleId: "VH-00421", plateNumber: "LND-421-HB", makeModel: "Honda CB125F", location: "Lagos Main Depot", type: "2W", auctionStatus: "Available", bids: 7, winningBid: "₦210,000" },
-      { id: "2", vehicleId: "VH-00398", plateNumber: "LND-398-KA", makeModel: "Bajaj Maxima C", location: "Lagos Main Depot", type: "3W", auctionStatus: "Available", bids: 4, winningBid: "₦165,000" },
-      { id: "3", vehicleId: "VH-00289", plateNumber: "ABJ-289-FC", makeModel: "TVS Apache RTR 160", location: "Abuja Fleet Depot", type: "2W", auctionStatus: "Sold", bids: 9, winningBid: "₦255,000" },
+      { id: "1", vehicleId: "VH-00421", plateNumber: "LND-421-HB", makeModel: "Honda CB125F", location: "Lagos Main Depot", type: "2W", auctionStatus: "Available", bids: 7, winningBid: "₦210,000", leadingBidId: "BID-00891" },
+      { id: "2", vehicleId: "VH-00398", plateNumber: "LND-398-KA", makeModel: "Bajaj Maxima C", location: "Lagos Main Depot", type: "3W", auctionStatus: "Available", bids: 4, winningBid: "₦165,000", leadingBidId: "BID-00742" },
+      { id: "3", vehicleId: "VH-00289", plateNumber: "ABJ-289-FC", makeModel: "TVS Apache RTR 160", location: "Abuja Fleet Depot", type: "2W", auctionStatus: "Sold", bids: 9, winningBid: "₦255,000", leadingBidId: "BID-00915" },
       { id: "4", vehicleId: "VH-00315", plateNumber: "LND-315-PQ", makeModel: "Yamaha Crux Rev", location: "Lagos Main Depot", type: "2W", auctionStatus: "Available", bids: 0, winningBid: null },
-      { id: "5", vehicleId: "VH-00276", plateNumber: "ABJ-276-GH", makeModel: "Honda CG 125", location: "Abuja Fleet Depot", type: "2W", auctionStatus: "Available", bids: 5, winningBid: "₦135,000" },
-      { id: "6", vehicleId: "VH-00251", plateNumber: "RIV-251-PH", makeModel: "Keke Napep 200", location: "Port Harcourt Depot", type: "3W", auctionStatus: "Reserved", bids: 3, winningBid: "₦120,000" },
+      { id: "5", vehicleId: "VH-00276", plateNumber: "ABJ-276-GH", makeModel: "Honda CG 125", location: "Abuja Fleet Depot", type: "2W", auctionStatus: "Available", bids: 5, winningBid: "₦135,000", leadingBidId: "BID-00688" },
+      { id: "6", vehicleId: "VH-00251", plateNumber: "RIV-251-PH", makeModel: "Keke Napep 200", location: "Port Harcourt Depot", type: "3W", auctionStatus: "Reserved", bids: 3, winningBid: "₦120,000", leadingBidId: "BID-00574" },
     ],
   },
   {
@@ -171,10 +172,10 @@ export const mockAuctionAllocations: AuctionAllocation[] = [
     uniqueBidders: 24,
     endsInSeconds: 0,
     vehicles: [
-      { id: "1", vehicleId: "VH-00188", plateNumber: "LND-188-RT", makeModel: "Honda CB125F", location: "Lagos Main Depot", type: "2W", auctionStatus: "Sold", bids: 11, winningBid: "₦240,000" },
-      { id: "2", vehicleId: "VH-00203", plateNumber: "LND-203-MN", makeModel: "Bajaj Boxer", location: "Lagos Main Depot", type: "2W", auctionStatus: "Sold", bids: 8, winningBid: "₦195,000" },
-      { id: "3", vehicleId: "VH-00167", plateNumber: "LND-167-WX", makeModel: "TVS King 3W", location: "Lagos Main Depot", type: "3W", auctionStatus: "Reserved", bids: 2, winningBid: "₦150,000" },
-      { id: "4", vehicleId: "VH-00210", plateNumber: "LND-210-ZA", makeModel: "Yamaha Crux Rev", location: "Lagos Main Depot", type: "2W", auctionStatus: "Sold", bids: 6, winningBid: "₦175,000" },
+      { id: "1", vehicleId: "VH-00188", plateNumber: "LND-188-RT", makeModel: "Honda CB125F", location: "Lagos Main Depot", type: "2W", auctionStatus: "Sold", bids: 11, winningBid: "₦240,000", leadingBidId: "BID-01120" },
+      { id: "2", vehicleId: "VH-00203", plateNumber: "LND-203-MN", makeModel: "Bajaj Boxer", location: "Lagos Main Depot", type: "2W", auctionStatus: "Sold", bids: 8, winningBid: "₦195,000", leadingBidId: "BID-00803" },
+      { id: "3", vehicleId: "VH-00167", plateNumber: "LND-167-WX", makeModel: "TVS King 3W", location: "Lagos Main Depot", type: "3W", auctionStatus: "Reserved", bids: 2, winningBid: "₦150,000", leadingBidId: "BID-00667" },
+      { id: "4", vehicleId: "VH-00210", plateNumber: "LND-210-ZA", makeModel: "Yamaha Crux Rev", location: "Lagos Main Depot", type: "2W", auctionStatus: "Sold", bids: 6, winningBid: "₦175,000", leadingBidId: "BID-00759" },
     ],
   },
 ]

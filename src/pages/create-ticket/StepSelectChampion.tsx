@@ -49,7 +49,6 @@ export function StepSelectChampion({
           phoneNumber={selectedChampion.phoneNumber}
           location={selectedChampion.location}
           onboardedDate={selectedChampion.onboardedDate}
-          lastPingedOn={selectedChampion.lastPingedOn}
           contractStatus={selectedChampion.contractStatus as "Active" | "Inactive" | "Early Arrears" | "Defaulting"}
         />
       </div>

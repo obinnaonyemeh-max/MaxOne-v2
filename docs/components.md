@@ -1104,6 +1104,7 @@ import { InfoCard } from "@/components/max"
 |------|------|---------|-------------|
 | `title` | `string` | required | Section heading (rendered uppercase, 11px) |
 | `children` | `ReactNode` | required | Card body content |
+| `action` | `ReactNode` | - | Optional element rendered right-aligned on the header row, inline with the title (e.g. a "Download template sheet" link) |
 | `className` | `string` | - | Additional classes on the wrapper |
 
 #### Usage
@@ -1475,3 +1476,4 @@ The design system uses custom Tailwind color tokens defined in `src/index.css`:
 | 2026-03-07 | All | Initial documentation created |
 | 2026-05-28 | Toast | Promoted inline batch-details toast into a reusable `Toast` component + `useToast` hook |
 | 2026-05-28 | Toast | Added `error` variant + `showError` hook shortcut |
+| 2026-07-27 | InfoCard | Added optional right-aligned `action` header slot; used for the transfer "Download template sheet" link |

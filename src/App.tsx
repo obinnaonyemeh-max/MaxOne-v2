@@ -24,6 +24,8 @@ import ClosedAssetsPage from "@/pages/ClosedAssetsPage"
 import ClosedAssetDetailPage from "@/pages/ClosedAssetDetailPage"
 import AllTransferPage from "@/pages/AllTransferPage"
 import TransferDetailPage from "@/pages/TransferDetailPage"
+import KitReportsPage from "@/pages/KitReportsPage"
+import KitAssignmentPage from "@/pages/kit-assignment/KitAssignmentPage"
 import ActivationReadinessPage from "@/pages/ActivationReadinessPage"
 import VehicleDocumentsPage from "@/pages/VehicleDocumentsPage"
 import Champion360Page from "@/pages/Champion360Page"
@@ -67,6 +69,8 @@ export default function App() {
         <Route path="/closed-assets/:id" element={<ClosedAssetDetailPage />} />
         <Route path="/transfer/all" element={<AllTransferPage />} />
         <Route path="/transfer/all/:id" element={<TransferDetailPage />} />
+        <Route path="/activation-assignment/asset-reassignment/kit" element={<KitReportsPage />} />
+        <Route path="/activation-assignment/asset-reassignment/kit/assign" element={<KitAssignmentPage />} />
         <Route path="/activation/readiness" element={<ActivationReadinessPage />} />
         <Route path="/vehicle-document" element={<VehicleDocumentsPage />} />
         <Route path="/champion-360" element={<Champion360Page />} />

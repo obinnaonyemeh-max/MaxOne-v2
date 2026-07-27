@@ -11,6 +11,7 @@ const variantToColor: Record<string, string> = {
   warning: "bg-status-warning",
   info: "bg-status-info",
   danger: "bg-status-danger",
+  default: "bg-gray-400",
 }
 
 export function StatusTimeline({ entries, className }: StatusTimelineProps) {

@@ -27,7 +27,7 @@ import { STAGE_KEYS } from "./activation-readiness/stages"
 import {
   mockActivationRecords,
   stageStatusVariantMap,
-  uniqueBatches,
+  uniqueSubBatches,
   type ActivationRecord,
   type StageStatus,
   type ReadyStatus,
@@ -52,10 +52,10 @@ const stats = [
 
 const filterSections: FilterSection[] = [
   {
-    id: "batch",
-    title: "Batch",
+    id: "subBatch",
+    title: "Sub-Batch",
     defaultExpanded: true,
-    options: uniqueBatches.map((b) => ({ value: b, label: b })),
+    options: uniqueSubBatches.map((b) => ({ value: b, label: b })),
   },
   {
     id: "status",
@@ -101,10 +101,10 @@ function makeColumns(onUpdate: (r: ActivationRecord) => void): ColumnDef<Activat
       ),
     },
     {
-      accessorKey: "batch",
-      header: "Batch",
+      accessorKey: "subBatch",
+      header: "Sub-Batch",
       cell: ({ row }) => (
-        <span className="font-medium text-table-text" style={{ fontSize: "13px" }}>{row.original.batch}</span>
+        <span className="font-medium text-table-text" style={{ fontSize: "13px" }}>{row.original.subBatch}</span>
       ),
     },
     {
@@ -162,7 +162,7 @@ type BulkStep = "upload" | "validating" | "validated" | "importing" | "imported"
 export default function ActivationReadinessPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [searchOpen, setSearchOpen]   = useState(false)
-  const [filters, setFilters]         = useState<GenericFilterState>({ batch: [], status: [] })
+  const [filters, setFilters]         = useState<GenericFilterState>({ subBatch: [], status: [] })
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize]       = useState(25)
 
@@ -180,7 +180,7 @@ export default function ActivationReadinessPage() {
 
   const filtered = useMemo(() =>
     mockActivationRecords.filter((r) => {
-      if (filters.batch.length > 0 && !filters.batch.includes(r.batch)) return false
+      if (filters.subBatch.length > 0 && !filters.subBatch.includes(r.subBatch)) return false
       if (filters.status.length > 0) {
         const match = filters.status.some((s) => {
           if (s === "Ready")       return r.ready === "Ready"
@@ -193,7 +193,7 @@ export default function ActivationReadinessPage() {
       }
       if (searchQuery) {
         const q = searchQuery.toLowerCase()
-        if (!r.chassis.toLowerCase().includes(q) && !r.batch.toLowerCase().includes(q)) return false
+        if (!r.chassis.toLowerCase().includes(q) && !r.subBatch.toLowerCase().includes(q)) return false
       }
       return true
     }),
@@ -256,7 +256,7 @@ export default function ActivationReadinessPage() {
                   type="text"
                   value={searchQuery}
                   onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1) }}
-                  placeholder="Search chassis or batch number..."
+                  placeholder="Search chassis or sub-batch number..."
                   className="h-9 w-56"
                   autoFocus
                   onKeyDown={(e) => { if (e.key === "Escape") { setSearchOpen(false); setSearchQuery("") } }}

@@ -1,4 +1,4 @@
-import { InfoCard, InfoGrid, StatusBadge } from "@/components/max"
+import { InfoCard, InfoGrid } from "@/components/max"
 import type { BatchDetails } from "@/data/mockBatchDetails"
 
 export function OverviewTab({ batch }: { batch: BatchDetails }) {
@@ -18,7 +18,7 @@ export function OverviewTab({ batch }: { batch: BatchDetails }) {
             { label: "Quantity In Transit", value: batch.batchInfo.quantityInTransit.toLocaleString() },
             { label: "Destination Country", value: batch.batchInfo.destinationCountry },
             { label: "Destination City", value: batch.batchInfo.destinationCity },
-            { label: "Status", value: <StatusBadge variant={batch.stageVariant} withDot>{batch.stage}</StatusBadge> },
+            { label: "Created Date", value: batch.createdDate },
           ]}
         />
       </InfoCard>

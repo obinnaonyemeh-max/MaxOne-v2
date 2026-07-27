@@ -1,10 +1,6 @@
-import type { TimelineEntryData } from "@/components/max"
-
 export interface BatchDetails {
   id: string
   batchId: string
-  stage: string
-  stageVariant: "success" | "warning" | "info" | "danger" | "default"
   batchInfo: {
     oem: string
     model: string
@@ -27,15 +23,12 @@ export interface BatchDetails {
   }
   createdDate: string
   notes: string
-  stageHistory: TimelineEntryData[]
 }
 
 export const mockBatchDetails: Record<string, BatchDetails> = {
   "1": {
     id: "1",
     batchId: "BATCH-12-3056",
-    stage: "At Port",
-    stageVariant: "warning",
     batchInfo: {
       oem: "TailG",
       model: "Jidi V1 Standard",
@@ -58,97 +51,10 @@ export const mockBatchDetails: Record<string, BatchDetails> = {
     },
     createdDate: "3/17/2026",
     notes: "Priority shipment for Ghana expansion.",
-    stageHistory: [
-      {
-        id: "sh1",
-        date: "Mar 2026",
-        status: "At Port",
-        statusVariant: "warning",
-        description: {
-          template: "Batch arrived at {location} and is awaiting {action}",
-          highlights: {
-            location: "Tema Port",
-            action: "customs clearance",
-          },
-        },
-        actor: {
-          action: "Updated by",
-          name: "Logistics Team",
-        },
-        duration: {
-          range: "10 Mar - Current",
-          total: "8 days",
-        },
-      },
-      {
-        id: "sh2",
-        date: "Feb 2026",
-        status: "In Transit",
-        statusVariant: "info",
-        description: {
-          template: "Batch shipped from {origin} via {carrier}",
-          highlights: {
-            origin: "Shanghai",
-            carrier: "Maersk Line",
-          },
-        },
-        actor: {
-          action: "Shipped by",
-          name: "TailG Logistics",
-        },
-        duration: {
-          range: "15 Feb - 10 Mar",
-          total: "23 days",
-        },
-      },
-      {
-        id: "sh3",
-        date: "Feb 2026",
-        status: "Identifier Upload",
-        statusVariant: "info",
-        description: {
-          template: "VIN and identifier data uploaded for {quantity} units",
-          highlights: {
-            quantity: "20,000",
-          },
-        },
-        actor: {
-          action: "Completed by",
-          name: "Data Team",
-        },
-        duration: {
-          range: "10 Feb - 15 Feb",
-          total: "5 days",
-        },
-      },
-      {
-        id: "sh4",
-        date: "Jan 2026",
-        status: "In Production",
-        statusVariant: "default",
-        description: {
-          template: "Production started for {quantity} units of {model}",
-          highlights: {
-            quantity: "20,000",
-            model: "Jidi V1 Standard",
-          },
-        },
-        actor: {
-          action: "Initiated by",
-          name: "TailG Factory",
-        },
-        duration: {
-          range: "5 Jan - 10 Feb",
-          total: "36 days",
-        },
-      },
-    ],
   },
   "2": {
     id: "2",
     batchId: "BATCH-0990",
-    stage: "Identifier Upload",
-    stageVariant: "info",
     batchInfo: {
       oem: "Spiro",
       model: "Ekon V2 Standard",
@@ -171,55 +77,10 @@ export const mockBatchDetails: Record<string, BatchDetails> = {
     },
     createdDate: "2/15/2026",
     notes: "",
-    stageHistory: [
-      {
-        id: "sh1",
-        date: "Mar 2026",
-        status: "Identifier Upload",
-        statusVariant: "info",
-        description: {
-          template: "VIN and identifier data being uploaded for {quantity} units",
-          highlights: {
-            quantity: "5,000",
-          },
-        },
-        actor: {
-          action: "Updated by",
-          name: "Data Team",
-        },
-        duration: {
-          range: "12 Mar - Current",
-          total: "6 days",
-        },
-      },
-      {
-        id: "sh2",
-        date: "Feb 2026",
-        status: "In Production",
-        statusVariant: "default",
-        description: {
-          template: "Production started for {quantity} units of {model}",
-          highlights: {
-            quantity: "5,000",
-            model: "Ekon V2 Standard",
-          },
-        },
-        actor: {
-          action: "Initiated by",
-          name: "Spiro Factory",
-        },
-        duration: {
-          range: "1 Feb - 12 Mar",
-          total: "39 days",
-        },
-      },
-    ],
   },
   "3": {
     id: "3",
     batchId: "BATCH-2026-003",
-    stage: "In Transit",
-    stageVariant: "info",
     batchInfo: {
       oem: "King",
       model: "MAX M4 Cargo",
@@ -235,90 +96,24 @@ export const mockBatchDetails: Record<string, BatchDetails> = {
       invoicePoReference: "INV-2026-003",
     },
     shipping: {
-      containerNumber: "TCLU-5582910",
-      shippingLine: "MSC",
-      portOfArrival: "Tin Can Port",
-      expectedDeliveryDate: "20 Jun 2026",
+      containerNumber: "HLCU-9847563",
+      shippingLine: "Hapag-Lloyd",
+      portOfArrival: "Apapa Port",
+      expectedDeliveryDate: "20 May 2026",
     },
-    createdDate: "1/10/2026",
-    notes: "Standard delivery for Lagos operations.",
-    stageHistory: [
-      {
-        id: "sh1",
-        date: "Mar 2026",
-        status: "In Transit",
-        statusVariant: "info",
-        description: {
-          template: "Batch shipped from {origin} via {carrier}",
-          highlights: {
-            origin: "Shenzhen",
-            carrier: "MSC",
-          },
-        },
-        actor: {
-          action: "Shipped by",
-          name: "King Logistics",
-        },
-        duration: {
-          range: "5 Mar - Current",
-          total: "13 days",
-        },
-      },
-      {
-        id: "sh2",
-        date: "Feb 2026",
-        status: "Identifier Upload",
-        statusVariant: "info",
-        description: {
-          template: "VIN and identifier data uploaded for {quantity} units",
-          highlights: {
-            quantity: "2,500",
-          },
-        },
-        actor: {
-          action: "Completed by",
-          name: "Data Team",
-        },
-        duration: {
-          range: "20 Feb - 5 Mar",
-          total: "13 days",
-        },
-      },
-      {
-        id: "sh3",
-        date: "Jan 2026",
-        status: "In Production",
-        statusVariant: "default",
-        description: {
-          template: "Production started for {quantity} units of {model}",
-          highlights: {
-            quantity: "2,500",
-            model: "MAX M4 Cargo",
-          },
-        },
-        actor: {
-          action: "Initiated by",
-          name: "King Factory",
-        },
-        duration: {
-          range: "10 Jan - 20 Feb",
-          total: "41 days",
-        },
-      },
-    ],
+    createdDate: "3/1/2026",
+    notes: "Cargo variant for logistics partners.",
   },
   "4": {
     id: "4",
     batchId: "BATCH-2026-002",
-    stage: "Ready for Activation",
-    stageVariant: "success",
     batchInfo: {
       oem: "TailG",
       model: "Jidi V1 Standard",
       trim: "V1",
       quantityOrdered: 400,
-      quantityReceived: 100,
-      quantityInTransit: 150,
+      quantityReceived: 400,
+      quantityInTransit: 0,
       destinationCountry: "Ghana",
       destinationCity: "Accra",
     },
@@ -327,163 +122,17 @@ export const mockBatchDetails: Record<string, BatchDetails> = {
       invoicePoReference: "INV-2026-002",
     },
     shipping: {
-      containerNumber: "MSKU-1123847",
-      shippingLine: "Maersk",
+      containerNumber: "OOLU-3847291",
+      shippingLine: "OOCL",
       portOfArrival: "Tema Port",
-      expectedDeliveryDate: "1 Mar 2026",
+      expectedDeliveryDate: "1 Apr 2026",
     },
-    createdDate: "2/28/2026",
-    notes: "",
-    stageHistory: [
-      {
-        id: "sh1",
-        date: "Mar 2026",
-        status: "Ready for Activation",
-        statusVariant: "success",
-        description: {
-          template: "Batch QA complete — {quantity} units ready for activation",
-          highlights: {
-            quantity: "400",
-          },
-        },
-        actor: {
-          action: "Approved by",
-          name: "QA Team",
-        },
-        duration: {
-          range: "15 Mar - Current",
-          total: "3 days",
-        },
-      },
-      {
-        id: "sh2",
-        date: "Mar 2026",
-        status: "Warehouse QA",
-        statusVariant: "default",
-        description: {
-          template: "Quality inspection completed for {quantity} units",
-          highlights: {
-            quantity: "400",
-          },
-        },
-        actor: {
-          action: "Completed by",
-          name: "QA Team",
-        },
-        duration: {
-          range: "12 Mar - 15 Mar",
-          total: "3 days",
-        },
-      },
-      {
-        id: "sh3",
-        date: "Mar 2026",
-        status: "Clearing",
-        statusVariant: "warning",
-        description: {
-          template: "Customs clearance completed at {location}",
-          highlights: {
-            location: "Tema Port",
-          },
-        },
-        actor: {
-          action: "Completed by",
-          name: "Clearing Agent",
-        },
-        duration: {
-          range: "8 Mar - 12 Mar",
-          total: "4 days",
-        },
-      },
-      {
-        id: "sh4",
-        date: "Mar 2026",
-        status: "At Port",
-        statusVariant: "warning",
-        description: {
-          template: "Batch arrived at {location}",
-          highlights: {
-            location: "Tema Port",
-          },
-        },
-        actor: {
-          action: "Updated by",
-          name: "Logistics Team",
-        },
-        duration: {
-          range: "5 Mar - 8 Mar",
-          total: "3 days",
-        },
-      },
-      {
-        id: "sh5",
-        date: "Feb 2026",
-        status: "In Transit",
-        statusVariant: "info",
-        description: {
-          template: "Batch shipped from {origin} via {carrier}",
-          highlights: {
-            origin: "Shanghai",
-            carrier: "Maersk Line",
-          },
-        },
-        actor: {
-          action: "Shipped by",
-          name: "TailG Logistics",
-        },
-        duration: {
-          range: "10 Feb - 5 Mar",
-          total: "23 days",
-        },
-      },
-      {
-        id: "sh6",
-        date: "Feb 2026",
-        status: "Identifier Upload",
-        statusVariant: "info",
-        description: {
-          template: "VIN and identifier data uploaded for {quantity} units",
-          highlights: {
-            quantity: "400",
-          },
-        },
-        actor: {
-          action: "Completed by",
-          name: "Data Team",
-        },
-        duration: {
-          range: "5 Feb - 10 Feb",
-          total: "5 days",
-        },
-      },
-      {
-        id: "sh7",
-        date: "Jan 2026",
-        status: "In Production",
-        statusVariant: "default",
-        description: {
-          template: "Production started for {quantity} units of {model}",
-          highlights: {
-            quantity: "400",
-            model: "Jidi V1 Standard",
-          },
-        },
-        actor: {
-          action: "Initiated by",
-          name: "TailG Factory",
-        },
-        duration: {
-          range: "10 Jan - 5 Feb",
-          total: "26 days",
-        },
-      },
-    ],
+    createdDate: "1/20/2026",
+    notes: "Small batch for pilot program.",
   },
   "5": {
     id: "5",
     batchId: "BATCH-2026-001",
-    stage: "Identifier Upload",
-    stageVariant: "info",
     batchInfo: {
       oem: "Spiro",
       model: "Ekon V2 Standard",
@@ -499,69 +148,24 @@ export const mockBatchDetails: Record<string, BatchDetails> = {
       invoicePoReference: "INV-2026-001",
     },
     shipping: {
-      containerNumber: "CSQU-9945261",
-      shippingLine: "CMA CGM",
+      containerNumber: "TCLU-5829173",
+      shippingLine: "MSC",
       portOfArrival: "Apapa Port",
-      expectedDeliveryDate: "28 Jun 2026",
+      expectedDeliveryDate: "15 May 2026",
     },
-    createdDate: "3/1/2026",
+    createdDate: "2/1/2026",
     notes: "",
-    stageHistory: [
-      {
-        id: "sh1",
-        date: "Mar 2026",
-        status: "Identifier Upload",
-        statusVariant: "info",
-        description: {
-          template: "VIN and identifier data being uploaded for {quantity} units",
-          highlights: {
-            quantity: "1,000",
-          },
-        },
-        actor: {
-          action: "Updated by",
-          name: "Data Team",
-        },
-        duration: {
-          range: "14 Mar - Current",
-          total: "4 days",
-        },
-      },
-      {
-        id: "sh2",
-        date: "Feb 2026",
-        status: "In Production",
-        statusVariant: "default",
-        description: {
-          template: "Production started for {quantity} units of {model}",
-          highlights: {
-            quantity: "1,000",
-            model: "Ekon V2 Standard",
-          },
-        },
-        actor: {
-          action: "Initiated by",
-          name: "Spiro Factory",
-        },
-        duration: {
-          range: "1 Mar - 14 Mar",
-          total: "13 days",
-        },
-      },
-    ],
   },
   "6": {
     id: "6",
     batchId: "BATCH-2026-006",
-    stage: "In Production",
-    stageVariant: "default",
     batchInfo: {
       oem: "King",
       model: "MAX M4 Cargo",
       trim: "MM4",
       quantityOrdered: 3000,
-      quantityReceived: 750,
-      quantityInTransit: 1125,
+      quantityReceived: 0,
+      quantityInTransit: 0,
       destinationCountry: "Nigeria",
       destinationCity: "Lagos",
     },
@@ -570,42 +174,17 @@ export const mockBatchDetails: Record<string, BatchDetails> = {
       invoicePoReference: "INV-2026-006",
     },
     shipping: {
-      containerNumber: "-",
-      shippingLine: "-",
+      containerNumber: "Pending",
+      shippingLine: "TBD",
       portOfArrival: "Apapa Port",
-      expectedDeliveryDate: "15 Jul 2026",
+      expectedDeliveryDate: "15 Aug 2026",
     },
     createdDate: "3/10/2026",
-    notes: "New production run for Lagos fleet.",
-    stageHistory: [
-      {
-        id: "sh1",
-        date: "Mar 2026",
-        status: "In Production",
-        statusVariant: "default",
-        description: {
-          template: "Production started for {quantity} units of {model}",
-          highlights: {
-            quantity: "3,000",
-            model: "MAX M4 Cargo",
-          },
-        },
-        actor: {
-          action: "Initiated by",
-          name: "King Factory",
-        },
-        duration: {
-          range: "10 Mar - Current",
-          total: "8 days",
-        },
-      },
-    ],
+    notes: "Large cargo batch for enterprise clients.",
   },
   "7": {
     id: "7",
     batchId: "BATCH-2026-007",
-    stage: "Clearing",
-    stageVariant: "warning",
     batchInfo: {
       oem: "TailG",
       model: "Jidi V1 Standard",
@@ -621,130 +200,24 @@ export const mockBatchDetails: Record<string, BatchDetails> = {
       invoicePoReference: "INV-2026-007",
     },
     shipping: {
-      containerNumber: "MSKU-6637281",
-      shippingLine: "Maersk",
+      containerNumber: "CMAU-2938475",
+      shippingLine: "CMA CGM",
       portOfArrival: "Tema Port",
-      expectedDeliveryDate: "1 May 2026",
+      expectedDeliveryDate: "25 Apr 2026",
     },
-    createdDate: "1/20/2026",
+    createdDate: "2/20/2026",
     notes: "",
-    stageHistory: [
-      {
-        id: "sh1",
-        date: "Mar 2026",
-        status: "Clearing",
-        statusVariant: "warning",
-        description: {
-          template: "Batch undergoing customs clearance at {location}",
-          highlights: {
-            location: "Tema Port",
-          },
-        },
-        actor: {
-          action: "Updated by",
-          name: "Clearing Agent",
-        },
-        duration: {
-          range: "14 Mar - Current",
-          total: "4 days",
-        },
-      },
-      {
-        id: "sh2",
-        date: "Mar 2026",
-        status: "At Port",
-        statusVariant: "warning",
-        description: {
-          template: "Batch arrived at {location}",
-          highlights: {
-            location: "Tema Port",
-          },
-        },
-        actor: {
-          action: "Updated by",
-          name: "Logistics Team",
-        },
-        duration: {
-          range: "10 Mar - 14 Mar",
-          total: "4 days",
-        },
-      },
-      {
-        id: "sh3",
-        date: "Feb 2026",
-        status: "In Transit",
-        statusVariant: "info",
-        description: {
-          template: "Batch shipped from {origin} via {carrier}",
-          highlights: {
-            origin: "Shanghai",
-            carrier: "Maersk Line",
-          },
-        },
-        actor: {
-          action: "Shipped by",
-          name: "TailG Logistics",
-        },
-        duration: {
-          range: "10 Feb - 10 Mar",
-          total: "28 days",
-        },
-      },
-      {
-        id: "sh4",
-        date: "Feb 2026",
-        status: "Identifier Upload",
-        statusVariant: "info",
-        description: {
-          template: "VIN and identifier data uploaded for {quantity} units",
-          highlights: {
-            quantity: "1,500",
-          },
-        },
-        actor: {
-          action: "Completed by",
-          name: "Data Team",
-        },
-        duration: {
-          range: "5 Feb - 10 Feb",
-          total: "5 days",
-        },
-      },
-      {
-        id: "sh5",
-        date: "Jan 2026",
-        status: "In Production",
-        statusVariant: "default",
-        description: {
-          template: "Production started for {quantity} units of {model}",
-          highlights: {
-            quantity: "1,500",
-            model: "Jidi V1 Standard",
-          },
-        },
-        actor: {
-          action: "Initiated by",
-          name: "TailG Factory",
-        },
-        duration: {
-          range: "20 Jan - 5 Feb",
-          total: "16 days",
-        },
-      },
-    ],
   },
   "8": {
     id: "8",
     batchId: "BATCH-2026-008",
-    stage: "Warehouse QA",
-    stageVariant: "default",
     batchInfo: {
       oem: "Spiro",
       model: "Ekon V2 Standard",
       trim: "Ekon V2",
       quantityOrdered: 800,
-      quantityReceived: 200,
-      quantityInTransit: 300,
+      quantityReceived: 600,
+      quantityInTransit: 100,
       destinationCountry: "Nigeria",
       destinationCity: "Lagos",
     },
@@ -753,137 +226,13 @@ export const mockBatchDetails: Record<string, BatchDetails> = {
       invoicePoReference: "INV-2026-008",
     },
     shipping: {
-      containerNumber: "CSQU-3348192",
-      shippingLine: "CMA CGM",
+      containerNumber: "MSKU-7382910",
+      shippingLine: "Maersk",
       portOfArrival: "Apapa Port",
-      expectedDeliveryDate: "15 Apr 2026",
+      expectedDeliveryDate: "10 Apr 2026",
     },
-    createdDate: "12/15/2025",
-    notes: "QA inspection in progress.",
-    stageHistory: [
-      {
-        id: "sh1",
-        date: "Mar 2026",
-        status: "Warehouse QA",
-        statusVariant: "default",
-        description: {
-          template: "Quality inspection in progress for {quantity} units",
-          highlights: {
-            quantity: "800",
-          },
-        },
-        actor: {
-          action: "Updated by",
-          name: "QA Team",
-        },
-        duration: {
-          range: "15 Mar - Current",
-          total: "3 days",
-        },
-      },
-      {
-        id: "sh2",
-        date: "Mar 2026",
-        status: "Clearing",
-        statusVariant: "warning",
-        description: {
-          template: "Customs clearance completed at {location}",
-          highlights: {
-            location: "Apapa Port",
-          },
-        },
-        actor: {
-          action: "Completed by",
-          name: "Clearing Agent",
-        },
-        duration: {
-          range: "10 Mar - 15 Mar",
-          total: "5 days",
-        },
-      },
-      {
-        id: "sh3",
-        date: "Mar 2026",
-        status: "At Port",
-        statusVariant: "warning",
-        description: {
-          template: "Batch arrived at {location}",
-          highlights: {
-            location: "Apapa Port",
-          },
-        },
-        actor: {
-          action: "Updated by",
-          name: "Logistics Team",
-        },
-        duration: {
-          range: "5 Mar - 10 Mar",
-          total: "5 days",
-        },
-      },
-      {
-        id: "sh4",
-        date: "Feb 2026",
-        status: "In Transit",
-        statusVariant: "info",
-        description: {
-          template: "Batch shipped from {origin} via {carrier}",
-          highlights: {
-            origin: "Guangzhou",
-            carrier: "CMA CGM",
-          },
-        },
-        actor: {
-          action: "Shipped by",
-          name: "Spiro Logistics",
-        },
-        duration: {
-          range: "10 Feb - 5 Mar",
-          total: "23 days",
-        },
-      },
-      {
-        id: "sh5",
-        date: "Jan 2026",
-        status: "Identifier Upload",
-        statusVariant: "info",
-        description: {
-          template: "VIN and identifier data uploaded for {quantity} units",
-          highlights: {
-            quantity: "800",
-          },
-        },
-        actor: {
-          action: "Completed by",
-          name: "Data Team",
-        },
-        duration: {
-          range: "1 Feb - 10 Feb",
-          total: "9 days",
-        },
-      },
-      {
-        id: "sh6",
-        date: "Jan 2026",
-        status: "In Production",
-        statusVariant: "default",
-        description: {
-          template: "Production started for {quantity} units of {model}",
-          highlights: {
-            quantity: "800",
-            model: "Ekon V2 Standard",
-          },
-        },
-        actor: {
-          action: "Initiated by",
-          name: "Spiro Factory",
-        },
-        duration: {
-          range: "15 Dec - 1 Feb",
-          total: "48 days",
-        },
-      },
-    ],
+    createdDate: "1/15/2026",
+    notes: "Fast-track batch for Lagos market.",
   },
 }
 

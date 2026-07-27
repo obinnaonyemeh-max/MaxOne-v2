@@ -2,28 +2,30 @@ import { type ColumnDef } from "@tanstack/react-table"
 import { StatusBadge, type StatusTab } from "@/components/max"
 import type { Vehicle } from "@/data/mockVehicles"
 
-export const lifecycleStateToTabId: Record<string, string> = {
+export const vehicleStatusToTabId: Record<string, string> = {
+  "Exit": "exit",
   "Active": "active",
-  "Temporarily Inactive": "portfolio-inactive",
-  "Inactive": "inactive",
-  "Refurb": "refurbished",
   "Inbound": "inbound",
+  "Operational Fleet": "operational",
+  "3PL Check-in Fleet": "3pl-checkin",
+  "Yard check-in Fleet": "yard-checkin",
 }
 
 export function getStatusTabs(vehicles: Vehicle[]): StatusTab[] {
   const counts = vehicles.reduce((acc, vehicle) => {
-    const tabId = lifecycleStateToTabId[vehicle.lifecycleState] || "other"
+    const tabId = vehicleStatusToTabId[vehicle.vehicleStatus] || "other"
     acc[tabId] = (acc[tabId] || 0) + 1
     return acc
   }, {} as Record<string, number>)
 
   return [
     { id: "all", label: "All", count: vehicles.length },
+    { id: "exit", label: "Exit", count: counts["exit"] || 0 },
     { id: "active", label: "Active", count: counts["active"] || 0 },
-    { id: "portfolio-inactive", label: "Temporarily Inactive", count: counts["portfolio-inactive"] || 0 },
-    { id: "inactive", label: "Inactive", count: counts["inactive"] || 0 },
-    { id: "refurbished", label: "Refurbished", count: counts["refurbished"] || 0 },
     { id: "inbound", label: "Inbound", count: counts["inbound"] || 0 },
+    { id: "operational", label: "Operational Fleet", count: counts["operational"] || 0 },
+    { id: "3pl-checkin", label: "3PL Check-in Fleet", count: counts["3pl-checkin"] || 0 },
+    { id: "yard-checkin", label: "Yard check-in Fleet", count: counts["yard-checkin"] || 0 },
   ]
 }
 
@@ -117,7 +119,7 @@ export const columns: ColumnDef<Vehicle>[] = [
     header: "Plate Number",
     cell: ({ row }) => {
       const plateNumber = row.original.plateNumber
-      if (!plateNumber || row.original.lifecycleState === "Inbound") {
+      if (!plateNumber || row.original.vehicleStatus === "Inbound") {
         return <span className="text-muted-foreground">-</span>
       }
       return (
@@ -168,18 +170,27 @@ export const columns: ColumnDef<Vehicle>[] = [
     ),
   },
   {
-    accessorKey: "lifecycleState",
-    header: "Lifecycle State",
+    accessorKey: "vehicleStatus",
+    header: "Vehicle Status",
     cell: ({ row }) => {
-      const status = row.original.lifecycleState
-      const variantMap: Record<string, "success" | "warning" | "neutral" | "refurb" | "info"> = {
+      const status = row.original.vehicleStatus
+      const variantMap: Record<string, "success" | "exit" | "info" | "operational" | "checkin" | "yard"> = {
+        "Exit": "exit",
         "Active": "success",
-        "Temporarily Inactive": "warning",
-        "Inactive": "neutral",
-        "Refurb": "refurb",
         "Inbound": "info",
+        "Operational Fleet": "operational",
+        "3PL Check-in Fleet": "checkin",
+        "Yard check-in Fleet": "yard",
       }
       return <StatusBadge variant={variantMap[status]}>{status}</StatusBadge>
+    },
+  },
+  {
+    accessorKey: "subStatus",
+    header: "Sub-Status",
+    cell: ({ row }) => {
+      const subStatus = row.original.subStatus
+      return <span className="font-medium text-table-text" style={{ fontSize: "14px" }}>{subStatus}</span>
     },
   },
   {

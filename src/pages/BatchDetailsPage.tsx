@@ -1,48 +1,25 @@
 import { useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 
-import { TopBar, BackButton, StatusTimeline, Toast, useToast } from "@/components/max"
-import { Button } from "@/components/ui/button"
+import { TopBar, BackButton } from "@/components/max"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { getBatchDetails } from "@/data/mockBatchDetails"
 
-import { getNextStage, stageVariantMap } from "./batch-details/options"
 import { OverviewTab } from "./batch-details/OverviewTab"
+import { SubBatchesTab } from "./batch-details/SubBatchesTab"
 import { VehicleIdsTab } from "./batch-details/VehicleIdsTab"
 import { RegistrationPrepTab } from "./batch-details/RegistrationPrepTab"
 import { DocumentsTab } from "./batch-details/DocumentsTab"
 import { AddIdentifierModal } from "./batch-details/AddIdentifierModal"
 import { UploadDocumentModal } from "./batch-details/UploadDocumentModal"
-import { MoveStageModal } from "./batch-details/MoveStageModal"
 
 export default function BatchDetailsPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const baseBatch = getBatchDetails(id || "1")
-
-  const [stage, setStage] = useState(baseBatch.stage)
-  const nextStage = getNextStage(stage)
-  const stageVariant = stageVariantMap[stage] ?? "default"
-  const batch = { ...baseBatch, stage, stageVariant }
+  const batch = getBatchDetails(id || "1")
 
   const [showAddIdentifier, setShowAddIdentifier] = useState(false)
   const [showUploadDoc, setShowUploadDoc] = useState(false)
-  const [showMoveStage, setShowMoveStage] = useState(false)
-  const { message: toast, variant: toastVariant, showToast } = useToast()
-
-  const advanceStage = (target: string) => {
-    setStage(target)
-    showToast(`Batch moved to ${target}`)
-  }
-
-  const handleMoveClick = () => {
-    if (!nextStage) return
-    if (nextStage === "In Transit") {
-      setShowMoveStage(true)
-    } else {
-      advanceStage(nextStage)
-    }
-  }
 
   return (
     <>
@@ -67,19 +44,9 @@ export default function BatchDetailsPage() {
                 </h1>
               </div>
               <p className="mt-1 text-sm font-medium text-breadcrumb-root">
-                Showing batch information and stage history
+                Showing batch information and sub-batches
               </p>
             </div>
-            {nextStage && (
-              <div className="flex items-center gap-3">
-                <Button
-                  onClick={handleMoveClick}
-                  className="h-10 gap-2 bg-sidebar-item-active hover:bg-sidebar-item-active/90"
-                >
-                  Move to {nextStage}
-                </Button>
-              </div>
-            )}
           </div>
         </div>
 
@@ -94,10 +61,10 @@ export default function BatchDetailsPage() {
                   Overview
                 </TabsTrigger>
                 <TabsTrigger
-                  value="batch-tracker"
+                  value="sub-batches"
                   className="px-4 py-3 text-sm font-medium data-[state=active]:text-sidebar-item-active data-[state=inactive]:text-breadcrumb-root"
                 >
-                  Batch Tracker
+                  Sub-Batches
                 </TabsTrigger>
                 <TabsTrigger
                   value="vehicle-ids"
@@ -123,10 +90,8 @@ export default function BatchDetailsPage() {
                 <OverviewTab batch={batch} />
               </TabsContent>
 
-              <TabsContent value="batch-tracker" className="mt-0 flex-1 min-h-0 overflow-y-auto">
-                <div className="bg-content-card p-6 h-fit rounded-lg border border-border">
-                  <StatusTimeline entries={batch.stageHistory} />
-                </div>
+              <TabsContent value="sub-batches" className="mt-0 flex-1 min-h-0 overflow-y-auto">
+                <SubBatchesTab batchId={batch.batchId} />
               </TabsContent>
 
               <TabsContent value="vehicle-ids" className="mt-0 flex-1 min-h-0 overflow-y-auto">
@@ -147,16 +112,6 @@ export default function BatchDetailsPage() {
 
       <AddIdentifierModal open={showAddIdentifier} onOpenChange={setShowAddIdentifier} />
       <UploadDocumentModal open={showUploadDoc} onOpenChange={setShowUploadDoc} />
-      {nextStage && (
-        <MoveStageModal
-          open={showMoveStage}
-          onOpenChange={setShowMoveStage}
-          nextStage={nextStage}
-          onConfirm={() => advanceStage(nextStage)}
-        />
-      )}
-
-      <Toast message={toast} variant={toastVariant} />
     </>
   )
 }

@@ -4,7 +4,6 @@ import {
   PageHeader,
 } from "@/components/max"
 import { StatCard } from "@/components/max/StatCard"
-import { LifecycleFlowCard, type LifecycleStage } from "@/components/max/LifecycleFlowCard"
 import { FleetDistributionCard, type RegionDistribution } from "@/components/max/FleetDistributionCard"
 import { ActivationQueueCard, type ActivationQueueItem } from "@/components/max/ActivationQueueCard"
 import { HorizontalBarChart, type BarChartSeries } from "@/components/max/HorizontalBarChart"
@@ -29,135 +28,74 @@ const dashboardStats = [
     tab: "all",
   },
   {
+    title: "Exit",
+    value: "4,200",
+    subtitle: "13% of fleet",
+    trend: { value: 1.5, direction: "up" as const },
+    indicatorColor: COLOR_STATUS_CLOSED,
+    tab: "exit",
+  },
+  {
     title: "Active",
-    value: "3,200",
-    subtitle: "7.8 of fleet",
-    trend: { value: 1.1, direction: "up" as const },
+    value: "12,800",
+    subtitle: "39.5% of fleet",
+    trend: { value: 2.1, direction: "up" as const },
     indicatorColor: COLOR_BADGE_ACTIVE,
     tab: "active",
   },
   {
-    title: "Temporarily Inactive",
-    value: "1,805",
-    subtitle: "4.4% of fleet",
-    trend: { value: 2.5, direction: "up" as const },
-    indicatorColor: COLOR_STATUS_WARNING,
-    tab: "portfolio-inactive",
-  },
-  {
-    title: "Inactive",
-    value: "3,200",
-    subtitle: "7.8 of fleet",
-    trend: { value: 1.1, direction: "down" as const },
-    indicatorColor: COLOR_GRAY_500,
-    tab: "inactive",
-  },
-  {
     title: "Inbound",
     value: "3,200",
-    subtitle: "7.8 of fleet",
-    trend: { value: 1.1, direction: "down" as const },
+    subtitle: "9.9% of fleet",
+    trend: { value: 1.1, direction: "up" as const },
     indicatorColor: COLOR_STATUS_INFO,
     tab: "inbound",
   },
   {
-    title: "HP Complete",
-    value: "3,200",
-    subtitle: "7.8 of fleet",
-    trend: { value: 1.1, direction: "up" as const },
+    title: "Operational Fleet",
+    value: "5,600",
+    subtitle: "17.3% of fleet",
+    trend: { value: 0.8, direction: "up" as const },
     indicatorColor: COLOR_STATUS_SUCCESS,
+    tab: "operational",
   },
   {
-    title: "Closed",
-    value: "3,200",
-    subtitle: "7.8 of fleet",
-    trend: { value: 1.1, direction: "down" as const },
-    indicatorColor: COLOR_STATUS_CLOSED,
+    title: "3PL Check-in Fleet",
+    value: "2,400",
+    subtitle: "7.4% of fleet",
+    trend: { value: 1.2, direction: "down" as const },
+    indicatorColor: COLOR_STATUS_WARNING,
+    tab: "3pl-checkin",
   },
   {
-    title: "Outright Sales",
-    value: "3,200",
-    subtitle: "7.8 of fleet",
-    trend: { value: 1.1, direction: "down" as const },
+    title: "Yard Check-in Fleet",
+    value: "4,200",
+    subtitle: "13% of fleet",
+    trend: { value: 0.5, direction: "down" as const },
     indicatorColor: COLOR_STATUS_OUTRIGHT_SALES,
-  },
-]
-
-const lifecycleStages: LifecycleStage[] = [
-  {
-    title: "Inbound",
-    value: "1,240",
-    subtitle: "Average of 5 days",
-  },
-  {
-    title: "Ready",
-    value: "894",
-    subtitle: "Average of 5 days",
-    showSla: true,
-    titleVariant: "warning",
-  },
-  {
-    title: "Active",
-    value: "1,240",
-    subtitle: "Average of 5 days",
-    showSla: true,
-    titleVariant: "warning",
-  },
-  {
-    title: "Temporarily Inactive",
-    value: "1,240",
-    subtitle: "Average of 5 days",
-    showSla: true,
-    titleVariant: "warning",
-  },
-  {
-    title: "Inactive",
-    value: "1,240",
-    subtitle: "Average of 5 days",
-  },
-  {
-    title: "Refurb",
-    value: "1,240",
-    subtitle: "Average of 5 days",
-  },
-  {
-    title: "Disposal",
-    value: "1,240",
-    subtitle: "Average of 5 days",
-  },
-  {
-    title: "Scrap",
-    value: "1,240",
-    subtitle: "Average of 5 days",
-  },
-  {
-    title: "Closed",
-    value: "1,240",
-    subtitle: "Average of 5 days",
+    tab: "yard-checkin",
   },
 ]
 
 const DISTRIBUTION_COLORS = {
+  exit: "var(--color-status-closed)",
   active: "var(--color-badge-active-text)",
-  portfolioInactive: "var(--color-warning)",
-  inactive: "var(--color-gray-500)",
   inbound: "var(--color-status-info)",
-  hpComplete: "var(--color-success)",
-  closed: "var(--color-status-closed)",
-  readyForActivation: "var(--color-status-outright-sales)",
+  operational: "var(--color-success)",
+  threePlCheckin: "var(--color-warning)",
+  yardCheckin: "var(--color-status-outright-sales)",
 }
 
 const randomValue = (min: number, max: number) => 
   Math.floor(Math.random() * (max - min + 1)) + min
 
 const createDistributionData = () => [
+  { label: "Exit", value: randomValue(300, 1500), color: DISTRIBUTION_COLORS.exit },
   { label: "Active", value: randomValue(1000, 5000), color: DISTRIBUTION_COLORS.active },
-  { label: "Temporarily Inactive", value: randomValue(500, 3000), color: DISTRIBUTION_COLORS.portfolioInactive },
-  { label: "Inactive", value: randomValue(300, 2000), color: DISTRIBUTION_COLORS.inactive },
   { label: "Inbound", value: randomValue(200, 1500), color: DISTRIBUTION_COLORS.inbound },
-  { label: "HP Complete", value: randomValue(400, 2500), color: DISTRIBUTION_COLORS.hpComplete },
-  { label: "Closed", value: randomValue(100, 1000), color: DISTRIBUTION_COLORS.closed },
-  { label: "Ready for Activation", value: randomValue(300, 2000), color: DISTRIBUTION_COLORS.readyForActivation },
+  { label: "Operational Fleet", value: randomValue(500, 3000), color: DISTRIBUTION_COLORS.operational },
+  { label: "3PL Check-in Fleet", value: randomValue(200, 1200), color: DISTRIBUTION_COLORS.threePlCheckin },
+  { label: "Yard Check-in Fleet", value: randomValue(300, 2000), color: DISTRIBUTION_COLORS.yardCheckin },
 ]
 
 const fleetDistributionData: RegionDistribution[] = [
@@ -184,16 +122,16 @@ const activeFleetSeries: BarChartSeries[] = [
   },
 ]
 
-const inactiveFleetSeries: BarChartSeries[] = [
+const checkinFleetSeries: BarChartSeries[] = [
   {
-    name: "Temporarily Inactive",
+    name: "3PL Check-in Fleet",
     data: [160, 80, 175, 195, 140, 185, 55],
     color: "var(--color-warning)",
   },
   {
-    name: "Inactive",
+    name: "Yard Check-in Fleet",
     data: [40, 25, 35, 30, 45, 25, 20],
-    color: "var(--color-gray-500)",
+    color: "var(--color-status-outright-sales)",
   },
 ]
 
@@ -205,13 +143,13 @@ export default function DashboardPage() {
       <TopBar
         breadcrumbs={[
           { label: "Home" },
-          { label: "Dashboard" },
+          { label: "Command Center" },
         ]}
       />
 
       <div className="flex-1 overflow-auto px-6 pb-6">
         <PageHeader
-          title="Dashboard"
+          title="Command Center"
           subtitle="See real-time fleet overview across all regions"
           className="px-0"
         />
@@ -229,11 +167,6 @@ export default function DashboardPage() {
           ))}
         </div>
 
-        <LifecycleFlowCard
-          stages={lifecycleStages}
-          className="mt-6"
-        />
-
         <FleetDistributionCard
           regions={fleetDistributionData}
           className="mt-6"
@@ -247,9 +180,9 @@ export default function DashboardPage() {
             series={activeFleetSeries}
           />
           <HorizontalBarChart
-            title="Inactive Fleet by City"
+            title="Check-in Fleet by City"
             categories={fleetByCityCities}
-            series={inactiveFleetSeries}
+            series={checkinFleetSeries}
             showLegend
             stacked
           />

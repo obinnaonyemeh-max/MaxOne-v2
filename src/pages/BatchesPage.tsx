@@ -6,7 +6,6 @@ import { format } from "date-fns"
 
 import {
   DataTable,
-  StatusBadge,
   Pagination,
   GenericFilterPopover,
   getActiveFilterCount,
@@ -34,16 +33,6 @@ import { Calendar } from "@/components/ui/calendar"
 
 import { mockBatches, type BatchRecord } from "@/data/mockBatches"
 import { mockVehicleTypes } from "@/data/mockStockSetup"
-
-const stageVariantMap: Record<string, "success" | "danger" | "warning" | "info" | "default"> = {
-  "At Port": "warning",
-  "Identifier Upload": "info",
-  "In Transit": "info",
-  "In Production": "default",
-  "Clearing": "warning",
-  "Warehouse QA": "default",
-  "Ready for Activation": "success",
-}
 
 const batchColumns: ColumnDef<BatchRecord>[] = [
   {
@@ -83,12 +72,12 @@ const batchColumns: ColumnDef<BatchRecord>[] = [
     ),
   },
   {
-    accessorKey: "stage",
-    header: "Stage",
+    accessorKey: "subBatchCount",
+    header: "Sub-Batches",
     cell: ({ row }) => (
-      <StatusBadge variant={stageVariantMap[row.original.stage] || "default"}>
-        {row.original.stage}
-      </StatusBadge>
+      <span className="font-medium text-table-text" style={{ fontSize: "14px" }}>
+        {row.original.subBatchCount}
+      </span>
     ),
   },
   {
@@ -113,22 +102,9 @@ const batchColumns: ColumnDef<BatchRecord>[] = [
 
 const batchFilterSections: FilterSection[] = [
   {
-    id: "stage",
-    title: "Stage",
-    defaultExpanded: true,
-    options: [
-      { value: "In Production", label: "In Production" },
-      { value: "Identifier Upload", label: "Identifier Upload" },
-      { value: "In Transit", label: "In Transit" },
-      { value: "At Port", label: "At Port" },
-      { value: "Clearing", label: "Clearing" },
-      { value: "Warehouse QA", label: "Warehouse QA" },
-      { value: "Ready for Activation", label: "Ready for Activation" },
-    ],
-  },
-  {
     id: "oem",
     title: "OEM",
+    defaultExpanded: true,
     options: [
       { value: "King", label: "King" },
       { value: "TailG", label: "TailG" },
@@ -146,7 +122,6 @@ const batchFilterSections: FilterSection[] = [
 ]
 
 const defaultBatchFilters: GenericFilterState = {
-  stage: [],
   oem: [],
   destination: [],
 }
@@ -356,26 +331,7 @@ export default function BatchesPage() {
                 </Popover>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="flex flex-col gap-2">
-                <label className="text-gray-400 font-medium" style={{ fontSize: "13px" }}>Stage</label>
-                <Select defaultValue="In Production">
-                  <SelectTrigger className="h-12 w-full bg-input-soft">
-                    <SelectValue placeholder="Select stage" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="In Production">In Production</SelectItem>
-                    <SelectItem value="Identifier Upload">Identifier Upload</SelectItem>
-                    <SelectItem value="In Transit">In Transit</SelectItem>
-                    <SelectItem value="At Port">At Port</SelectItem>
-                    <SelectItem value="Clearing">Clearing</SelectItem>
-                    <SelectItem value="Warehouse QA">Warehouse QA</SelectItem>
-                    <SelectItem value="Ready for Activation">Ready for Activation</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
             </div>
-          </div>
 
           <div className="space-y-4">
             <div className="flex items-center gap-2">

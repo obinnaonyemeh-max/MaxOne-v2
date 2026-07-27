@@ -33,7 +33,7 @@ export function ActivationUpdateModal({
       open={!!record}
       onOpenChange={onClose}
       title={`Update — ${record?.chassis ?? ""}`}
-      subtitle={`Batch: ${record?.batch ?? ""}`}
+      subtitle={`Sub-Batch: ${record?.subBatch ?? ""}`}
       className="max-w-lg"
       maxHeight="80vh"
     >

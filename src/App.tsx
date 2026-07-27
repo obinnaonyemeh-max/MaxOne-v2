@@ -9,6 +9,7 @@ import GrowthActivationPage from "@/pages/GrowthActivationPage"
 import MCPManagementPage from "@/pages/MCPManagementPage"
 import InboundPage from "@/pages/InboundPage"
 import BatchDetailsPage from "@/pages/BatchDetailsPage"
+import SubBatchDetailsPage from "@/pages/SubBatchDetailsPage"
 import RefurbishmentPage from "@/pages/RefurbishmentPage"
 import ServiceSchedulePage from "@/pages/ServiceSchedulePage"
 import DisposalManagementPage from "@/pages/DisposalManagementPage"
@@ -51,6 +52,7 @@ export default function App() {
         <Route path="/inbound/stock-setup" element={<InboundPage />} />
         <Route path="/inbound/batches" element={<InboundPage />} />
         <Route path="/inbound/batches/:id" element={<BatchDetailsPage />} />
+        <Route path="/inbound/batches/:batchId/sub-batches/:subBatchId" element={<SubBatchDetailsPage />} />
         <Route path="/refurbishment" element={<RefurbishmentPage />} />
         <Route path="/service-schedule" element={<ServiceSchedulePage />} />
         <Route path="/disposal-management" element={<DisposalManagementPage />} />

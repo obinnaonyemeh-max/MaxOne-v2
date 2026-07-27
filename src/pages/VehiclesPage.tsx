@@ -14,7 +14,7 @@ import {
 } from "@/components/max"
 import { mockVehicles } from "@/data/mockVehicles"
 
-import { columns, getStatusTabs, lifecycleStateToTabId } from "./vehicles/columns"
+import { columns, getStatusTabs, vehicleStatusToTabId } from "./vehicles/columns"
 import { AddVehicleFlow } from "./vehicles/AddVehicleFlow"
 import { BulkUpdateFlow } from "./vehicles/BulkUpdateFlow"
 
@@ -46,7 +46,7 @@ export default function VehiclesPage() {
       return mockVehicles
     }
     return mockVehicles.filter((vehicle) => {
-      const vehicleTabId = lifecycleStateToTabId[vehicle.lifecycleState]
+      const vehicleTabId = vehicleStatusToTabId[vehicle.vehicleStatus]
       return vehicleTabId === activeTab
     })
   }, [activeTab])

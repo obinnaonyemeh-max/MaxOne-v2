@@ -7,7 +7,7 @@ export const sidebarSections: SidebarSection[] = [
     items: [
       {
         id: "dashboard",
-        label: "Dashboard",
+        label: "Command Center",
         icon: "/images/dashboard_menu.svg",
         href: "/dashboard",
       },
@@ -48,7 +48,7 @@ export const sidebarSections: SidebarSection[] = [
           },
           {
             id: "inbound-stock-setup",
-            label: "Stock Setup",
+            label: "Vehicle Master Data",
             href: "/inbound/stock-setup",
           },
           {
@@ -143,6 +143,24 @@ export const sidebarSections: SidebarSection[] = [
         label: "All Transfer",
         icon: "/images/asset_movement_menu.svg",
         href: "/transfer/all",
+      },
+    ],
+  },
+  {
+    id: "activation-assignment",
+    label: "Activation & Assignment",
+    items: [
+      {
+        id: "asset-reassignment",
+        label: "Asset Reassignment",
+        icon: "/images/asset_movement_menu.svg",
+        children: [
+          {
+            id: "asset-reassignment-kit",
+            label: "Kit",
+            href: "/activation-assignment/asset-reassignment/kit",
+          },
+        ],
       },
     ],
   },

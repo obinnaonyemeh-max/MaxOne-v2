@@ -7,7 +7,7 @@ import BatchesPage from "@/pages/BatchesPage"
 
 const tabLabels: Record<string, string> = {
   dashboard: "Dashboard",
-  "stock-setup": "Stock Setup",
+  "stock-setup": "Vehicle Master Data",
   batches: "Batches",
 }
 

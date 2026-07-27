@@ -1,3 +1,26 @@
+export type VehicleStatus = 
+  | "Exit" 
+  | "Active" 
+  | "Inbound" 
+  | "Operational Fleet" 
+  | "3PL Check-in Fleet" 
+  | "Yard check-in Fleet"
+
+export type ExitSubStatus = "HP Complete" | "Outright Sale" | "Disposed" | "Scrapped" | "Write-off" | "OEM Outbound" | "Stolen/Missing"
+export type ActiveSubStatus = "MCP" | "Retail" | "Enterprise"
+export type InboundSubStatus = "Production" | "Documentation" | "Logistics" | "Pre-Deployment"
+export type OperationalFleetSubStatus = "Operational Vehicle" | "Demo" | "System test"
+export type ThreePLCheckinSubStatus = "Violation" | "Accident" | "Others" | "Asset Maintenance"
+export type YardCheckinSubStatus = "Asset retrieved" | "Deactivated" | "Assessed - No repair required" | "Assessed - Refurbish" | "Assessed - Dispose" | "Assessed - Scrap"
+
+export type SubStatus = 
+  | ExitSubStatus 
+  | ActiveSubStatus 
+  | InboundSubStatus 
+  | OperationalFleetSubStatus 
+  | ThreePLCheckinSubStatus 
+  | YardCheckinSubStatus
+
 export interface Vehicle {
   id: string
   assetType: string
@@ -7,7 +30,8 @@ export interface Vehicle {
   location: string
   championStatus: "Active" | "Inactive" | null
   contractStatus: "Active" | "Inactive" | null
-  lifecycleState: "Active" | "Temporarily Inactive" | "Inactive" | "Refurb" | "Inbound"
+  vehicleStatus: VehicleStatus
+  subStatus: SubStatus
   driverSafetyScore: number | null
   contractRisk: "Low" | "Medium" | "High" | null
   collectionPercent: number | null
@@ -25,7 +49,8 @@ const baseMockVehicles = [
     location: "Ikeja",
     championStatus: "Active",
     contractStatus: "Inactive",
-    lifecycleState: "Active",
+    vehicleStatus: "Active",
+    subStatus: "MCP",
     driverSafetyScore: 92,
     contractRisk: "Low",
     collectionPercent: 98,
@@ -41,7 +66,8 @@ const baseMockVehicles = [
     location: "Ikeja",
     championStatus: "Active",
     contractStatus: "Active",
-    lifecycleState: "Active",
+    vehicleStatus: "Active",
+    subStatus: "Retail",
     driverSafetyScore: 78,
     contractRisk: "Low",
     collectionPercent: 85,
@@ -57,7 +83,8 @@ const baseMockVehicles = [
     location: "Ikeja",
     championStatus: "Active",
     contractStatus: "Inactive",
-    lifecycleState: "Temporarily Inactive",
+    vehicleStatus: "3PL Check-in Fleet",
+    subStatus: "Violation",
     driverSafetyScore: 55,
     contractRisk: "Medium",
     collectionPercent: 72,
@@ -73,7 +100,8 @@ const baseMockVehicles = [
     location: "Ikeja",
     championStatus: "Active",
     contractStatus: "Active",
-    lifecycleState: "Inactive",
+    vehicleStatus: "Exit",
+    subStatus: "HP Complete",
     driverSafetyScore: 88,
     contractRisk: "Low",
     collectionPercent: 100,
@@ -89,7 +117,8 @@ const baseMockVehicles = [
     location: "Ikeja",
     championStatus: null,
     contractStatus: null,
-    lifecycleState: "Inbound",
+    vehicleStatus: "Inbound",
+    subStatus: "Production",
     driverSafetyScore: null,
     contractRisk: null,
     collectionPercent: null,
@@ -105,7 +134,8 @@ const baseMockVehicles = [
     location: "Ikeja",
     championStatus: "Active",
     contractStatus: "Active",
-    lifecycleState: "Refurb",
+    vehicleStatus: "Yard check-in Fleet",
+    subStatus: "Assessed - Refurbish",
     driverSafetyScore: 35,
     contractRisk: "High",
     collectionPercent: 45,
@@ -121,12 +151,98 @@ const baseMockVehicles = [
     location: "Ikeja",
     championStatus: "Active",
     contractStatus: "Active",
-    lifecycleState: "Active",
+    vehicleStatus: "Operational Fleet",
+    subStatus: "Operational Vehicle",
     driverSafetyScore: 65,
     contractRisk: "Medium",
     collectionPercent: 60,
     daysInState: 15,
     dateCreated: "3 Dec 2023",
+  },
+  {
+    id: "8",
+    assetType: "3 Wheeler",
+    assetId: "MAX-IB-CH-204",
+    plateNumber: "LAG-890-GH",
+    batchNumber: "MAX-3774B56",
+    location: "Victoria Island",
+    championStatus: "Active",
+    contractStatus: "Active",
+    vehicleStatus: "Active",
+    subStatus: "Enterprise",
+    driverSafetyScore: 82,
+    contractRisk: "Low",
+    collectionPercent: 95,
+    daysInState: 60,
+    dateCreated: "15 Jan 2024",
+  },
+  {
+    id: "9",
+    assetType: "2 Wheeler",
+    assetId: "MAX-IB-CH-205",
+    plateNumber: null,
+    batchNumber: "MAX-3774B57",
+    location: "Lekki",
+    championStatus: null,
+    contractStatus: null,
+    vehicleStatus: "Inbound",
+    subStatus: "Documentation",
+    driverSafetyScore: null,
+    contractRisk: null,
+    collectionPercent: null,
+    daysInState: 5,
+    dateCreated: "20 Feb 2024",
+  },
+  {
+    id: "10",
+    assetType: "4 Wheeler",
+    assetId: "MAX-IB-CH-206",
+    plateNumber: "ABJ-234-IJ",
+    batchNumber: "MAX-3774B58",
+    location: "Abuja",
+    championStatus: "Active",
+    contractStatus: "Inactive",
+    vehicleStatus: "Exit",
+    subStatus: "Outright Sale",
+    driverSafetyScore: 75,
+    contractRisk: "Low",
+    collectionPercent: 100,
+    daysInState: 10,
+    dateCreated: "5 Mar 2024",
+  },
+  {
+    id: "11",
+    assetType: "2 Wheeler",
+    assetId: "MAX-IB-CH-207",
+    plateNumber: "KAN-567-KL",
+    batchNumber: "MAX-3774B59",
+    location: "Kano",
+    championStatus: "Active",
+    contractStatus: "Active",
+    vehicleStatus: "Operational Fleet",
+    subStatus: "Demo",
+    driverSafetyScore: 90,
+    contractRisk: "Low",
+    collectionPercent: 88,
+    daysInState: 25,
+    dateCreated: "10 Apr 2024",
+  },
+  {
+    id: "12",
+    assetType: "3 Wheeler",
+    assetId: "MAX-IB-CH-208",
+    plateNumber: "PH-789-MN",
+    batchNumber: "MAX-3774B60",
+    location: "Port Harcourt",
+    championStatus: "Active",
+    contractStatus: "Inactive",
+    vehicleStatus: "3PL Check-in Fleet",
+    subStatus: "Accident",
+    driverSafetyScore: 45,
+    contractRisk: "High",
+    collectionPercent: 50,
+    daysInState: 15,
+    dateCreated: "25 May 2024",
   },
 ] satisfies Vehicle[]
 

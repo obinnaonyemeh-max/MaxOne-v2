@@ -118,8 +118,7 @@ export const sidebarSections: SidebarSection[] = [
           {
             id: "auction",
             label: "Auction",
-            badge: "Soon",
-            badgeVariant: "coming-soon",
+            href: "/auction",
           },
           {
             id: "scrap-management",

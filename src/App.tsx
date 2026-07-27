@@ -12,6 +12,10 @@ import BatchDetailsPage from "@/pages/BatchDetailsPage"
 import RefurbishmentPage from "@/pages/RefurbishmentPage"
 import ServiceSchedulePage from "@/pages/ServiceSchedulePage"
 import DisposalManagementPage from "@/pages/DisposalManagementPage"
+import AuctionPage from "@/pages/AuctionPage"
+import CreateAuctionPage from "@/pages/create-auction/CreateAuctionPage"
+import AuctionDetailPage from "@/pages/AuctionDetailPage"
+import AuctionVehicleDetailPage from "@/pages/AuctionVehicleDetailPage"
 import ConversionRequestPage from "@/pages/ConversionRequestPage"
 import ScrapManagementPage from "@/pages/ScrapManagementPage"
 import ScrapDetailPage from "@/pages/ScrapDetailPage"
@@ -50,6 +54,10 @@ export default function App() {
         <Route path="/refurbishment" element={<RefurbishmentPage />} />
         <Route path="/service-schedule" element={<ServiceSchedulePage />} />
         <Route path="/disposal-management" element={<DisposalManagementPage />} />
+        <Route path="/auction" element={<AuctionPage />} />
+        <Route path="/auction/create" element={<CreateAuctionPage />} />
+        <Route path="/auction/:id" element={<AuctionDetailPage />} />
+        <Route path="/auction/:id/vehicle/:vehicleId" element={<AuctionVehicleDetailPage />} />
         <Route path="/conversion-request" element={<ConversionRequestPage />} />
         <Route path="/scrap-management" element={<ScrapManagementPage />} />
         <Route path="/scrap-management/:id" element={<ScrapDetailPage />} />

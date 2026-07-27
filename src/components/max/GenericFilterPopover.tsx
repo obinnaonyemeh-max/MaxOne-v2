@@ -102,7 +102,7 @@ export function GenericFilterPopover({
   }
 
   return (
-    <div className={cn("w-64 p-1", className)}>
+    <div className={cn("w-64 max-h-[calc(var(--radix-popover-content-available-height)-2rem)] overflow-y-auto p-1", className)}>
       {sections.map((section, index) => (
         <div key={section.id}>
           {index > 0 && <div className="h-px bg-divider mx-2 mb-2" />}

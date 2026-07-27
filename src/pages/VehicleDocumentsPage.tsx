@@ -13,12 +13,14 @@ import {
   Tooltip,
   TooltipTrigger,
   TooltipContent,
+  VehicleIcon,
   GenericFilterPopover,
   getActiveFilterCount,
   type FilterSection,
   type GenericFilterState,
 } from "@/components/max"
 import { StatCard } from "@/components/max/StatCard"
+import { vehicleTypeLabel } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
@@ -56,8 +58,8 @@ const filterSections: FilterSection[] = [
     id: "type",
     title: "Type",
     options: [
-      { value: "2-Wheel", label: "2-Wheel" },
-      { value: "3-Wheel", label: "3-Wheel" },
+      { value: "2-Wheel", label: "2 Wheeler" },
+      { value: "3-Wheel", label: "3 Wheeler" },
     ],
   },
 ]
@@ -130,9 +132,13 @@ function makeColumns(onView: (r: VehicleDocumentRecord) => void): ColumnDef<Vehi
     accessorKey: "vehicleId",
     header: "Vehicle ID",
     cell: ({ row }) => (
-      <span className="font-medium text-sidebar-item-active" style={{ fontSize: "13px" }}>
-        {row.original.vehicleId}
-      </span>
+      <div className="flex items-center gap-3">
+        <VehicleIcon assetType={row.original.type} />
+        <div>
+          <p className="font-medium text-table-text-primary" style={{ fontSize: "14px" }}>{vehicleTypeLabel(row.original.type)}</p>
+          <p className="font-medium text-table-text-warning" style={{ fontSize: "11px" }}>{row.original.vehicleId}</p>
+        </div>
+      </div>
     ),
   },
   {
@@ -141,15 +147,6 @@ function makeColumns(onView: (r: VehicleDocumentRecord) => void): ColumnDef<Vehi
     cell: ({ row }) => (
       <span className="font-medium text-table-text" style={{ fontSize: "13px" }}>
         {row.original.champion}
-      </span>
-    ),
-  },
-  {
-    accessorKey: "type",
-    header: "Type",
-    cell: ({ row }) => (
-      <span className="font-medium text-table-text" style={{ fontSize: "13px" }}>
-        {row.original.type}
       </span>
     ),
   },

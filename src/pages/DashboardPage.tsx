@@ -12,7 +12,6 @@ import { HorizontalBarChart, type BarChartSeries } from "@/components/max/Horizo
 const COLOR_BRAND_PRIMARY = "var(--color-brand-primary)"
 const COLOR_BADGE_ACTIVE = "var(--color-badge-active-text)"
 const COLOR_STATUS_WARNING = "var(--color-warning)"
-const COLOR_GRAY_500 = "var(--color-gray-500)"
 const COLOR_STATUS_INFO = "var(--color-status-info)"
 const COLOR_STATUS_SUCCESS = "var(--color-success)"
 const COLOR_STATUS_CLOSED = "var(--color-status-closed)"

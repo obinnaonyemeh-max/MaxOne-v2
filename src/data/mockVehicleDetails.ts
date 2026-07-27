@@ -418,7 +418,7 @@ export const mockVehicleDetails: Record<string, VehicleDetails> = {
         id: "1",
         duration: "15 Dec 2023 - 28 Feb 2026",
         assigneeName: "Adebayo Tunde",
-        status: "Completed",
+        status: "Inactive",
         isCurrent: false,
       },
     ],

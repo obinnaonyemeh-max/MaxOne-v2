@@ -15,9 +15,10 @@ import {
   StatusBadge,
   StatusTimeline,
   MaxIDCard,
+  AssignmentHistoryCard,
 } from "@/components/max"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import { Phone, MessageSquare, MessageCircle, User, Plus, History } from "lucide-react"
+import { Phone, MessageSquare, MessageCircle, User, Plus, History, ChevronDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -43,6 +44,7 @@ import {
   priorityVariantMap,
   slaVariantMap,
 } from "@/data/mockTicketRecords"
+import { movementLogColumns } from "@/pages/asset-movement/columns"
 
 const tabTriggerClass =
   "px-3 py-3 text-sm font-medium data-[state=active]:text-sidebar-item-active data-[state=inactive]:text-breadcrumb-root"
@@ -243,6 +245,9 @@ export default function ChampionDetailPage() {
   const [showCreateTimeOff, setShowCreateTimeOff] = useState(false)
   const [showLeaveHistory, setShowLeaveHistory] = useState(false)
   const [timeOffForm, setTimeOffForm] = useState({ type: "", startDate: "", endDate: "", reason: "" })
+  const [assignmentIndex, setAssignmentIndex] = useState(0)
+  const [showAssignmentHistory, setShowAssignmentHistory] = useState(false)
+  const [showMovementLog, setShowMovementLog] = useState(false)
 
   const tabsScrollRef = useRef<HTMLDivElement>(null)
   const dragState = useRef({ isDown: false, startX: 0, scrollLeft: 0 })
@@ -278,7 +283,6 @@ export default function ChampionDetailPage() {
       statusVariant: champion.vehicle.contractStatus === "Active" ? "success" as const : "warning" as const,
     },
     { label: "Last Vehicle Activity", value: champion.vehicle.lastPingedOn },
-    { label: "Last Pinged", value: champion.lastPingedOn },
   ]
 
   return (
@@ -318,7 +322,6 @@ export default function ChampionDetailPage() {
               phoneNumber={champion.phoneNumber}
               location={champion.location}
               onboardedDate={champion.onboardedDate}
-              lastPingedOn={champion.lastPingedOn}
               contractStatus={champion.contractStatus}
             />
             <VehicleOverviewCard
@@ -341,6 +344,7 @@ export default function ChampionDetailPage() {
                 <TabsList variant="line" className="pb-0 gap-0 w-max">
                   <TabsTrigger value="biodata" className={tabTriggerClass}>Biodata</TabsTrigger>
                   <TabsTrigger value="contracts" className={tabTriggerClass}>Contracts</TabsTrigger>
+                  <TabsTrigger value="asset" className={tabTriggerClass}>Asset</TabsTrigger>
                   <TabsTrigger value="wallet" className={tabTriggerClass}>Wallet</TabsTrigger>
                   <TabsTrigger value="fieldops" className={tabTriggerClass}>FieldOps History</TabsTrigger>
                   <TabsTrigger value="guarantors" className={tabTriggerClass}>Guarantors</TabsTrigger>
@@ -427,6 +431,121 @@ export default function ChampionDetailPage() {
                       ]}
                     />
                   </InfoCard>
+                </div>
+              </TabsContent>
+
+              {/* Asset Tab */}
+              <TabsContent value="asset" className="mt-0 flex-1 min-h-0 overflow-y-auto">
+                <div className="bg-content-card flex flex-col gap-3 h-fit rounded-lg border border-border p-3 overflow-hidden">
+                  <InfoCard title="BASIC VEHICLE INFORMATION">
+                    <InfoGrid
+                      columns={4}
+                      showDividers
+                      items={[
+                        { label: "Vehicle type", value: champion.vehicleDetails.basicInfo.vehicleType },
+                        { label: "Model", value: champion.vehicleDetails.basicInfo.model },
+                        { label: "Trim", value: champion.vehicleDetails.basicInfo.trim },
+                        { label: "Platform Type", value: champion.vehicleDetails.basicInfo.platformType },
+                      ]}
+                    />
+                  </InfoCard>
+
+                  <InfoCard title="VEHICLE IDENTIFICATION">
+                    <InfoGrid
+                      columns={4}
+                      showDividers
+                      items={[
+                        { label: "Chassis Number (VIN)", value: champion.vehicleDetails.identification.chassisNumber },
+                        { label: "Engine Number", value: champion.vehicleDetails.identification.engineNumber },
+                        { label: "Ignition Number", value: champion.vehicleDetails.identification.ignitionNumber },
+                        { label: "Plate Number", value: champion.vehicleDetails.identification.plateNumber },
+                      ]}
+                    />
+                  </InfoCard>
+
+                  <InfoCard title="VENDOR & FINANCIAL DETAILS">
+                    <InfoGrid
+                      columns={4}
+                      showDividers
+                      items={[
+                        { label: "OEM/Vendor Name", value: champion.vehicleDetails.vendor.oemVendorName },
+                        { label: "Financial Partner", value: champion.vehicleDetails.vendor.financialPartner },
+                      ]}
+                    />
+                  </InfoCard>
+
+                  <InfoCard title="ASSIGNMENT, LOCATION & DATES">
+                    <InfoGrid
+                      columns={4}
+                      showDividers
+                      items={[
+                        { label: "Location", value: champion.vehicleDetails.assignment.location },
+                        { label: "Receiver", value: champion.vehicleDetails.assignment.receiver },
+                        { label: "Delivery Date", value: champion.vehicleDetails.assignment.deliveryDate },
+                        { label: "License Expiration Date", value: champion.vehicleDetails.assignment.licenseExpiration },
+                      ]}
+                    />
+                  </InfoCard>
+
+                  <InfoCard title="TELEMATICS DETAILS">
+                    <InfoGrid
+                      columns={4}
+                      showDividers
+                      items={[
+                        { label: "Sim Serial Number", value: champion.vehicleDetails.telematics.simSerialNumber },
+                        { label: "Device IMEI", value: champion.vehicleDetails.telematics.deviceImei },
+                        { label: "Phone Number", value: champion.vehicleDetails.telematics.phoneNumber },
+                        { label: "Helmet Number", value: champion.vehicleDetails.telematics.helmetNumber },
+                      ]}
+                    />
+                  </InfoCard>
+                </div>
+
+                <div className="mt-3 rounded-lg border border-border overflow-hidden">
+                  <button
+                    type="button"
+                    className="w-full flex items-center justify-between px-4 py-3 bg-content-card hover:bg-gray-50 transition-colors cursor-pointer"
+                    onClick={() => setShowAssignmentHistory((prev) => !prev)}
+                  >
+                    <h3 className="font-semibold text-sm text-sidebar-item-active">Assignment History & Status</h3>
+                    <ChevronDown className={`h-4 w-4 text-breadcrumb-root transition-transform ${showAssignmentHistory ? "rotate-180" : ""}`} />
+                  </button>
+                  {showAssignmentHistory && (
+                    <div className="border-t border-border p-3 flex flex-col gap-3">
+                      <AssignmentHistoryCard
+                        assignments={champion.vehicleDetails.assignmentHistory}
+                        currentIndex={assignmentIndex}
+                        onPrevious={() => setAssignmentIndex((prev) => Math.max(0, prev - 1))}
+                        onNext={() =>
+                          setAssignmentIndex((prev) =>
+                            Math.min(champion.vehicleDetails.assignmentHistory.length - 1, prev + 1)
+                          )
+                        }
+                      />
+                      <div className="bg-content-card p-6 rounded-lg border border-border">
+                        <StatusTimeline entries={champion.vehicleDetails.statusHistory} />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="mt-3 rounded-[14px] border border-table-border overflow-hidden">
+                  <button
+                    type="button"
+                    className="w-full flex items-center justify-between px-4 py-3 bg-content-card hover:bg-gray-50 transition-colors cursor-pointer"
+                    onClick={() => setShowMovementLog((prev) => !prev)}
+                  >
+                    <h3 className="font-semibold text-sm text-sidebar-item-active">Movement Log</h3>
+                    <ChevronDown className={`h-4 w-4 text-breadcrumb-root transition-transform ${showMovementLog ? "rotate-180" : ""}`} />
+                  </button>
+                  {showMovementLog && (
+                    <div className="border-t border-table-border">
+                      <DataTable
+                        columns={movementLogColumns}
+                        data={champion.assetMovement.movementLog}
+                      />
+                    </div>
+                  )}
                 </div>
               </TabsContent>
 

@@ -11,7 +11,6 @@ interface ChampionInformationProps {
   phoneNumber: string
   location: string
   onboardedDate: string
-  lastPingedOn: string
   contractStatus: ContractStatus
   className?: string
 }
@@ -30,7 +29,6 @@ export function ChampionInformation({
   phoneNumber,
   location,
   onboardedDate,
-  lastPingedOn,
   contractStatus,
   className,
 }: ChampionInformationProps) {
@@ -74,7 +72,6 @@ export function ChampionInformation({
         <DetailRow label="Phone Number" value={phoneNumber} />
         <DetailRow label="Location" value={location} />
         <DetailRow label="Onboarded" value={onboardedDate} />
-        <DetailRow label="Last pinged on" value={lastPingedOn} />
         <div className="flex items-center justify-between">
           <span className="font-medium text-breadcrumb-root text-[13px] tracking-[-0.13px]">
             Contract status

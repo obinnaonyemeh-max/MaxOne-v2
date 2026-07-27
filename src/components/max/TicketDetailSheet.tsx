@@ -14,6 +14,21 @@ import { StatusTimeline } from "./StatusTimeline"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogFooter,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import {
   Mic,
   ExternalLink,
   Image,
@@ -25,8 +40,10 @@ import {
   Play,
   Pause,
   Clock,
+  Loader2,
   type LucideIcon,
 } from "lucide-react"
+import { toast } from "sonner"
 import type { TicketDetail } from "@/data/mockTicketDetail"
 import {
   statusVariantMap,
@@ -146,21 +163,90 @@ function CallRecordingRow({
   )
 }
 
+const agentList = [
+  { name: "Fatima Bello", department: "Fleet Operations" },
+  { name: "Chidi Okafor", department: "Finance & Billing" },
+  { name: "Ngozi Eze", department: "Driver Experience" },
+  { name: "Tunde Bakare", department: "Fleet Operations" },
+  { name: "Samson Oluwaseun", department: "General Support" },
+  { name: "Femi Adeyemi", department: "Driver Experience" },
+]
+
+const escalationOfficerList = [
+  { name: "Adebayo Oladipo", role: "Senior Operations Manager" },
+  { name: "Chidinma Onu", role: "Regional Fleet Lead" },
+  { name: "Hakeem Balogun", role: "Head of Driver Experience" },
+  { name: "Ifeoma Achebe", role: "Escalation Desk Lead" },
+  { name: "Kolawole Ajayi", role: "VP Operations" },
+]
+
 export function TicketDetailSheet({ ticket, isOpen, onClose }: TicketDetailSheetProps) {
   const [showCommentInput, setShowCommentInput] = useState(false)
   const [commentText, setCommentText] = useState("")
   const [localComments, setLocalComments] = useState<
     { id: string; author: string; text: string; timestamp: string }[]
   >([])
+  const [showReassign, setShowReassign] = useState(false)
+  const [reassignAgent, setReassignAgent] = useState("")
+  const [reassignReason, setReassignReason] = useState("")
+  const [showEscalate, setShowEscalate] = useState(false)
+  const [escalateOfficer, setEscalateOfficer] = useState("")
+  const [escalateReason, setEscalateReason] = useState("")
+  const [showCloseTicket, setShowCloseTicket] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   // Reset local state when ticket changes
   useEffect(() => {
     setShowCommentInput(false)
     setCommentText("")
     setLocalComments([])
+    setShowReassign(false)
+    setReassignAgent("")
+    setReassignReason("")
+    setShowEscalate(false)
+    setEscalateOfficer("")
+    setEscalateReason("")
+    setShowCloseTicket(false)
+    setIsSubmitting(false)
   }, [ticket?.id])
 
   if (!ticket) return null
+
+  const handleReassign = () => {
+    setIsSubmitting(true)
+    setTimeout(() => {
+      setIsSubmitting(false)
+      setShowReassign(false)
+      onClose()
+      toast.success("Ticket reassigned successfully", {
+        description: `${ticket.ticketId} has been reassigned to ${reassignAgent}.`,
+      })
+    }, 1500)
+  }
+
+  const handleEscalate = () => {
+    setIsSubmitting(true)
+    setTimeout(() => {
+      setIsSubmitting(false)
+      setShowEscalate(false)
+      onClose()
+      toast.success("Ticket escalated successfully", {
+        description: `${ticket.ticketId} has been escalated to ${escalateOfficer}.`,
+      })
+    }, 1500)
+  }
+
+  const handleCloseTicket = () => {
+    setIsSubmitting(true)
+    setTimeout(() => {
+      setIsSubmitting(false)
+      setShowCloseTicket(false)
+      onClose()
+      toast.success("Ticket closed successfully", {
+        description: `${ticket.ticketId} has been marked as Resolved.`,
+      })
+    }, 1500)
+  }
 
   const allComments = [...ticket.incident.comments, ...localComments]
 
@@ -422,20 +508,198 @@ export function TicketDetailSheet({ ticket, isOpen, onClose }: TicketDetailSheet
 
         {/* Sticky Footer */}
         <SheetFooter>
-          <Button variant="outline" className="h-10 px-4">
-            Assign / Reassign
+          <Button
+            variant="outline"
+            className="h-10 px-4"
+            onClick={() => {
+              setReassignAgent("")
+              setReassignReason("")
+              setShowReassign(true)
+            }}
+          >
+            Reassign Ticket
           </Button>
           <Button
             variant="outline"
             className="h-10 px-4 border-status-warning text-status-warning hover:bg-status-warning/10"
+            onClick={() => {
+              setEscalateOfficer("")
+              setEscalateReason("")
+              setShowEscalate(true)
+            }}
           >
             Escalate
           </Button>
-          <Button variant="destructive" className="h-10 px-4">
+          <Button
+            variant="destructive"
+            className="h-10 px-4"
+            onClick={() => setShowCloseTicket(true)}
+          >
             Close Ticket
           </Button>
         </SheetFooter>
       </SheetContent>
+
+      {/* Reassign Ticket Modal */}
+      <Dialog open={showReassign} onOpenChange={setShowReassign}>
+        <DialogContent className="max-w-sm p-0">
+          <DialogHeader className="px-6 pt-6 pb-4 border-b border-gray-100">
+            <DialogTitle>Reassign Ticket</DialogTitle>
+            <DialogDescription>
+              {ticket.ticketId} &middot; Currently assigned to {ticket.agent.name}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="px-6 py-5 space-y-4">
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-breadcrumb-root">
+                Select Agent
+              </label>
+              <Select value={reassignAgent} onValueChange={setReassignAgent}>
+                <SelectTrigger className="h-9 w-full">
+                  <SelectValue placeholder="Choose an agent" />
+                </SelectTrigger>
+                <SelectContent>
+                  {agentList
+                    .filter((a) => a.name !== ticket.agent.name)
+                    .map((agent) => (
+                      <SelectItem key={agent.name} value={agent.name}>
+                        {agent.name} — {agent.department}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-breadcrumb-root">
+                Reason for Reassignment
+              </label>
+              <Textarea
+                value={reassignReason}
+                onChange={(e) => setReassignReason(e.target.value)}
+                placeholder="Provide a reason for reassigning this ticket..."
+                rows={3}
+                className="text-sm"
+              />
+            </div>
+          </div>
+
+          <DialogFooter className="px-6 py-4 border-t border-gray-100">
+            <Button variant="outline" className="h-9" onClick={() => setShowReassign(false)} disabled={isSubmitting}>
+              Cancel
+            </Button>
+            <Button
+              className="h-9 bg-brand-dark text-white hover:bg-brand-dark/90"
+              disabled={!reassignAgent || !reassignReason.trim() || isSubmitting}
+              onClick={handleReassign}
+            >
+              {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
+              {isSubmitting ? "Reassigning..." : "Reassign"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Escalate Ticket Modal */}
+      <Dialog open={showEscalate} onOpenChange={setShowEscalate}>
+        <DialogContent className="max-w-sm p-0">
+          <DialogHeader className="px-6 pt-6 pb-4 border-b border-gray-100">
+            <DialogTitle>Escalate Ticket</DialogTitle>
+            <DialogDescription>
+              {ticket.ticketId} &middot; {ticket.category}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="px-6 py-5 space-y-4">
+            <div className="rounded-md border border-status-warning/30 bg-status-warning/5 px-4 py-3">
+              <p className="text-sm text-sidebar-item-active leading-relaxed">
+                This ticket is about to be escalated. Once escalated, it will be assigned to a senior officer for priority resolution.
+              </p>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-breadcrumb-root">
+                Escalation Officer
+              </label>
+              <Select value={escalateOfficer} onValueChange={setEscalateOfficer}>
+                <SelectTrigger className="h-9 w-full">
+                  <SelectValue placeholder="Select an officer" />
+                </SelectTrigger>
+                <SelectContent>
+                  {escalationOfficerList.map((officer) => (
+                    <SelectItem key={officer.name} value={officer.name}>
+                      {officer.name} — {officer.role}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-breadcrumb-root">
+                Reason for Escalation
+              </label>
+              <Textarea
+                value={escalateReason}
+                onChange={(e) => setEscalateReason(e.target.value)}
+                placeholder="Provide a reason for escalating this ticket..."
+                rows={3}
+                className="text-sm"
+              />
+            </div>
+          </div>
+
+          <DialogFooter className="px-6 py-4 border-t border-gray-100">
+            <Button variant="outline" className="h-9" onClick={() => setShowEscalate(false)} disabled={isSubmitting}>
+              Cancel
+            </Button>
+            <Button
+              className="h-9 bg-status-warning text-white hover:bg-status-warning/90"
+              disabled={!escalateOfficer || !escalateReason.trim() || isSubmitting}
+              onClick={handleEscalate}
+            >
+              {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
+              {isSubmitting ? "Escalating..." : "Escalate"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Close Ticket Modal */}
+      <Dialog open={showCloseTicket} onOpenChange={setShowCloseTicket}>
+        <DialogContent className="max-w-sm p-0">
+          <DialogHeader className="px-6 pt-6 pb-4 border-b border-gray-100">
+            <DialogTitle>Close Ticket</DialogTitle>
+            <DialogDescription>
+              {ticket.ticketId} &middot; {ticket.category}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="px-6 py-5">
+            <div className="rounded-md border border-destructive/30 bg-destructive/5 px-4 py-3">
+              <p className="text-sm text-sidebar-item-active leading-relaxed">
+                Closing this ticket will mark it as <span className="font-semibold">Resolved</span> and it will no longer be tracked. This action cannot be undone.
+              </p>
+            </div>
+          </div>
+
+          <DialogFooter className="px-6 py-4 border-t border-gray-100">
+            <Button variant="outline" className="h-9" onClick={() => setShowCloseTicket(false)} disabled={isSubmitting}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              className="h-9"
+              disabled={isSubmitting}
+              onClick={handleCloseTicket}
+            >
+              {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
+              {isSubmitting ? "Closing..." : "Close Ticket"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Sheet>
   )
 }

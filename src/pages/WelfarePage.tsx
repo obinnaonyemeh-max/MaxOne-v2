@@ -339,16 +339,25 @@ function getColumns(onLogNote: (champion: WelfareChampion) => void): ColumnDef<W
       header: "Next Follow-up",
       cell: ({ row }) => {
         const bucket = classifyFollowUp(row.original.nextFollowUp)
-        const color =
-          bucket === "overdue"
-            ? "text-badge-inactive-text"
-            : bucket === "today"
-              ? "text-status-warning"
-              : "text-table-text"
+        const labelMap: Record<string, string> = {
+          overdue: "Overdue",
+          today: "Due Today",
+          upcoming: "Upcoming",
+        }
+        const variantMap: Record<string, BadgeVariant> = {
+          overdue: "danger",
+          today: "warning",
+          upcoming: "success",
+        }
         return (
-          <span className={`font-medium ${color}`} style={{ fontSize: "13px" }}>
-            {row.original.nextFollowUp}
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-table-text font-medium" style={{ fontSize: "13px" }}>
+              {row.original.nextFollowUp}
+            </span>
+            <StatusBadge variant={variantMap[bucket]} size="sm">
+              {labelMap[bucket]}
+            </StatusBadge>
+          </div>
         )
       },
     },
@@ -428,6 +437,15 @@ const welfareFilterSections: FilterSection[] = [
       { value: "Inactive", label: "Inactive" },
       { value: "On Leave", label: "On Leave", color: "var(--color-status-warning)" },
       { value: "Suspended", label: "Suspended", color: "var(--color-badge-inactive-text)" },
+    ],
+  },
+  {
+    id: "nextFollowUp",
+    title: "Next Follow-up",
+    options: [
+      { value: "overdue", label: "Overdue", color: "var(--color-badge-inactive-text)" },
+      { value: "today", label: "Due Today", color: "var(--color-status-warning)" },
+      { value: "upcoming", label: "Upcoming", color: "var(--color-badge-active-text)" },
     ],
   },
 ]
@@ -587,6 +605,9 @@ export default function WelfarePage() {
 
       const states = filters.championState || []
       if (states.length > 0 && !states.includes(record.championState)) return false
+
+      const followUpBuckets = filters.nextFollowUp || []
+      if (followUpBuckets.length > 0 && !followUpBuckets.includes(classifyFollowUp(record.nextFollowUp))) return false
 
       return true
     })

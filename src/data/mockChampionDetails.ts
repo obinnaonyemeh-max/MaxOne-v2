@@ -1,5 +1,6 @@
-import type { TimelineEntryData } from "@/components/max"
+import type { TimelineEntryData, AssignmentRecord } from "@/components/max"
 import type { TicketRecord } from "@/data/mockTicketRecords"
+import type { MovementLogRecord } from "@/data/mockAssetMovement"
 
 export interface WalletTransaction {
   id: string
@@ -44,6 +45,43 @@ export interface ChampionDetails {
     contractStatus: "Active" | "Inactive"
     lastUpdatedBy: string
     lastPingedOn: string
+  }
+
+  vehicleDetails: {
+    basicInfo: {
+      vehicleType: string
+      model: string
+      trim: string
+      platformType: string
+    }
+    identification: {
+      chassisNumber: string
+      engineNumber: string
+      ignitionNumber: string
+      plateNumber: string
+    }
+    vendor: {
+      oemVendorName: string
+      financialPartner: string
+    }
+    assignment: {
+      location: string
+      receiver: string
+      deliveryDate: string
+      licenseExpiration: string
+    }
+    telematics: {
+      simSerialNumber: string
+      deviceImei: string
+      phoneNumber: string
+      helmetNumber: string
+    }
+    assignmentHistory: AssignmentRecord[]
+    statusHistory: TimelineEntryData[]
+  }
+
+  assetMovement: {
+    movementLog: MovementLogRecord[]
   }
 
   maxIdCard: {
@@ -158,6 +196,158 @@ export const mockChampionDetails: Record<string, ChampionDetails> = {
       contractStatus: "Active",
       lastUpdatedBy: "Samson Oluwaseun",
       lastPingedOn: "28 May 2026, 10:23 am",
+    },
+    vehicleDetails: {
+      basicInfo: {
+        vehicleType: "eMotorcycle",
+        model: "Max E Series",
+        trim: "M2",
+        platformType: "Enterprise",
+      },
+      identification: {
+        chassisNumber: "358TF6EFD16D1379",
+        engineNumber: "52DSH8313077",
+        ignitionNumber: "85949342",
+        plateNumber: "EN 234 LSG",
+      },
+      vendor: {
+        oemVendorName: "GreenDrive Auto",
+        financialPartner: "Yamaha",
+      },
+      assignment: {
+        location: "Ikeja",
+        receiver: "Adewale Ogunleye",
+        deliveryDate: "15 Mar 2024",
+        licenseExpiration: "15 Mar 2027",
+      },
+      telematics: {
+        simSerialNumber: "317GJD7931J",
+        deviceImei: "232RYK24224",
+        phoneNumber: "07037645392",
+        helmetNumber: "MAX-HEM553",
+      },
+      assignmentHistory: [
+        {
+          id: "1",
+          duration: "15 Mar 2024 - Current",
+          assigneeName: "Adewale Ogunleye",
+          status: "Active",
+          isCurrent: true,
+        },
+        {
+          id: "2",
+          duration: "10 Sep 2023 - 14 Mar 2024",
+          assigneeName: "Emeka Okafor",
+          status: "Inactive",
+          isCurrent: false,
+        },
+      ],
+      statusHistory: [
+        {
+          id: "sh1",
+          date: "May 2026",
+          status: "Asset Checkout",
+          statusVariant: "info",
+          description: {
+            template: "Vehicle has been given to {champion} and {action} of the {location}",
+            highlights: {
+              champion: "Adewale Ogunleye",
+              action: "checked out",
+              location: "Ikeja office",
+            },
+          },
+          actor: {
+            action: "Checked out by",
+            name: "Samson Oluwaseun",
+          },
+          duration: {
+            range: "15 Mar - 16 Mar",
+            total: "24 hrs",
+          },
+        },
+        {
+          id: "sh2",
+          date: "Apr 2026",
+          status: "3rd Party Check-In",
+          statusVariant: "danger",
+          description: {
+            template: "{champion} takes the vehicle to an approved {location} for vehicle maintenance.",
+            highlights: {
+              champion: "Adewale Ogunleye",
+              location: "3rd party",
+            },
+          },
+          actor: {
+            action: "Checked in by",
+            name: "Tunde Bakare",
+          },
+          duration: {
+            range: "10 Apr - 12 Apr",
+            total: "2 days",
+          },
+        },
+        {
+          id: "sh3",
+          date: "Mar 2024",
+          status: "HP Completed",
+          statusVariant: "success",
+          description: {
+            template: "Vehicle transfer to {champion} was {status}",
+            highlights: {
+              champion: "Adewale Ogunleye",
+              status: "completed",
+            },
+          },
+          actor: {
+            action: "Initiated by",
+            name: "Samson Oluwaseun",
+          },
+          duration: {
+            range: "14 Mar - 15 Mar",
+            total: "24 hrs",
+          },
+        },
+      ],
+    },
+    assetMovement: {
+      movementLog: [
+        {
+          id: "ml1",
+          assetType: "2 Wheeler",
+          assetId: "MAX-IB-CH-203",
+          timestamp: "28 May 2026 10:23",
+          plateNumber: "EN 234 LSG",
+          movementType: "Check-Out",
+          movementReason: "Active Vehicle",
+          location: "Ikeja Yard",
+          officer: "Samson Oluwaseun",
+          referenceSource: "CO-201",
+        },
+        {
+          id: "ml2",
+          assetType: "2 Wheeler",
+          assetId: "MAX-IB-CH-203",
+          timestamp: "10 Apr 2026 09:00",
+          plateNumber: "EN 234 LSG",
+          movementType: "Check-In",
+          movementReason: "Maintenance",
+          location: "Ikeja Yard",
+          officer: "Tunde Bakare",
+          referenceSource: "CI-301",
+        },
+        {
+          id: "ml3",
+          assetType: "2 Wheeler",
+          assetId: "MAX-IB-CH-203",
+          timestamp: "15 Mar 2024 14:30",
+          plateNumber: "EN 234 LSG",
+          movementType: "Check-Out",
+          movementReason: "Active Vehicle",
+          location: "Ikeja Yard",
+          officer: "Samson Oluwaseun",
+          referenceSource: "CO-101",
+        },
+      ],
     },
     maxIdCard: {
       variant: "active",
@@ -401,6 +591,118 @@ export const mockChampionDetails: Record<string, ChampionDetails> = {
       contractStatus: "Active",
       lastUpdatedBy: "Femi Adeyemi",
       lastPingedOn: "30 May 2026, 2:15 pm",
+    },
+    vehicleDetails: {
+      basicInfo: {
+        vehicleType: "eTricycle",
+        model: "Max T Series",
+        trim: "T3",
+        platformType: "Enterprise",
+      },
+      identification: {
+        chassisNumber: "458TF6EFD16D1380",
+        engineNumber: "62DSH8313078",
+        ignitionNumber: "95949343",
+        plateNumber: "EN 235 LSG",
+      },
+      vendor: {
+        oemVendorName: "GreenDrive Auto",
+        financialPartner: "Yamaha",
+      },
+      assignment: {
+        location: "Lekki",
+        receiver: "Chinedu Okafor",
+        deliveryDate: "22 Apr 2024",
+        licenseExpiration: "22 Apr 2027",
+      },
+      telematics: {
+        simSerialNumber: "418HKE8042K",
+        deviceImei: "343SZL35335",
+        phoneNumber: "08051234567",
+        helmetNumber: "MAX-HEM554",
+      },
+      assignmentHistory: [
+        {
+          id: "1",
+          duration: "22 Apr 2024 - Current",
+          assigneeName: "Chinedu Okafor",
+          status: "Active",
+          isCurrent: true,
+        },
+      ],
+      statusHistory: [
+        {
+          id: "sh1",
+          date: "May 2026",
+          status: "Asset Checkout",
+          statusVariant: "info",
+          description: {
+            template: "Vehicle has been given to {champion} and {action} of the {location}",
+            highlights: {
+              champion: "Chinedu Okafor",
+              action: "checked out",
+              location: "Lekki office",
+            },
+          },
+          actor: {
+            action: "Checked out by",
+            name: "Femi Adeyemi",
+          },
+          duration: {
+            range: "22 Apr - 23 Apr",
+            total: "24 hrs",
+          },
+        },
+        {
+          id: "sh2",
+          date: "Apr 2024",
+          status: "HP Completed",
+          statusVariant: "success",
+          description: {
+            template: "Vehicle transfer to {champion} was {status}",
+            highlights: {
+              champion: "Chinedu Okafor",
+              status: "completed",
+            },
+          },
+          actor: {
+            action: "Initiated by",
+            name: "Femi Adeyemi",
+          },
+          duration: {
+            range: "20 Apr - 22 Apr",
+            total: "2 days",
+          },
+        },
+      ],
+    },
+    assetMovement: {
+      movementLog: [
+        {
+          id: "ml1",
+          assetType: "3 Wheeler",
+          assetId: "MAX-IN-CH-203",
+          timestamp: "30 May 2026 14:15",
+          plateNumber: "EN 235 LSG",
+          movementType: "Check-Out",
+          movementReason: "Active Vehicle",
+          location: "Lekki Yard",
+          officer: "Femi Adeyemi",
+          referenceSource: "CO-301",
+        },
+        {
+          id: "ml2",
+          assetType: "3 Wheeler",
+          assetId: "MAX-IN-CH-203",
+          timestamp: "22 Apr 2024 11:00",
+          plateNumber: "EN 235 LSG",
+          movementType: "Check-Out",
+          movementReason: "Active Vehicle",
+          location: "Lekki Yard",
+          officer: "Femi Adeyemi",
+          referenceSource: "CO-201",
+        },
+      ],
     },
     maxIdCard: {
       variant: "inactive",

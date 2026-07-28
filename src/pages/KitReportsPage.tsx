@@ -247,7 +247,7 @@ export default function KitReportsPage() {
               onClick={() => navigate("/activation-assignment/asset-reassignment/kit/assign")}
             >
               <Plus className="h-4 w-4" />
-              Kit Assignment
+              Kit Reassignment
             </Button>
           </div>
 

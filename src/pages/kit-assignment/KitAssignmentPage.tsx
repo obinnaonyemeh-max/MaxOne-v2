@@ -17,7 +17,7 @@ const KIT_LIST_ROUTE = "/activation-assignment/asset-reassignment/kit"
 const emptyDetails: NewAssignmentDetails = {
   newPlateNumber: "",
   newChassisId: "",
-  newClientId: "",
+  newClient: "",
 }
 
 export default function KitAssignmentPage() {
@@ -38,7 +38,7 @@ export default function KitAssignmentPage() {
         return (
           details.newPlateNumber.trim() !== "" &&
           details.newChassisId.trim() !== "" &&
-          details.newClientId !== ""
+          details.newClient.trim() !== ""
         )
       case 3:
         return true
@@ -82,7 +82,7 @@ export default function KitAssignmentPage() {
           { label: "Activation & Assignment" },
           { label: "Asset Reassignment" },
           { label: "Kit", href: KIT_LIST_ROUTE },
-          { label: "Kit Assignment" },
+          { label: "Kit Reassignment" },
         ]}
       />
 
@@ -95,7 +95,7 @@ export default function KitAssignmentPage() {
                 className="flex items-end gap-1 font-semibold text-sidebar-item-active"
                 style={{ fontSize: "22px" }}
               >
-                Kit Assignment
+                Kit Reassignment
                 <span className="mb-2 h-1.5 w-1.5 rounded-full bg-brand-primary" />
               </h1>
               <p className="mt-1 text-sm font-medium text-breadcrumb-root">

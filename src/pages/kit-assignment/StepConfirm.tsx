@@ -1,8 +1,5 @@
 import { InfoCard, InfoGrid } from "@/components/max"
-import {
-  mockKitClients,
-  type ReassignableVehicle,
-} from "@/data/mockKitAssignment"
+import { type ReassignableVehicle } from "@/data/mockKitAssignment"
 import type { NewAssignmentDetails } from "./StepNewAssignment"
 
 interface StepConfirmProps {
@@ -11,8 +8,6 @@ interface StepConfirmProps {
 }
 
 export function StepConfirm({ vehicle, details }: StepConfirmProps) {
-  const newClient = mockKitClients.find((c) => c.id === details.newClientId)
-
   return (
     <div className="space-y-4">
       <h3
@@ -43,11 +38,8 @@ export function StepConfirm({ vehicle, details }: StepConfirmProps) {
           columns={2}
           items={[
             { label: "New Plate Number", value: details.newPlateNumber },
-            { label: "New Chassis/Kit ID", value: details.newChassisId },
-            {
-              label: "New Client",
-              value: newClient ? `${newClient.name} (${newClient.clientId})` : "—",
-            },
+            { label: "New Chassis", value: details.newChassisId },
+            { label: "New Client", value: details.newClient || "—" },
           ]}
         />
       </InfoCard>

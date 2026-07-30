@@ -36,6 +36,10 @@ const clientOptions = Array.from(
   new Set(mockKitReports.map((k) => k.client).filter((c): c is string => !!c))
 ).sort()
 
+const locationOptions = Array.from(
+  new Set(mockKitReports.map((k) => k.location))
+).sort()
+
 const filterSections: FilterSection[] = [
   {
     id: "status",
@@ -52,11 +56,17 @@ const filterSections: FilterSection[] = [
     title: "Client",
     options: clientOptions.map((client) => ({ value: client, label: client })),
   },
+  {
+    id: "location",
+    title: "Location",
+    options: locationOptions.map((location) => ({ value: location, label: location })),
+  },
 ]
 
 const defaultFilters: GenericFilterState = {
   status: [],
   client: [],
+  location: [],
 }
 
 const columns: ColumnDef<KitReport>[] = [
@@ -111,6 +121,15 @@ const columns: ColumnDef<KitReport>[] = [
     ),
   },
   {
+    accessorKey: "location",
+    header: "Location",
+    cell: ({ row }) => (
+      <span className="font-medium text-table-text" style={{ fontSize: "14px" }}>
+        {row.original.location}
+      </span>
+    ),
+  },
+  {
     accessorKey: "assignmentDate",
     header: "Assignment Date",
     cell: ({ row }) => (
@@ -145,6 +164,7 @@ export default function KitReportsPage() {
       mockKitReports.filter((kit) => {
         if (filters.status.length > 0 && !filters.status.includes(kit.status)) return false
         if (filters.client.length > 0 && (kit.client === null || !filters.client.includes(kit.client))) return false
+        if (filters.location.length > 0 && !filters.location.includes(kit.location)) return false
         if (searchQuery) {
           const q = searchQuery.toLowerCase()
           const matchesId = kit.id.toLowerCase().includes(q)

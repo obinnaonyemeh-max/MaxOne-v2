@@ -7,6 +7,7 @@ export interface KitReport {
   status: KitStatus
   client: string | null
   plateNumber: string | null
+  location: string
   assignmentDate: string | null
   lastUpdated: string
 }
@@ -25,6 +26,7 @@ export const mockKitReports: KitReport[] = [
     status: "Assigned",
     client: "Opeyemi Orekoya",
     plateNumber: "KJA-119-XL",
+    location: "Lagos",
     assignmentDate: "12 Jun 2026",
     lastUpdated: "18 Jul 2026",
   },
@@ -35,6 +37,7 @@ export const mockKitReports: KitReport[] = [
     status: "Reassigned",
     client: "Amina Yusuf",
     plateNumber: "OGN-115-CT",
+    location: "Lagos",
     assignmentDate: "03 Jul 2026",
     lastUpdated: "20 Jul 2026",
   },
@@ -45,6 +48,7 @@ export const mockKitReports: KitReport[] = [
     status: "Assigned",
     client: "Chidinma Eze",
     plateNumber: "ABJ-772-KD",
+    location: "Lagos",
     assignmentDate: "15 Jul 2026",
     lastUpdated: "15 Jul 2026",
   },
@@ -55,6 +59,7 @@ export const mockKitReports: KitReport[] = [
     status: "Created",
     client: null,
     plateNumber: null,
+    location: "Lagos",
     assignmentDate: null,
     lastUpdated: "10 Jul 2026",
   },
@@ -65,6 +70,7 @@ export const mockKitReports: KitReport[] = [
     status: "Created",
     client: null,
     plateNumber: null,
+    location: "Lagos",
     assignmentDate: null,
     lastUpdated: "08 Jul 2026",
   },
@@ -75,6 +81,7 @@ export const mockKitReports: KitReport[] = [
     status: "Assigned",
     client: "Emeka Obi",
     plateNumber: "LND-889-RS",
+    location: "Lagos",
     assignmentDate: "22 Jun 2026",
     lastUpdated: "22 Jun 2026",
   },
@@ -85,6 +92,7 @@ export const mockKitReports: KitReport[] = [
     status: "Reassigned",
     client: "Tunde Bakare",
     plateNumber: "LND-330-QZ",
+    location: "Lagos",
     assignmentDate: "01 Jul 2026",
     lastUpdated: "19 Jul 2026",
   },

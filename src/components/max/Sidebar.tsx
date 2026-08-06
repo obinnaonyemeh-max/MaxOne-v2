@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react"
+import { useEffect, useState, type ReactNode } from "react"
 import { cn } from "@/lib/utils"
 import {
   Plus,
@@ -40,6 +40,7 @@ interface SidebarProps {
   onItemClick?: (item: SidebarItem) => void
   isCollapsed?: boolean
   onToggleCollapse?: () => void
+  selectedAppId?: string
   onAppChange?: (appId: string) => void
 }
 
@@ -423,7 +424,7 @@ function NavSection({
   )
 }
 
-export function Sidebar({ logo, collapsedLogo, sections, user, onItemClick, isCollapsed = false, onToggleCollapse, onAppChange }: SidebarProps) {
+export function Sidebar({ logo, collapsedLogo, sections, user, onItemClick, isCollapsed = false, onToggleCollapse, selectedAppId, onAppChange }: SidebarProps) {
   const getInitialExpandedItemId = () => {
     for (const section of sections) {
       for (const item of section.items) {
@@ -435,36 +436,32 @@ export function Sidebar({ logo, collapsedLogo, sections, user, onItemClick, isCo
     return null
   }
 
-  const getInitialExpandedSections = () => {
-    const expanded: string[] = []
+  const getInitialExpandedSectionId = () => {
     for (const section of sections) {
-      if (section.defaultExpanded !== false) {
-        expanded.push(section.id)
-      }
       for (const item of section.items) {
         if (item.isActive || item.children?.some((child) => child.isActive)) {
-          if (!expanded.includes(section.id)) {
-            expanded.push(section.id)
-          }
+          return section.id
         }
       }
     }
-    return expanded
+    const defaultSection = sections.find((section) => section.defaultExpanded !== false)
+    return defaultSection?.id ?? null
   }
 
   const [expandedItemId, setExpandedItemId] = useState<string | null>(getInitialExpandedItemId)
-  const [expandedSections, setExpandedSections] = useState<string[]>(getInitialExpandedSections)
+  const [expandedSectionId, setExpandedSectionId] = useState<string | null>(getInitialExpandedSectionId)
+
+  useEffect(() => {
+    setExpandedItemId(getInitialExpandedItemId())
+    setExpandedSectionId(getInitialExpandedSectionId())
+  }, [selectedAppId])
 
   const handleToggleItemExpand = (itemId: string) => {
     setExpandedItemId((currentId) => (currentId === itemId ? null : itemId))
   }
 
   const handleToggleSectionExpand = (sectionId: string) => {
-    setExpandedSections((current) => 
-      current.includes(sectionId)
-        ? current.filter((id) => id !== sectionId)
-        : [...current, sectionId]
-    )
+    setExpandedSectionId((currentId) => (currentId === sectionId ? null : sectionId))
   }
 
   return (
@@ -518,7 +515,7 @@ export function Sidebar({ logo, collapsedLogo, sections, user, onItemClick, isCo
         "shrink-0 pb-2",
         isCollapsed ? "px-2 flex justify-center" : "px-3"
       )}>
-        <AppSwitcher isCollapsed={isCollapsed} onAppChange={onAppChange} />
+        <AppSwitcher isCollapsed={isCollapsed} selectedAppId={selectedAppId} onAppChange={onAppChange} />
       </div>
 
       {/* Navigation - scrollable */}
@@ -531,7 +528,7 @@ export function Sidebar({ logo, collapsedLogo, sections, user, onItemClick, isCo
             key={section.id}
             section={section}
             isCollapsed={isCollapsed}
-            isSectionExpanded={expandedSections.includes(section.id)}
+            isSectionExpanded={expandedSectionId === section.id}
             onToggleSectionExpand={handleToggleSectionExpand}
             expandedItemId={expandedItemId}
             onToggleItemExpand={handleToggleItemExpand}

@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { ChevronsUpDown, Check, TrendingUp, Briefcase, UserCircle } from "lucide-react"
+import { ChevronsUpDown, Check, TrendingUp, Briefcase, UserCircle, Eye } from "lucide-react"
 import { cn } from "@/lib/utils"
 import {
   Popover,
@@ -19,10 +19,12 @@ const apps: App[] = [
   { id: "driver-growth", name: "Driver Growth", icon: TrendingUp },
   { id: "portfolio", name: "Portfolio", icon: Briefcase },
   { id: "driver-experience", name: "Driver Experience", icon: UserCircle },
+  { id: "falcon", name: "Falcon", icon: Eye },
 ]
 
 interface AppSwitcherProps {
   isCollapsed?: boolean
+  selectedAppId?: string
   onAppChange?: (appId: string) => void
 }
 
@@ -47,12 +49,11 @@ function AppLogo({ app, size = "default" }: { app: App; size?: "default" | "smal
   )
 }
 
-export function AppSwitcher({ isCollapsed = false, onAppChange }: AppSwitcherProps) {
-  const [selectedApp, setSelectedApp] = useState<App>(apps[0])
+export function AppSwitcher({ isCollapsed = false, selectedAppId, onAppChange }: AppSwitcherProps) {
+  const selectedApp = apps.find((app) => app.id === selectedAppId) ?? apps[0]
   const [open, setOpen] = useState(false)
 
   const handleSelectApp = (app: App) => {
-    setSelectedApp(app)
     setOpen(false)
     onAppChange?.(app.id)
   }

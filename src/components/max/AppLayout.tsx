@@ -1,9 +1,9 @@
-import { useState, type ReactNode } from "react"
+import { type ReactNode } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
 import { Toaster } from "sonner"
 import { PageLayout } from "./PageLayout"
 import { Sidebar, type SidebarItem, type SidebarSection } from "./Sidebar"
-import { sidebarSections, driverGrowthSidebarSections, driverExperienceSidebarSections, sidebarUser } from "@/data/sidebarConfig"
+import { sidebarSections, driverGrowthSidebarSections, driverExperienceSidebarSections, falconSidebarSections, sidebarUser } from "@/data/sidebarConfig"
 
 function markActiveSections(sections: SidebarSection[], pathname: string): SidebarSection[] {
   return sections.map((section) => ({
@@ -25,6 +25,23 @@ const appDefaultRoutes: Record<string, string> = {
   "fleet-operations": "/dashboard",
   "driver-growth": "/growth-activation",
   "driver-experience": "/champion-360",
+  "falcon": "/falcon/dashboard",
+}
+
+const driverGrowthPrefixes = ["/growth-activation", "/mcp-management"]
+const driverExperiencePrefixes = [
+  "/champion-360",
+  "/ticket-management",
+  "/driver-safety-score",
+  "/welfare",
+  "/performance",
+]
+
+function getAppIdFromPathname(pathname: string): string {
+  if (pathname.startsWith("/falcon")) return "falcon"
+  if (driverGrowthPrefixes.some((prefix) => pathname.startsWith(prefix))) return "driver-growth"
+  if (driverExperiencePrefixes.some((prefix) => pathname.startsWith(prefix))) return "driver-experience"
+  return "fleet-operations"
 }
 
 interface AppLayoutProps {
@@ -34,11 +51,12 @@ interface AppLayoutProps {
 export function AppLayout({ children }: AppLayoutProps) {
   const navigate = useNavigate()
   const location = useLocation()
-  const [selectedAppId, setSelectedAppId] = useState("fleet-operations")
+  const selectedAppId = getAppIdFromPathname(location.pathname)
 
   const sections =
     selectedAppId === "driver-growth" ? driverGrowthSidebarSections :
     selectedAppId === "driver-experience" ? driverExperienceSidebarSections :
+    selectedAppId === "falcon" ? falconSidebarSections :
     sidebarSections
 
   const activeSections = markActiveSections(sections, location.pathname)
@@ -50,7 +68,6 @@ export function AppLayout({ children }: AppLayoutProps) {
   }
 
   const handleAppChange = (appId: string) => {
-    setSelectedAppId(appId)
     const defaultRoute = appDefaultRoutes[appId]
     if (defaultRoute) {
       navigate(defaultRoute)
@@ -68,6 +85,7 @@ export function AppLayout({ children }: AppLayoutProps) {
             onItemClick={handleSidebarItemClick}
             isCollapsed={isCollapsed}
             onToggleCollapse={onToggleCollapse}
+            selectedAppId={selectedAppId}
             onAppChange={handleAppChange}
           />
         )}

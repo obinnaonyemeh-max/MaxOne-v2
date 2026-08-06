@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils"
-import type { ReactNode } from "react"
+import type { ReactNode, CSSProperties } from "react"
 
 type StatusVariant = "success" | "danger" | "warning" | "info" | "default" | "refurb" | "neutral" | "exit" | "operational" | "checkin" | "yard"
 
@@ -9,6 +9,7 @@ interface StatusBadgeProps {
   withDot?: boolean
   size?: "sm" | "md"
   className?: string
+  style?: CSSProperties
 }
 
 const variantStyles: Record<
@@ -61,9 +62,9 @@ const variantStyles: Record<
     text: "text-emerald-600",
   },
   checkin: {
-    dot: "bg-orange-500",
-    bg: "bg-orange-50",
-    text: "text-orange-600",
+    dot: "bg-status-info",
+    bg: "bg-status-info/10",
+    text: "text-status-info",
   },
   yard: {
     dot: "bg-purple-500",
@@ -78,6 +79,7 @@ export function StatusBadge({
   withDot = true,
   size = "sm",
   className,
+  style,
 }: StatusBadgeProps) {
   const styles = variantStyles[variant]
 
@@ -106,7 +108,7 @@ export function StatusBadge({
         styles.text,
         className
       )}
-      style={sizeStyles[size]}
+      style={{ ...sizeStyles[size], ...style }}
     >
       {withDot && (
         <span

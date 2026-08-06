@@ -30,6 +30,8 @@ This document catalogs all reusable components in the MaxOne design system. Thes
   - [InfoCard](#infocard)
   - [InfoGrid](#infogrid)
   - [ChampionInformation](#championinformation)
+- [Map Components](#map-components)
+  - [BatteryMap](#batterymap)
 - [Sheet Components](#sheet-components)
   - [TicketDetailSheet](#ticketdetailsheet)
 - [Page Patterns](#page-patterns)
@@ -70,6 +72,7 @@ src/components/
     ├── InfoCard.tsx
     ├── InfoGrid.tsx
     ├── ChampionInformation.tsx
+    ├── BatteryMap.tsx
     ├── LocationAutocomplete.tsx
     ├── DatePickerField.tsx
     ├── DocDropZone.tsx
@@ -97,6 +100,7 @@ import {
   InfoCard,
   InfoGrid,
   ChampionInformation,
+  BatteryMap,
   LocationAutocomplete,
   DatePickerField,
   DocDropZone,
@@ -1214,6 +1218,102 @@ import { ChampionInformation } from "@/components/max"
 
 ---
 
+## Map Components
+
+### BatteryMap
+
+Interactive map component for displaying battery locations with markers, stats overlay, and alerts panel. Built with React-Leaflet and OpenStreetMap tiles. Features a frosted glass effect on overlay panels.
+
+#### Import
+
+```tsx
+import { BatteryMap } from "@/components/max"
+```
+
+#### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `locations` | `BatteryLocation[]` | required | Array of battery location data with coordinates |
+| `alerts` | `BatteryAlert[]` | required | Array of alert objects to display in the alerts panel |
+| `avgSOH` | `number` | required | Average State of Health percentage to display |
+| `activeBatteries` | `number` | required | Count of active batteries to display |
+| `className` | `string` | - | Additional classes for the wrapper |
+
+#### BatteryLocation Interface
+
+```tsx
+interface BatteryLocation {
+  id: string
+  lat: number
+  lng: number
+  soh: number
+  state: "riding" | "idle" | "checked-in" | "in-transit" | "retired" | "unknown"
+}
+```
+
+#### BatteryAlert Interface
+
+```tsx
+interface BatteryAlert {
+  id: string
+  type: "over-temperature" | "low-soh" | "offline" | "critical"
+  title: string
+  description: string
+  count: number
+  severity: "L1" | "L2" | "L3"
+}
+```
+
+#### Usage
+
+```tsx
+import { BatteryMap } from "@/components/max"
+import { batteryLocations, batteryAlerts, batteryStats } from "@/data/mockBatteryData"
+
+<BatteryMap
+  locations={batteryLocations}
+  alerts={batteryAlerts}
+  avgSOH={batteryStats.avgSOH}
+  activeBatteries={batteryStats.activeBatteries}
+  className="mt-6"
+/>
+```
+
+#### Features
+
+- **Left Stats Panel** — Frosted glass card showing "Battery Map" title, AVG SOH, and Active Batteries count
+- **Right Alerts Panel** — Frosted glass card at bottom-right showing alert count with navigation arrows to cycle through alerts
+- **Map Markers** — Custom battery icon markers (`/images/falcon_battery.svg`) with popup showing battery ID, SOH, and state
+- **Map Padding** — 8px internal padding with rounded corners
+
+#### Styling Notes
+
+- Outer container: `bg-gray-25`, `border border-gray-200`, `rounded-lg`, `p-2`
+- Map height: 400px
+- Left panel frosted glass: `background: rgba(255, 255, 255, 0.55)`, `backdrop-filter: blur(8px)`, min-width 240px
+- Right panel frosted glass: Same effect, width 356px, positioned bottom-right
+- Panel text sizes: Title 16px, eyebrow labels 10px uppercase, numbers 15px
+- Alert divider: `#d8d8d8`
+- Map tiles: OpenStreetMap
+- Markers: Uses Leaflet with custom icon from `/images/falcon_battery.svg`
+
+#### Dependencies
+
+Requires React-Leaflet packages:
+
+```bash
+npm install leaflet react-leaflet @types/leaflet
+```
+
+Also requires importing Leaflet CSS in the component:
+
+```tsx
+import "leaflet/dist/leaflet.css"
+```
+
+---
+
 ## Sheet Components
 
 ### TicketDetailSheet
@@ -1464,6 +1564,7 @@ The design system uses custom Tailwind color tokens defined in `src/index.css`:
 
 | Date | Component | Change |
 |------|-----------|--------|
+| 2026-07-30 | BatteryMap | New reusable map component with React-Leaflet, frosted glass overlay panels, battery markers, and alerts carousel |
 | 2026-06-01 | Create Ticket Wizard | Added 4-step wizard page at `/ticket-management/create` with champion search, category grid, subcategory list, and ticket details form |
 | 2026-06-01 | LocationAutocomplete | New reusable component — map-style text field with dropdown location suggestions |
 | 2026-06-01 | ConfirmModal | Added `warning` and `success` variants with distinct icon/button styles |

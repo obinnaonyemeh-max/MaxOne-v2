@@ -307,6 +307,72 @@ export const driverExperienceSidebarSections: SidebarSection[] = [
   },
 ]
 
+export const falconSidebarSections: SidebarSection[] = [
+  {
+    id: "home",
+    label: "Home",
+    items: [
+      {
+        id: "falcon-dashboard",
+        label: "Dashboard",
+        icon: "/images/dashboard_menu.svg",
+        href: "/falcon/dashboard",
+      },
+    ],
+  },
+  {
+    id: "monitoring",
+    label: "Monitoring",
+    items: [
+      {
+        id: "vehicles",
+        label: "Vehicles",
+        icon: "/images/fleet_menu.svg",
+        href: "/falcon/vehicles",
+      },
+      {
+        id: "alerts",
+        label: "Alerts",
+        icon: "/images/issues_menu.svg",
+        href: "/falcon/alerts",
+      },
+      {
+        id: "geofencing",
+        label: "Geofencing",
+        icon: "/images/compliance_menu.svg",
+        href: "/falcon/geofences",
+      },
+    ],
+  },
+  {
+    id: "energy",
+    label: "Energy",
+    items: [
+      {
+        id: "stations-hubs",
+        label: "Stations & Hubs",
+        icon: "/images/asset_movement_menu.svg",
+        href: "/falcon/swap-stations",
+      },
+      {
+        id: "batteries",
+        label: "Batteries",
+        icon: "/images/asset_health_menu.svg",
+        children: [
+          { id: "batteries-dashboard", label: "Dashboard", href: "/falcon/batteries/dashboard" },
+          { id: "battery-register", label: "Battery Register", href: "/falcon/batteries/register" },
+        ],
+      },
+      {
+        id: "ev-chargers",
+        label: "EV Chargers",
+        icon: "/images/maintenance_menu.svg",
+        href: "/falcon/ev-chargers",
+      },
+    ],
+  },
+]
+
 export const sidebarUser: SidebarUser = {
   name: "Desmond Nsogbuwa",
   role: "Fleet Manager",

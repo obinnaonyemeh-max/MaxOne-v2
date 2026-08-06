@@ -13,7 +13,7 @@ const statusToVariant: Record<BatteryStatus, "success" | "danger" | "warning" | 
   "riding": "success",
   "in-transit": "default",
   "idle": "warning",
-  "checked-in": "checkin",
+  "checked-in": "info",
   "retired": "danger",
   "unknown": "neutral",
 }

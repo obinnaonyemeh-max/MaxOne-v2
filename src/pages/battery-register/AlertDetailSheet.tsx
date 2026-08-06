@@ -31,7 +31,7 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { ExternalLink, Loader2 } from "lucide-react"
 import { toast } from "sonner"
-import type { AlertDetail, AlertStatus } from "@/data/mockBatteryRegisterData"
+import type { AlertDetail } from "@/data/mockBatteryRegisterData"
 import { alertStatusVariantMap, alertStatusLabels } from "@/data/mockBatteryRegisterData"
 
 interface AlertDetailSheetProps {

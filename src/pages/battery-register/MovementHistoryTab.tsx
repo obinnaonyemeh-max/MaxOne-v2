@@ -23,7 +23,6 @@ import {
   mockMovementHistory,
   movementEventTypeLabels,
   type MovementHistoryItem,
-  type MovementEventType,
 } from "@/data/mockBatteryRegisterData"
 
 const columns: ColumnDef<MovementHistoryItem>[] = [

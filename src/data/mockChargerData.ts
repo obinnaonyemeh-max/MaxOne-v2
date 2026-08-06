@@ -546,7 +546,7 @@ function buildSessionTimeline(sessionId: string, status: ChargingSessionStatus) 
       statusVariant: "success" as const,
       description: {
         template: "Charging started successfully.",
-        highlights: {},
+        highlights: {} as Record<string, string>,
       },
       actor: { action: "Initiated by", name: "Charger System" },
       duration: { range: "08:14", total: "" },
@@ -558,7 +558,7 @@ function buildSessionTimeline(sessionId: string, status: ChargingSessionStatus) 
       statusVariant: "warning" as const,
       description: {
         template: "Power reached normal operating range.",
-        highlights: {},
+        highlights: {} as Record<string, string>,
       },
       actor: { action: "Detected by", name: "BMS Monitor" },
       duration: { range: "08:16", total: "" },
@@ -599,7 +599,7 @@ function buildSessionTimeline(sessionId: string, status: ChargingSessionStatus) 
         statusVariant: "danger" as const,
         description: {
           template: "Charging stopped due to a fault condition.",
-          highlights: {},
+          highlights: {} as Record<string, string>,
         },
         actor: { action: "Detected by", name: "Safety Monitor" },
         duration: { range: "08:41", total: "" },
@@ -620,7 +620,7 @@ function buildSessionTimeline(sessionId: string, status: ChargingSessionStatus) 
       statusVariant: "success" as const,
       description: {
         template: "Charging completed successfully.",
-        highlights: {},
+        highlights: {} as Record<string, string>,
       },
       actor: { action: "Confirmed by", name: "Charger System" },
       duration: { range: "10:02", total: "" },

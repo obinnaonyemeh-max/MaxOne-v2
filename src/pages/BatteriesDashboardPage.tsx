@@ -145,7 +145,6 @@ export default function BatteriesDashboardPage() {
               key={stat.title}
               title={stat.title}
               value={stat.value}
-              subtitle={stat.subtitle}
               indicatorColor={stat.indicatorColor}
             />
           ))}

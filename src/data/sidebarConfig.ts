@@ -373,6 +373,219 @@ export const falconSidebarSections: SidebarSection[] = [
   },
 ]
 
+// Each Portfolio entry is a collapsible section header (like Fleet Operations'
+// HOME / OPERATIONS / DEPLOYMENT). Items under each section are added as the
+// contents of each are provided.
+export const portfolioSidebarSections: SidebarSection[] = [
+  {
+    id: "portfolio-home",
+    label: "Home",
+    items: [
+      {
+        id: "portfolio-dashboard",
+        label: "Dashboard",
+        icon: "/images/dashboard_menu.svg",
+        href: "/portfolio/dashboard",
+      },
+    ],
+  },
+  {
+    id: "portfolio-champions",
+    label: "Champions",
+    items: [
+      {
+        id: "portfolio-champion-overview",
+        label: "Champion Overview",
+        icon: "/images/agent_menu.svg",
+      },
+      {
+        id: "portfolio-referral-management",
+        label: "Referral Management",
+        icon: "/images/referral_menu.svg",
+      },
+      {
+        id: "portfolio-blacklist",
+        label: "Blacklist",
+        icon: "/images/blacklist_menu.svg",
+      },
+    ],
+  },
+  {
+    id: "portfolio-contracts",
+    label: "Contracts",
+    items: [
+      {
+        id: "portfolio-all-contracts",
+        label: "All Contracts",
+        icon: "/images/document_menu.svg",
+      },
+      {
+        id: "portfolio-initiated-contracts",
+        label: "Initiated Contracts",
+        icon: "/images/initiated_contract_menu.svg",
+      },
+      {
+        id: "portfolio-restructured-contracts",
+        label: "Restructured Contracts",
+        icon: "/images/restructured_contract_menu.svg",
+      },
+      {
+        id: "portfolio-pending-approval",
+        label: "Pending Approval",
+        icon: "/images/memo_circle_check_menu.svg",
+      },
+      {
+        id: "portfolio-disputed-contracts",
+        label: "Disputed Contracts",
+        icon: "/images/disputed_contract_menu.svg",
+      },
+    ],
+  },
+  {
+    id: "portfolio-products-pricing",
+    label: "Products & Pricing",
+    items: [
+      {
+        id: "portfolio-pricing-configuration",
+        label: "Pricing Configuration",
+        icon: "/images/config_menu.svg",
+        children: [
+          {
+            id: "portfolio-pricing-config-new-asset",
+            label: "New Asset",
+          },
+        ],
+      },
+      {
+        id: "portfolio-dynamic-pricing-engine",
+        label: "Dynamic Pricing Engine",
+        icon: "/images/pricing_engine_menu.svg",
+      },
+      {
+        id: "portfolio-dynamic-repricing-engine",
+        label: "Dynamic Repricing Engine",
+        icon: "/images/pricing_engine_menu.svg",
+      },
+      {
+        id: "portfolio-early-termination-engine",
+        label: "Early Termination Engine",
+        icon: "/images/early_termination_menu.svg",
+      },
+      {
+        id: "portfolio-revenue-recognition",
+        label: "Revenue Recognition",
+        icon: "/images/revenue_analytics_menu.svg",
+      },
+    ],
+  },
+  {
+    id: "portfolio-credit-underwriting",
+    label: "Credit & Underwriting",
+    items: [
+      {
+        id: "portfolio-retail-scorecard-config",
+        label: "Retail Scorecard Configuration",
+        icon: "/images/config_menu.svg",
+      },
+      {
+        id: "portfolio-enterprise-scorecard-config",
+        label: "Enterprise Scorecard Configuration",
+        icon: "/images/config_menu.svg",
+      },
+    ],
+  },
+  {
+    id: "portfolio-collections",
+    label: "Collections",
+    items: [
+      {
+        id: "portfolio-collections-summary",
+        label: "Collections Summary",
+        icon: "/images/dashboard_menu.svg",
+      },
+      {
+        id: "portfolio-all-collections",
+        label: "All Collections",
+        icon: "/images/revenue_analytics_menu.svg",
+      },
+    ],
+  },
+  {
+    id: "portfolio-recovery",
+    label: "Recovery",
+    items: [
+      {
+        id: "portfolio-recovery-command-center",
+        label: "Recovery Command Center",
+        icon: "/images/dashboard_menu.svg",
+      },
+      {
+        id: "portfolio-recovery-officers",
+        label: "Recovery Officers",
+        icon: "/images/agent_menu.svg",
+      },
+      {
+        id: "portfolio-pending-recoveries",
+        label: "Pending Recoveries",
+        icon: "/images/pending_recovery_menu.svg",
+      },
+      {
+        id: "portfolio-recoveries-in-session",
+        label: "Recoveries in Session",
+        icon: "/images/recovery_in_session_menu.svg",
+        children: [
+          {
+            id: "portfolio-successful-recoveries",
+            label: "Successful Recoveries",
+          },
+          {
+            id: "portfolio-failed-recoveries",
+            label: "Failed Recoveries",
+          },
+        ],
+      },
+      {
+        id: "portfolio-pending-check-ins",
+        label: "Pending Check-Ins",
+        icon: "/images/pending_checkin_menu.svg",
+      },
+    ],
+  },
+  {
+    id: "portfolio-insurance-management",
+    label: "Insurance Management",
+    items: [
+      {
+        id: "portfolio-insurance-overview",
+        label: "Insurance Overview",
+        icon: "/images/compliance_menu.svg",
+      },
+    ],
+  },
+  {
+    id: "portfolio-funding",
+    label: "Funding",
+    items: [
+      {
+        id: "portfolio-financier-setup",
+        label: "Financier Setup",
+        icon: "/images/config_menu.svg",
+      },
+    ],
+  },
+  {
+    id: "portfolio-ops",
+    label: "Portfolio Ops",
+    items: [
+      {
+        id: "portfolio-write-offs",
+        label: "Write-offs",
+        icon: "/images/early_termination_menu.svg",
+      },
+    ],
+  },
+]
+
 export const sidebarUser: SidebarUser = {
   name: "Desmond Nsogbuwa",
   role: "Fleet Manager",

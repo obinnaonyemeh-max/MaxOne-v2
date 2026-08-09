@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom"
 import { Toaster } from "sonner"
 import { PageLayout } from "./PageLayout"
 import { Sidebar, type SidebarItem, type SidebarSection } from "./Sidebar"
-import { sidebarSections, driverGrowthSidebarSections, driverExperienceSidebarSections, falconSidebarSections, sidebarUser } from "@/data/sidebarConfig"
+import { sidebarSections, driverGrowthSidebarSections, driverExperienceSidebarSections, falconSidebarSections, portfolioSidebarSections, sidebarUser } from "@/data/sidebarConfig"
 
 function markActiveSections(sections: SidebarSection[], pathname: string): SidebarSection[] {
   return sections.map((section) => ({
@@ -26,6 +26,7 @@ const appDefaultRoutes: Record<string, string> = {
   "driver-growth": "/growth-activation",
   "driver-experience": "/champion-360",
   "falcon": "/falcon/dashboard",
+  "portfolio": "/portfolio/dashboard",
 }
 
 const driverGrowthPrefixes = ["/growth-activation", "/mcp-management"]
@@ -39,6 +40,7 @@ const driverExperiencePrefixes = [
 
 function getAppIdFromPathname(pathname: string): string {
   if (pathname.startsWith("/falcon")) return "falcon"
+  if (pathname.startsWith("/portfolio")) return "portfolio"
   if (driverGrowthPrefixes.some((prefix) => pathname.startsWith(prefix))) return "driver-growth"
   if (driverExperiencePrefixes.some((prefix) => pathname.startsWith(prefix))) return "driver-experience"
   return "fleet-operations"
@@ -57,6 +59,7 @@ export function AppLayout({ children }: AppLayoutProps) {
     selectedAppId === "driver-growth" ? driverGrowthSidebarSections :
     selectedAppId === "driver-experience" ? driverExperienceSidebarSections :
     selectedAppId === "falcon" ? falconSidebarSections :
+    selectedAppId === "portfolio" ? portfolioSidebarSections :
     sidebarSections
 
   const activeSections = markActiveSections(sections, location.pathname)

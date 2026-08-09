@@ -41,6 +41,7 @@ import BatteryDetailsPage from "@/pages/battery-register/BatteryDetailsPage"
 import ChargerRegisterPage from "@/pages/charger-register/ChargerRegisterPage"
 import ChargerDetailsPage from "@/pages/charger-register/ChargerDetailsPage"
 import ChargeSpotsPage from "@/pages/charger-register/ChargeSpotsPage"
+import PortfolioDashboardPage from "@/pages/PortfolioDashboardPage"
 
 export default function App() {
   return (
@@ -92,6 +93,8 @@ export default function App() {
         <Route path="/falcon/ev-chargers" element={<ChargerRegisterPage />} />
         <Route path="/falcon/ev-chargers/:id/charge-spots" element={<ChargeSpotsPage />} />
         <Route path="/falcon/ev-chargers/:id" element={<ChargerDetailsPage />} />
+        <Route path="/portfolio" element={<Navigate to="/portfolio/dashboard" replace />} />
+        <Route path="/portfolio/dashboard" element={<PortfolioDashboardPage />} />
       </Routes>
     </AppLayout>
   )

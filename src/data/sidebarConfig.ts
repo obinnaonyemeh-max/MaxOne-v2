@@ -397,11 +397,13 @@ export const portfolioSidebarSections: SidebarSection[] = [
         id: "portfolio-champion-overview",
         label: "Champion Overview",
         icon: "/images/agent_menu.svg",
+        href: "/portfolio/champions/overview",
       },
       {
         id: "portfolio-referral-management",
         label: "Referral Management",
         icon: "/images/referral_menu.svg",
+        href: "/portfolio/champions/referrals",
       },
       {
         id: "portfolio-blacklist",

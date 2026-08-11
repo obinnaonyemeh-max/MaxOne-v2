@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from "react"
-import { useParams, useNavigate } from "react-router-dom"
+import { useParams, useNavigate, useLocation } from "react-router-dom"
 import { type ColumnDef } from "@tanstack/react-table"
 
 import {
@@ -237,10 +237,195 @@ const interactionTypeVariantMap: Record<WelfareNote["interactionType"], "default
   "Welfare Complaint": "danger",
 }
 
+interface PenaltyFeeLog {
+  chargeType: string
+  posted: string
+  amount: number
+  status: "Settled" | "Outstanding"
+  settledAt: string | null
+}
+
+const penaltyFeeLogs: PenaltyFeeLog[] = [
+  { chargeType: "Late Remittance", posted: "24 Jul 2026, 09:12 AM", amount: 1500, status: "Settled", settledAt: "24 Jul 2026, 06:04 PM" },
+  { chargeType: "Missed Direct Debit", posted: "10 Jul 2026, 07:00 AM", amount: 2500, status: "Settled", settledAt: "11 Jul 2026, 10:22 AM" },
+  { chargeType: "Reactivation Fee", posted: "02 Jun 2026, 11:45 AM", amount: 5000, status: "Outstanding", settledAt: null },
+]
+
+const penaltyFeeStatusVariant: Record<PenaltyFeeLog["status"], "success" | "danger"> = {
+  Settled: "success",
+  Outstanding: "danger",
+}
+
+function formatFeeAmount(amount: number): string {
+  return amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+}
+
+const penaltyFeeColumns: ColumnDef<PenaltyFeeLog>[] = [
+  {
+    accessorKey: "chargeType",
+    header: "Charge Type",
+    cell: ({ row }) => (
+      <span className="font-medium text-table-text-primary text-sm">{row.original.chargeType}</span>
+    ),
+  },
+  {
+    accessorKey: "posted",
+    header: "Posted",
+    cell: ({ row }) => (
+      <span className="font-medium text-table-text text-sm">{row.original.posted}</span>
+    ),
+  },
+  {
+    accessorKey: "amount",
+    header: "Amount",
+    cell: ({ row }) => (
+      <span className="font-medium text-table-text text-sm">{formatFeeAmount(row.original.amount)}</span>
+    ),
+  },
+  {
+    accessorKey: "status",
+    header: "Status",
+    cell: ({ row }) => (
+      <StatusBadge variant={penaltyFeeStatusVariant[row.original.status]} withDot>
+        {row.original.status}
+      </StatusBadge>
+    ),
+  },
+  {
+    accessorKey: "settledAt",
+    header: "Settled At",
+    cell: ({ row }) =>
+      row.original.settledAt ? (
+        <span className="font-medium text-table-text text-sm">{row.original.settledAt}</span>
+      ) : (
+        <span className="text-muted-foreground text-sm">—</span>
+      ),
+  },
+]
+
+interface AmortizationRow {
+  periodClosing: number
+  date: string
+  repayment: number
+  amountPaid: number
+  paymentDate: string
+  cumulativeExpected: number
+  cumulativeAmountPaid: number
+  dailyUpdateStatus: "Success" | "Failed"
+  status: "Active" | "Closed"
+}
+
+const amortizationSchedule: AmortizationRow[] = [
+  { periodClosing: 1, date: "19 Jul 2024", repayment: 4500, amountPaid: 1250, paymentDate: "19 Jul 2024, 09:12 AM", cumulativeExpected: 90000, cumulativeAmountPaid: 90000, dailyUpdateStatus: "Success", status: "Active" },
+  { periodClosing: 2, date: "20 Jul 2024", repayment: 4500, amountPaid: 8500, paymentDate: "02 Aug 2024, 10:45 AM", cumulativeExpected: 252000, cumulativeAmountPaid: 250750, dailyUpdateStatus: "Success", status: "Active" },
+  { periodClosing: 3, date: "21 Jul 2024", repayment: 4500, amountPaid: 7000, paymentDate: "16 Aug 2024, 02:30 PM", cumulativeExpected: 486000, cumulativeAmountPaid: 483500, dailyUpdateStatus: "Success", status: "Active" },
+  { periodClosing: 4, date: "22 Jul 2024", repayment: 4500, amountPaid: 10000, paymentDate: "30 Aug 2024, 11:20 AM", cumulativeExpected: 792000, cumulativeAmountPaid: 788250, dailyUpdateStatus: "Success", status: "Active" },
+  { periodClosing: 5, date: "23 Jul 2024", repayment: 4500, amountPaid: 6000, paymentDate: "13 Sep 2024, 04:05 PM", cumulativeExpected: 1170000, cumulativeAmountPaid: 1170000, dailyUpdateStatus: "Success", status: "Active" },
+]
+
+const dailyUpdateStatusVariant: Record<AmortizationRow["dailyUpdateStatus"], "success" | "danger"> = {
+  Success: "success",
+  Failed: "danger",
+}
+
+const amortizationStatusVariant: Record<AmortizationRow["status"], "info" | "default"> = {
+  Active: "info",
+  Closed: "default",
+}
+
+const amortizationColumns: ColumnDef<AmortizationRow>[] = [
+  {
+    accessorKey: "periodClosing",
+    header: "Period Closing",
+    cell: ({ row }) => (
+      <span className="font-medium text-table-text-primary text-sm">{row.original.periodClosing}</span>
+    ),
+  },
+  {
+    accessorKey: "date",
+    header: "Date",
+    cell: ({ row }) => (
+      <span className="font-medium text-table-text text-sm">{row.original.date}</span>
+    ),
+  },
+  {
+    accessorKey: "repayment",
+    header: "Repayment",
+    cell: ({ row }) => (
+      <span className="font-medium text-table-text text-sm">{formatFeeAmount(row.original.repayment)}</span>
+    ),
+  },
+  {
+    accessorKey: "amountPaid",
+    header: "Amount Paid",
+    cell: ({ row }) => (
+      <span className="font-medium text-table-text text-sm">{formatFeeAmount(row.original.amountPaid)}</span>
+    ),
+  },
+  {
+    accessorKey: "paymentDate",
+    header: "Payment Date",
+    cell: ({ row }) => (
+      <span className="font-medium text-table-text text-sm">{row.original.paymentDate}</span>
+    ),
+  },
+  {
+    accessorKey: "cumulativeExpected",
+    header: "Cumulative Expected",
+    cell: ({ row }) => (
+      <span className="font-medium text-table-text text-sm">{formatFeeAmount(row.original.cumulativeExpected)}</span>
+    ),
+  },
+  {
+    accessorKey: "cumulativeAmountPaid",
+    header: "Cumulative Amount Paid",
+    cell: ({ row }) => (
+      <span className="font-medium text-table-text text-sm">{formatFeeAmount(row.original.cumulativeAmountPaid)}</span>
+    ),
+  },
+  {
+    accessorKey: "dailyUpdateStatus",
+    header: "Daily Update Status",
+    cell: ({ row }) => (
+      <StatusBadge variant={dailyUpdateStatusVariant[row.original.dailyUpdateStatus]} withDot>
+        {row.original.dailyUpdateStatus}
+      </StatusBadge>
+    ),
+  },
+  {
+    accessorKey: "status",
+    header: "Status",
+    cell: ({ row }) => (
+      <StatusBadge variant={amortizationStatusVariant[row.original.status]} withDot>
+        {row.original.status}
+      </StatusBadge>
+    ),
+  },
+]
+
 export default function ChampionDetailPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const location = useLocation()
   const champion = getChampionDetails(id || "1")
+
+  // The same detail page is reachable from Driver Experience (Champion 360) and
+  // from the Portfolio > Champions > Champion Overview list. Adapt breadcrumb/back
+  // so the user stays in the app they came from.
+  const inPortfolio = location.pathname.startsWith("/portfolio")
+  const backPath = inPortfolio ? "/portfolio/champions/overview" : "/champion-360"
+  const breadcrumbs = inPortfolio
+    ? [
+        { label: "Portfolio" },
+        { label: "Champions" },
+        { label: "Champion Overview", href: "/portfolio/champions/overview" },
+        { label: champion.name },
+      ]
+    : [
+        { label: "Driver Experience" },
+        { label: "Champion 360", href: "/champion-360" },
+        { label: champion.name },
+      ]
 
   const [showCreateTimeOff, setShowCreateTimeOff] = useState(false)
   const [showLeaveHistory, setShowLeaveHistory] = useState(false)
@@ -287,20 +472,14 @@ export default function ChampionDetailPage() {
 
   return (
     <>
-      <TopBar
-        breadcrumbs={[
-          { label: "Driver Experience" },
-          { label: "Champion 360", href: "/champion-360" },
-          { label: champion.name },
-        ]}
-      />
+      <TopBar breadcrumbs={breadcrumbs} />
 
       <div className="flex-1 overflow-y-auto">
         <div className="px-6 py-6">
           <div className="flex items-start justify-between">
             <div>
               <div className="flex items-center gap-2">
-                <BackButton onClick={() => navigate("/champion-360")} />
+                <BackButton onClick={() => navigate(backPath)} />
                 <h1 className="flex items-end gap-1 font-semibold text-sidebar-item-active" style={{ fontSize: "22px" }}>
                   {champion.name}
                   <span className="mb-2 h-1.5 w-1.5 rounded-full bg-brand-primary" />
@@ -346,12 +525,14 @@ export default function ChampionDetailPage() {
                   <TabsTrigger value="contracts" className={tabTriggerClass}>Contracts</TabsTrigger>
                   <TabsTrigger value="asset" className={tabTriggerClass}>Asset</TabsTrigger>
                   <TabsTrigger value="wallet" className={tabTriggerClass}>Wallet</TabsTrigger>
-                  <TabsTrigger value="fieldops" className={tabTriggerClass}>FieldOps History</TabsTrigger>
+                  {!inPortfolio && <TabsTrigger value="fieldops" className={tabTriggerClass}>FieldOps History</TabsTrigger>}
                   <TabsTrigger value="guarantors" className={tabTriggerClass}>Guarantors</TabsTrigger>
-                  <TabsTrigger value="tickets" className={tabTriggerClass}>Tickets</TabsTrigger>
-                  <TabsTrigger value="welfare" className={tabTriggerClass}>Welfare Notes</TabsTrigger>
-                  <TabsTrigger value="hmo" className={tabTriggerClass}>HMO Details</TabsTrigger>
-                  <TabsTrigger value="timeoff" className={tabTriggerClass}>Time-Off</TabsTrigger>
+                  {!inPortfolio && <TabsTrigger value="tickets" className={tabTriggerClass}>Tickets</TabsTrigger>}
+                  {!inPortfolio && <TabsTrigger value="welfare" className={tabTriggerClass}>Welfare Notes</TabsTrigger>}
+                  {!inPortfolio && <TabsTrigger value="hmo" className={tabTriggerClass}>HMO Details</TabsTrigger>}
+                  {!inPortfolio && <TabsTrigger value="timeoff" className={tabTriggerClass}>Time-Off</TabsTrigger>}
+                  {inPortfolio && <TabsTrigger value="penalty-fees" className={tabTriggerClass}>Penalty fee logs</TabsTrigger>}
+                  {inPortfolio && <TabsTrigger value="amortization" className={tabTriggerClass}>Amortization schedule</TabsTrigger>}
 
                 </TabsList>
               </div>
@@ -815,6 +996,32 @@ export default function ChampionDetailPage() {
                         </span>
                       </div>
                     </div>
+                  </div>
+                </div>
+              </TabsContent>
+
+              {/* Penalty Fee Logs Tab (Portfolio) */}
+              <TabsContent value="penalty-fees" className="mt-0 flex-1 min-h-0 overflow-y-auto">
+                <div className="rounded-[14px] border border-table-border overflow-hidden">
+                  <div className="px-4 py-3 bg-content-card border-b border-table-border">
+                    <h3 className="font-semibold text-sm text-sidebar-item-active">Penalty Fee Logs</h3>
+                  </div>
+                  <DataTable columns={penaltyFeeColumns} data={penaltyFeeLogs} />
+                </div>
+              </TabsContent>
+
+              {/* Amortization Schedule Tab (Portfolio) */}
+              <TabsContent value="amortization" className="mt-0 flex-1 min-h-0 overflow-y-auto">
+                <div className="rounded-[14px] border border-table-border overflow-hidden">
+                  <div className="px-4 py-3 bg-content-card border-b border-table-border">
+                    <h3 className="font-semibold text-sm text-sidebar-item-active">Amortization Schedule</h3>
+                  </div>
+                  <div className="overflow-x-auto">
+                    <DataTable
+                      columns={amortizationColumns}
+                      data={amortizationSchedule}
+                      className="min-w-[1200px]"
+                    />
                   </div>
                 </div>
               </TabsContent>

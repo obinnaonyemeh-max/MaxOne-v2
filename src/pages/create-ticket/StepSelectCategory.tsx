@@ -99,7 +99,7 @@ export function StepSelectCategory({
                   {category.name}
                 </p>
                 <p className="mt-0.5 text-breadcrumb-root" style={{ fontSize: "12px" }}>
-                  {category.subcategoryCount} subcategories
+                  {`${category.subcategoryCount} subcategories`}
                 </p>
               </div>
             </button>

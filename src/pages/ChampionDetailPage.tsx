@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from "react"
-import { useParams, useNavigate } from "react-router-dom"
+import { useParams, useNavigate, useSearchParams } from "react-router-dom"
 import { type ColumnDef } from "@tanstack/react-table"
 
 import {
@@ -240,7 +240,13 @@ const interactionTypeVariantMap: Record<WelfareNote["interactionType"], "default
 export default function ChampionDetailPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
   const champion = getChampionDetails(id || "1")
+
+  const activeTab = searchParams.get("tab") || "biodata"
+  const handleTabChange = (value: string) => {
+    setSearchParams({ tab: value }, { replace: true })
+  }
 
   const [showCreateTimeOff, setShowCreateTimeOff] = useState(false)
   const [showLeaveHistory, setShowLeaveHistory] = useState(false)
@@ -332,7 +338,7 @@ export default function ChampionDetailPage() {
 
           {/* Right Column */}
           <div className="flex-1 min-w-0 self-stretch flex flex-col">
-            <Tabs defaultValue="biodata" className="flex flex-col flex-1 min-h-0 overflow-hidden">
+            <Tabs value={activeTab} onValueChange={handleTabChange} className="flex flex-col flex-1 min-h-0 overflow-hidden">
               <div
                 ref={tabsScrollRef}
                 className="shrink-0 overflow-x-auto scrollbar-hide pb-1.5 cursor-grab select-none"

@@ -27,6 +27,8 @@ import CreateTicketPage from "@/pages/CreateTicketPage"
 import DriverSafetyScorePage from "@/pages/DriverSafetyScorePage"
 import WelfarePage from "@/pages/WelfarePage"
 import PerformancePage from "@/pages/PerformancePage"
+import ApprovalsPage from "@/pages/ApprovalsPage"
+import DriverExperienceDashboardPage from "@/pages/DriverExperienceDashboardPage"
 
 export default function App() {
   return (
@@ -64,6 +66,8 @@ export default function App() {
         <Route path="/driver-safety-score" element={<DriverSafetyScorePage />} />
         <Route path="/welfare" element={<WelfarePage />} />
         <Route path="/performance" element={<PerformancePage />} />
+        <Route path="/driver-experience/dashboard" element={<DriverExperienceDashboardPage />} />
+        <Route path="/driver-experience/approvals" element={<ApprovalsPage />} />
       </Routes>
     </AppLayout>
   )

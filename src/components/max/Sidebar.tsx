@@ -460,10 +460,10 @@ export function Sidebar({ logo, collapsedLogo, sections, user, onItemClick, isCo
   }
 
   const handleToggleSectionExpand = (sectionId: string) => {
-    setExpandedSections((current) => 
+    setExpandedSections((current) =>
       current.includes(sectionId)
         ? current.filter((id) => id !== sectionId)
-        : [...current, sectionId]
+        : [sectionId]
     )
   }
 

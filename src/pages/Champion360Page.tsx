@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { type ColumnDef } from "@tanstack/react-table"
-import { Search, SlidersHorizontal } from "lucide-react"
+import { Search, SlidersHorizontal, ArrowLeftRight } from "lucide-react"
 
 import {
   TopBar,
@@ -13,6 +13,7 @@ import {
   getActiveFilterCount,
   type FilterSection,
   type GenericFilterState,
+  Banner,
 } from "@/components/max"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -21,6 +22,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import { mockMarkedTransfers } from "@/data/mockMarkedTransfers"
 
 interface Champion {
   id: string
@@ -519,9 +521,12 @@ const mockChampions: Champion[] = [
 ]
 
 const totalChampions = mockChampions.length
-const fullyPaidCount = mockChampions.filter((c) => c.outstandingBalance === 0).length
-const balanceDueCount = mockChampions.filter((c) => c.outstandingBalance > 0).length
-const totalOutstanding = mockChampions.reduce((sum, c) => sum + c.outstandingBalance, 0)
+const activeChampionCount = mockChampions.filter((c) => {
+  const lastActive = new Date(c.lastActiveDate)
+  const sevenDaysAgo = new Date("2026-05-24")
+  return lastActive > sevenDaysAgo
+}).length
+const inactiveChampionCount = totalChampions - activeChampionCount
 
 const championStats = [
   {
@@ -532,22 +537,17 @@ const championStats = [
     indicatorColor: "var(--color-brand-primary)",
   },
   {
-    title: "Fully Paid",
-    value: fullyPaidCount,
-    subtitle: `${Math.round((fullyPaidCount / totalChampions) * 100)}% of champions`,
+    title: "Active Champions",
+    value: activeChampionCount,
+    subtitle: `${Math.round((activeChampionCount / totalChampions) * 100)}% of champions`,
     trend: { value: 4.2, direction: "up" as const },
     indicatorColor: "var(--color-status-success)",
   },
   {
-    title: "Balance Due",
-    value: balanceDueCount,
-    subtitle: `${Math.round((balanceDueCount / totalChampions) * 100)}% of champions`,
+    title: "Inactive Champions",
+    value: inactiveChampionCount,
+    subtitle: `${Math.round((inactiveChampionCount / totalChampions) * 100)}% of champions`,
     trend: { value: 1.8, direction: "down" as const },
-    indicatorColor: "var(--color-status-warning)",
-  },
-  {
-    title: "Total Outstanding",
-    value: "₦" + totalOutstanding.toLocaleString(),
     indicatorColor: "var(--color-status-danger)",
   },
 ]
@@ -686,7 +686,22 @@ export default function Champion360Page() {
         className="shrink-0"
       />
 
-      <div className="px-6 grid grid-cols-4 gap-2 shrink-0 mb-4">
+      <div className="px-6 mb-4">
+        <Banner
+          variant="info"
+          icon={<ArrowLeftRight className="h-5 w-5 text-status-info" />}
+          title={`${mockMarkedTransfers.filter((r) => r.status === "Pending").length} pending approval(s) require your attention`}
+          description="Review and process pending ownership transfers and time-off requests."
+          action={
+            <Button size="sm" onClick={() => navigate("/driver-experience/approvals")}>
+              View Approvals
+            </Button>
+          }
+        />
+      </div>
+
+      <div className="flex-1 overflow-y-auto">
+      <div className="px-6 grid grid-cols-3 gap-2 shrink-0 mb-4">
         {championStats.map((stat) => (
           <StatCard
             key={stat.title}
@@ -699,8 +714,8 @@ export default function Champion360Page() {
         ))}
       </div>
 
-      <div className="px-6 flex flex-col flex-1 min-h-0">
-        <div className="flex-1 flex flex-col min-h-0 rounded-t-[14px] rounded-b-[4px] border border-table-border">
+      <div className="px-6 flex flex-col">
+        <div className="flex flex-col rounded-t-[14px] rounded-b-[4px] border border-table-border">
           <div className="flex items-center gap-2 px-2 py-2">
             <Popover>
               <PopoverTrigger asChild>
@@ -758,7 +773,7 @@ export default function Champion360Page() {
             )}
           </div>
 
-          <div className="flex-1 overflow-y-auto">
+          <div>
             <DataTable
               columns={columns}
               data={paginatedChampions}
@@ -778,6 +793,7 @@ export default function Champion360Page() {
             itemLabel="champions"
           />
         </div>
+      </div>
       </div>
     </>
   )

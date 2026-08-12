@@ -65,6 +65,7 @@ export interface TicketDetail {
 
   // Section 7: SLA Tracking (timeline entries)
   slaTimeline: TimelineEntryData[]
+
 }
 
 const ticketDetails: Record<string, TicketDetail> = {

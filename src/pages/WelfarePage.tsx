@@ -122,6 +122,11 @@ const mockWelfareRecords: WelfareChampion[] = [
     nextFollowUp: "3 Jun 2026",
     issuesLogged: 7,
     phoneNumber: "+234 804 567 8901",
+    transferRejection: {
+      date: "5 Jul 2026",
+      ownershipType: "Outright Payment",
+      rejectionReason: "Outstanding hire-purchase balance of ₦200,000 must be fully settled before outright ownership transfer can be processed.",
+    },
   },
   {
     id: "5",
@@ -164,6 +169,11 @@ const mockWelfareRecords: WelfareChampion[] = [
     nextFollowUp: "4 Jun 2026",
     issuesLogged: 5,
     phoneNumber: "+234 807 890 1234",
+    transferRejection: {
+      date: "1 Jul 2026",
+      ownershipType: "Outright Payment",
+      rejectionReason: "Required documents (NIN verification, proof of final payment, and vehicle inspection report) were not provided. Please resubmit with complete documentation.",
+    },
   },
   {
     id: "8",
@@ -362,17 +372,17 @@ function getColumns(onLogNote: (champion: WelfareChampion) => void): ColumnDef<W
       },
     },
     {
-      accessorKey: "issuesLogged",
-      header: "Issues Logged",
-      cell: ({ row }) => {
-        const count = row.original.issuesLogged
-        const color = count > 3 ? "text-badge-inactive-text" : count > 0 ? "text-status-warning" : "text-table-text"
-        return (
-          <span className={`font-medium ${color}`} style={{ fontSize: "13px" }}>
-            {count}
-          </span>
+      id: "escalationSource",
+      header: "Escalation Source",
+      cell: ({ row }) => (
+        row.original.transferRejection ? (
+          <StatusBadge variant="danger" size="sm">
+            Transfer Rejected
+          </StatusBadge>
+        ) : (
+          <span className="text-table-text" style={{ fontSize: "13px" }}>—</span>
         )
-      },
+      ),
     },
     {
       id: "actions",
@@ -446,6 +456,14 @@ const welfareFilterSections: FilterSection[] = [
       { value: "overdue", label: "Overdue", color: "var(--color-badge-inactive-text)" },
       { value: "today", label: "Due Today", color: "var(--color-status-warning)" },
       { value: "upcoming", label: "Upcoming", color: "var(--color-badge-active-text)" },
+    ],
+  },
+  {
+    id: "escalationSource",
+    title: "Escalation Source",
+    options: [
+      { value: "Transfer Rejected", label: "Transfer Rejected", color: "var(--color-badge-inactive-text)" },
+      { value: "None", label: "None" },
     ],
   },
 ]
@@ -608,6 +626,14 @@ export default function WelfarePage() {
 
       const followUpBuckets = filters.nextFollowUp || []
       if (followUpBuckets.length > 0 && !followUpBuckets.includes(classifyFollowUp(record.nextFollowUp))) return false
+
+      const escalationSources = filters.escalationSource || []
+      if (escalationSources.length > 0) {
+        const hasRejection = !!record.transferRejection
+        const matchesTransferRejected = escalationSources.includes("Transfer Rejected") && hasRejection
+        const matchesNone = escalationSources.includes("None") && !hasRejection
+        if (!matchesTransferRejected && !matchesNone) return false
+      }
 
       return true
     })

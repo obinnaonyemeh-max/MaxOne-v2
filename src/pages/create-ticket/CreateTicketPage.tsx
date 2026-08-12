@@ -106,15 +106,19 @@ function isNextEnabled(state: WizardState): boolean {
       return state.selectedCategory !== null
     case 3:
       return state.selectedSubcategory !== null
-    case 4:
-      return (
+    case 4: {
+      const baseValid =
         state.details.platform !== "" &&
         state.details.reporter.trim() !== "" &&
         state.details.priority !== "" &&
-        state.details.city !== "" &&
+        state.details.city !== ""
+
+      return (
+        baseValid &&
         state.details.date !== undefined &&
         state.details.incidentDescription.trim() !== ""
       )
+    }
     default:
       return false
   }
@@ -127,15 +131,15 @@ export default function CreateTicketPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleNext = () => {
-    if (isNextEnabled(state) && state.currentStep < 4) {
-      dispatch({ type: "SET_STEP", step: (state.currentStep + 1) as WizardStep })
-    }
+    if (!isNextEnabled(state) || state.currentStep >= 4) return
+
+    dispatch({ type: "SET_STEP", step: (state.currentStep + 1) as WizardStep })
   }
 
   const handleBack = () => {
-    if (state.currentStep > 1) {
-      dispatch({ type: "SET_STEP", step: (state.currentStep - 1) as WizardStep })
-    }
+    if (state.currentStep <= 1) return
+
+    dispatch({ type: "SET_STEP", step: (state.currentStep - 1) as WizardStep })
   }
 
   const handleCancel = () => {
@@ -149,13 +153,14 @@ export default function CreateTicketPage() {
 
   const handleSubmit = () => {
     setIsSubmitting(true)
+    const { attachments, ...restDetails } = state.details
     console.log("Submitting ticket:", {
       champion: state.selectedChampion?.name,
       category: state.selectedCategory?.name,
       subcategory: state.selectedSubcategory?.name,
       details: {
-        ...state.details,
-        attachments: state.details.attachments.map((f) => f.name),
+        ...restDetails,
+        attachments: attachments.map((f) => f.name),
       },
     })
     setTimeout(() => {

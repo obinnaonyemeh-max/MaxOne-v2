@@ -16,10 +16,23 @@ import {
   StatusTimeline,
   MaxIDCard,
   AssignmentHistoryCard,
+  Modal,
+  GenericFilterPopover,
+  getActiveFilterCount,
+  type FilterSection,
+  type GenericFilterState,
 } from "@/components/max"
+import { format } from "date-fns"
+import { AddPaymentTransactionFlow } from "@/pages/portfolio/AddPaymentTransactionFlow"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import { Phone, MessageSquare, MessageCircle, User, Plus, History, ChevronDown } from "lucide-react"
+import { Phone, MessageSquare, MessageCircle, User, Plus, History, ChevronDown, SlidersHorizontal, Search, RotateCcw } from "lucide-react"
+import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 import {
   Dialog,
   DialogContent,
@@ -403,6 +416,18 @@ const amortizationColumns: ColumnDef<AmortizationRow>[] = [
   },
 ]
 
+const walletFilterSections: FilterSection[] = [
+  {
+    id: "transactionType",
+    title: "Transaction Type",
+    defaultExpanded: true,
+    options: [
+      { value: "Credit", label: "Credit" },
+      { value: "Debit", label: "Debit" },
+    ],
+  },
+]
+
 export default function ChampionDetailPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
@@ -433,6 +458,64 @@ export default function ChampionDetailPage() {
   const [assignmentIndex, setAssignmentIndex] = useState(0)
   const [showAssignmentHistory, setShowAssignmentHistory] = useState(false)
   const [showMovementLog, setShowMovementLog] = useState(false)
+
+  // Wallet transactions: local list (so new ones can be added) + type filter
+  const [walletTransactions, setWalletTransactions] = useState<WalletTransaction[]>(champion.wallet.transactions)
+  const [walletFilters, setWalletFilters] = useState<GenericFilterState>({ transactionType: [] })
+  const [showAddTransaction, setShowAddTransaction] = useState(false)
+  const [walletSearchOpen, setWalletSearchOpen] = useState(false)
+  const [walletSearchQuery, setWalletSearchQuery] = useState("")
+  const [showRefund, setShowRefund] = useState(false)
+  const [refundAmount, setRefundAmount] = useState("")
+  const walletFilterCount = getActiveFilterCount(walletFilters)
+
+  const filteredWalletTransactions = walletTransactions.filter((t) => {
+    if (walletFilters.transactionType.length && !walletFilters.transactionType.includes(t.transactionType)) return false
+    if (walletSearchQuery) {
+      const q = walletSearchQuery.toLowerCase()
+      if (
+        !t.referenceId.toLowerCase().includes(q) &&
+        !t.transactionType.toLowerCase().includes(q) &&
+        !t.amount.toLowerCase().includes(q) &&
+        !t.status.toLowerCase().includes(q) &&
+        !t.date.toLowerCase().includes(q)
+      )
+        return false
+    }
+    return true
+  })
+
+  const handleConfirmPayment = ({ referenceId, amount }: { referenceId: string; channel: string; amount: string }) => {
+    setWalletTransactions((prev) => [
+      {
+        id: `tx-${prev.length + 1}-${referenceId}`,
+        date: format(new Date(), "dd MMM yyyy"),
+        referenceId,
+        transactionType: "Debit",
+        amount,
+        status: "Successful",
+      },
+      ...prev,
+    ])
+  }
+
+  const handleRefund = () => {
+    const amount = refundAmount.trim().startsWith("₦") ? refundAmount.trim() : `₦${refundAmount.trim()}`
+    setWalletTransactions((prev) => [
+      {
+        id: `refund-${prev.length + 1}`,
+        date: format(new Date(), "dd MMM yyyy"),
+        referenceId: "REFUND",
+        transactionType: "Credit",
+        amount,
+        status: "Successful",
+      },
+      ...prev,
+    ])
+    toast.success("Wallet credit refunded")
+    setRefundAmount("")
+    setShowRefund(false)
+  }
 
   const tabsScrollRef = useRef<HTMLDivElement>(null)
   const dragState = useRef({ isDown: false, startX: 0, scrollLeft: 0 })
@@ -631,6 +714,7 @@ export default function ChampionDetailPage() {
                     />
                   </InfoCard>
 
+                  {!inPortfolio && (
                   <InfoCard title="VEHICLE IDENTIFICATION">
                     <InfoGrid
                       columns={4}
@@ -643,6 +727,7 @@ export default function ChampionDetailPage() {
                       ]}
                     />
                   </InfoCard>
+                  )}
 
                   <InfoCard title="VENDOR & FINANCIAL DETAILS">
                     <InfoGrid
@@ -655,6 +740,7 @@ export default function ChampionDetailPage() {
                     />
                   </InfoCard>
 
+                  {!inPortfolio && (
                   <InfoCard title="ASSIGNMENT, LOCATION & DATES">
                     <InfoGrid
                       columns={4}
@@ -667,7 +753,9 @@ export default function ChampionDetailPage() {
                       ]}
                     />
                   </InfoCard>
+                  )}
 
+                  {!inPortfolio && (
                   <InfoCard title="TELEMATICS DETAILS">
                     <InfoGrid
                       columns={4}
@@ -680,8 +768,10 @@ export default function ChampionDetailPage() {
                       ]}
                     />
                   </InfoCard>
+                  )}
                 </div>
 
+                {!inPortfolio && (
                 <div className="mt-3 rounded-lg border border-border overflow-hidden">
                   <button
                     type="button"
@@ -709,17 +799,24 @@ export default function ChampionDetailPage() {
                     </div>
                   )}
                 </div>
+                )}
 
                 <div className="mt-3 rounded-[14px] border border-table-border overflow-hidden">
-                  <button
-                    type="button"
-                    className="w-full flex items-center justify-between px-4 py-3 bg-content-card hover:bg-gray-50 transition-colors cursor-pointer"
-                    onClick={() => setShowMovementLog((prev) => !prev)}
-                  >
-                    <h3 className="font-semibold text-sm text-sidebar-item-active">Movement Log</h3>
-                    <ChevronDown className={`h-4 w-4 text-breadcrumb-root transition-transform ${showMovementLog ? "rotate-180" : ""}`} />
-                  </button>
-                  {showMovementLog && (
+                  {inPortfolio ? (
+                    <div className="flex items-center px-4 py-3 bg-content-card">
+                      <h3 className="font-semibold text-sm text-sidebar-item-active">Movement Log</h3>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      className="w-full flex items-center justify-between px-4 py-3 bg-content-card hover:bg-gray-50 transition-colors cursor-pointer"
+                      onClick={() => setShowMovementLog((prev) => !prev)}
+                    >
+                      <h3 className="font-semibold text-sm text-sidebar-item-active">Movement Log</h3>
+                      <ChevronDown className={`h-4 w-4 text-breadcrumb-root transition-transform ${showMovementLog ? "rotate-180" : ""}`} />
+                    </button>
+                  )}
+                  {(inPortfolio || showMovementLog) && (
                     <div className="border-t border-table-border">
                       <DataTable
                         columns={movementLogColumns}
@@ -754,12 +851,98 @@ export default function ChampionDetailPage() {
                   </InfoCard>
                 </div>
                 <div className="mt-3 rounded-[14px] border border-table-border overflow-hidden">
-                  <div className="px-4 py-3 bg-content-card border-b border-table-border">
-                    <h3 className="font-semibold text-sm text-sidebar-item-active">Wallet Transactions</h3>
+                  <div className="flex items-center justify-between px-4 py-3 bg-content-card border-b border-table-border">
+                    <div className="flex items-center gap-3">
+                      {!inPortfolio && (
+                        <h3 className="font-semibold text-sm text-sidebar-item-active">Wallet Transactions</h3>
+                      )}
+                      {inPortfolio && (
+                        <>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <Button variant="outline" className="h-9 gap-2">
+                                <SlidersHorizontal className="h-4 w-4" />
+                                <span className="text-sm">Filter</span>
+                                {walletFilterCount > 0 && (
+                                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-brand-dark text-xs text-white">
+                                    {walletFilterCount}
+                                  </span>
+                                )}
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-2" align="start">
+                              <GenericFilterPopover
+                                sections={walletFilterSections}
+                                filters={walletFilters}
+                                onFiltersChange={setWalletFilters}
+                              />
+                            </PopoverContent>
+                          </Popover>
+
+                          {walletSearchOpen ? (
+                            <div className="flex items-center gap-1">
+                              <Input
+                                type="text"
+                                value={walletSearchQuery}
+                                onChange={(e) => setWalletSearchQuery(e.target.value)}
+                                placeholder="Search transactions..."
+                                className="h-9 w-56"
+                                autoFocus
+                                onKeyDown={(e) => {
+                                  if (e.key === "Escape") {
+                                    setWalletSearchOpen(false)
+                                    setWalletSearchQuery("")
+                                  }
+                                }}
+                              />
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-9 w-9"
+                                onClick={() => {
+                                  setWalletSearchOpen(false)
+                                  setWalletSearchQuery("")
+                                }}
+                              >
+                                ×
+                              </Button>
+                            </div>
+                          ) : (
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              className="h-9 w-9"
+                              onClick={() => setWalletSearchOpen(true)}
+                            >
+                              <Search className="h-4 w-4 text-muted-foreground" />
+                            </Button>
+                          )}
+                        </>
+                      )}
+                    </div>
+                    {inPortfolio && (
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        className="h-9 gap-2"
+                        onClick={() => setShowRefund(true)}
+                      >
+                        <RotateCcw className="h-4 w-4" />
+                        <span className="text-sm">Refund Wallet Credit</span>
+                      </Button>
+                      <Button
+                        className="h-9 gap-2 bg-brand-dark px-3 text-white hover:bg-brand-dark/90"
+                        onClick={() => setShowAddTransaction(true)}
+                      >
+                        <Plus className="h-4 w-4" />
+                        <span className="text-sm">Add New Transaction</span>
+                      </Button>
+                    </div>
+                    )}
                   </div>
                   <DataTable
                     columns={walletTransactionColumns}
-                    data={champion.wallet.transactions}
+                    data={inPortfolio ? filteredWalletTransactions : champion.wallet.transactions}
                   />
                 </div>
               </TabsContent>
@@ -1124,6 +1307,38 @@ export default function ChampionDetailPage() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Add Payment Transaction flow (Portfolio) */}
+      <AddPaymentTransactionFlow
+        open={showAddTransaction}
+        onClose={() => setShowAddTransaction(false)}
+        onConfirm={handleConfirmPayment}
+      />
+
+      {/* Refund Wallet Credit modal (Portfolio) */}
+      <Modal
+        open={showRefund}
+        onOpenChange={setShowRefund}
+        title="Refund Wallet Credit"
+        subtitle="Enter the amount to refund to the wallet"
+        className="max-w-sm"
+        primaryAction={{
+          label: "Refund",
+          onClick: handleRefund,
+          disabled: !refundAmount.trim(),
+        }}
+        secondaryAction={{ label: "Cancel", onClick: () => setShowRefund(false) }}
+      >
+        <div className="flex flex-col gap-1.5">
+          <label className="text-xs font-medium text-breadcrumb-root">Refund Amount</label>
+          <Input
+            value={refundAmount}
+            onChange={(e) => setRefundAmount(e.target.value)}
+            placeholder="₦5,000"
+            className="h-9"
+          />
+        </div>
+      </Modal>
     </>
   )
 }

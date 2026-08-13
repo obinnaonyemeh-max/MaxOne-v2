@@ -10,6 +10,7 @@ import { StepSelectChampion } from "./StepSelectChampion"
 import { StepSelectCategory } from "./StepSelectCategory"
 import { StepSelectSubcategory } from "./StepSelectSubcategory"
 import { StepTicketDetails } from "./StepTicketDetails"
+import { resolveCallScript } from "@/data/callScriptTemplates"
 import type { WizardState, WizardAction, WizardStep } from "./types"
 
 const initialState: WizardState = {
@@ -30,6 +31,7 @@ const initialState: WizardState = {
     incidentDescription: "",
     attachments: [],
   },
+  callScriptAnswers: {},
 }
 
 function wizardReducer(state: WizardState, action: WizardAction): WizardState {
@@ -64,6 +66,7 @@ function wizardReducer(state: WizardState, action: WizardAction): WizardState {
           ...state.details,
           priority: action.subcategory.priorityLevel,
         },
+        callScriptAnswers: {},
       }
 
     case "UPDATE_DETAILS":
@@ -90,6 +93,15 @@ function wizardReducer(state: WizardState, action: WizardAction): WizardState {
         },
       }
 
+    case "UPDATE_CALL_SCRIPT_ANSWER":
+      return {
+        ...state,
+        callScriptAnswers: {
+          ...state.callScriptAnswers,
+          [action.questionId]: action.value,
+        },
+      }
+
     case "RESET":
       return initialState
 
@@ -113,11 +125,21 @@ function isNextEnabled(state: WizardState): boolean {
         state.details.priority !== "" &&
         state.details.city !== ""
 
-      return (
-        baseValid &&
-        state.details.date !== undefined &&
-        state.details.incidentDescription.trim() !== ""
-      )
+      if (!baseValid) return false
+
+      if (state.selectedSubcategory && state.selectedCategory) {
+        const script = resolveCallScript(
+          state.selectedSubcategory.id,
+          state.selectedCategory.id,
+        )
+        const requiredQuestions = script.questions.filter((q) => q.required)
+        const allAnswered = requiredQuestions.every(
+          (q) => (state.callScriptAnswers[q.id] ?? "").trim() !== "",
+        )
+        if (!allAnswered) return false
+      }
+
+      return true
     }
     default:
       return false
@@ -162,6 +184,7 @@ export default function CreateTicketPage() {
         ...restDetails,
         attachments: attachments.map((f) => f.name),
       },
+      callScriptAnswers: state.callScriptAnswers,
     })
     setTimeout(() => {
       setIsSubmitting(false)
@@ -242,8 +265,10 @@ export default function CreateTicketPage() {
                   onUpdateField={(field, value) =>
                     dispatch({ type: "UPDATE_DETAILS", field, value })
                   }
-                  onAddAttachment={(file) => dispatch({ type: "ADD_ATTACHMENT", file })}
-                  onRemoveAttachment={(index) => dispatch({ type: "REMOVE_ATTACHMENT", index })}
+                  callScriptAnswers={state.callScriptAnswers}
+                  onUpdateCallScriptAnswer={(questionId, value) =>
+                    dispatch({ type: "UPDATE_CALL_SCRIPT_ANSWER", questionId, value })
+                  }
                 />
               )}
 

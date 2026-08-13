@@ -41,6 +41,9 @@ import {
   Pause,
   Clock,
   Loader2,
+  ChevronDown,
+  Megaphone,
+  RefreshCw,
   type LucideIcon,
 } from "lucide-react"
 import { toast } from "sonner"
@@ -180,6 +183,11 @@ const escalationOfficerList = [
   { name: "Kolawole Ajayi", role: "VP Operations" },
 ]
 
+const sectionKeys = ["incident", "recordings", "callscript", "champion", "agent", "vehicle", "contract", "sla"] as const
+type SectionKey = typeof sectionKeys[number]
+
+const changeableStatuses = ["Open", "In Progress", "Pending Feedback"] as const
+
 export function TicketDetailSheet({ ticket, isOpen, onClose }: TicketDetailSheetProps) {
   const [showCommentInput, setShowCommentInput] = useState(false)
   const [commentText, setCommentText] = useState("")
@@ -193,7 +201,14 @@ export function TicketDetailSheet({ ticket, isOpen, onClose }: TicketDetailSheet
   const [escalateOfficer, setEscalateOfficer] = useState("")
   const [escalateReason, setEscalateReason] = useState("")
   const [showCloseTicket, setShowCloseTicket] = useState(false)
+  const [showChangeStatus, setShowChangeStatus] = useState(false)
+  const [newStatus, setNewStatus] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [openSection, setOpenSection] = useState<SectionKey>("incident")
+
+  const toggleSection = (key: SectionKey) => {
+    setOpenSection((prev) => (prev === key ? key : key))
+  }
 
   // Reset local state when ticket changes
   useEffect(() => {
@@ -207,7 +222,10 @@ export function TicketDetailSheet({ ticket, isOpen, onClose }: TicketDetailSheet
     setEscalateOfficer("")
     setEscalateReason("")
     setShowCloseTicket(false)
+    setShowChangeStatus(false)
+    setNewStatus("")
     setIsSubmitting(false)
+    setOpenSection("incident")
   }, [ticket?.id])
 
   if (!ticket) return null
@@ -244,6 +262,18 @@ export function TicketDetailSheet({ ticket, isOpen, onClose }: TicketDetailSheet
       onClose()
       toast.success("Ticket closed successfully", {
         description: `${ticket.ticketId} has been marked as Resolved.`,
+      })
+    }, 1500)
+  }
+
+  const handleChangeStatus = () => {
+    setIsSubmitting(true)
+    setTimeout(() => {
+      setIsSubmitting(false)
+      setShowChangeStatus(false)
+      onClose()
+      toast.success("Ticket status updated", {
+        description: `${ticket.ticketId} status changed to ${newStatus}.`,
       })
     }, 1500)
   }
@@ -299,211 +329,341 @@ export function TicketDetailSheet({ ticket, isOpen, onClose }: TicketDetailSheet
         </SheetHeader>
 
         {/* Scrollable Body */}
-        <div className="flex-1 overflow-y-auto px-6 py-4 space-y-5">
+        <div className="flex-1 overflow-y-auto px-6 py-4 space-y-3">
           {/* Section 1: Incident Details */}
-          <InfoCard title="Incident Details">
-            <InfoGrid
-              columns={2}
-              items={[
-                { label: "Location", value: ticket.incident.location },
-                { label: "Reporter", value: ticket.incident.reporter },
-                { label: "Date of Incident", value: ticket.incident.dateOfIncident },
-                { label: "Time of Incident", value: ticket.incident.timeOfIncident },
-                { label: "Vehicle Plate", value: ticket.incident.vehiclePlate },
-                { label: "Ticket Creator", value: ticket.incident.ticketCreator },
-              ]}
-            />
-            {ticket.incident.creatorComment && (
-              <div className="mt-4 space-y-1">
-                <p className="text-xs text-breadcrumb-root font-medium">Creator Comment</p>
-                <p className="text-sm text-sidebar-item-active leading-relaxed">
-                  {ticket.incident.creatorComment}
-                </p>
-              </div>
-            )}
-            {ticket.incident.attachments.length > 0 && (
-              <div className="mt-4 space-y-2">
-                <p className="text-xs text-breadcrumb-root font-medium">Attachments</p>
-                <div className="flex flex-wrap gap-2">
-                  {ticket.incident.attachments.map((att) => {
-                    const { icon: Icon, color } = attachmentIconMap[att.type] || defaultAttachmentIcon
-                    return (
-                      <span
-                        key={att.name}
-                        className="inline-flex items-center gap-1.5 rounded-md border border-gray-200 bg-gray-50 px-3 py-1.5 text-xs font-medium text-sidebar-item-active"
+          <div className="rounded-lg border border-gray-200 bg-gray-50 overflow-hidden">
+            <button
+              type="button"
+              onClick={() => toggleSection("incident")}
+              className="flex w-full items-center justify-between px-4 py-3 text-left"
+            >
+              <span className="text-xs font-semibold uppercase tracking-wider text-breadcrumb-root">Incident Details</span>
+              <ChevronDown className={`h-4 w-4 text-breadcrumb-root transition-transform duration-200 ${openSection === "incident" ? "rotate-180" : ""}`} />
+            </button>
+            {openSection === "incident" && (
+              <div className="px-4 pb-4 space-y-0">
+                <InfoGrid
+                  columns={2}
+                  items={[
+                    { label: "Location", value: ticket.incident.location },
+                    { label: "Reporter", value: ticket.incident.reporter },
+                    { label: "Date of Incident", value: ticket.incident.dateOfIncident },
+                    { label: "Time of Incident", value: ticket.incident.timeOfIncident },
+                    { label: "Vehicle Plate", value: ticket.incident.vehiclePlate },
+                    { label: "Ticket Creator", value: ticket.incident.ticketCreator },
+                  ]}
+                />
+                {ticket.incident.creatorComment && (
+                  <div className="mt-4 space-y-1">
+                    <p className="text-xs text-breadcrumb-root font-medium">Creator Comment</p>
+                    <p className="text-sm text-sidebar-item-active leading-relaxed">
+                      {ticket.incident.creatorComment}
+                    </p>
+                  </div>
+                )}
+                {ticket.incident.attachments.length > 0 && (
+                  <div className="mt-4 space-y-2">
+                    <p className="text-xs text-breadcrumb-root font-medium">Attachments</p>
+                    <div className="flex flex-wrap gap-2">
+                      {ticket.incident.attachments.map((att) => {
+                        const { icon: Icon, color } = attachmentIconMap[att.type] || defaultAttachmentIcon
+                        return (
+                          <span
+                            key={att.name}
+                            className="inline-flex items-center gap-1.5 rounded-md border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-sidebar-item-active"
+                          >
+                            <Icon className={`h-3.5 w-3.5 shrink-0 ${color}`} />
+                            {att.name}
+                          </span>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* Comments */}
+                <div className="mt-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs text-breadcrumb-root font-medium">
+                      Comments{allComments.length > 0 && ` (${allComments.length})`}
+                    </p>
+                    {!showCommentInput && (
+                      <button
+                        type="button"
+                        onClick={() => setShowCommentInput(true)}
+                        className="inline-flex items-center gap-1 text-xs font-medium text-brand-dark hover:text-brand-dark/80 transition-colors"
                       >
-                        <Icon className={`h-3.5 w-3.5 shrink-0 ${color}`} />
-                        {att.name}
-                      </span>
-                    )
-                  })}
+                        <Plus className="h-3.5 w-3.5" />
+                        Add new comment
+                      </button>
+                    )}
+                  </div>
+
+                  {allComments.length > 0 && (
+                    <div className="space-y-2">
+                      {allComments.map((comment) => (
+                        <div
+                          key={comment.id}
+                          className="rounded-md border border-gray-200 bg-white px-3 py-2.5 space-y-1"
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-semibold text-sidebar-item-active">
+                              {comment.author}
+                            </span>
+                            <span className="text-[11px] text-breadcrumb-root">
+                              {comment.timestamp}
+                            </span>
+                          </div>
+                          <p className="text-sm text-sidebar-item-active leading-relaxed">
+                            {comment.text}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {showCommentInput && (
+                    <div className="space-y-2">
+                      <Textarea
+                        value={commentText}
+                        onChange={(e) => setCommentText(e.target.value)}
+                        placeholder="Write a comment..."
+                        rows={3}
+                        className="text-sm"
+                      />
+                      <div className="flex items-center justify-end gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setShowCommentInput(false)
+                            setCommentText("")
+                          }}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          size="sm"
+                          className="bg-brand-dark text-white hover:bg-brand-dark/90 gap-1.5"
+                          disabled={!commentText.trim()}
+                          onClick={handleAddComment}
+                        >
+                          <Send className="h-3.5 w-3.5" />
+                          Post
+                        </Button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
+          </div>
 
-            {/* Comments */}
-            <div className="mt-4 space-y-3">
-              <div className="flex items-center justify-between">
-                <p className="text-xs text-breadcrumb-root font-medium">
-                  Comments{allComments.length > 0 && ` (${allComments.length})`}
-                </p>
-                {!showCommentInput && (
-                  <button
-                    type="button"
-                    onClick={() => setShowCommentInput(true)}
-                    className="inline-flex items-center gap-1 text-xs font-medium text-brand-dark hover:text-brand-dark/80 transition-colors"
-                  >
-                    <Plus className="h-3.5 w-3.5" />
-                    Add new comment
-                  </button>
+          {/* Section 2: Call Recordings */}
+          <div className="rounded-lg border border-gray-200 bg-gray-50 overflow-hidden">
+            <button
+              type="button"
+              onClick={() => toggleSection("recordings")}
+              className="flex w-full items-center justify-between px-4 py-3 text-left"
+            >
+              <span className="text-xs font-semibold uppercase tracking-wider text-breadcrumb-root">
+                Call Recordings{ticket.callRecordings.length > 0 ? ` (${ticket.callRecordings.length})` : ""}
+              </span>
+              <ChevronDown className={`h-4 w-4 text-breadcrumb-root transition-transform duration-200 ${openSection === "recordings" ? "rotate-180" : ""}`} />
+            </button>
+            {openSection === "recordings" && (
+              <div className="px-4 pb-4">
+                {ticket.callRecordings.length > 0 ? (
+                  <div className="space-y-2">
+                    {ticket.callRecordings.map((rec) => (
+                      <CallRecordingRow key={rec.id} recording={rec} />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-3 py-4 text-breadcrumb-root">
+                    <Mic className="h-5 w-5" />
+                    <span className="text-sm font-medium">No call recordings available</span>
+                  </div>
                 )}
               </div>
+            )}
+          </div>
 
-              {allComments.length > 0 && (
-                <div className="space-y-2">
-                  {allComments.map((comment) => (
+          {/* Section 3: Call Script */}
+          {ticket.callScript && ticket.callScript.entries.length > 0 && (
+            <div className="rounded-lg border border-gray-200 bg-gray-50 overflow-hidden">
+              <button
+                type="button"
+                onClick={() => toggleSection("callscript")}
+                className="flex w-full items-center justify-between px-4 py-3 text-left"
+              >
+                <span className="text-xs font-semibold uppercase tracking-wider text-breadcrumb-root">
+                  Incident Call Script
+                </span>
+                <ChevronDown className={`h-4 w-4 text-breadcrumb-root transition-transform duration-200 ${openSection === "callscript" ? "rotate-180" : ""}`} />
+              </button>
+              {openSection === "callscript" && (
+                <div className="px-4 pb-4 space-y-2.5">
+                  {ticket.callScript.entries.map((entry, idx) => (
                     <div
-                      key={comment.id}
-                      className="rounded-md border border-gray-200 bg-white px-3 py-2.5 space-y-1"
+                      key={idx}
+                      className="rounded-md border border-gray-200 bg-white px-3.5 py-3 space-y-2"
                     >
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-semibold text-sidebar-item-active">
-                          {comment.author}
-                        </span>
-                        <span className="text-[11px] text-breadcrumb-root">
-                          {comment.timestamp}
-                        </span>
+                      <div className="flex items-start gap-2">
+                        <Megaphone className="h-3.5 w-3.5 text-breadcrumb-root shrink-0 mt-0.5" />
+                        <p className="text-xs font-medium text-breadcrumb-root leading-relaxed">
+                          {entry.question}
+                        </p>
                       </div>
-                      <p className="text-sm text-sidebar-item-active leading-relaxed">
-                        {comment.text}
-                      </p>
+                      {entry.fieldType === "radio" ? (
+                        <div className="ml-[22px]">
+                          <span className="inline-flex items-center rounded-md bg-gray-100 px-2.5 py-1 text-sm font-medium text-sidebar-item-active">
+                            {entry.answer}
+                          </span>
+                        </div>
+                      ) : (
+                        <p className="ml-[22px] text-sm font-medium text-sidebar-item-active leading-relaxed">
+                          {entry.answer}
+                        </p>
+                      )}
                     </div>
                   ))}
                 </div>
               )}
-
-              {showCommentInput && (
-                <div className="space-y-2">
-                  <Textarea
-                    value={commentText}
-                    onChange={(e) => setCommentText(e.target.value)}
-                    placeholder="Write a comment..."
-                    rows={3}
-                    className="text-sm"
-                  />
-                  <div className="flex items-center justify-end gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        setShowCommentInput(false)
-                        setCommentText("")
-                      }}
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      size="sm"
-                      className="bg-brand-dark text-white hover:bg-brand-dark/90 gap-1.5"
-                      disabled={!commentText.trim()}
-                      onClick={handleAddComment}
-                    >
-                      <Send className="h-3.5 w-3.5" />
-                      Post
-                    </Button>
-                  </div>
-                </div>
-              )}
             </div>
-          </InfoCard>
+          )}
 
-          {/* Section 2: Call Recordings */}
-          <InfoCard title={`Call Recordings${ticket.callRecordings.length > 0 ? ` (${ticket.callRecordings.length})` : ""}`}>
-            {ticket.callRecordings.length > 0 ? (
-              <div className="space-y-2">
-                {ticket.callRecordings.map((rec) => (
-                  <CallRecordingRow key={rec.id} recording={rec} />
-                ))}
-              </div>
-            ) : (
-              <div className="flex items-center gap-3 py-4 text-breadcrumb-root">
-                <Mic className="h-5 w-5" />
-                <span className="text-sm font-medium">No call recordings available</span>
+          {/* Section 4: Champion Details */}
+          <div className="rounded-lg border border-gray-200 bg-gray-50 overflow-hidden">
+            <button
+              type="button"
+              onClick={() => toggleSection("champion")}
+              className="flex w-full items-center justify-between px-4 py-3 text-left"
+            >
+              <span className="text-xs font-semibold uppercase tracking-wider text-breadcrumb-root">Champion Details</span>
+              <ChevronDown className={`h-4 w-4 text-breadcrumb-root transition-transform duration-200 ${openSection === "champion" ? "rotate-180" : ""}`} />
+            </button>
+            {openSection === "champion" && (
+              <div className="px-4 pb-4">
+                <div className="flex items-start justify-between gap-4">
+                  <InfoGrid
+                    columns={2}
+                    items={[
+                      { label: "Champion Name", value: ticket.champion.name },
+                      { label: "Champion ID", value: ticket.champion.id },
+                    ]}
+                    className="flex-1"
+                  />
+                  <Button variant="outline" size="sm" className="shrink-0 gap-1.5">
+                    <ExternalLink className="h-3.5 w-3.5" />
+                    View Champion
+                  </Button>
+                </div>
               </div>
             )}
-          </InfoCard>
-
-          {/* Section 3: Champion Details */}
-          <InfoCard title="Champion Details">
-            <div className="flex items-start justify-between gap-4">
-              <InfoGrid
-                columns={2}
-                items={[
-                  { label: "Champion Name", value: ticket.champion.name },
-                  { label: "Champion ID", value: ticket.champion.id },
-                ]}
-                className="flex-1"
-              />
-              <Button variant="outline" size="sm" className="shrink-0 gap-1.5">
-                <ExternalLink className="h-3.5 w-3.5" />
-                View Champion
-              </Button>
-            </div>
-          </InfoCard>
+          </div>
 
           {/* Section 4: Assigned Agent */}
-          <InfoCard title="Assigned Agent">
-            <div className="flex items-start justify-between gap-4">
-              <InfoGrid
-                columns={2}
-                items={[
-                  { label: "Agent Name", value: ticket.agent.name },
-                  { label: "Department", value: ticket.agent.department },
-                ]}
-                className="flex-1"
-              />
-              <Button variant="outline" size="sm" className="shrink-0 gap-1.5">
-                <ExternalLink className="h-3.5 w-3.5" />
-                View Agent
-              </Button>
-            </div>
-          </InfoCard>
+          <div className="rounded-lg border border-gray-200 bg-gray-50 overflow-hidden">
+            <button
+              type="button"
+              onClick={() => toggleSection("agent")}
+              className="flex w-full items-center justify-between px-4 py-3 text-left"
+            >
+              <span className="text-xs font-semibold uppercase tracking-wider text-breadcrumb-root">Assigned Agent</span>
+              <ChevronDown className={`h-4 w-4 text-breadcrumb-root transition-transform duration-200 ${openSection === "agent" ? "rotate-180" : ""}`} />
+            </button>
+            {openSection === "agent" && (
+              <div className="px-4 pb-4">
+                <div className="flex items-start justify-between gap-4">
+                  <InfoGrid
+                    columns={2}
+                    items={[
+                      { label: "Agent Name", value: ticket.agent.name },
+                      { label: "Department", value: ticket.agent.department },
+                    ]}
+                    className="flex-1"
+                  />
+                  <Button variant="outline" size="sm" className="shrink-0 gap-1.5">
+                    <ExternalLink className="h-3.5 w-3.5" />
+                    View Agent
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* Section 5: Vehicle Details */}
-          <InfoCard title="Vehicle Details">
-            <InfoGrid
-              columns={2}
-              items={[
-                { label: "MAX Vehicle ID", value: ticket.vehicle.maxVehicleId },
-                { label: "Plate Number", value: ticket.vehicle.plateNumber },
-                { label: "Vehicle Type", value: ticket.vehicle.type },
-                { label: "Model", value: ticket.vehicle.model },
-                { label: "Brand", value: ticket.vehicle.brand },
-                { label: "Current Status", value: ticket.vehicle.currentStatus },
-                { label: "Last Known Location", value: ticket.vehicle.lastKnownLocation },
-                { label: "Utilization", value: ticket.vehicle.utilization },
-              ]}
-            />
-          </InfoCard>
+          <div className="rounded-lg border border-gray-200 bg-gray-50 overflow-hidden">
+            <button
+              type="button"
+              onClick={() => toggleSection("vehicle")}
+              className="flex w-full items-center justify-between px-4 py-3 text-left"
+            >
+              <span className="text-xs font-semibold uppercase tracking-wider text-breadcrumb-root">Vehicle Details</span>
+              <ChevronDown className={`h-4 w-4 text-breadcrumb-root transition-transform duration-200 ${openSection === "vehicle" ? "rotate-180" : ""}`} />
+            </button>
+            {openSection === "vehicle" && (
+              <div className="px-4 pb-4">
+                <InfoGrid
+                  columns={2}
+                  items={[
+                    { label: "MAX Vehicle ID", value: ticket.vehicle.maxVehicleId },
+                    { label: "Plate Number", value: ticket.vehicle.plateNumber },
+                    { label: "Vehicle Type", value: ticket.vehicle.type },
+                    { label: "Model", value: ticket.vehicle.model },
+                    { label: "Brand", value: ticket.vehicle.brand },
+                    { label: "Current Status", value: ticket.vehicle.currentStatus },
+                    { label: "Last Known Location", value: ticket.vehicle.lastKnownLocation },
+                    { label: "Utilization", value: ticket.vehicle.utilization },
+                  ]}
+                />
+              </div>
+            )}
+          </div>
 
           {/* Section 6: Contract Details */}
-          <InfoCard title="Contract Details">
-            <InfoGrid
-              columns={2}
-              items={[
-                { label: "Contract ID", value: ticket.contract.contractId },
-                { label: "Contract Type", value: ticket.contract.type },
-                { label: "Start Date", value: ticket.contract.startDate },
-                { label: "End Date", value: ticket.contract.endDate },
-                { label: "Status", value: ticket.contract.status },
-              ]}
-            />
-          </InfoCard>
+          <div className="rounded-lg border border-gray-200 bg-gray-50 overflow-hidden">
+            <button
+              type="button"
+              onClick={() => toggleSection("contract")}
+              className="flex w-full items-center justify-between px-4 py-3 text-left"
+            >
+              <span className="text-xs font-semibold uppercase tracking-wider text-breadcrumb-root">Contract Details</span>
+              <ChevronDown className={`h-4 w-4 text-breadcrumb-root transition-transform duration-200 ${openSection === "contract" ? "rotate-180" : ""}`} />
+            </button>
+            {openSection === "contract" && (
+              <div className="px-4 pb-4">
+                <InfoGrid
+                  columns={2}
+                  items={[
+                    { label: "Contract ID", value: ticket.contract.contractId },
+                    { label: "Contract Type", value: ticket.contract.type },
+                    { label: "Start Date", value: ticket.contract.startDate },
+                    { label: "End Date", value: ticket.contract.endDate },
+                    { label: "Status", value: ticket.contract.status },
+                  ]}
+                />
+              </div>
+            )}
+          </div>
 
           {/* Section 7: SLA Tracking */}
-          <InfoCard title="SLA Tracking">
-            <StatusTimeline entries={ticket.slaTimeline} />
-          </InfoCard>
+          <div className="rounded-lg border border-gray-200 bg-gray-50 overflow-hidden">
+            <button
+              type="button"
+              onClick={() => toggleSection("sla")}
+              className="flex w-full items-center justify-between px-4 py-3 text-left"
+            >
+              <span className="text-xs font-semibold uppercase tracking-wider text-breadcrumb-root">SLA Tracking</span>
+              <ChevronDown className={`h-4 w-4 text-breadcrumb-root transition-transform duration-200 ${openSection === "sla" ? "rotate-180" : ""}`} />
+            </button>
+            {openSection === "sla" && (
+              <div className="px-4 pb-4">
+                <StatusTimeline entries={ticket.slaTimeline} />
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Sticky Footer */}
@@ -518,6 +678,16 @@ export function TicketDetailSheet({ ticket, isOpen, onClose }: TicketDetailSheet
             }}
           >
             Reassign Ticket
+          </Button>
+          <Button
+            variant="outline"
+            className="h-10 px-4"
+            onClick={() => {
+              setNewStatus("")
+              setShowChangeStatus(true)
+            }}
+          >
+            Change Status
           </Button>
           <Button
             variant="outline"
@@ -661,6 +831,54 @@ export function TicketDetailSheet({ ticket, isOpen, onClose }: TicketDetailSheet
             >
               {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
               {isSubmitting ? "Escalating..." : "Escalate"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Change Status Modal */}
+      <Dialog open={showChangeStatus} onOpenChange={setShowChangeStatus}>
+        <DialogContent className="max-w-sm p-0">
+          <DialogHeader className="px-6 pt-6 pb-4 border-b border-gray-100">
+            <DialogTitle>Change Ticket Status</DialogTitle>
+            <DialogDescription>
+              {ticket.ticketId} &middot; Current status: {ticket.status}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="px-6 py-5 space-y-4">
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-breadcrumb-root">
+                New Status
+              </label>
+              <Select value={newStatus} onValueChange={setNewStatus}>
+                <SelectTrigger className="h-9 w-full">
+                  <SelectValue placeholder="Select a status" />
+                </SelectTrigger>
+                <SelectContent>
+                  {changeableStatuses
+                    .filter((s) => s !== ticket.status)
+                    .map((status) => (
+                      <SelectItem key={status} value={status}>
+                        {status}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <DialogFooter className="px-6 py-4 border-t border-gray-100">
+            <Button variant="outline" className="h-9" onClick={() => setShowChangeStatus(false)} disabled={isSubmitting}>
+              Cancel
+            </Button>
+            <Button
+              className="h-9 bg-brand-dark text-white hover:bg-brand-dark/90"
+              disabled={!newStatus || isSubmitting}
+              onClick={handleChangeStatus}
+            >
+              {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
+              {isSubmitting ? "Updating..." : "Update Status"}
             </Button>
           </DialogFooter>
         </DialogContent>

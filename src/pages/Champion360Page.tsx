@@ -574,10 +574,6 @@ const defaultFilters: GenericFilterState = {
   state: [],
 }
 
-function formatCurrency(amount: number): string {
-  return "₦" + amount.toLocaleString()
-}
-
 const columns: ColumnDef<Champion>[] = [
   {
     accessorKey: "name",
@@ -616,20 +612,6 @@ const columns: ColumnDef<Champion>[] = [
     cell: ({ row }) => (
       <span className="font-medium text-table-text text-sm">{row.original.plateNumber}</span>
     ),
-  },
-  {
-    accessorKey: "outstandingBalance",
-    header: "Outstanding Balance",
-    cell: ({ row }) => {
-      const balance = row.original.outstandingBalance
-      return (
-        <span
-          className={`font-medium text-sm ${balance > 0 ? "text-status-warning" : "text-status-success"}`}
-        >
-          {formatCurrency(balance)}
-        </span>
-      )
-    },
   },
   {
     accessorKey: "lastActiveDate",

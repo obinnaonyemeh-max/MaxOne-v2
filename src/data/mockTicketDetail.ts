@@ -66,6 +66,15 @@ export interface TicketDetail {
   // Section 7: SLA Tracking (timeline entries)
   slaTimeline: TimelineEntryData[]
 
+  // Section 8: Call Script (optional — tickets created before this feature won't have it)
+  callScript?: {
+    title: string
+    entries: {
+      question: string
+      answer: string
+      fieldType: "radio" | "text"
+    }[]
+  }
 }
 
 const ticketDetails: Record<string, TicketDetail> = {
@@ -165,6 +174,16 @@ const ticketDetails: Record<string, TicketDetail> = {
         duration: { range: "09:18 AM", total: "3 min" },
       },
     ],
+    callScript: {
+      title: "Vehicle Breakdown Call Script",
+      entries: [
+        { question: "What type of breakdown occurred?", answer: "Engine Failure", fieldType: "radio" },
+        { question: "Is the vehicle parked in a safe location?", answer: "No", fieldType: "radio" },
+        { question: "Were there any warning signs before the breakdown?", answer: "Yes", fieldType: "radio" },
+        { question: "Describe any warning signs or unusual behaviour noticed", answer: "Dashboard engine warning light came on 10 minutes before stalling. Noticed unusual rattling sound from engine bay.", fieldType: "text" },
+        { question: "Does the champion need a tow service?", answer: "Yes", fieldType: "radio" },
+      ],
+    },
   },
   "2": {
     id: "2",
@@ -273,6 +292,15 @@ const ticketDetails: Record<string, TicketDetail> = {
         duration: { range: "10:00 AM", total: "19 hr 30 min" },
       },
     ],
+    callScript: {
+      title: "General Call Script",
+      entries: [
+        { question: "What is the reason for the champion's call?", answer: "Champion reports being charged twice for the same weekly payment. Two debits of \u20A645,000 appeared on 27 May.", fieldType: "text" },
+        { question: "How urgent is this request?", answer: "Urgent", fieldType: "radio" },
+        { question: "Has the champion raised a similar issue before?", answer: "No", fieldType: "radio" },
+        { question: "Any additional notes from the call?", answer: "Champion provided bank statement screenshot as evidence. Requesting immediate reversal.", fieldType: "text" },
+      ],
+    },
   },
   "4": {
     id: "4",
@@ -362,6 +390,16 @@ const ticketDetails: Record<string, TicketDetail> = {
         duration: { range: "11:45 AM", total: "48 hr" },
       },
     ],
+    callScript: {
+      title: "Vehicle Breakdown Call Script",
+      entries: [
+        { question: "What type of breakdown occurred?", answer: "Other", fieldType: "radio" },
+        { question: "Is the vehicle parked in a safe location?", answer: "Yes", fieldType: "radio" },
+        { question: "Were there any warning signs before the breakdown?", answer: "Yes", fieldType: "radio" },
+        { question: "Describe any warning signs or unusual behaviour noticed", answer: "Difficulty shifting gears started two days ago. Grinding noise when moving from 2nd to 3rd gear.", fieldType: "text" },
+        { question: "Does the champion need a tow service?", answer: "Yes", fieldType: "radio" },
+      ],
+    },
   },
 }
 

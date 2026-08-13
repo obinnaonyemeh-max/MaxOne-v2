@@ -13,14 +13,13 @@ interface BankAccount {
 
 interface WalletInformationProps {
   balance: string
-  bvn: string
+  bvn?: string
   bankAccounts: BankAccount[]
   className?: string
 }
 
 export function WalletInformation({
   balance,
-  bvn,
   bankAccounts,
   className,
 }: WalletInformationProps) {
@@ -85,19 +84,6 @@ export function WalletInformation({
 
       {/* Bank details row */}
       <div className="flex items-center gap-2 w-full">
-        {/* BVN card */}
-        <div className="bg-white border border-[#e6e6e6] rounded-lg h-[46px] flex items-center gap-2 px-3 shrink-0">
-          <div className="bg-[#ececec] rounded-md flex items-center justify-center h-5 w-5 shrink-0">
-            <Landmark className="h-3 w-3 text-gray-500" />
-          </div>
-          <div className="flex flex-col">
-            <span className="font-bold text-[10px] text-[#a0a1a1] capitalize whitespace-nowrap">
-              Bank Verification Number (BVN)
-            </span>
-            <span className="font-bold text-xs text-black">{bvn}</span>
-          </div>
-        </div>
-
         {/* Bank account cards */}
         {bankAccounts.map((account, index) => (
           <div

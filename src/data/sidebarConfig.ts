@@ -265,6 +265,18 @@ export const driverGrowthSidebarSections: SidebarSection[] = [
 
 export const driverExperienceSidebarSections: SidebarSection[] = [
   {
+    id: "overview",
+    label: "Overview",
+    items: [
+      {
+        id: "overview-dashboard",
+        label: "Dashboard",
+        icon: "/images/dashboard_menu.svg",
+        href: "/driver-experience/dashboard",
+      },
+    ],
+  },
+  {
     id: "driver-experience",
     label: "Driver Experience",
     items: [
@@ -291,6 +303,12 @@ export const driverExperienceSidebarSections: SidebarSection[] = [
         label: "Welfare",
         icon: "/images/agent_menu.svg",
         href: "/welfare",
+      },
+      {
+        id: "approvals",
+        label: "Approvals",
+        icon: "/images/memo_circle_check_menu.svg",
+        href: "/driver-experience/approvals",
       },
       {
         id: "performance",

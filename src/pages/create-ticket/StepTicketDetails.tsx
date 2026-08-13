@@ -1,9 +1,5 @@
-import { X, Image, FileText, FileSpreadsheet, File, type LucideIcon } from "lucide-react"
-import { format } from "date-fns"
 import { cn } from "@/lib/utils"
 import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Button } from "@/components/ui/button"
 import {
   Select,
   SelectContent,
@@ -13,37 +9,17 @@ import {
 } from "@/components/ui/select"
 import { FormSection, FormField } from "@/pages/vehicles/FormControls"
 import {
-  DatePickerField,
-  DocDropZone,
   InfoCard,
   InfoGrid,
-  LocationAutocomplete,
   StatusBadge,
   VehicleOverviewCard,
 } from "@/components/max"
 import { priorityVariantMap } from "@/data/mockTicketRecords"
 import type { ChampionDetails } from "@/data/mockChampionDetails"
+import { CallScriptRenderer } from "./CallScriptRenderer"
 import type { TicketCategory, TicketSubcategory, TicketDetailsForm } from "./types"
 
 const vehicleRelatedCategoryIds = new Set(["cat-1", "cat-5", "cat-7", "cat-11"])
-
-const fileIconMap: Record<string, { icon: LucideIcon; color: string }> = {
-  jpg:  { icon: Image,           color: "text-status-warning" },
-  jpeg: { icon: Image,           color: "text-status-warning" },
-  png:  { icon: Image,           color: "text-status-warning" },
-  pdf:  { icon: FileText,        color: "text-status-danger" },
-  doc:  { icon: FileText,        color: "text-status-info" },
-  docx: { icon: FileText,        color: "text-status-info" },
-  xls:  { icon: FileSpreadsheet, color: "text-badge-active-text" },
-  xlsx: { icon: FileSpreadsheet, color: "text-badge-active-text" },
-  csv:  { icon: FileSpreadsheet, color: "text-badge-active-text" },
-}
-const defaultFileIcon = { icon: File, color: "text-breadcrumb-root" }
-
-function getFileIcon(fileName: string) {
-  const ext = fileName.split(".").pop()?.toLowerCase() || ""
-  return fileIconMap[ext] || defaultFileIcon
-}
 
 interface StepTicketDetailsProps {
   champion: ChampionDetails
@@ -51,8 +27,8 @@ interface StepTicketDetailsProps {
   subcategory: TicketSubcategory
   details: TicketDetailsForm
   onUpdateField: (field: keyof TicketDetailsForm, value: TicketDetailsForm[keyof TicketDetailsForm]) => void
-  onAddAttachment: (file: File) => void
-  onRemoveAttachment: (index: number) => void
+  callScriptAnswers: Record<string, string>
+  onUpdateCallScriptAnswer: (questionId: string, value: string) => void
 }
 
 export function StepTicketDetails({
@@ -61,19 +37,9 @@ export function StepTicketDetails({
   subcategory,
   details,
   onUpdateField,
-  onAddAttachment,
-  onRemoveAttachment,
+  callScriptAnswers,
+  onUpdateCallScriptAnswer,
 }: StepTicketDetailsProps) {
-  const scriptPreview = [
-    `Champion ${champion.name} reported a ${subcategory.name} issue`,
-    details.platform ? `via ${details.platform}` : "",
-    details.locationDescription ? `at ${details.locationDescription}` : "",
-    details.date ? `on ${format(details.date, "dd MMM yyyy")}` : "",
-  ]
-    .filter(Boolean)
-    .join(" ")
-    .concat(details.incidentDescription ? `. ${details.incidentDescription}` : ".")
-
   return (
     <div className="grid grid-cols-5 gap-6">
       {/* Left column — form */}
@@ -145,87 +111,13 @@ export function StepTicketDetails({
           </FormSection>
         </div>
 
-        <div className="rounded-lg border border-gray-200 p-5 space-y-6">
-          <FormSection title="Incident Details">
-            <div className="space-y-6 mt-2">
-              <FormField label="Location Description">
-                <LocationAutocomplete
-                  value={details.locationDescription}
-                  onChange={(v) => onUpdateField("locationDescription", v)}
-                  placeholder="Search for a location..."
-                  inputClassName="bg-[#F8F8F8]"
-                />
-              </FormField>
-
-              <div className="grid grid-cols-2 gap-x-4 gap-y-6">
-                <FormField label="Date">
-                  <DatePickerField
-                    value={details.date}
-                    onChange={(d) => onUpdateField("date", d)}
-                    placeholder="Select date"
-                    triggerClassName="bg-[#F8F8F8]"
-                  />
-                </FormField>
-
-                <FormField label="Time">
-                  <Input
-                    type="time"
-                    value={details.time}
-                    onChange={(e) => onUpdateField("time", e.target.value)}
-                    className="h-9 bg-[#F8F8F8]"
-                  />
-                </FormField>
-              </div>
-
-              <FormField label="Incident Description">
-                <Textarea
-                  value={details.incidentDescription}
-                  onChange={(e) => onUpdateField("incidentDescription", e.target.value)}
-                  placeholder="Describe the incident in detail..."
-                  rows={8}
-                  className="bg-[#F8F8F8]"
-                />
-              </FormField>
-            </div>
-          </FormSection>
-        </div>
-
         <div className="rounded-lg border border-gray-200 p-5">
-          <FormSection title="Attachments">
-            <DocDropZone
-              file={null}
-              onFileSelect={onAddAttachment}
-              accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-              maxSizeLabel="PDF, DOC, JPG, PNG up to 10MB"
-            />
-            {details.attachments.length > 0 && (
-              <div className="space-y-2 mt-3">
-                {details.attachments.map((file, index) => {
-                  const { icon: FileIcon, color } = getFileIcon(file.name)
-                  return (
-                    <div
-                      key={`${file.name}-${index}`}
-                      className="flex items-center justify-between rounded-md border border-gray-200 px-3 py-2"
-                    >
-                      <div className="flex items-center gap-2 min-w-0">
-                        <FileIcon className={`h-4 w-4 shrink-0 ${color}`} />
-                        <span className="text-sm font-medium text-sidebar-item-active truncate">
-                          {file.name}
-                        </span>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="icon-xs"
-                        onClick={() => onRemoveAttachment(index)}
-                      >
-                        <X className="h-3.5 w-3.5 text-muted-foreground" />
-                      </Button>
-                    </div>
-                  )
-                })}
-              </div>
-            )}
-          </FormSection>
+          <CallScriptRenderer
+            subcategoryId={subcategory.id}
+            categoryId={category.id}
+            answers={callScriptAnswers}
+            onAnswerChange={onUpdateCallScriptAnswer}
+          />
         </div>
       </div>
 
@@ -323,11 +215,6 @@ export function StepTicketDetails({
           />
         </InfoCard>
 
-        <InfoCard title="Ticket Script Preview">
-          <p className="text-sm font-medium text-sidebar-item-active leading-relaxed">
-            {scriptPreview}
-          </p>
-        </InfoCard>
       </div>
     </div>
   )

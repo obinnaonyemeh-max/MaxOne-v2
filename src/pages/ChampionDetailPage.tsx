@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from "react"
-import { useParams, useNavigate, useLocation } from "react-router-dom"
+import { useParams, useNavigate, useLocation, useSearchParams } from "react-router-dom"
 import { type ColumnDef } from "@tanstack/react-table"
 
 import {
@@ -432,6 +432,7 @@ export default function ChampionDetailPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const location = useLocation()
+  const [searchParams, setSearchParams] = useSearchParams()
   const champion = getChampionDetails(id || "1")
 
   // The same detail page is reachable from Driver Experience (Champion 360) and
@@ -451,6 +452,11 @@ export default function ChampionDetailPage() {
         { label: "Champion 360", href: "/champion-360" },
         { label: champion.name },
       ]
+
+  const activeTab = searchParams.get("tab") || "biodata"
+  const handleTabChange = (value: string) => {
+    setSearchParams({ tab: value }, { replace: true })
+  }
 
   const [showCreateTimeOff, setShowCreateTimeOff] = useState(false)
   const [showLeaveHistory, setShowLeaveHistory] = useState(false)
@@ -594,7 +600,7 @@ export default function ChampionDetailPage() {
 
           {/* Right Column */}
           <div className="flex-1 min-w-0 self-stretch flex flex-col">
-            <Tabs defaultValue="biodata" className="flex flex-col flex-1 min-h-0 overflow-hidden">
+            <Tabs value={activeTab} onValueChange={handleTabChange} className="flex flex-col flex-1 min-h-0 overflow-hidden">
               <div
                 ref={tabsScrollRef}
                 className="shrink-0 overflow-x-auto scrollbar-hide pb-1.5 cursor-grab select-none"
@@ -637,6 +643,8 @@ export default function ChampionDetailPage() {
                         { label: "Date of Birth", value: champion.biodata.dateOfBirth },
                         { label: "Gender", value: champion.biodata.gender },
                         { label: "Marital Status", value: champion.biodata.maritalStatus },
+                        { label: "Blood Group", value: champion.biodata.bloodGroup },
+                        { label: "Genotype", value: champion.biodata.genotype },
                       ]}
                     />
                   </InfoCard>
@@ -654,15 +662,13 @@ export default function ChampionDetailPage() {
                     />
                   </InfoCard>
 
-                  <InfoCard title="NEXT OF KIN & MEDICAL">
+                  <InfoCard title="NEXT OF KIN">
                     <InfoGrid
                       columns={4}
                       showDividers
                       items={[
                         { label: "Next of Kin", value: champion.biodata.nextOfKin },
                         { label: "Next of Kin Phone", value: champion.biodata.nextOfKinPhone },
-                        { label: "Blood Group", value: champion.biodata.bloodGroup },
-                        { label: "Genotype", value: champion.biodata.genotype },
                       ]}
                     />
                   </InfoCard>
@@ -944,19 +950,6 @@ export default function ChampionDetailPage() {
                     columns={walletTransactionColumns}
                     data={inPortfolio ? filteredWalletTransactions : champion.wallet.transactions}
                   />
-                </div>
-              </TabsContent>
-
-              {/* FieldOps History Tab */}
-              <TabsContent value="fieldops" className="mt-0 flex-1 min-h-0 overflow-y-auto">
-                <div className="flex flex-col gap-3">
-                  <div className="bg-[#f9f8f6] border border-[#f3f3f3] rounded-lg p-4 flex items-center gap-2">
-                    <span className="text-2xl font-semibold text-sidebar-item-active">{champion.fieldOps.length}</span>
-                    <span className="text-sm text-breadcrumb-root">Total Field Operations</span>
-                  </div>
-                  <div className="bg-content-card p-6 h-fit rounded-lg border border-border">
-                    <StatusTimeline entries={champion.fieldOps} />
-                  </div>
                 </div>
               </TabsContent>
 

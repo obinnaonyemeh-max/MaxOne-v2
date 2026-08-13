@@ -11,7 +11,6 @@ import {
   GenericFilterPopover,
   getActiveFilterCount,
   DriverDetailSheet,
-  IncidentChampionsSheet,
   type FilterSection,
   type GenericFilterState,
 } from "@/components/max"
@@ -30,21 +29,9 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import {
-  BarChart,
-  Bar,
-  Cell,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts"
-import {
   mockDriverRiskRecords,
-  mockCriticalEvents,
   riskLevelVariantMap,
   type DriverRiskRecord,
-  type CriticalEventCategory,
 } from "@/data/mockDriverSafety"
 
 // ── Color constants ──
@@ -94,8 +81,6 @@ const summaryStats = [
   { title: "Total Safety Events", value: String(totalSafetyEvents), indicatorColor: COLOR_RED },
   { title: "High Risk Alerts", value: String(highRiskAlerts), indicatorColor: COLOR_RED },
 ]
-
-const totalCriticalEvents = mockCriticalEvents.reduce((sum, c) => sum + c.count, 0)
 
 // ── Table columns ──
 
@@ -226,56 +211,6 @@ const driverFilterSections: FilterSection[] = [
   },
 ]
 
-// ── Dark tooltip ──
-
-function DarkTooltipContent({
-  active,
-  payload,
-  label,
-}: {
-  active?: boolean
-  payload?: Array<{ name: string; value: number; color: string }>
-  label?: string
-}) {
-  if (!active || !payload?.length) return null
-  return (
-    <div
-      style={{
-        backgroundColor: "var(--color-gray-900)",
-        borderRadius: "8px",
-        padding: "10px 14px",
-        display: "flex",
-        flexDirection: "column",
-        gap: "6px",
-        boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-      }}
-    >
-      <span style={{ color: "var(--color-gray-400)", fontSize: "12px", fontWeight: 500 }}>
-        {label}
-      </span>
-      {payload.map((entry) => (
-        <div
-          key={entry.name}
-          style={{ display: "flex", alignItems: "center", gap: "8px" }}
-        >
-          <span
-            style={{
-              width: "10px",
-              height: "10px",
-              borderRadius: "50%",
-              backgroundColor: entry.color,
-              flexShrink: 0,
-            }}
-          />
-          <span style={{ color: "#fff", fontSize: "13px", fontWeight: 500 }}>
-            {entry.name}: {Number(entry.value).toLocaleString()}
-          </span>
-        </div>
-      ))}
-    </div>
-  )
-}
-
 // ── Helpers for range filter matching ──
 
 function matchesRange(value: number, range: string): boolean {
@@ -291,14 +226,12 @@ function matchesRange(value: number, range: string): boolean {
 
 export default function DriverSafetyScorePage() {
   const [period, setPeriod] = useState("30")
-  const [hoveredBarIndex, setHoveredBarIndex] = useState<number | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
   const [filters, setFilters] = useState<GenericFilterState>({})
   const [searchQuery, setSearchQuery] = useState("")
   const [searchOpen, setSearchOpen] = useState(false)
   const [selectedDriverId, setSelectedDriverId] = useState<string | null>(null)
-  const [selectedIncident, setSelectedIncident] = useState<CriticalEventCategory | null>(null)
 
   const selectedDriver = selectedDriverId
     ? mockDriverRiskRecords.find((r) => r.id === selectedDriverId) ?? null
@@ -387,130 +320,6 @@ export default function DriverSafetyScorePage() {
               indicatorColor={stat.indicatorColor}
             />
           ))}
-        </div>
-
-        {/* Chart Widgets */}
-        <div className="grid grid-cols-2 gap-2 mt-6">
-          {/* Critical Events (48-Hour Window) */}
-          <div className="bg-gray-25 border border-gray-200 rounded-lg">
-            <div className="px-5 pt-5 pb-2">
-              <h3
-                className="text-gray-950"
-                style={{ fontSize: "16px", fontWeight: 500 }}
-              >
-                Critical Events (48-Hour Window)
-              </h3>
-            </div>
-            <div className="px-3 pb-4">
-              <ResponsiveContainer width="100%" height={280}>
-                <BarChart
-                  data={mockCriticalEvents}
-                  margin={{ top: 10, right: 20, left: 10, bottom: 5 }}
-                >
-                  <CartesianGrid
-                    horizontal
-                    vertical={false}
-                    stroke="var(--color-gray-200)"
-                  />
-                  <XAxis
-                    dataKey="name"
-                    tick={{ fill: "var(--color-gray-400)", fontSize: 12, fontWeight: 500 }}
-                    axisLine={false}
-                    tickLine={false}
-                  />
-                  <YAxis
-                    tick={{ fill: "var(--color-gray-400)", fontSize: 12, fontWeight: 500 }}
-                    axisLine={false}
-                    tickLine={false}
-                    width={30}
-                  />
-                  <Tooltip cursor={false} content={<DarkTooltipContent />} />
-                  <Bar
-                    dataKey="count"
-                    name="Events"
-                    radius={[4, 4, 0, 0]}
-                    barSize={40}
-                    onClick={(data: { name?: string }) => {
-                      const incident = mockCriticalEvents.find((e) => e.name === data.name)
-                      if (incident) setSelectedIncident(incident)
-                    }}
-                    onMouseEnter={(_: unknown, index: number) =>
-                      setHoveredBarIndex(index)
-                    }
-                    onMouseLeave={() => setHoveredBarIndex(null)}
-                  >
-                    {mockCriticalEvents.map((entry, index) => (
-                      <Cell
-                        key={entry.name}
-                        fill={entry.color}
-                        opacity={
-                          hoveredBarIndex === null || hoveredBarIndex === index
-                            ? 1
-                            : 0.35
-                        }
-                        style={{ transition: "opacity 0.2s ease", cursor: "pointer" }}
-                      />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          {/* Incidents by Category */}
-          <div className="bg-gray-25 border border-gray-200 rounded-lg">
-            <div className="px-5 pt-5 pb-2">
-              <h3
-                className="text-gray-950"
-                style={{ fontSize: "16px", fontWeight: 500 }}
-              >
-                Incidents by Category
-              </h3>
-              <span
-                className="text-gray-500"
-                style={{ fontSize: "13px", fontWeight: 500 }}
-              >
-                {totalCriticalEvents.toLocaleString()} total incidents
-              </span>
-            </div>
-            <div className="px-5 pb-5 flex flex-col gap-3 mt-2">
-              {mockCriticalEvents.map((category) => {
-                const pct = Math.round((category.count / totalCriticalEvents) * 100)
-                return (
-                  <div key={category.name} className="flex items-center gap-3">
-                    <span
-                      className="shrink-0 h-2.5 w-2.5 rounded-full"
-                      style={{ backgroundColor: category.color }}
-                    />
-                    <span
-                      className="text-gray-700 flex-1"
-                      style={{ fontSize: "13px", fontWeight: 500 }}
-                    >
-                      {category.name}
-                    </span>
-                    <span
-                      className="text-gray-950 tabular-nums"
-                      style={{ fontSize: "13px", fontWeight: 600, minWidth: "32px", textAlign: "right" }}
-                    >
-                      {category.count}
-                    </span>
-                    <div className="w-24 h-2 rounded-full bg-gray-200 overflow-hidden">
-                      <div
-                        className="h-full rounded-full"
-                        style={{ width: `${pct}%`, backgroundColor: category.color }}
-                      />
-                    </div>
-                    <span
-                      className="text-gray-400 tabular-nums"
-                      style={{ fontSize: "12px", fontWeight: 500, minWidth: "36px", textAlign: "right" }}
-                    >
-                      {pct}%
-                    </span>
-                  </div>
-                )
-              })}
-            </div>
-          </div>
         </div>
 
         {/* Driver Risk View Table */}
@@ -616,12 +425,6 @@ export default function DriverSafetyScorePage() {
         driver={selectedDriver}
         isOpen={selectedDriverId !== null}
         onClose={() => setSelectedDriverId(null)}
-      />
-
-      <IncidentChampionsSheet
-        incident={selectedIncident}
-        isOpen={selectedIncident !== null}
-        onClose={() => setSelectedIncident(null)}
       />
     </>
   )

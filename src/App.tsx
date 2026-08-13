@@ -48,6 +48,8 @@ import VehicleRegisterPage from "@/pages/vehicle-register/VehicleRegisterPage"
 import VehicleActivityPage from "@/pages/vehicle-activity/VehicleActivityPage"
 import VehicleTripsPage from "@/pages/vehicle-trips/VehicleTripsPage"
 import VehicleStopsPage from "@/pages/vehicle-stops/VehicleStopsPage"
+import ApprovalsPage from "@/pages/ApprovalsPage"
+import DriverExperienceDashboardPage from "@/pages/DriverExperienceDashboardPage"
 
 export default function App() {
   return (
@@ -108,6 +110,8 @@ export default function App() {
         <Route path="/portfolio/champions/overview" element={<ChampionsOverviewPage />} />
         <Route path="/portfolio/champions/overview/:id" element={<ChampionDetailPage />} />
         <Route path="/portfolio/champions/referrals" element={<ReferralManagementPage />} />
+        <Route path="/driver-experience/dashboard" element={<DriverExperienceDashboardPage />} />
+        <Route path="/driver-experience/approvals" element={<ApprovalsPage />} />
       </Routes>
     </AppLayout>
   )

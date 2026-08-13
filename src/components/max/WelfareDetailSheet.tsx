@@ -32,6 +32,11 @@ export interface WelfareChampion {
   nextFollowUp: string
   issuesLogged: number
   phoneNumber: string
+  transferRejection?: {
+    date: string
+    ownershipType: string
+    rejectionReason: string
+  }
 }
 
 interface WelfareDetailSheetProps {
@@ -133,6 +138,18 @@ const mockWelfareTimelines: Record<string, TimelineEntryData[]> = {
   ],
   "4": [
     {
+      id: "w4-0",
+      date: "5 Jul 2026",
+      status: "Transfer Rejected",
+      statusVariant: "danger",
+      description: {
+        template: "Transfer of ownership request ({type}) was rejected. {reason}",
+        highlights: { type: "Outright Payment", reason: "Escalated to welfare for follow-up" },
+      },
+      actor: { action: "Escalated by", name: "System" },
+      duration: { range: "23 days ago", total: "" },
+    },
+    {
       id: "w4-1",
       date: "28 May 2026",
       status: "Suspension Notice",
@@ -184,6 +201,18 @@ const mockWelfareTimelines: Record<string, TimelineEntryData[]> = {
     },
   ],
   "7": [
+    {
+      id: "w7-0",
+      date: "1 Jul 2026",
+      status: "Transfer Rejected",
+      statusVariant: "danger",
+      description: {
+        template: "Transfer of ownership request ({type}) was rejected. {reason}",
+        highlights: { type: "Outright Payment", reason: "Escalated to welfare for follow-up" },
+      },
+      actor: { action: "Escalated by", name: "System" },
+      duration: { range: "27 days ago", total: "" },
+    },
     {
       id: "w7-1",
       date: "30 May 2026",
@@ -252,6 +281,7 @@ export function WelfareDetailSheet({ champion, isOpen, onClose, onLogNote }: Wel
   if (champion.championState === "Suspended") riskFlags.push("Suspended")
   if (champion.championState === "Inactive") riskFlags.push("Inactive")
   if (champion.issuesLogged >= 5) riskFlags.push("High Issue Count")
+  if (champion.transferRejection) riskFlags.push("Transfer Rejected")
 
   const timelineEntries = mockWelfareTimelines[champion.id] || defaultTimeline
 
@@ -273,6 +303,19 @@ export function WelfareDetailSheet({ champion, isOpen, onClose, onLogNote }: Wel
 
         {/* Scrollable Body */}
         <div className="flex-1 overflow-y-auto px-6 py-4 space-y-5">
+          {/* Transfer Rejection Callout */}
+          {champion.transferRejection && (
+            <div className="rounded-md border border-status-danger/30 bg-status-danger/5 px-4 py-3 space-y-1">
+              <p className="text-xs font-medium text-status-danger">Transfer of Ownership Rejected</p>
+              <p className="text-sm text-sidebar-item-active leading-relaxed">
+                {champion.transferRejection.rejectionReason}
+              </p>
+              <p className="text-xs text-breadcrumb-root mt-1">
+                {champion.transferRejection.ownershipType} &middot; {champion.transferRejection.date}
+              </p>
+            </div>
+          )}
+
           {/* Champion Profile */}
           <InfoCard title="Champion Profile">
             <div className="flex items-center gap-3 mb-4">

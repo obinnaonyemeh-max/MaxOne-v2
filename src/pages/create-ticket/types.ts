@@ -38,6 +38,7 @@ export interface WizardState {
   selectedCategory: TicketCategory | null
   selectedSubcategory: TicketSubcategory | null
   details: TicketDetailsForm
+  callScriptAnswers: Record<string, string>
 }
 
 export type WizardAction =
@@ -51,4 +52,5 @@ export type WizardAction =
   | { type: "UPDATE_DETAILS"; field: keyof TicketDetailsForm; value: TicketDetailsForm[keyof TicketDetailsForm] }
   | { type: "ADD_ATTACHMENT"; file: File }
   | { type: "REMOVE_ATTACHMENT"; index: number }
+  | { type: "UPDATE_CALL_SCRIPT_ANSWER"; questionId: string; value: string }
   | { type: "RESET" }

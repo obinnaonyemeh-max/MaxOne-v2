@@ -9,12 +9,14 @@ import {
 import { Button } from "@/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { mockDocuments } from "@/data/mockBatchDetailRows"
+import { useCan } from "@/contexts/RoleSimulationContext"
 import { documentColumns } from "./columns"
 import { defaultDocFilters, docFilterSections } from "./options"
 
 export function DocumentsTab({ onUpload }: { onUpload: () => void }) {
   const [docFilters, setDocFilters] = useState<GenericFilterState>(defaultDocFilters)
   const docActiveFilterCount = getActiveFilterCount(docFilters)
+  const canUploadDocuments = useCan("inbound.batches.uploadDocuments")
 
   return (
     <div className="mt-4 flex flex-col min-h-0 rounded-t-[14px] rounded-b-[4px] border border-table-border">
@@ -41,13 +43,15 @@ export function DocumentsTab({ onUpload }: { onUpload: () => void }) {
             </PopoverContent>
           </Popover>
         </div>
-        <Button
-          className="h-9 gap-2 bg-brand-dark text-white hover:bg-brand-dark/90"
-          onClick={onUpload}
-        >
-          <Upload className="h-4 w-4" />
-          Upload
-        </Button>
+        {canUploadDocuments && (
+          <Button
+            className="h-9 gap-2 bg-brand-dark text-white hover:bg-brand-dark/90"
+            onClick={onUpload}
+          >
+            <Upload className="h-4 w-4" />
+            Upload
+          </Button>
+        )}
       </div>
       <div className="flex-1 overflow-y-auto">
         <DataTable

@@ -47,9 +47,9 @@ export function StatusTimeline({ entries, className }: StatusTimelineProps) {
               return (
                 <div key={entry.id} className="flex">
                   {/* Date Column */}
-                  <div className="w-24 shrink-0">
+                  <div className="w-28 shrink-0">
                     {isFirstInDate && (
-                      <span className="text-sm font-medium text-sidebar-item-active whitespace-nowrap">
+                      <span className="text-sm font-medium text-sidebar-item-active">
                         {date}
                       </span>
                     )}

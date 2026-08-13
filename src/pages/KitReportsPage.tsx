@@ -26,18 +26,15 @@ import {
   kitStatusVariantMap,
   type KitReport,
 } from "@/data/mockKitReports"
+import { useCan } from "@/contexts/RoleSimulationContext"
 import { KitMovementHistoryModal } from "./KitMovementHistoryModal"
 
-const COLOR_STATUS_WARNING = "var(--color-warning)"
-const COLOR_STATUS_DANGER = "var(--color-danger)"
+const COLOR_STATUS_SUCCESS = "var(--color-status-success)"
+const COLOR_STATUS_INFO = "var(--color-status-info)"
 const COLOR_GRAY_500 = "var(--color-gray-500)"
 
 const clientOptions = Array.from(
   new Set(mockKitReports.map((k) => k.client).filter((c): c is string => !!c))
-).sort()
-
-const locationOptions = Array.from(
-  new Set(mockKitReports.map((k) => k.location))
 ).sort()
 
 const filterSections: FilterSection[] = [
@@ -46,8 +43,8 @@ const filterSections: FilterSection[] = [
     title: "Status",
     defaultExpanded: true,
     options: [
-      { value: "Assigned",   label: "Assigned",   color: COLOR_STATUS_WARNING },
-      { value: "Reassigned", label: "Reassigned", color: COLOR_STATUS_DANGER },
+      { value: "Assigned",   label: "Assigned",   color: COLOR_STATUS_SUCCESS },
+      { value: "Reassigned", label: "Reassigned", color: COLOR_STATUS_INFO },
       { value: "Created",    label: "Created",    color: COLOR_GRAY_500 },
     ],
   },
@@ -56,17 +53,11 @@ const filterSections: FilterSection[] = [
     title: "Client",
     options: clientOptions.map((client) => ({ value: client, label: client })),
   },
-  {
-    id: "location",
-    title: "Location",
-    options: locationOptions.map((location) => ({ value: location, label: location })),
-  },
 ]
 
 const defaultFilters: GenericFilterState = {
   status: [],
   client: [],
-  location: [],
 }
 
 const columns: ColumnDef<KitReport>[] = [
@@ -77,20 +68,6 @@ const columns: ColumnDef<KitReport>[] = [
       <span className="font-medium text-table-text-primary" style={{ fontSize: "14px" }}>
         {row.original.id}
       </span>
-    ),
-  },
-  {
-    accessorKey: "vehicleType",
-    header: "Vehicle Type / Model",
-    cell: ({ row }) => (
-      <div>
-        <p className="font-medium text-table-text-primary" style={{ fontSize: "14px" }}>
-          {row.original.vehicleType}
-        </p>
-        <p className="font-medium text-breadcrumb-root" style={{ fontSize: "12px" }}>
-          {row.original.model}
-        </p>
-      </div>
     ),
   },
   {
@@ -117,15 +94,6 @@ const columns: ColumnDef<KitReport>[] = [
     cell: ({ row }) => (
       <span className="font-medium text-table-text" style={{ fontSize: "14px" }}>
         {row.original.plateNumber ?? "—"}
-      </span>
-    ),
-  },
-  {
-    accessorKey: "location",
-    header: "Location",
-    cell: ({ row }) => (
-      <span className="font-medium text-table-text" style={{ fontSize: "14px" }}>
-        {row.original.location}
       </span>
     ),
   },
@@ -158,13 +126,13 @@ export default function KitReportsPage() {
   const [pageSize, setPageSize] = useState(25)
   const [selectedKit, setSelectedKit] = useState<KitReport | null>(null)
   const activeFilterCount = getActiveFilterCount(filters)
+  const canKitReassignment = useCan("kit.reassignment")
 
   const filteredKits = useMemo(
     () =>
       mockKitReports.filter((kit) => {
         if (filters.status.length > 0 && !filters.status.includes(kit.status)) return false
         if (filters.client.length > 0 && (kit.client === null || !filters.client.includes(kit.client))) return false
-        if (filters.location.length > 0 && !filters.location.includes(kit.location)) return false
         if (searchQuery) {
           const q = searchQuery.toLowerCase()
           const matchesId = kit.id.toLowerCase().includes(q)
@@ -262,13 +230,15 @@ export default function KitReportsPage() {
             )}
             </div>
 
-            <Button
-              className="h-9 gap-2"
-              onClick={() => navigate("/activation-assignment/asset-reassignment/kit/assign")}
-            >
-              <Plus className="h-4 w-4" />
-              Kit Reassignment
-            </Button>
+            {canKitReassignment && (
+              <Button
+                className="h-9 gap-2"
+                onClick={() => navigate("/activation-assignment/asset-reassignment/kit/assign")}
+              >
+                <Plus className="h-4 w-4" />
+                Kit Reassignment
+              </Button>
+            )}
           </div>
 
           <div className="flex-1 overflow-y-auto">

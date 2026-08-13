@@ -1,11 +1,13 @@
 import { useEffect, useState, type ReactNode } from "react"
+import { Check, ChevronsUpDown, Plus, Minus, type LucideIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useRoleSimulation } from "@/contexts/RoleSimulationContext"
+import { SIMULATION_OPTIONS, type SimulationMode } from "@/data/rolePermissions"
 import {
-  Plus,
-  Minus,
-  MoreVertical,
-  type LucideIcon,
-} from "lucide-react"
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 import { AppSwitcher } from "./AppSwitcher"
 
 export interface SidebarItem {
@@ -42,6 +44,7 @@ interface SidebarProps {
   onToggleCollapse?: () => void
   selectedAppId?: string
   onAppChange?: (appId: string) => void
+  showAppSwitcher?: boolean
 }
 
 interface SidebarNavItemProps {
@@ -269,7 +272,10 @@ function DefaultLogo({ isCollapsed }: { isCollapsed?: boolean }) {
   )
 }
 
-function CollapsedAccountMenu({ user }: { user: SidebarUser }) {
+function useAccountDisplay(user: SidebarUser) {
+  const { mode, setMode, roleLabel } = useRoleSimulation()
+  const [open, setOpen] = useState(false)
+
   const nameParts = user.name.split(" ")
   const initials = nameParts
     .map((n) => n[0])
@@ -277,66 +283,143 @@ function CollapsedAccountMenu({ user }: { user: SidebarUser }) {
     .toUpperCase()
     .slice(0, 2)
 
+  const displayName =
+    nameParts.length > 1
+      ? `${nameParts[0]} ${nameParts[nameParts.length - 1][0]}.`
+      : nameParts[0]
+
+  const handleSelect = (next: SimulationMode) => {
+    setMode(next)
+    setOpen(false)
+  }
+
+  return {
+    mode,
+    open,
+    setOpen,
+    initials,
+    displayName,
+    roleLabel,
+    handleSelect,
+  }
+}
+
+function RolePickerMenu({
+  mode,
+  onSelect,
+}: {
+  mode: SimulationMode
+  onSelect: (mode: SimulationMode) => void
+}) {
   return (
-    <div className="flex items-center justify-center">
-      {user.avatar ? (
-        <img
-          src={user.avatar}
-          alt={user.name}
-          className="h-9 w-9 object-cover"
-          style={{ borderRadius: '5px' }}
-          title={user.name}
-        />
-      ) : (
-        <div 
-          className="flex h-9 w-9 items-center justify-center bg-brand-primary text-sm font-semibold text-brand-dark"
-          style={{ borderRadius: '5px' }}
-          title={user.name}
+    <div className="space-y-1">
+      <p className="px-2 py-1 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+        Simulate view
+      </p>
+      {SIMULATION_OPTIONS.map((option) => (
+        <button
+          key={option.mode}
+          type="button"
+          onClick={() => onSelect(option.mode)}
+          className={cn(
+            "flex w-full items-center gap-3 rounded-lg px-2 py-2 transition-colors",
+            "hover:bg-gray-100",
+            mode === option.mode && "bg-gray-100"
+          )}
         >
-          {initials}
-        </div>
-      )}
+          <span className="flex-1 text-left font-medium text-gray-900" style={{ fontSize: "13px" }}>
+            {option.label}
+          </span>
+          {mode === option.mode && <Check className="h-4 w-4 text-gray-600" />}
+        </button>
+      ))}
     </div>
   )
 }
 
-function AccountMenu({ user }: { user: SidebarUser }) {
-  const nameParts = user.name.split(" ")
-  const initials = nameParts
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2)
-  
-  const displayName = nameParts.length > 1
-    ? `${nameParts[0]} ${nameParts[nameParts.length - 1][0]}.`
-    : nameParts[0]
+function CollapsedAccountMenu({ user }: { user: SidebarUser }) {
+  const { mode, open, setOpen, initials, roleLabel, handleSelect } = useAccountDisplay(user)
 
   return (
-    <div className="flex items-center gap-3 rounded-lg bg-white px-3 py-3" style={{ borderRadius: '8px' }}>
-      {user.avatar ? (
-        <img
-          src={user.avatar}
-          alt={user.name}
-          className="h-9 w-9 object-cover"
-          style={{ borderRadius: '5px' }}
-        />
-      ) : (
-        <div 
-          className="flex h-9 w-9 items-center justify-center bg-brand-primary text-sm font-semibold text-brand-dark"
-          style={{ borderRadius: '5px' }}
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          className="flex items-center justify-center rounded-lg p-0.5 hover:bg-sidebar-hover transition-colors"
+          title={`${user.name} · ${roleLabel}`}
         >
-          {initials}
-        </div>
-      )}
-      <div className="flex-1 min-w-0">
-        <p className="truncate font-semibold text-sidebar-item-active" style={{ fontSize: '13.5px' }}>{displayName}</p>
-        <p className="truncate text-xs font-medium text-sidebar-user-role">{user.role}</p>
-      </div>
-      <button className="shrink-0 rounded p-1 hover:bg-muted">
-        <MoreVertical className="h-4 w-4 text-sidebar-item" />
-      </button>
-    </div>
+          {user.avatar ? (
+            <img
+              src={user.avatar}
+              alt={user.name}
+              className="h-9 w-9 object-cover"
+              style={{ borderRadius: "5px" }}
+            />
+          ) : (
+            <div
+              className="flex h-9 w-9 items-center justify-center bg-brand-primary text-sm font-semibold text-brand-dark"
+              style={{ borderRadius: "5px" }}
+            >
+              {initials}
+            </div>
+          )}
+        </button>
+      </PopoverTrigger>
+      <PopoverContent className="w-56 p-2" side="right" align="end" sideOffset={8}>
+        <RolePickerMenu mode={mode} onSelect={handleSelect} />
+      </PopoverContent>
+    </Popover>
+  )
+}
+
+function AccountMenu({ user }: { user: SidebarUser }) {
+  const { mode, open, setOpen, initials, displayName, roleLabel, handleSelect } =
+    useAccountDisplay(user)
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          className="flex w-full items-center gap-3 rounded-lg bg-white px-3 py-3 text-left transition-colors hover:bg-gray-50"
+          style={{ borderRadius: "8px" }}
+        >
+          {user.avatar ? (
+            <img
+              src={user.avatar}
+              alt={user.name}
+              className="h-9 w-9 object-cover"
+              style={{ borderRadius: "5px" }}
+            />
+          ) : (
+            <div
+              className="flex h-9 w-9 items-center justify-center bg-brand-primary text-sm font-semibold text-brand-dark"
+              style={{ borderRadius: "5px" }}
+            >
+              {initials}
+            </div>
+          )}
+          <div className="flex-1 min-w-0">
+            <p
+              className="truncate font-semibold text-sidebar-item-active"
+              style={{ fontSize: "13.5px" }}
+            >
+              {displayName}
+            </p>
+            <p className="truncate text-xs font-medium text-sidebar-user-role">{roleLabel}</p>
+          </div>
+          <ChevronsUpDown className="h-4 w-4 shrink-0 text-sidebar-item" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent
+        className="w-[var(--radix-popover-trigger-width)] p-2"
+        align="start"
+        side="top"
+        sideOffset={4}
+      >
+        <RolePickerMenu mode={mode} onSelect={handleSelect} />
+      </PopoverContent>
+    </Popover>
   )
 }
 
@@ -424,7 +507,7 @@ function NavSection({
   )
 }
 
-export function Sidebar({ logo, collapsedLogo, sections, user, onItemClick, isCollapsed = false, onToggleCollapse, selectedAppId, onAppChange }: SidebarProps) {
+export function Sidebar({ logo, collapsedLogo, sections, user, onItemClick, isCollapsed = false, onToggleCollapse, selectedAppId, onAppChange, showAppSwitcher = true }: SidebarProps) {
   const getInitialExpandedItemId = () => {
     for (const section of sections) {
       for (const item of section.items) {
@@ -454,7 +537,7 @@ export function Sidebar({ logo, collapsedLogo, sections, user, onItemClick, isCo
   useEffect(() => {
     setExpandedItemId(getInitialExpandedItemId())
     setExpandedSectionId(getInitialExpandedSectionId())
-  }, [selectedAppId])
+  }, [selectedAppId, showAppSwitcher])
 
   const handleToggleItemExpand = (itemId: string) => {
     setExpandedItemId((currentId) => (currentId === itemId ? null : itemId))
@@ -510,13 +593,15 @@ export function Sidebar({ logo, collapsedLogo, sections, user, onItemClick, isCo
         )}
       </div>
 
-      {/* App Switcher */}
-      <div className={cn(
-        "shrink-0 pb-2",
-        isCollapsed ? "px-2 flex justify-center" : "px-3"
-      )}>
-        <AppSwitcher isCollapsed={isCollapsed} selectedAppId={selectedAppId} onAppChange={onAppChange} />
-      </div>
+      {/* App Switcher — Full Build only */}
+      {showAppSwitcher && (
+        <div className={cn(
+          "shrink-0 pb-2",
+          isCollapsed ? "px-2 flex justify-center" : "px-3"
+        )}>
+          <AppSwitcher isCollapsed={isCollapsed} selectedAppId={selectedAppId} onAppChange={onAppChange} />
+        </div>
+      )}
 
       {/* Navigation - scrollable */}
       <nav className={cn(

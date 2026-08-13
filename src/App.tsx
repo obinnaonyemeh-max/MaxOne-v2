@@ -44,6 +44,10 @@ import ChargeSpotsPage from "@/pages/charger-register/ChargeSpotsPage"
 import PortfolioDashboardPage from "@/pages/PortfolioDashboardPage"
 import ChampionsOverviewPage from "@/pages/portfolio/ChampionsOverviewPage"
 import ReferralManagementPage from "@/pages/portfolio/ReferralManagementPage"
+import VehicleRegisterPage from "@/pages/vehicle-register/VehicleRegisterPage"
+import VehicleActivityPage from "@/pages/vehicle-activity/VehicleActivityPage"
+import VehicleTripsPage from "@/pages/vehicle-trips/VehicleTripsPage"
+import VehicleStopsPage from "@/pages/vehicle-stops/VehicleStopsPage"
 
 export default function App() {
   return (
@@ -58,8 +62,8 @@ export default function App() {
         <Route path="/asset-movement/:id" element={<VehicleDetailsPage />} />
         <Route path="/growth-activation" element={<GrowthActivationPage />} />
         <Route path="/mcp-management" element={<MCPManagementPage />} />
-        <Route path="/inbound" element={<Navigate to="/inbound/dashboard" replace />} />
-        <Route path="/inbound/dashboard" element={<InboundPage />} />
+        <Route path="/inbound" element={<Navigate to="/inbound/batches" replace />} />
+        <Route path="/inbound/dashboard" element={<Navigate to="/inbound/batches" replace />} />
         <Route path="/inbound/stock-setup" element={<InboundPage />} />
         <Route path="/inbound/batches" element={<InboundPage />} />
         <Route path="/inbound/batches/:id" element={<BatchDetailsPage />} />
@@ -95,6 +99,10 @@ export default function App() {
         <Route path="/falcon/ev-chargers" element={<ChargerRegisterPage />} />
         <Route path="/falcon/ev-chargers/:id/charge-spots" element={<ChargeSpotsPage />} />
         <Route path="/falcon/ev-chargers/:id" element={<ChargerDetailsPage />} />
+        <Route path="/falcon/vehicle-register" element={<VehicleRegisterPage />} />
+        <Route path="/falcon/vehicle-register/:id/activity" element={<VehicleActivityPage />} />
+        <Route path="/falcon/vehicle-register/:id/trips" element={<VehicleTripsPage />} />
+        <Route path="/falcon/vehicle-register/:id/stops" element={<VehicleStopsPage />} />
         <Route path="/portfolio" element={<Navigate to="/portfolio/dashboard" replace />} />
         <Route path="/portfolio/dashboard" element={<PortfolioDashboardPage />} />
         <Route path="/portfolio/champions/overview" element={<ChampionsOverviewPage />} />

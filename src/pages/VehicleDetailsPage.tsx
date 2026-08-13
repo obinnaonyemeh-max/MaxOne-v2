@@ -127,12 +127,6 @@ export default function VehicleDetailsPage() {
                 >
                   Status History
                 </TabsTrigger>
-                <TabsTrigger
-                  value="movement"
-                  className="px-4 py-3 text-sm font-medium data-[state=active]:text-sidebar-item-active data-[state=inactive]:text-breadcrumb-root"
-                >
-                  Movement History
-                </TabsTrigger>
               </TabsList>
 
               <TabsContent value="basic" className="mt-0 flex-1 min-h-0 overflow-y-auto">
@@ -209,14 +203,6 @@ export default function VehicleDetailsPage() {
               <TabsContent value="status" className="mt-0 flex-1 min-h-0 overflow-y-auto">
               <div className="bg-content-card p-6 h-fit rounded-lg border border-border">
                 <StatusTimeline entries={vehicle.statusHistory} />
-              </div>
-            </TabsContent>
-
-              <TabsContent value="movement" className="mt-0 flex-1 min-h-0 overflow-y-auto">
-              <div className="bg-content-card p-6 h-fit rounded-lg border border-border">
-                <p className="text-sm text-breadcrumb-root">
-                  Movement history will be displayed here.
-                </p>
               </div>
             </TabsContent>
             </Tabs>

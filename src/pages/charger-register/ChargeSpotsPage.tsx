@@ -111,8 +111,6 @@ export default function ChargeSpotsPage() {
   const [heatMapSpotId, setHeatMapSpotId] = useState<string | null>(null)
   const [shareSpotId, setShareSpotId] = useState<string | null>(null)
 
-  const heatMapSpot =
-    spots.find((spot) => spot.id === heatMapSpotId) ?? null
   const shareSpot =
     spots.find((spot) => spot.id === shareSpotId) ?? null
 
@@ -290,7 +288,7 @@ export default function ChargeSpotsPage() {
 
       <ChargeSpotHeatMapModal
         open={!!heatMapSpotId}
-        spot={heatMapSpot}
+        spotId={heatMapSpotId}
         onOpenChange={(open) => {
           if (!open) setHeatMapSpotId(null)
         }}

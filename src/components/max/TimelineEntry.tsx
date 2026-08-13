@@ -11,12 +11,12 @@ export interface TimelineEntryData {
     template: string
     highlights: Record<string, string>
   }
-  actor: {
+  actor?: {
     action: string
     name: string
     avatar?: string
   }
-  duration: {
+  duration?: {
     range: string
     total: string
   }
@@ -78,28 +78,30 @@ export function TimelineEntry({ entry, className }: TimelineEntryProps) {
         {formatDescription(entry.description.template, entry.description.highlights)}
       </p>
 
-      <div className="mt-2 flex items-center gap-1.5" style={{ fontSize: "12px" }}>
-        <span className="text-breadcrumb-root font-medium">{entry.actor.action}</span>
-        {entry.actor.avatar ? (
-          <img
-            src={entry.actor.avatar}
-            alt={entry.actor.name}
-            className="h-4 w-4 rounded-full object-cover"
-          />
-        ) : (
-          <div className="h-4 w-4 rounded-full bg-gray-200 flex items-center justify-center">
-            <span className="text-[8px] font-medium text-sidebar-item">
-              {entry.actor.name.charAt(0)}
-            </span>
-          </div>
-        )}
-        <span className="font-medium text-sidebar-item-active">{entry.actor.name}</span>
-        <span className="text-breadcrumb-root">•</span>
-        <Clock className="h-3 w-3 text-breadcrumb-root" />
-        <span className="font-medium text-breadcrumb-root">
-          {entry.duration.range}{entry.duration.total ? ` (${entry.duration.total})` : ""}
-        </span>
-      </div>
+      {entry.actor && entry.duration && (
+        <div className="mt-2 flex items-center gap-1.5" style={{ fontSize: "12px" }}>
+          <span className="text-breadcrumb-root font-medium">{entry.actor.action}</span>
+          {entry.actor.avatar ? (
+            <img
+              src={entry.actor.avatar}
+              alt={entry.actor.name}
+              className="h-4 w-4 rounded-full object-cover"
+            />
+          ) : (
+            <div className="h-4 w-4 rounded-full bg-gray-200 flex items-center justify-center">
+              <span className="text-[8px] font-medium text-sidebar-item">
+                {entry.actor.name.charAt(0)}
+              </span>
+            </div>
+          )}
+          <span className="font-medium text-sidebar-item-active">{entry.actor.name}</span>
+          <span className="text-breadcrumb-root">•</span>
+          <Clock className="h-3 w-3 text-breadcrumb-root" />
+          <span className="font-medium text-breadcrumb-root">
+            {entry.duration.range}{entry.duration.total ? ` (${entry.duration.total})` : ""}
+          </span>
+        </div>
+      )}
     </div>
   )
 }

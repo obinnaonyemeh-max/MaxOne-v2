@@ -38,6 +38,7 @@ import {
   type RefurbishmentRecord,
   type RequiredPart,
 } from "@/data/mockRefurbishment"
+import { useCan } from "@/contexts/RoleSimulationContext"
 
 const stageStats = [
   { title: "Awaiting Supply", value: 3, subtitle: "avg 6d", indicatorColor: "var(--color-status-warning)" },
@@ -207,7 +208,8 @@ const columns: ColumnDef<RefurbishmentRecord>[] = [
 const partStatusOptions = ["Ordered", "Awaiting Supply", "Received"]
 
 function getPartsColumns(
-  onStatusChange: (partId: string, status: string) => void
+  onStatusChange: (partId: string, status: string) => void,
+  canAdjust: boolean
 ): ColumnDef<RequiredPart>[] {
   return [
     {
@@ -231,21 +233,26 @@ function getPartsColumns(
     {
       accessorKey: "status",
       header: "Status",
-      cell: ({ row }) => (
-        <Select
-          value={row.original.status}
-          onValueChange={(val) => onStatusChange(row.original.id, val)}
-        >
-          <SelectTrigger className="h-9 w-40">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {partStatusOptions.map((s) => (
-              <SelectItem key={s} value={s}>{s}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      ),
+      cell: ({ row }) =>
+        canAdjust ? (
+          <Select
+            value={row.original.status}
+            onValueChange={(val) => onStatusChange(row.original.id, val)}
+          >
+            <SelectTrigger className="h-9 w-40">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {partStatusOptions.map((s) => (
+                <SelectItem key={s} value={s}>{s}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        ) : (
+          <span className="font-medium text-table-text" style={{ fontSize: "14px" }}>
+            {row.original.status}
+          </span>
+        ),
     },
   ]
 }
@@ -275,6 +282,7 @@ export default function RefurbishmentPage() {
   const [newPartQty, setNewPartQty] = useState("1")
   const [searchOpen, setSearchOpen] = useState(false)
   const [breachFilter, setBreachFilter] = useState(false)
+  const canAdjustWorkOrder = useCan("refurbishment.adjustWorkOrder")
   const activeFilterCount = getActiveFilterCount(filters)
 
   const handleRowClick = (row: RefurbishmentRecord) => {
@@ -303,7 +311,7 @@ export default function RefurbishmentPage() {
     setNewPartQty("1")
   }
 
-  const partsColumns = getPartsColumns(handlePartStatusChange)
+  const partsColumns = getPartsColumns(handlePartStatusChange, canAdjustWorkOrder)
   const allPartsReceived = parts.length > 0 && parts.every((p) => p.status === "Received")
 
   const stageFlow: Record<string, { label: string; nextStage: string }> = {
@@ -473,13 +481,17 @@ export default function RefurbishmentPage() {
         subtitle={selectedRecord ? `${selectedRecord.plateNumber} • ${selectedRecord.vehicleModel} • ${selectedRecord.manufacturer}` : ""}
         maxHeight="85vh"
         className="max-w-lg"
-        primaryAction={selectedRecord?.refurbishmentStage !== "Activation Ready" ? {
-          label: currentStageAction?.label || "Start Refurbishment",
-          onClick: () => setSelectedRecord(null),
-          disabled: selectedRecord?.refurbishmentStage === "Awaiting Supply" && !allPartsReceived,
-        } : undefined}
+        primaryAction={
+          canAdjustWorkOrder && selectedRecord?.refurbishmentStage !== "Activation Ready"
+            ? {
+                label: currentStageAction?.label || "Start Refurbishment",
+                onClick: () => setSelectedRecord(null),
+                disabled: selectedRecord?.refurbishmentStage === "Awaiting Supply" && !allPartsReceived,
+              }
+            : undefined
+        }
         secondaryAction={{
-          label: "Cancel",
+          label: canAdjustWorkOrder ? "Cancel" : "Close",
           onClick: () => setSelectedRecord(null),
         }}
       >
@@ -511,40 +523,42 @@ export default function RefurbishmentPage() {
               </div>
             </FormSection>
 
-            {selectedRecord.refurbishmentStage === "Awaiting Supply" && (
+            {canAdjustWorkOrder && selectedRecord.refurbishmentStage === "Awaiting Supply" && (
               <p className="text-left text-sm text-muted-foreground">
                 <span className="text-danger">*</span> All parts must be marked as Received before starting.
               </p>
             )}
 
-            <FormSection title="Add New Part">
-              <div className="flex items-end gap-2">
-                <div className="flex-1 flex flex-col gap-2">
-                  <label className="text-gray-400 font-medium" style={{ fontSize: "13px" }}>Part Name</label>
-                  <Input
-                    type="text"
-                    placeholder="e.g. Battery Pack"
-                    value={newPartName}
-                    onChange={(e) => setNewPartName(e.target.value)}
-                    className="h-12 bg-gray-50"
-                    onKeyDown={(e) => e.key === "Enter" && handleAddPart()}
-                  />
+            {canAdjustWorkOrder && (
+              <FormSection title="Add New Part">
+                <div className="flex items-end gap-2">
+                  <div className="flex-1 flex flex-col gap-2">
+                    <label className="text-gray-400 font-medium" style={{ fontSize: "13px" }}>Part Name</label>
+                    <Input
+                      type="text"
+                      placeholder="e.g. Battery Pack"
+                      value={newPartName}
+                      onChange={(e) => setNewPartName(e.target.value)}
+                      className="h-12 bg-gray-50"
+                      onKeyDown={(e) => e.key === "Enter" && handleAddPart()}
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <label className="text-gray-400 font-medium" style={{ fontSize: "13px" }}>Qty</label>
+                    <Input
+                      type="number"
+                      min="1"
+                      value={newPartQty}
+                      onChange={(e) => setNewPartQty(e.target.value)}
+                      className="h-12 w-16 bg-gray-50"
+                    />
+                  </div>
+                  <Button variant="outline" className="h-12" onClick={handleAddPart}>
+                    Add
+                  </Button>
                 </div>
-                <div className="flex flex-col gap-2">
-                  <label className="text-gray-400 font-medium" style={{ fontSize: "13px" }}>Qty</label>
-                  <Input
-                    type="number"
-                    min="1"
-                    value={newPartQty}
-                    onChange={(e) => setNewPartQty(e.target.value)}
-                    className="h-12 w-16 bg-gray-50"
-                  />
-                </div>
-                <Button variant="outline" className="h-12" onClick={handleAddPart}>
-                  Add
-                </Button>
-              </div>
-            </FormSection>
+              </FormSection>
+            )}
           </div>
         )}
       </Modal>

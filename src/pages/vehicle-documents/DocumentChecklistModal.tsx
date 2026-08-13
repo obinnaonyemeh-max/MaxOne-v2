@@ -69,13 +69,15 @@ function ChecklistRow({
       >
         <Eye className="h-4 w-4" />
       </Button>
-      <Button
-        variant="outline"
-        className="h-8 text-xs px-3 shrink-0"
-        onClick={onReplace}
-      >
-        Replace
-      </Button>
+      {onReplace && (
+        <Button
+          variant="outline"
+          className="h-8 text-xs px-3 shrink-0"
+          onClick={onReplace}
+        >
+          Replace
+        </Button>
+      )}
     </div>
   )
 }
@@ -89,11 +91,15 @@ export function DocumentChecklistModal({ record, onClose, onUpload, onReplace }:
       subtitle={record?.vehicleId}
       className="max-w-2xl"
       maxHeight="85vh"
-      primaryAction={{
-        label: "Upload Document",
-        onClick: () => onUpload?.(),
-        icon: true,
-      }}
+      primaryAction={
+        onUpload
+          ? {
+              label: "Upload Document",
+              onClick: () => onUpload(),
+              icon: true,
+            }
+          : undefined
+      }
       secondaryAction={{ label: "Close", onClick: onClose }}
     >
       {record && (
@@ -156,7 +162,7 @@ export function DocumentChecklistModal({ record, onClose, onUpload, onReplace }:
                 <ChecklistRow
                   key={doc.name}
                   doc={doc}
-                  onReplace={() => onReplace?.(doc)}
+                  onReplace={onReplace ? () => onReplace(doc) : undefined}
                 />
               ))}
             </div>

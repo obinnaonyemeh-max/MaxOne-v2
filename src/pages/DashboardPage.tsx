@@ -137,18 +137,19 @@ const checkinFleetSeries: BarChartSeries[] = [
 export default function DashboardPage() {
   const navigate = useNavigate()
 
+  // TODO: Dashboard widgets should later be composed from modules the role can access.
   return (
     <>
       <TopBar
         breadcrumbs={[
-          { label: "Home" },
-          { label: "Command Center" },
+          { label: "Overview" },
+          { label: "Dashboard" },
         ]}
       />
 
       <div className="flex-1 overflow-auto px-6 pb-6">
         <PageHeader
-          title="Command Center"
+          title="Dashboard"
           subtitle="See real-time fleet overview across all regions"
           className="px-0"
         />

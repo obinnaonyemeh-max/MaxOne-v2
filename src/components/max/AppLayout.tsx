@@ -1,9 +1,21 @@
-import { type ReactNode } from "react"
+import { useEffect, type ReactNode } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
 import { Toaster } from "sonner"
 import { PageLayout } from "./PageLayout"
 import { Sidebar, type SidebarItem, type SidebarSection } from "./Sidebar"
-import { sidebarSections, driverGrowthSidebarSections, driverExperienceSidebarSections, falconSidebarSections, portfolioSidebarSections, sidebarUser } from "@/data/sidebarConfig"
+import {
+  sidebarSections,
+  driverGrowthSidebarSections,
+  driverExperienceSidebarSections,
+  falconSidebarSections,
+  portfolioSidebarSections,
+  sidebarUser,
+} from "@/data/sidebarConfig"
+import { useRoleSimulation } from "@/contexts/RoleSimulationContext"
+import {
+  getFallbackPathForDenied,
+  isPathAllowedForMode,
+} from "@/data/rolePermissions"
 
 function markActiveSections(sections: SidebarSection[], pathname: string): SidebarSection[] {
   return sections.map((section) => ({
@@ -53,16 +65,34 @@ interface AppLayoutProps {
 export function AppLayout({ children }: AppLayoutProps) {
   const navigate = useNavigate()
   const location = useLocation()
+  const { mode, isFullBuild, roleLabel, roleSidebarSections } = useRoleSimulation()
   const selectedAppId = getAppIdFromPathname(location.pathname)
 
-  const sections =
-    selectedAppId === "driver-growth" ? driverGrowthSidebarSections :
-    selectedAppId === "driver-experience" ? driverExperienceSidebarSections :
-    selectedAppId === "falcon" ? falconSidebarSections :
-    selectedAppId === "portfolio" ? portfolioSidebarSections :
-    sidebarSections
+  useEffect(() => {
+    if (isFullBuild) return
+    if (!isPathAllowedForMode(location.pathname, mode)) {
+      navigate(getFallbackPathForDenied(location.pathname, mode), { replace: true })
+    }
+  }, [isFullBuild, location.pathname, mode, navigate])
+
+  const sections = isFullBuild
+    ? selectedAppId === "driver-growth"
+      ? driverGrowthSidebarSections
+      : selectedAppId === "driver-experience"
+        ? driverExperienceSidebarSections
+        : selectedAppId === "falcon"
+          ? falconSidebarSections
+          : selectedAppId === "portfolio"
+            ? portfolioSidebarSections
+            : sidebarSections
+    : roleSidebarSections
 
   const activeSections = markActiveSections(sections, location.pathname)
+
+  const displayUser = {
+    ...sidebarUser,
+    role: roleLabel,
+  }
 
   const handleSidebarItemClick = (item: SidebarItem) => {
     if (item.href) {
@@ -84,12 +114,13 @@ export function AppLayout({ children }: AppLayoutProps) {
         sidebar={({ isCollapsed, onToggleCollapse }) => (
           <Sidebar
             sections={activeSections}
-            user={sidebarUser}
+            user={displayUser}
             onItemClick={handleSidebarItemClick}
             isCollapsed={isCollapsed}
             onToggleCollapse={onToggleCollapse}
             selectedAppId={selectedAppId}
             onAppChange={handleAppChange}
+            showAppSwitcher={isFullBuild}
           />
         )}
       >

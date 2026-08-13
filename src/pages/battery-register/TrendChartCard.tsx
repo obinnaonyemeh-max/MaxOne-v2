@@ -1,9 +1,11 @@
-import { useState } from "react"
+import { useState, useId } from "react"
 import { format } from "date-fns"
 import { CalendarIcon } from "lucide-react"
 import {
   LineChart,
   Line,
+  AreaChart,
+  Area,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -25,8 +27,8 @@ interface TrendDataPoint {
 
 interface TrendChartCardProps {
   title: string
-  currentValue: number
-  currentValueLabel: string
+  currentValue?: number
+  currentValueLabel?: string
   unit: string
   data: TrendDataPoint[]
   lineColor?: string
@@ -37,6 +39,9 @@ interface TrendChartCardProps {
   yAxisTicks?: number[]
   onPeriodChange?: (period: string) => void
   showPeriodOptions?: boolean
+  showCurrentValue?: boolean
+  chartType?: "line" | "area"
+  chartHeight?: number
 }
 
 function CustomTooltip({
@@ -93,7 +98,11 @@ export function TrendChartCard({
   yAxisTicks,
   onPeriodChange,
   showPeriodOptions = true,
+  showCurrentValue = true,
+  chartType = "line",
+  chartHeight = 180,
 }: TrendChartCardProps) {
+  const fillId = `trendAreaFill-${useId().replace(/:/g, "")}`
   const [period, setPeriod] = useState(defaultPeriod)
   const [customStartDate, setCustomStartDate] = useState<Date | undefined>()
   const [customEndDate, setCustomEndDate] = useState<Date | undefined>()
@@ -237,62 +246,109 @@ export function TrendChartCard({
       </div>
 
       {/* Current Value */}
-      <div className="mb-4">
-        <span
-          className="block text-breadcrumb-root mb-0.5"
-          style={{ fontSize: "11px", fontWeight: 500 }}
-        >
-          {currentValueLabel}
-        </span>
-        <span
-          className={valueColor}
-          style={{ fontSize: "24px", fontWeight: 600 }}
-        >
-          {currentValue}
+      {showCurrentValue && (
+        <div className="mb-4">
           <span
-            className="text-breadcrumb-root"
-            style={{ fontSize: "16px", fontWeight: 500 }}
+            className="block text-breadcrumb-root mb-0.5"
+            style={{ fontSize: "11px", fontWeight: 500 }}
           >
-            {unit}
+            {currentValueLabel}
           </span>
-        </span>
-      </div>
+          <span
+            className={valueColor}
+            style={{ fontSize: "24px", fontWeight: 600 }}
+          >
+            {currentValue}
+            <span
+              className="text-breadcrumb-root"
+              style={{ fontSize: "16px", fontWeight: 500 }}
+            >
+              {unit}
+            </span>
+          </span>
+        </div>
+      )}
 
       {/* Chart */}
-      <div style={{ height: "180px" }}>
+      <div style={{ height: `${chartHeight}px` }}>
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart
-            data={data}
-            margin={{ top: 10, right: 10, left: -20, bottom: 5 }}
-          >
-            <CartesianGrid
-              horizontal
-              vertical={false}
-              stroke="var(--color-gray-200)"
-            />
-            <XAxis
-              dataKey="label"
-              tick={{ fill: "var(--color-gray-400)", fontSize: 11, fontWeight: 500 }}
-              axisLine={false}
-              tickLine={false}
-            />
-            <YAxis
-              domain={yAxisDomain}
-              tick={{ fill: "var(--color-gray-400)", fontSize: 11, fontWeight: 500 }}
-              axisLine={false}
-              tickLine={false}
-              ticks={yAxisTicks}
-            />
-            <Tooltip content={<CustomTooltip unit={unit} />} />
-            <Line
-              type="monotone"
-              dataKey="value"
-              stroke={lineColor}
-              strokeWidth={2}
-              dot={false}
-              activeDot={{ r: 4, fill: lineColor }}
-            />
-          </LineChart>
+          {chartType === "area" ? (
+            <AreaChart
+              data={data}
+              margin={{ top: 10, right: 10, left: -20, bottom: 5 }}
+            >
+              <defs>
+                <linearGradient id={fillId} x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor={lineColor} stopOpacity={0.35} />
+                  <stop offset="100%" stopColor={lineColor} stopOpacity={0.04} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid
+                horizontal
+                vertical={false}
+                stroke="var(--color-gray-200)"
+              />
+              <XAxis
+                dataKey="label"
+                tick={{ fill: "var(--color-gray-400)", fontSize: 11, fontWeight: 500 }}
+                axisLine={false}
+                tickLine={false}
+                interval="preserveStartEnd"
+              />
+              <YAxis
+                domain={yAxisDomain}
+                tick={{ fill: "var(--color-gray-400)", fontSize: 11, fontWeight: 500 }}
+                axisLine={false}
+                tickLine={false}
+                ticks={yAxisTicks}
+              />
+              <Tooltip content={<CustomTooltip unit={unit} />} />
+              <Area
+                type="monotone"
+                dataKey="value"
+                stroke={lineColor}
+                strokeWidth={2}
+                fill={`url(#${fillId})`}
+                dot={false}
+                isAnimationActive={false}
+                activeDot={{ r: 4, fill: lineColor }}
+              />
+            </AreaChart>
+          ) : (
+            <LineChart
+              data={data}
+              margin={{ top: 10, right: 10, left: -20, bottom: 5 }}
+            >
+              <CartesianGrid
+                horizontal
+                vertical={false}
+                stroke="var(--color-gray-200)"
+              />
+              <XAxis
+                dataKey="label"
+                tick={{ fill: "var(--color-gray-400)", fontSize: 11, fontWeight: 500 }}
+                axisLine={false}
+                tickLine={false}
+              />
+              <YAxis
+                domain={yAxisDomain}
+                tick={{ fill: "var(--color-gray-400)", fontSize: 11, fontWeight: 500 }}
+                axisLine={false}
+                tickLine={false}
+                ticks={yAxisTicks}
+              />
+              <Tooltip content={<CustomTooltip unit={unit} />} />
+              <Line
+                type="monotone"
+                dataKey="value"
+                stroke={lineColor}
+                strokeWidth={2}
+                dot={false}
+                isAnimationActive={false}
+                activeDot={{ r: 4, fill: lineColor }}
+              />
+            </LineChart>
+          )}
         </ResponsiveContainer>
       </div>
     </div>

@@ -10,6 +10,7 @@ export function TabPanel<T>({
   onAdd,
   columns,
   data,
+  showAdd = true,
 }: {
   count: number
   countLabel: string
@@ -17,6 +18,7 @@ export function TabPanel<T>({
   onAdd: () => void
   columns: ColumnDef<T>[]
   data: T[]
+  showAdd?: boolean
 }) {
   return (
     <div className="flex flex-1 flex flex-col min-h-0 rounded-t-[14px] rounded-b-[4px] border border-table-border">
@@ -24,10 +26,12 @@ export function TabPanel<T>({
         <span className="text-sm font-medium text-muted-foreground">
           {count} {countLabel}
         </span>
-        <Button className="gap-2" onClick={onAdd}>
-          <Plus className="h-4 w-4" />
-          {addLabel}
-        </Button>
+        {showAdd && (
+          <Button className="gap-2" onClick={onAdd}>
+            <Plus className="h-4 w-4" />
+            {addLabel}
+          </Button>
+        )}
       </div>
       <div className="flex-1 overflow-y-auto">
         <DataTable columns={columns} data={data} />

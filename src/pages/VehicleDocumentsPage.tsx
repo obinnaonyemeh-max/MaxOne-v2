@@ -34,6 +34,7 @@ import {
   type DocumentStatus,
   type ChecklistDocument,
 } from "@/data/mockVehicleDocuments"
+import { useCan } from "@/contexts/RoleSimulationContext"
 import { DocumentChecklistModal } from "./vehicle-documents/DocumentChecklistModal"
 import { UploadDocumentModal } from "./vehicle-documents/UploadDocumentModal"
 import { UploadDocumentsForVehicleModal } from "./vehicle-documents/UploadDocumentsForVehicleModal"
@@ -214,6 +215,8 @@ export default function VehicleDocumentsPage() {
 
   const [bulkUploadOpen, setBulkUploadOpen] = useState(false)
   const [bulkUploadVehicleId, setBulkUploadVehicleId] = useState<string | undefined>(undefined)
+  const canUploadDoc = useCan("vehicleDocument.upload")
+  const canReplaceDoc = useCan("vehicleDocument.replace")
 
   const vehicleOptions = useMemo(
     () =>
@@ -433,15 +436,17 @@ export default function VehicleDocumentsPage() {
             )}
             </div>
 
-            <div className="flex items-center gap-2">
-              <Button
-                className="h-9 gap-2 text-sm"
-                onClick={() => openUpload()}
-              >
-                <Plus className="h-4 w-4" />
-                Upload Doc
-              </Button>
-            </div>
+            {canUploadDoc && (
+              <div className="flex items-center gap-2">
+                <Button
+                  className="h-9 gap-2 text-sm"
+                  onClick={() => openUpload()}
+                >
+                  <Plus className="h-4 w-4" />
+                  Upload Doc
+                </Button>
+              </div>
+            )}
           </div>
 
           <div className="flex-1 overflow-y-auto">
@@ -465,12 +470,20 @@ export default function VehicleDocumentsPage() {
       <DocumentChecklistModal
         record={selectedRecord}
         onClose={() => setSelectedRecord(null)}
-        onUpload={() => {
-          if (selectedRecord) openUpload(selectedRecord.vehicleId)
-        }}
-        onReplace={(doc) => {
-          if (selectedRecord) openReplace(selectedRecord.vehicleId, doc)
-        }}
+        onUpload={
+          canUploadDoc
+            ? () => {
+                if (selectedRecord) openUpload(selectedRecord.vehicleId)
+              }
+            : undefined
+        }
+        onReplace={
+          canReplaceDoc
+            ? (doc) => {
+                if (selectedRecord) openReplace(selectedRecord.vehicleId, doc)
+              }
+            : undefined
+        }
       />
 
       <UploadDocumentsForVehicleModal

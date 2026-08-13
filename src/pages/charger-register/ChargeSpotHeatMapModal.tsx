@@ -3,13 +3,16 @@ import {
   formatHeatMapHour,
   getChargeSpotHeatMap,
   HEAT_MAP_DAY_SHORT,
-  type ChargeSpot,
+  type ChargeSpotHeatMapData,
 } from "@/data/mockChargerData"
 
 interface ChargeSpotHeatMapModalProps {
   open: boolean
-  spot: ChargeSpot | null
+  spotId?: string | null
+  heatMap?: ChargeSpotHeatMapData
   onOpenChange: (open: boolean) => void
+  countNoun?: string
+  emptyLabel?: string
 }
 
 const MIN_OPACITY = 0.25
@@ -22,19 +25,22 @@ function cellOpacity(count: number, maxCount: number): number {
 
 export function ChargeSpotHeatMapModal({
   open,
-  spot,
+  spotId,
+  heatMap,
   onOpenChange,
+  countNoun = "spots",
+  emptyLabel = "No heat map data available for this charge spot.",
 }: ChargeSpotHeatMapModalProps) {
-  const heatMap = spot ? getChargeSpotHeatMap(spot.id) : undefined
+  const resolvedHeatMap = heatMap ?? (spotId ? getChargeSpotHeatMap(spotId) : undefined)
 
   const countByKey = new Map<string, number>()
-  if (heatMap) {
-    for (const cell of heatMap.cells) {
+  if (resolvedHeatMap) {
+    for (const cell of resolvedHeatMap.cells) {
       countByKey.set(`${cell.day}-${cell.hour}`, cell.count)
     }
   }
 
-  const maxCount = heatMap?.maxCount ?? 1
+  const maxCount = resolvedHeatMap?.maxCount ?? 1
 
   return (
     <Modal
@@ -44,19 +50,19 @@ export function ChargeSpotHeatMapModal({
       className="max-w-3xl w-[calc(100%-2rem)] max-h-[90vh]"
       maxHeight="90vh"
     >
-      {heatMap ? (
+      {resolvedHeatMap ? (
         <div className="flex flex-col gap-5">
           <div className="flex flex-col gap-1">
             <p className="text-breadcrumb-root" style={{ fontSize: "13px" }}>
-              Days with most spots →{" "}
+              Days with most {countNoun} →{" "}
               <span className="font-medium text-sidebar-item-active">
-                {heatMap.peakDayLabel}
+                {resolvedHeatMap.peakDayLabel}
               </span>
             </p>
             <p className="text-breadcrumb-root" style={{ fontSize: "13px" }}>
-              Time with most spots →{" "}
+              Time with most {countNoun} →{" "}
               <span className="font-medium text-sidebar-item-active">
-                {heatMap.peakTimeLabel}
+                {resolvedHeatMap.peakTimeLabel}
               </span>
             </p>
           </div>
@@ -136,7 +142,7 @@ export function ChargeSpotHeatMapModal({
         </div>
       ) : (
         <p className="text-breadcrumb-root" style={{ fontSize: "14px" }}>
-          No heat map data available for this charge spot.
+          {emptyLabel}
         </p>
       )}
     </Modal>

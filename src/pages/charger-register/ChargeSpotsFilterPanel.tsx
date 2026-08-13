@@ -38,46 +38,10 @@ export const defaultChargeSpotsFilterState: ChargeSpotsFilterState = {
   dateRange: undefined,
 }
 
-export const chargeSpotsFilterSections: FilterSection[] = [
-  {
-    id: "category",
-    title: "Category",
-    defaultExpanded: true,
-    options: [
-      { value: "day", label: "Day Spots (6AM - 6:59PM)" },
-      { value: "night", label: "Night Spots (7PM - 5:59AM)" },
-      { value: "weekday", label: "Weekday Spots" },
-      { value: "weekend", label: "Weekend Spots" },
-    ],
-  },
-  {
-    id: "days",
-    title: "Days of the week",
-    options: [
-      { value: "monday", label: "Monday" },
-      { value: "tuesday", label: "Tuesday" },
-      { value: "wednesday", label: "Wednesday" },
-      { value: "thursday", label: "Thursday" },
-      { value: "friday", label: "Friday" },
-      { value: "saturday", label: "Saturday" },
-      { value: "sunday", label: "Sunday" },
-    ],
-  },
-]
-
-const durationSortOptions: { value: ChargeSpotSort; label: string }[] = [
-  { value: "duration-longest", label: "Longest average spot duration" },
-  { value: "duration-shortest", label: "Shortest average spot duration" },
-]
-
-const frequencySortOptions: { value: ChargeSpotSort; label: string }[] = [
-  { value: "frequency-highest", label: "Highest number of spots" },
-  { value: "frequency-lowest", label: "Lowest number of spots" },
-]
-
 interface ChargeSpotsFilterPanelProps {
   state: ChargeSpotsFilterState
   onChange: (next: ChargeSpotsFilterState) => void
+  entityLabel?: "spot" | "stop"
 }
 
 export function getChargeSpotsActiveFilterCount(state: ChargeSpotsFilterState): number {
@@ -123,8 +87,48 @@ function SortOptionList({
 export function ChargeSpotsFilterPanel({
   state,
   onChange,
+  entityLabel = "spot",
 }: ChargeSpotsFilterPanelProps) {
   const activeCount = getChargeSpotsActiveFilterCount(state)
+  const plural = entityLabel === "stop" ? "Stops" : "Spots"
+  const singular = entityLabel
+
+  const sections: FilterSection[] = [
+    {
+      id: "category",
+      title: "Category",
+      defaultExpanded: true,
+      options: [
+        { value: "day", label: `Day ${plural} (6AM - 6:59PM)` },
+        { value: "night", label: `Night ${plural} (7PM - 5:59AM)` },
+        { value: "weekday", label: `Weekday ${plural}` },
+        { value: "weekend", label: `Weekend ${plural}` },
+      ],
+    },
+    {
+      id: "days",
+      title: "Days of the week",
+      options: [
+        { value: "monday", label: "Monday" },
+        { value: "tuesday", label: "Tuesday" },
+        { value: "wednesday", label: "Wednesday" },
+        { value: "thursday", label: "Thursday" },
+        { value: "friday", label: "Friday" },
+        { value: "saturday", label: "Saturday" },
+        { value: "sunday", label: "Sunday" },
+      ],
+    },
+  ]
+
+  const durationSortOptions: { value: ChargeSpotSort; label: string }[] = [
+    { value: "duration-longest", label: `Longest average ${singular} duration` },
+    { value: "duration-shortest", label: `Shortest average ${singular} duration` },
+  ]
+
+  const frequencySortOptions: { value: ChargeSpotSort; label: string }[] = [
+    { value: "frequency-highest", label: `Highest number of ${entityLabel}s` },
+    { value: "frequency-lowest", label: `Lowest number of ${entityLabel}s` },
+  ]
 
   const formatDateRange = () => {
     if (!state.dateRange?.from) return "Select date range"
@@ -219,7 +223,7 @@ export function ChargeSpotsFilterPanel({
 
       {/* Category + Days via GenericFilterPopover */}
       <GenericFilterPopover
-        sections={chargeSpotsFilterSections}
+        sections={sections}
         filters={state.filters}
         onFiltersChange={(filters) => onChange({ ...state, filters })}
         className="w-full max-h-none"

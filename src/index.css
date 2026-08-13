@@ -167,4 +167,97 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
+
+  .leaflet-container {
+    height: 100%;
+    width: 100%;
+    z-index: 0;
+    background: #f3f3f3;
+  }
+
+  .live-tracking-start-label {
+    background: transparent !important;
+    border: none !important;
+  }
+
+  @keyframes live-core-breathe {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.18); opacity: 0.88; }
+  }
+
+  @keyframes live-halo-ping {
+    0% {
+      transform: scale(1);
+      opacity: 0.55;
+    }
+    75% {
+      opacity: 0.08;
+    }
+    100% {
+      transform: scale(2.8);
+      opacity: 0;
+    }
+  }
+
+  .live-pulse {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 10px;
+    height: 10px;
+    flex-shrink: 0;
+  }
+
+  .live-pulse-core {
+    position: relative;
+    z-index: 1;
+    width: 8px;
+    height: 8px;
+    border-radius: 9999px;
+    background: var(--color-status-danger);
+    animation: live-core-breathe 1.8s ease-in-out infinite;
+  }
+
+  .live-pulse-halo {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 9999px;
+    background: var(--color-status-danger);
+    animation: live-halo-ping 1.8s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+  }
+
+  .live-pulse-halo.is-delayed {
+    animation-delay: 0.9s;
+  }
+
+  .live-pulse.is-white .live-pulse-core,
+  .live-pulse.is-white .live-pulse-halo {
+    background: #fff;
+  }
+
+  .live-pulse.is-white .live-pulse-core {
+    width: 6px;
+    height: 6px;
+  }
+
+  .live-pulse.is-white .live-pulse-halo {
+    width: 6px;
+    height: 6px;
+  }
+
+  .live-pulse.is-idle .live-pulse-core {
+    animation: none;
+    background: var(--color-gray-300);
+  }
+
+  .live-pulse.is-idle .live-pulse-halo {
+    display: none;
+  }
+
+  .live-pulse.is-white.is-idle .live-pulse-core {
+    background: #fff;
+    opacity: 0.7;
+  }
 }

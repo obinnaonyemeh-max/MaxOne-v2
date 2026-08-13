@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils"
 export interface StatusTab {
   id: string
   label: string
-  count: number
+  count?: number
 }
 
 interface StatusTabsProps {
@@ -49,20 +49,11 @@ export function StatusTabs({
             )}
           >
             <span>
-              {isFirst ? (
-                <>
-                  <span>
-                    {tab.label}
-                  </span>
-                  <span className="ml-1">({formatCount(tab.count)})</span>
-                </>
-              ) : (
-                <>
-                  {tab.label}
-                  <span className="ml-1 text-muted-foreground">
-                    ({formatCount(tab.count)})
-                  </span>
-                </>
+              <span>{tab.label}</span>
+              {tab.count !== undefined && (
+                <span className={cn("ml-1", !isFirst && "text-muted-foreground")}>
+                  ({formatCount(tab.count)})
+                </span>
               )}
             </span>
             <span 

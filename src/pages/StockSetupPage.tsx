@@ -1,7 +1,5 @@
 import { useMemo, useState } from "react"
-import { Trash2 } from "lucide-react"
 
-import { ConfirmModal } from "@/components/max"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 import {
@@ -15,6 +13,7 @@ import {
   type TrimRecord,
 } from "@/data/mockStockSetup"
 
+import { useCan } from "@/contexts/RoleSimulationContext"
 import {
   getManufacturerColumns,
   getVehicleTypeColumns,
@@ -29,17 +28,6 @@ import { TrimModal } from "./stock-setup/TrimModal"
 
 type StockSetupTab = "manufacturers" | "vehicle-types" | "models" | "trims"
 
-type DeleteTarget =
-  | { kind: "manufacturer" | "vehicle-type" | "model" | "trim"; id: string; label: string }
-  | null
-
-const deleteTitle: Record<NonNullable<DeleteTarget>["kind"], string> = {
-  manufacturer: "Delete Manufacturer",
-  "vehicle-type": "Delete Vehicle Classification",
-  model: "Delete Model",
-  trim: "Delete Trim",
-}
-
 export default function StockSetupPage() {
   const [stockSetupTab, setStockSetupTab] = useState<StockSetupTab>("manufacturers")
   const [showAddManufacturer, setShowAddManufacturer] = useState(false)
@@ -50,59 +38,59 @@ export default function StockSetupPage() {
   const [editingModel, setEditingModel] = useState<ModelRecord | null>(null)
   const [editingTrim, setEditingTrim] = useState<TrimRecord | null>(null)
   const [editingVehicleType, setEditingVehicleType] = useState<VehicleTypeRecord | null>(null)
-  const [deleteTarget, setDeleteTarget] = useState<DeleteTarget>(null)
+  const canAdd = useCan("inbound.stockSetup.add")
+  const canEdit = useCan("inbound.stockSetup.edit")
 
   const manufacturerColumns = useMemo(
     () =>
       getManufacturerColumns({
-        onEdit: (row) => {
-          setEditingManufacturer(row)
-          setShowAddManufacturer(true)
-        },
-        onDelete: (row) => setDeleteTarget({ kind: "manufacturer", id: row.id, label: row.name }),
+        onEdit: canEdit
+          ? (row) => {
+              setEditingManufacturer(row)
+              setShowAddManufacturer(true)
+            }
+          : undefined,
       }),
-    [],
+    [canEdit],
   )
 
   const vehicleTypeColumns = useMemo(
     () =>
       getVehicleTypeColumns({
-        onEdit: (row) => {
-          setEditingVehicleType(row)
-          setShowAddVehicleType(true)
-        },
-        onDelete: (row) =>
-          setDeleteTarget({
-            kind: "vehicle-type",
-            id: row.id,
-            label: row.name,
-          }),
+        onEdit: canEdit
+          ? (row) => {
+              setEditingVehicleType(row)
+              setShowAddVehicleType(true)
+            }
+          : undefined,
       }),
-    [],
+    [canEdit],
   )
 
   const modelColumns = useMemo(
     () =>
       getModelColumns({
-        onEdit: (row) => {
-          setEditingModel(row)
-          setShowAddModel(true)
-        },
-        onDelete: (row) => setDeleteTarget({ kind: "model", id: row.id, label: row.modelName }),
+        onEdit: canEdit
+          ? (row) => {
+              setEditingModel(row)
+              setShowAddModel(true)
+            }
+          : undefined,
       }),
-    [],
+    [canEdit],
   )
 
   const trimColumns = useMemo(
     () =>
       getTrimColumns({
-        onEdit: (row) => {
-          setEditingTrim(row)
-          setShowAddTrim(true)
-        },
-        onDelete: (row) => setDeleteTarget({ kind: "trim", id: row.id, label: row.trimName }),
+        onEdit: canEdit
+          ? (row) => {
+              setEditingTrim(row)
+              setShowAddTrim(true)
+            }
+          : undefined,
       }),
-    [],
+    [canEdit],
   )
 
   const handleManufacturerOpenChange = (open: boolean) => {
@@ -152,6 +140,7 @@ export default function StockSetupPage() {
             onAdd={() => setShowAddManufacturer(true)}
             columns={manufacturerColumns}
             data={mockManufacturers}
+            showAdd={canAdd}
           />
         </TabsContent>
 
@@ -163,6 +152,7 @@ export default function StockSetupPage() {
             onAdd={() => setShowAddVehicleType(true)}
             columns={vehicleTypeColumns}
             data={mockVehicleTypes}
+            showAdd={canAdd}
           />
         </TabsContent>
 
@@ -174,6 +164,7 @@ export default function StockSetupPage() {
             onAdd={() => setShowAddModel(true)}
             columns={modelColumns}
             data={mockModels}
+            showAdd={canAdd}
           />
         </TabsContent>
 
@@ -185,6 +176,7 @@ export default function StockSetupPage() {
             onAdd={() => setShowAddTrim(true)}
             columns={trimColumns}
             data={mockTrims}
+            showAdd={canAdd}
           />
         </TabsContent>
       </Tabs>
@@ -201,30 +193,6 @@ export default function StockSetupPage() {
       />
       <ModelModal open={showAddModel} onOpenChange={handleModelOpenChange} editing={editingModel} />
       <TrimModal open={showAddTrim} onOpenChange={handleTrimOpenChange} editing={editingTrim} />
-
-      <ConfirmModal
-        open={deleteTarget !== null}
-        onOpenChange={(open) => { if (!open) setDeleteTarget(null) }}
-        variant="destructive"
-        icon={Trash2}
-        title={deleteTarget ? deleteTitle[deleteTarget.kind] : "Confirm Delete"}
-        subtitle={
-          deleteTarget
-            ? `Are you sure you want to delete "${deleteTarget.label}"? This action cannot be undone.`
-            : undefined
-        }
-        primaryAction={{
-          label: "Delete",
-          onClick: () => {
-            if (deleteTarget) console.log(`Delete ${deleteTarget.kind}:`, deleteTarget.id)
-            setDeleteTarget(null)
-          },
-        }}
-        secondaryAction={{
-          label: "Cancel",
-          onClick: () => setDeleteTarget(null),
-        }}
-      />
     </div>
   )
 }

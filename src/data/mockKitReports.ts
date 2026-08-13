@@ -12,9 +12,9 @@ export interface KitReport {
   lastUpdated: string
 }
 
-export const kitStatusVariantMap: Record<KitStatus, "warning" | "danger" | "default"> = {
-  Assigned: "warning",
-  Reassigned: "danger",
+export const kitStatusVariantMap: Record<KitStatus, "success" | "info" | "default"> = {
+  Assigned: "success",
+  Reassigned: "info",
   Created: "default",
 }
 

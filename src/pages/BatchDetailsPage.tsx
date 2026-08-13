@@ -26,7 +26,7 @@ export default function BatchDetailsPage() {
       <TopBar
         breadcrumbs={[
           { label: "Deployment" },
-          { label: "Inbound", href: "/inbound/dashboard" },
+          { label: "Inbound", href: "/inbound/batches" },
           { label: "Batches", href: "/inbound/batches" },
           { label: batch.batchId },
         ]}

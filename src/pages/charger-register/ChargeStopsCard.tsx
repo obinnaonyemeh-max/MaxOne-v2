@@ -8,6 +8,10 @@ interface ChargeStopsCardProps {
   chargeStops: ChargeStop[]
   onViewAllClick?: () => void
   className?: string
+  title?: string
+  viewAllLabel?: string
+  countNoun?: string
+  emptyLabel?: string
 }
 
 function HexagonPattern() {
@@ -67,6 +71,10 @@ export function ChargeStopsCard({
   chargeStops,
   onViewAllClick,
   className,
+  title = "Charge Stops",
+  viewAllLabel = "VIEW ALL CHARGE STOPS",
+  countNoun = "Charge stop",
+  emptyLabel = "No charge stops recorded",
 }: ChargeStopsCardProps) {
   const [currentStopIndex, setCurrentStopIndex] = useState(0)
   
@@ -88,7 +96,7 @@ export function ChargeStopsCard({
   return (
     <div className={className}>
       <div className="bg-gray-25 border border-gray-200 rounded-lg overflow-hidden p-2">
-        <div className="relative rounded-lg overflow-hidden" style={{ height: "320px" }}>
+        <div className="relative z-0 isolate rounded-lg overflow-hidden" style={{ height: "320px" }}>
           {/* Top-Left Title Panel with Frosted Glass Effect */}
           <div
             className="absolute left-4 top-4 z-[1000] rounded-lg p-4"
@@ -105,7 +113,7 @@ export function ChargeStopsCard({
               className="text-gray-950"
               style={{ fontSize: "16px", fontWeight: 500 }}
             >
-              Charge Stops
+              {title}
             </h3>
           </div>
 
@@ -125,7 +133,7 @@ export function ChargeStopsCard({
               className="hover:underline"
               style={{ fontSize: "11px", fontWeight: 600, color: "#E88E15" }}
             >
-              VIEW ALL CHARGE STOPS
+              {viewAllLabel}
             </button>
           </div>
 
@@ -147,7 +155,7 @@ export function ChargeStopsCard({
                 className="text-gray-700"
                 style={{ fontSize: "13px", fontWeight: 500 }}
               >
-                {chargeStops.length} Charge stop{chargeStops.length !== 1 ? "s" : ""}
+                {chargeStops.length} {countNoun}{chargeStops.length !== 1 ? "s" : ""}
               </span>
               <img
                 src="/images/alert_icon.svg"
@@ -197,7 +205,7 @@ export function ChargeStopsCard({
             ) : (
               <div className="border-t pt-3" style={{ borderColor: "#d8d8d8" }}>
                 <p className="text-gray-500" style={{ fontSize: "13px" }}>
-                  No charge stops recorded
+                  {emptyLabel}
                 </p>
               </div>
             )}

@@ -7,10 +7,17 @@ import {
   useMap,
 } from "react-leaflet"
 import "leaflet/dist/leaflet.css"
-import type { ChargeSpot } from "@/data/mockChargerData"
+import type { ChargeSpotPoint } from "@/data/mockChargerData"
+
+export interface ClusterMapSpot {
+  id: string
+  location: { lat: number; lng: number }
+  radiusMeters: number
+  points: ChargeSpotPoint[]
+}
 
 interface ChargeSpotsMapProps {
-  spots: ChargeSpot[]
+  spots: ClusterMapSpot[]
   selectedSpotId: string | null
   onSelectSpot: (spotId: string) => void
   className?: string
@@ -20,7 +27,7 @@ function MapController({
   spots,
   selectedSpotId,
 }: {
-  spots: ChargeSpot[]
+  spots: ClusterMapSpot[]
   selectedSpotId: string | null
 }) {
   const map = useMap()

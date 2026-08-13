@@ -3,11 +3,11 @@ import type { SidebarSection, SidebarUser } from "@/components/max"
 export const sidebarSections: SidebarSection[] = [
   {
     id: "home",
-    label: "Home",
+    label: "Overview",
     items: [
       {
         id: "dashboard",
-        label: "Command Center",
+        label: "Dashboard",
         icon: "/images/dashboard_menu.svg",
         href: "/dashboard",
       },
@@ -42,19 +42,14 @@ export const sidebarSections: SidebarSection[] = [
         icon: "/images/inbound_menu.svg",
         children: [
           {
-            id: "inbound-dashboard",
-            label: "Dashboard",
-            href: "/inbound/dashboard",
+            id: "inbound-batches",
+            label: "Batches",
+            href: "/inbound/batches",
           },
           {
             id: "inbound-stock-setup",
             label: "Vehicle Master Data",
             href: "/inbound/stock-setup",
-          },
-          {
-            id: "inbound-batches",
-            label: "Batches",
-            href: "/inbound/batches",
           },
         ],
       },
@@ -237,7 +232,7 @@ export const sidebarSections: SidebarSection[] = [
 export const driverGrowthSidebarSections: SidebarSection[] = [
   {
     id: "home",
-    label: "Home",
+    label: "Overview",
     items: [
       {
         id: "activation-dashboard",
@@ -310,7 +305,7 @@ export const driverExperienceSidebarSections: SidebarSection[] = [
 export const falconSidebarSections: SidebarSection[] = [
   {
     id: "home",
-    label: "Home",
+    label: "Overview",
     items: [
       {
         id: "falcon-dashboard",
@@ -325,10 +320,10 @@ export const falconSidebarSections: SidebarSection[] = [
     label: "Monitoring",
     items: [
       {
-        id: "vehicles",
-        label: "Vehicles",
+        id: "vehicle-register",
+        label: "Vehicle Register",
         icon: "/images/fleet_menu.svg",
-        href: "/falcon/vehicles",
+        href: "/falcon/vehicle-register",
       },
       {
         id: "alerts",

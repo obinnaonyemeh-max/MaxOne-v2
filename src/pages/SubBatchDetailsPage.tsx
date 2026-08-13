@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 
 import { getSubBatchByIds, stageVariantMap, type SubBatch } from "@/data/mockSubBatches"
+import { useCan } from "@/contexts/RoleSimulationContext"
 import { MoveStageModal } from "./batch-details/MoveStageModal"
 
 const stageOrder = [
@@ -58,6 +59,7 @@ export default function SubBatchDetailsPage() {
 
   const [showMoveStage, setShowMoveStage] = useState(false)
   const { message: toast, variant: toastVariant, showToast } = useToast()
+  const canMoveStage = useCan("inbound.batches.moveSubBatchStage")
 
   const advanceStage = (target: string) => {
     setStage(target)
@@ -79,7 +81,7 @@ export default function SubBatchDetailsPage() {
         <TopBar
           breadcrumbs={[
             { label: "Deployment" },
-            { label: "Inbound", href: "/inbound/dashboard" },
+            { label: "Inbound", href: "/inbound/batches" },
             { label: "Batches", href: "/inbound/batches" },
             { label: "Sub-Batch Not Found" },
           ]}
@@ -96,7 +98,7 @@ export default function SubBatchDetailsPage() {
       <TopBar
         breadcrumbs={[
           { label: "Deployment" },
-          { label: "Inbound", href: "/inbound/dashboard" },
+          { label: "Inbound", href: "/inbound/batches" },
           { label: "Batches", href: "/inbound/batches" },
           { label: subBatch.batchId, href: `/inbound/batches/${batchId}` },
           { label: subBatch.subBatchId },
@@ -118,7 +120,7 @@ export default function SubBatchDetailsPage() {
                 Showing sub-batch information and stage history
               </p>
             </div>
-            {nextStage && (
+            {canMoveStage && nextStage && (
               <div className="flex items-center gap-3">
                 <Button
                   onClick={handleMoveClick}

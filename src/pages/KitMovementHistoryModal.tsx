@@ -7,11 +7,11 @@ import {
 import type { KitReport } from "@/data/mockKitReports"
 
 // Match the status colors used in the Kit Reports table (kitStatusVariantMap):
-// Created → default (gray), Assignment → warning (yellow), Reassignment → danger (red)
+// Created → default (gray), Assignment → success (green), Reassignment → info (blue)
 const eventVariantMap: Record<KitEventType, TimelineEntryData["statusVariant"]> = {
   Created: "default",
-  Assignment: "warning",
-  Reassignment: "danger",
+  Assignment: "success",
+  Reassignment: "info",
 }
 
 const eventActionMap: Record<KitEventType, string> = {

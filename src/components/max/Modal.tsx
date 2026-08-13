@@ -125,7 +125,8 @@ export function Modal({
                     disabled={primaryAction.disabled}
                     className={cn(
                       "h-10 bg-brand-dark text-white hover:bg-brand-dark/90",
-                      primaryAction.icon ? "gap-2 pl-3 pr-[14px]" : "px-4"
+                      primaryAction.icon ? "gap-2 pl-3 pr-[14px]" : "px-4",
+                      primaryAction.className
                     )}
                   >
                     {primaryAction.icon && <Plus className="h-4 w-4" />}

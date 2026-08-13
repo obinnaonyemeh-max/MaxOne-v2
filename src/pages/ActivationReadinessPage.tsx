@@ -20,6 +20,7 @@ import { StatCard } from "@/components/max/StatCard"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { useCan } from "@/contexts/RoleSimulationContext"
 import { useUpdateModal } from "./activation-readiness/useUpdateModal"
 import { ActivationUpdateModal } from "./activation-readiness/ActivationUpdateModal"
 import { STAGE_KEYS } from "./activation-readiness/stages"
@@ -89,8 +90,11 @@ function ReadyCell({ status }: { status: ReadyStatus }) {
 }
 
 
-function makeColumns(onUpdate: (r: ActivationRecord) => void): ColumnDef<ActivationRecord>[] {
-  return [
+function makeColumns(
+  onUpdate: (r: ActivationRecord) => void,
+  canUpdate: boolean
+): ColumnDef<ActivationRecord>[] {
+  const cols: ColumnDef<ActivationRecord>[] = [
     {
       accessorKey: "chassis",
       header: "Chassis",
@@ -142,7 +146,10 @@ function makeColumns(onUpdate: (r: ActivationRecord) => void): ColumnDef<Activat
       header: "Ready",
       cell: ({ row }) => <ReadyCell status={row.original.ready} />,
     },
-    {
+  ]
+
+  if (canUpdate) {
+    cols.push({
       id: "action",
       header: "",
       cell: ({ row }) =>
@@ -153,8 +160,19 @@ function makeColumns(onUpdate: (r: ActivationRecord) => void): ColumnDef<Activat
             Update
           </Button>
         ),
-    },
-  ]
+    })
+  } else {
+    cols.push({
+      id: "action",
+      header: "",
+      cell: ({ row }) =>
+        row.original.ready === "Ready" ? (
+          <span className="font-semibold text-status-success" style={{ fontSize: "13px" }}>Complete</span>
+        ) : null,
+    })
+  }
+
+  return cols
 }
 
 type BulkStep = "upload" | "validating" | "validated" | "importing" | "imported"
@@ -175,8 +193,14 @@ export default function ActivationReadinessPage() {
   const openBulk  = () => { setBulkStep("upload"); setBulkFile(null); setShowBulkModal(true) }
   const closeBulk = () => { setShowBulkModal(false); setBulkStep("upload"); setBulkFile(null) }
 
+  const canUpdate = useCan("activationReadiness.update")
+  const canBulkUpload = useCan("activationReadiness.bulkUpload")
+
   const updateModal = useUpdateModal()
-  const columns = useMemo(() => makeColumns(updateModal.open), [])
+  const columns = useMemo(
+    () => makeColumns(updateModal.open, canUpdate),
+    [updateModal.open, canUpdate]
+  )
 
   const filtered = useMemo(() =>
     mockActivationRecords.filter((r) => {
@@ -210,12 +234,14 @@ export default function ActivationReadinessPage() {
           subtitle="Phase B — Vehicle Activation Readiness"
           className="p-0"
         />
-        <div className="pt-6">
-          <Button className="h-9 gap-2 text-sm" onClick={openBulk}>
-            <img src="/images/bulk_update.svg" alt="" className="h-4 w-4 brightness-0 invert" />
-            Bulk Activation Upload
-          </Button>
-        </div>
+        {canBulkUpload && (
+          <div className="pt-6">
+            <Button className="h-9 gap-2 text-sm" onClick={openBulk}>
+              <img src="/images/bulk_update.svg" alt="" className="h-4 w-4 brightness-0 invert" />
+              Bulk Activation Upload
+            </Button>
+          </div>
+        )}
       </div>
 
       <div className="px-6 pb-4 shrink-0">

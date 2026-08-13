@@ -14,6 +14,7 @@ import {
   type FilterSection,
   type GenericFilterState,
 } from "@/components/max"
+import { StatCard } from "@/components/max/StatCard"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -32,7 +33,45 @@ import { Textarea } from "@/components/ui/textarea"
 import { Calendar } from "@/components/ui/calendar"
 
 import { mockBatches, type BatchRecord } from "@/data/mockBatches"
+import { mockSubBatches } from "@/data/mockSubBatches"
 import { mockVehicleTypes } from "@/data/mockStockSetup"
+import { useCan } from "@/contexts/RoleSimulationContext"
+
+const COLOR_STATUS_INFO = "var(--color-status-info)"
+const COLOR_STATUS_WARNING = "var(--color-status-warning)"
+const COLOR_STATUS_SUCCESS = "var(--color-status-success)"
+const COLOR_GRAY_500 = "var(--color-gray-500)"
+
+const SUB_BATCH_STAGES = [
+  { title: "In Production", indicatorColor: COLOR_GRAY_500 },
+  { title: "Identifier Upload", indicatorColor: COLOR_STATUS_INFO },
+  { title: "In Transit", indicatorColor: COLOR_STATUS_INFO },
+  { title: "At Port", indicatorColor: COLOR_STATUS_WARNING },
+  { title: "Clearing", indicatorColor: COLOR_STATUS_WARNING },
+  { title: "Warehouse QA", indicatorColor: COLOR_GRAY_500 },
+  { title: "Ready for Activation", indicatorColor: COLOR_STATUS_SUCCESS },
+] as const
+
+function buildSubBatchStageStats() {
+  return SUB_BATCH_STAGES.map(({ title, indicatorColor }) => {
+    const stageSubBatches = mockSubBatches.filter((sb) => sb.stage === title)
+    const subBatchCount = stageSubBatches.length
+    const batchCount = new Set(stageSubBatches.map((sb) => sb.batchId)).size
+    const vehicleQty = stageSubBatches.reduce((sum, sb) => sum + sb.qty, 0)
+
+    return {
+      title,
+      value: vehicleQty.toLocaleString(),
+      subtitle:
+        subBatchCount === 0
+          ? "0 sub-batches"
+          : `${subBatchCount} sub-batch${subBatchCount === 1 ? "" : "es"} · ${batchCount} batch${batchCount === 1 ? "" : "es"}`,
+      indicatorColor: vehicleQty > 0 ? indicatorColor : COLOR_GRAY_500,
+    }
+  })
+}
+
+const subBatchStageStats = buildSubBatchStageStats()
 
 const batchColumns: ColumnDef<BatchRecord>[] = [
   {
@@ -137,10 +176,23 @@ export default function BatchesPage() {
   const [expectedDeliveryDate, setExpectedDeliveryDate] = useState<Date | undefined>(undefined)
   const [containerNumbers, setContainerNumbers] = useState<string[]>([])
   const batchFilterCount = getActiveFilterCount(batchFilters)
+  const canCreateBatch = useCan("inbound.batches.create")
 
   return (
     <div className="flex flex-1 flex-col min-h-0 mt-4">
-      <div className="flex-1 flex flex-col min-h-0 rounded-t-[14px] rounded-b-[4px] border border-table-border">
+      <div className="grid grid-cols-7 gap-2 shrink-0">
+        {subBatchStageStats.map((stat) => (
+          <StatCard
+            key={stat.title}
+            title={stat.title}
+            value={stat.value}
+            subtitle={stat.subtitle}
+            indicatorColor={stat.indicatorColor}
+          />
+        ))}
+      </div>
+
+      <div className="mt-4 flex-1 flex flex-col min-h-0 rounded-t-[14px] rounded-b-[4px] border border-table-border">
         <div className="flex flex-wrap items-center justify-between gap-3 px-2 py-2 shrink-0">
           <div className="flex items-center gap-2">
             <Popover>
@@ -203,10 +255,12 @@ export default function BatchesPage() {
             )}
           </div>
 
-          <Button className="gap-2" onClick={() => setShowCreateBatch(true)}>
-            <Plus className="h-4 w-4" />
-            Create Batch
-          </Button>
+          {canCreateBatch && (
+            <Button className="gap-2" onClick={() => setShowCreateBatch(true)}>
+              <Plus className="h-4 w-4" />
+              Create Batch
+            </Button>
+          )}
         </div>
 
         <div className="flex-1 overflow-y-auto">

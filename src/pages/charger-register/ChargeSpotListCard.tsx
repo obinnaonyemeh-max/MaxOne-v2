@@ -5,10 +5,18 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/max"
-import type { ChargeSpot } from "@/data/mockChargerData"
+
+export interface SpotClusterCardData {
+  id: string
+  title: string
+  frequency: number
+  averageStopDuration: string
+  location: { lat: number; lng: number }
+  avgDistanceBetweenStop: string
+}
 
 interface ChargeSpotListCardProps {
-  spot: ChargeSpot
+  spot: SpotClusterCardData
   isSelected?: boolean
   onClick?: () => void
   onViewHeatMap?: () => void
@@ -42,22 +50,24 @@ export function ChargeSpotListCard({
         >
           {spot.title}
         </h3>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation()
-                onShareLocation?.()
-              }}
-              className="shrink-0 mt-0.5 rounded-md p-0.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
-              aria-label="Share location"
-            >
-              <Share2 className="h-4 w-4" />
-            </button>
-          </TooltipTrigger>
-          <TooltipContent side="top">Share location</TooltipContent>
-        </Tooltip>
+        {onShareLocation && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onShareLocation()
+                }}
+                className="shrink-0 mt-0.5 rounded-md p-0.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+                aria-label="Share location"
+              >
+                <Share2 className="h-4 w-4" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="top">Share location</TooltipContent>
+          </Tooltip>
+        )}
       </div>
 
       <div className="grid grid-cols-2 gap-x-4 gap-y-3">

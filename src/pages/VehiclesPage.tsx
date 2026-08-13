@@ -14,6 +14,7 @@ import {
 } from "@/components/max"
 import { mockVehicles } from "@/data/mockVehicles"
 
+import { useCan } from "@/contexts/RoleSimulationContext"
 import { columns, getStatusTabs, vehicleStatusToTabId } from "./vehicles/columns"
 import { AddVehicleFlow } from "./vehicles/AddVehicleFlow"
 import { BulkUpdateFlow } from "./vehicles/BulkUpdateFlow"
@@ -23,6 +24,21 @@ export default function VehiclesPage() {
   const [searchParams] = useSearchParams()
   const tabFromUrl = searchParams.get("tab")
   const [activeTab, setActiveTab] = useState(tabFromUrl || "all")
+  const canAddVehicles = useCan("fleetRegister.addVehicles")
+  const canBulkUpdate = useCan("fleetRegister.bulkUpdate")
+  const canSeeContractRisk = useCan("fleetRegister.column.contractRisk")
+  const canSeeCollectionPercent = useCan("fleetRegister.column.collectionPercent")
+
+  const visibleColumns = useMemo(
+    () =>
+      columns.filter((col) => {
+        const key = "accessorKey" in col ? col.accessorKey : col.id
+        if (key === "contractRisk") return canSeeContractRisk
+        if (key === "collectionPercent") return canSeeCollectionPercent
+        return true
+      }),
+    [canSeeContractRisk, canSeeCollectionPercent]
+  )
 
   useEffect(() => {
     if (tabFromUrl) {
@@ -81,22 +97,30 @@ export default function VehiclesPage() {
           filters={filters}
           onFiltersChange={setFilters}
           onSearch={(query) => console.log("Search:", query)}
-          secondaryAction={{
-            label: "Bulk Update Vehicles",
-            onClick: () => setShowBulkUpdateModal(true),
-            icon: "/images/bulk_update.svg",
-          }}
-          primaryAction={{
-            label: "Add Vehicles",
-            onClick: () => setShowAddVehicleModal(true),
-            icon: Plus,
-          }}
+          secondaryAction={
+            canBulkUpdate
+              ? {
+                  label: "Bulk Update Vehicles",
+                  onClick: () => setShowBulkUpdateModal(true),
+                  icon: "/images/bulk_update.svg",
+                }
+              : undefined
+          }
+          primaryAction={
+            canAddVehicles
+              ? {
+                  label: "Add Vehicles",
+                  onClick: () => setShowAddVehicleModal(true),
+                  icon: Plus,
+                }
+              : undefined
+          }
           className="shrink-0"
         />
 
         <div className="flex-1 overflow-y-auto">
           <DataTable
-            columns={columns}
+            columns={visibleColumns}
             data={filteredVehicles}
             onRowClick={(row) => navigate(`/fleet-register/${row.id}`)}
           />

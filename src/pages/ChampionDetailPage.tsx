@@ -25,7 +25,7 @@ import {
 import { format } from "date-fns"
 import { AddPaymentTransactionFlow } from "@/pages/portfolio/AddPaymentTransactionFlow"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import { Phone, MessageSquare, MessageCircle, User, Plus, History, ChevronDown, SlidersHorizontal, Search, RotateCcw } from "lucide-react"
+import { Phone, MessageSquare, MessageCircle, User, Plus, History, ChevronDown, SlidersHorizontal, Search, RotateCcw, Ban } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import {
@@ -458,6 +458,26 @@ export default function ChampionDetailPage() {
     setSearchParams({ tab: value }, { replace: true })
   }
 
+  // Block champion / block guarantor (Portfolio)
+  const [showBlockChampion, setShowBlockChampion] = useState(false)
+  const [championBlocked, setChampionBlocked] = useState(false)
+  const [guarantorToBlock, setGuarantorToBlock] = useState<number | null>(null)
+  const [blockedGuarantors, setBlockedGuarantors] = useState<Set<number>>(new Set())
+
+  const handleBlockChampion = () => {
+    setChampionBlocked(true)
+    setShowBlockChampion(false)
+    toast.success(`${champion.name} has been blacklisted`)
+  }
+
+  const handleBlockGuarantor = () => {
+    if (guarantorToBlock === null) return
+    const guarantor = champion.guarantors[guarantorToBlock]
+    setBlockedGuarantors((prev) => new Set(prev).add(guarantorToBlock))
+    setGuarantorToBlock(null)
+    toast.success(`${guarantor.name} has been blacklisted`)
+  }
+
   const [showCreateTimeOff, setShowCreateTimeOff] = useState(false)
   const [showLeaveHistory, setShowLeaveHistory] = useState(false)
   const [timeOffForm, setTimeOffForm] = useState({ type: "", startDate: "", endDate: "", reason: "" })
@@ -578,6 +598,21 @@ export default function ChampionDetailPage() {
                 {champion.championId} &middot; Showing champion profile and activity details
               </p>
             </div>
+            {inPortfolio && (
+              <Button
+                variant="outline"
+                className={
+                  championBlocked
+                    ? "h-9 gap-2 text-status-danger border-status-danger/40"
+                    : "h-9 gap-2 text-status-danger border-status-danger/30 hover:bg-status-danger/5 hover:text-status-danger"
+                }
+                disabled={championBlocked}
+                onClick={() => setShowBlockChampion(true)}
+              >
+                <Ban className="h-4 w-4" />
+                <span className="text-sm">{championBlocked ? "Champion Blacklisted" : "Blacklist Champion"}</span>
+              </Button>
+            )}
           </div>
         </div>
 
@@ -957,7 +992,28 @@ export default function ChampionDetailPage() {
               <TabsContent value="guarantors" className="mt-0 flex-1 min-h-0 overflow-y-auto">
                 <div className="bg-content-card flex flex-col gap-3 h-fit rounded-lg border border-border p-3 overflow-hidden">
                   {champion.guarantors.map((guarantor, index) => (
-                    <InfoCard key={index} title={`GUARANTOR ${index + 1}`}>
+                    <InfoCard
+                      key={index}
+                      title={`GUARANTOR ${index + 1}`}
+                      action={
+                        inPortfolio ? (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className={
+                              blockedGuarantors.has(index)
+                                ? "h-8 gap-1.5 text-xs text-status-danger border-status-danger/40"
+                                : "h-8 gap-1.5 text-xs text-status-danger border-status-danger/30 hover:bg-status-danger/5 hover:text-status-danger"
+                            }
+                            disabled={blockedGuarantors.has(index)}
+                            onClick={() => setGuarantorToBlock(index)}
+                          >
+                            <Ban className="h-3.5 w-3.5" />
+                            {blockedGuarantors.has(index) ? "Blacklisted" : "Blacklist Guarantor"}
+                          </Button>
+                        ) : undefined
+                      }
+                    >
                       <InfoGrid
                         columns={4}
                         showDividers
@@ -1331,6 +1387,54 @@ export default function ChampionDetailPage() {
             className="h-9"
           />
         </div>
+      </Modal>
+
+      {/* Block Champion confirmation modal (Portfolio) */}
+      <Modal
+        open={showBlockChampion}
+        onOpenChange={setShowBlockChampion}
+        title="Blacklist Champion"
+        subtitle={`${champion.name} · ${champion.championId}`}
+        className="max-w-sm"
+        primaryAction={{
+          label: "Blacklist Champion",
+          onClick: handleBlockChampion,
+          className: "bg-status-danger hover:bg-status-danger/90",
+        }}
+        secondaryAction={{ label: "Cancel", onClick: () => setShowBlockChampion(false) }}
+      >
+        <p className="text-sm leading-relaxed text-table-text">
+          Are you sure you want to blacklist{" "}
+          <span className="font-semibold text-sidebar-item-active">{champion.name}</span>? Their
+          information can no longer be used in our system once blacklisted.
+        </p>
+      </Modal>
+
+      {/* Block Guarantor confirmation modal (Portfolio) */}
+      <Modal
+        open={guarantorToBlock !== null}
+        onOpenChange={(open) => {
+          if (!open) setGuarantorToBlock(null)
+        }}
+        title="Blacklist Guarantor"
+        subtitle={
+          guarantorToBlock !== null ? champion.guarantors[guarantorToBlock].name : undefined
+        }
+        className="max-w-sm"
+        primaryAction={{
+          label: "Blacklist Guarantor",
+          onClick: handleBlockGuarantor,
+          className: "bg-status-danger hover:bg-status-danger/90",
+        }}
+        secondaryAction={{ label: "Cancel", onClick: () => setGuarantorToBlock(null) }}
+      >
+        <p className="text-sm leading-relaxed text-table-text">
+          Are you sure you want to blacklist{" "}
+          <span className="font-semibold text-sidebar-item-active">
+            {guarantorToBlock !== null ? champion.guarantors[guarantorToBlock].name : ""}
+          </span>
+          ? Their information can no longer be used in our system once blacklisted.
+        </p>
       </Modal>
     </>
   )

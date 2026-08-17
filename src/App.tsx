@@ -44,6 +44,8 @@ import ChargeSpotsPage from "@/pages/charger-register/ChargeSpotsPage"
 import PortfolioDashboardPage from "@/pages/PortfolioDashboardPage"
 import ChampionsOverviewPage from "@/pages/portfolio/ChampionsOverviewPage"
 import ReferralManagementPage from "@/pages/portfolio/ReferralManagementPage"
+import BlacklistPage from "@/pages/portfolio/BlacklistPage"
+import AllCollectionsPage from "@/pages/portfolio/AllCollectionsPage"
 import VehicleRegisterPage from "@/pages/vehicle-register/VehicleRegisterPage"
 import VehicleActivityPage from "@/pages/vehicle-activity/VehicleActivityPage"
 import VehicleTripsPage from "@/pages/vehicle-trips/VehicleTripsPage"
@@ -110,6 +112,8 @@ export default function App() {
         <Route path="/portfolio/champions/overview" element={<ChampionsOverviewPage />} />
         <Route path="/portfolio/champions/overview/:id" element={<ChampionDetailPage />} />
         <Route path="/portfolio/champions/referrals" element={<ReferralManagementPage />} />
+        <Route path="/portfolio/champions/blacklist" element={<BlacklistPage />} />
+        <Route path="/portfolio/collections/all" element={<AllCollectionsPage />} />
         <Route path="/driver-experience/dashboard" element={<DriverExperienceDashboardPage />} />
         <Route path="/driver-experience/approvals" element={<ApprovalsPage />} />
       </Routes>

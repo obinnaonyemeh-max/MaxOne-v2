@@ -56,7 +56,6 @@ export function TransferRequestSheet({ transfer, isOpen, onClose, onStatusChange
 
   const isPending = transfer.status === "Pending"
   const isRejected = transfer.status === "Rejected"
-  const isApproved = transfer.status === "Approved"
 
   const handleApprove = () => {
     setShowApprove(false)

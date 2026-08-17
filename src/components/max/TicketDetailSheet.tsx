@@ -7,7 +7,6 @@ import {
   SheetTitle,
   SheetDescription,
 } from "@/components/ui/sheet"
-import { InfoCard } from "./InfoCard"
 import { InfoGrid } from "./InfoGrid"
 import { StatusBadge } from "./StatusBadge"
 import { StatusTimeline } from "./StatusTimeline"
@@ -43,7 +42,6 @@ import {
   Loader2,
   ChevronDown,
   Megaphone,
-  RefreshCw,
   type LucideIcon,
 } from "lucide-react"
 import { toast } from "sonner"

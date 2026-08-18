@@ -50,6 +50,8 @@ import VehicleRegisterPage from "@/pages/vehicle-register/VehicleRegisterPage"
 import VehicleActivityPage from "@/pages/vehicle-activity/VehicleActivityPage"
 import VehicleTripsPage from "@/pages/vehicle-trips/VehicleTripsPage"
 import VehicleStopsPage from "@/pages/vehicle-stops/VehicleStopsPage"
+import TamperAlertsPage from "@/pages/falcon-alerts/TamperAlertsPage"
+import TamperAlertDetailPage from "@/pages/falcon-alerts/TamperAlertDetailPage"
 import ApprovalsPage from "@/pages/ApprovalsPage"
 import DriverExperienceDashboardPage from "@/pages/DriverExperienceDashboardPage"
 
@@ -103,6 +105,8 @@ export default function App() {
         <Route path="/falcon/ev-chargers" element={<ChargerRegisterPage />} />
         <Route path="/falcon/ev-chargers/:id/charge-spots" element={<ChargeSpotsPage />} />
         <Route path="/falcon/ev-chargers/:id" element={<ChargerDetailsPage />} />
+        <Route path="/falcon/alerts/tamper" element={<TamperAlertsPage />} />
+        <Route path="/falcon/alerts/tamper/:id" element={<TamperAlertDetailPage />} />
         <Route path="/falcon/vehicle-register" element={<VehicleRegisterPage />} />
         <Route path="/falcon/vehicle-register/:id/activity" element={<VehicleActivityPage />} />
         <Route path="/falcon/vehicle-register/:id/trips" element={<VehicleTripsPage />} />

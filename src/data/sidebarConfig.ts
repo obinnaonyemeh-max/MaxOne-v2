@@ -346,7 +346,10 @@ export const falconSidebarSections: SidebarSection[] = [
         id: "alerts",
         label: "Alerts",
         icon: "/images/issues_menu.svg",
-        href: "/falcon/alerts",
+        children: [
+          { id: "tamper-alerts", label: "Tamper Alerts", href: "/falcon/alerts/tamper" },
+          { id: "battery-alerts", label: "Battery Alerts", href: "/falcon/alerts/battery" },
+        ],
       },
       {
         id: "geofencing",

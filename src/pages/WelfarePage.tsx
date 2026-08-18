@@ -18,6 +18,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
+import { CITY_FILTER_OPTIONS } from "@/data/cities"
 import { Switch } from "@/components/ui/switch"
 import {
   Select,
@@ -100,7 +101,7 @@ const mockWelfareRecords: WelfareChampion[] = [
     name: "Emeka Nwosu",
     championId: "CHP-003",
     avatarUrl: "/images/champvatar.png",
-    location: "Abuja",
+    location: "Abeokuta",
     vehicle: "4 Wheelers",
     welfareStatus: "At Risk",
     championState: "Active",
@@ -114,7 +115,7 @@ const mockWelfareRecords: WelfareChampion[] = [
     name: "Funke Adeyemi",
     championId: "CHP-004",
     avatarUrl: "/images/champvatar.png",
-    location: "Kano",
+    location: "Osogbo",
     vehicle: "3 Wheelers",
     welfareStatus: "Critical",
     championState: "Suspended",
@@ -161,7 +162,7 @@ const mockWelfareRecords: WelfareChampion[] = [
     name: "Ibrahim Yusuf",
     championId: "CHP-007",
     avatarUrl: "/images/champvatar.png",
-    location: "Port Harcourt",
+    location: "Sango Ota",
     vehicle: "3 Wheelers",
     welfareStatus: "At Risk",
     championState: "Inactive",
@@ -194,7 +195,7 @@ const mockWelfareRecords: WelfareChampion[] = [
     name: "Kalu Nnamdi",
     championId: "CHP-009",
     avatarUrl: "/images/champvatar.png",
-    location: "Abuja",
+    location: "Abeokuta",
     vehicle: "2 Wheelers",
     welfareStatus: "Critical",
     championState: "Active",
@@ -412,13 +413,7 @@ const welfareFilterSections: FilterSection[] = [
     id: "location",
     title: "Location",
     defaultExpanded: true,
-    options: [
-      { value: "Lagos", label: "Lagos" },
-      { value: "Abuja", label: "Abuja" },
-      { value: "Kano", label: "Kano" },
-      { value: "Ibadan", label: "Ibadan" },
-      { value: "Port Harcourt", label: "Port Harcourt" },
-    ],
+    options: CITY_FILTER_OPTIONS,
   },
   {
     id: "vehicle",

@@ -8,9 +8,10 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { FormSection, FormField } from "@/pages/vehicles/FormControls"
+import { CITY_DEPOT_OPTIONS } from "@/data/cities"
 import type { AuctionForm } from "./types"
 
-const locationOptions = ["Lagos Main Depot", "Abuja Fleet Depot", "Port Harcourt Depot"]
+const locationOptions = CITY_DEPOT_OPTIONS.map((option) => option.value)
 
 function startOfToday() {
   const today = new Date()

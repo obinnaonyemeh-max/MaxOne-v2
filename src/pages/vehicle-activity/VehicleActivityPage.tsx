@@ -28,6 +28,8 @@ const COLOR_GREEN = "var(--color-success)"
 const COLOR_INFO = "var(--color-status-info)"
 const COLOR_WARNING = "var(--color-status-warning)"
 const COLOR_GRAY = "var(--color-gray-400)"
+const COLOR_AMBER = "var(--color-status-amber)"
+const COLOR_DANGER = "var(--color-danger)"
 
 export default function VehicleActivityPage() {
   const { id } = useParams<{ id: string }>()
@@ -57,7 +59,6 @@ export default function VehicleActivityPage() {
   }
 
   const isEV = vehicle.category === "ev"
-  const comingSoon = (label: string) => toast.info(`${label} is coming soon`)
 
   const overviewDetails = [
     { label: "Vehicle type", value: vehicle.vehicleType },
@@ -249,19 +250,10 @@ export default function VehicleActivityPage() {
           )}
 
           <div className="bg-content-card border border-border rounded-lg p-5">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sidebar-item-active" style={{ fontSize: "16px", fontWeight: 500 }}>
-                Reports
-              </h3>
-              <button
-                onClick={() => comingSoon("Reports")}
-                className="hover:underline"
-                style={{ fontSize: "11px", fontWeight: 600, color: "#E88E15" }}
-              >
-                VIEW ALL REPORTS
-              </button>
-            </div>
-            <div className="grid grid-cols-4 gap-4">
+            <h3 className="text-sidebar-item-active mb-4" style={{ fontSize: "16px", fontWeight: 500 }}>
+              Reports
+            </h3>
+            <div className="grid grid-cols-6 gap-4">
               <StatCard
                 title="Total trips"
                 value={activity.reports.totalTrips.toLocaleString()}
@@ -281,6 +273,16 @@ export default function VehicleActivityPage() {
                 title="Total trip duration"
                 value={`${activity.reports.totalDurationHours.toLocaleString()} hrs`}
                 indicatorColor={COLOR_GRAY}
+              />
+              <StatCard
+                title="Total stop duration"
+                value={`${activity.reports.totalStopDurationHours.toLocaleString()} hrs`}
+                indicatorColor={COLOR_AMBER}
+              />
+              <StatCard
+                title="Alert count"
+                value={activity.reports.alertCount.toLocaleString()}
+                indicatorColor={COLOR_DANGER}
               />
             </div>
           </div>

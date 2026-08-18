@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { useNavigate } from "react-router-dom"
 
 import {
@@ -7,26 +7,45 @@ import {
   type GenericFilterState,
 } from "@/components/max"
 import { StatCard } from "@/components/max/StatCard"
+import { useCityScopedRecords } from "@/contexts/RoleSimulationContext"
 import { mockCheckoutRecords } from "@/data/mockAssetMovement"
 
 import { checkoutColumns } from "./columns"
 import {
   checkoutFilterSections,
-  checkoutStats,
   defaultCheckoutFilters,
 } from "./filters"
 import { TabToolbar } from "./TabToolbar"
+
+const COLOR_BRAND_PRIMARY = "var(--color-brand-primary)"
+const COLOR_BADGE_ACTIVE = "var(--color-badge-active-text)"
+const COLOR_STATUS_WARNING = "var(--color-warning)"
+const COLOR_STATUS_INFO = "var(--color-status-info)"
+const COLOR_STATUS_DANGER = "var(--color-danger)"
 
 export function CheckoutTab() {
   const navigate = useNavigate()
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(25)
   const [filters, setFilters] = useState<GenericFilterState>(defaultCheckoutFilters)
+  const records = useCityScopedRecords(mockCheckoutRecords, "location")
+
+  const stats = useMemo(
+    () => [
+      { title: "Total Check-Out Today", value: records.length, indicatorColor: COLOR_BRAND_PRIMARY },
+      { title: "Returned to Active", value: records.filter((r) => r.checkOutStatus === "Active Vehicle").length, indicatorColor: COLOR_BADGE_ACTIVE },
+      { title: "OEM Outbound", value: records.filter((r) => r.checkOutStatus === "OEM Outbound").length, indicatorColor: COLOR_STATUS_WARNING },
+      { title: "Outright Sales", value: records.filter((r) => r.checkOutStatus === "Outright Sale").length, indicatorColor: COLOR_STATUS_DANGER },
+      { title: "Operational Vehicles", value: records.filter((r) => r.checkOutStatus === "Operational Vehicle").length, indicatorColor: COLOR_STATUS_INFO },
+      { title: "Inbound Activated", value: records.filter((r) => r.checkInReason.includes("Inbound")).length, indicatorColor: COLOR_BADGE_ACTIVE },
+    ],
+    [records]
+  )
 
   return (
     <>
       <div className="grid grid-cols-6 gap-2 shrink-0">
-        {checkoutStats.map((stat) => (
+        {stats.map((stat) => (
           <StatCard
             key={stat.title}
             title={stat.title}
@@ -48,7 +67,7 @@ export function CheckoutTab() {
         <div className="flex-1 overflow-y-auto">
           <DataTable
             columns={checkoutColumns}
-            data={mockCheckoutRecords}
+            data={records}
             onRowClick={(row) => navigate(`/asset-movement/${row.id}`)}
           />
         </div>
@@ -57,8 +76,8 @@ export function CheckoutTab() {
       <div className="shrink-0 mt-1 mb-6 rounded-t-[4px] rounded-b-[14px] border border-table-border bg-content-card">
         <Pagination
           currentPage={currentPage}
-          totalPages={Math.ceil(mockCheckoutRecords.length / pageSize)}
-          totalItems={mockCheckoutRecords.length}
+          totalPages={Math.ceil(records.length / pageSize) || 1}
+          totalItems={records.length}
           pageSize={pageSize}
           onPageChange={setCurrentPage}
           onPageSizeChange={setPageSize}

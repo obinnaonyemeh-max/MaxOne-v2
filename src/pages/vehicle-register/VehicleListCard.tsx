@@ -106,7 +106,7 @@ function getSignalColor(strength: number): string {
 }
 
 const menuItems = [
-  { id: "view-vehicle-history", label: "View Vehicle history" },
+  { id: "view-vehicle-history", label: "View vehicle activity" },
   { id: "view-trips", label: "View vehicle trips" },
   { id: "enforcement-actions", label: "Enforcement actions" },
   { id: "enforcement-history", label: "Enforcement history" },

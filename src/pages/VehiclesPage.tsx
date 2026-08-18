@@ -14,7 +14,7 @@ import {
 } from "@/components/max"
 import { mockVehicles } from "@/data/mockVehicles"
 
-import { useCan } from "@/contexts/RoleSimulationContext"
+import { useCan, useCityScopedRecords } from "@/contexts/RoleSimulationContext"
 import { columns, getStatusTabs, vehicleStatusToTabId } from "./vehicles/columns"
 import { AddVehicleFlow } from "./vehicles/AddVehicleFlow"
 import { BulkUpdateFlow } from "./vehicles/BulkUpdateFlow"
@@ -28,6 +28,7 @@ export default function VehiclesPage() {
   const canBulkUpdate = useCan("fleetRegister.bulkUpdate")
   const canSeeContractRisk = useCan("fleetRegister.column.contractRisk")
   const canSeeCollectionPercent = useCan("fleetRegister.column.collectionPercent")
+  const scopedVehicles = useCityScopedRecords(mockVehicles, "location")
 
   const visibleColumns = useMemo(
     () =>
@@ -59,15 +60,15 @@ export default function VehiclesPage() {
 
   const filteredVehicles = useMemo(() => {
     if (activeTab === "all") {
-      return mockVehicles
+      return scopedVehicles
     }
-    return mockVehicles.filter((vehicle) => {
+    return scopedVehicles.filter((vehicle) => {
       const vehicleTabId = vehicleStatusToTabId[vehicle.vehicleStatus]
       return vehicleTabId === activeTab
     })
-  }, [activeTab])
+  }, [activeTab, scopedVehicles])
 
-  const statusTabs = useMemo(() => getStatusTabs(mockVehicles), [])
+  const statusTabs = useMemo(() => getStatusTabs(scopedVehicles), [scopedVehicles])
 
   return (
     <>

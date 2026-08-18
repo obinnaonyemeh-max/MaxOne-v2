@@ -20,7 +20,7 @@ import { StatCard } from "@/components/max/StatCard"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { useCan } from "@/contexts/RoleSimulationContext"
+import { useCan, useCityScopedRecords } from "@/contexts/RoleSimulationContext"
 import { useUpdateModal } from "./activation-readiness/useUpdateModal"
 import { ActivationUpdateModal } from "./activation-readiness/ActivationUpdateModal"
 import { STAGE_KEYS } from "./activation-readiness/stages"
@@ -28,7 +28,6 @@ import { STAGE_KEYS } from "./activation-readiness/stages"
 import {
   mockActivationRecords,
   stageStatusVariantMap,
-  uniqueSubBatches,
   type ActivationRecord,
   type StageStatus,
   type ReadyStatus,
@@ -43,32 +42,16 @@ const COLOR_GRAY_500       = "var(--color-gray-500)"
 const hasStageStatus = (r: ActivationRecord, target: StageStatus) =>
   STAGE_KEYS.some((k) => r[k] === target)
 
-const stats = [
-  { title: "Pending start",    value: mockActivationRecords.filter((r) => r.bikeAssembly === "pending").length,  indicatorColor: COLOR_STATUS_WARNING },
-  { title: "In progress",      value: mockActivationRecords.filter((r) => hasStageStatus(r, "in-progress")).length, indicatorColor: COLOR_STATUS_INFO    },
-  { title: "Activation ready", value: mockActivationRecords.filter((r) => r.ready === "Ready").length,           indicatorColor: COLOR_STATUS_SUCCESS },
-  { title: "Flagged",          value: mockActivationRecords.filter((r) => r.ready === "Flagged").length,         indicatorColor: COLOR_STATUS_DANGER  },
-  { title: "Remaining",        value: mockActivationRecords.filter((r) => r.ready !== "Ready").length,           indicatorColor: COLOR_GRAY_500       },
-]
-
-const filterSections: FilterSection[] = [
-  {
-    id: "subBatch",
-    title: "Sub-Batch",
-    defaultExpanded: true,
-    options: uniqueSubBatches.map((b) => ({ value: b, label: b })),
-  },
-  {
-    id: "status",
-    title: "Status",
-    options: [
-      { value: "Pending",     label: "Pending start",    color: COLOR_STATUS_WARNING },
-      { value: "In progress", label: "In progress",      color: COLOR_STATUS_INFO    },
-      { value: "Ready",       label: "Activation ready", color: COLOR_STATUS_SUCCESS },
-      { value: "Flagged",     label: "Flagged",          color: COLOR_STATUS_DANGER  },
-    ],
-  },
-]
+const STATUS_FILTER_SECTION: FilterSection = {
+  id: "status",
+  title: "Status",
+  options: [
+    { value: "Pending",     label: "Pending start",    color: COLOR_STATUS_WARNING },
+    { value: "In progress", label: "In progress",      color: COLOR_STATUS_INFO    },
+    { value: "Ready",       label: "Activation ready", color: COLOR_STATUS_SUCCESS },
+    { value: "Flagged",     label: "Flagged",          color: COLOR_STATUS_DANGER  },
+  ],
+}
 
 const BULK_STATS = { totalRows: 11, validEntries: 11, rowsWithErrors: 0 }
 
@@ -195,6 +178,31 @@ export default function ActivationReadinessPage() {
 
   const canUpdate = useCan("activationReadiness.update")
   const canBulkUpload = useCan("activationReadiness.bulkUpload")
+  const scopedRecords = useCityScopedRecords(mockActivationRecords, "location")
+
+  const stats = useMemo(
+    () => [
+      { title: "Pending start",    value: scopedRecords.filter((r) => r.bikeAssembly === "pending").length,  indicatorColor: COLOR_STATUS_WARNING },
+      { title: "In progress",      value: scopedRecords.filter((r) => hasStageStatus(r, "in-progress")).length, indicatorColor: COLOR_STATUS_INFO    },
+      { title: "Activation ready", value: scopedRecords.filter((r) => r.ready === "Ready").length,           indicatorColor: COLOR_STATUS_SUCCESS },
+      { title: "Flagged",          value: scopedRecords.filter((r) => r.ready === "Flagged").length,         indicatorColor: COLOR_STATUS_DANGER  },
+      { title: "Remaining",        value: scopedRecords.filter((r) => r.ready !== "Ready").length,           indicatorColor: COLOR_GRAY_500       },
+    ],
+    [scopedRecords]
+  )
+
+  const filterSections: FilterSection[] = useMemo(
+    () => [
+      {
+        id: "subBatch",
+        title: "Sub-Batch",
+        defaultExpanded: true,
+        options: [...new Set(scopedRecords.map((r) => r.subBatch))].map((b) => ({ value: b, label: b })),
+      },
+      STATUS_FILTER_SECTION,
+    ],
+    [scopedRecords]
+  )
 
   const updateModal = useUpdateModal()
   const columns = useMemo(
@@ -203,7 +211,7 @@ export default function ActivationReadinessPage() {
   )
 
   const filtered = useMemo(() =>
-    mockActivationRecords.filter((r) => {
+    scopedRecords.filter((r) => {
       if (filters.subBatch.length > 0 && !filters.subBatch.includes(r.subBatch)) return false
       if (filters.status.length > 0) {
         const match = filters.status.some((s) => {
@@ -221,7 +229,7 @@ export default function ActivationReadinessPage() {
       }
       return true
     }),
-    [filters, searchQuery]
+    [filters, searchQuery, scopedRecords]
   )
 
   return (

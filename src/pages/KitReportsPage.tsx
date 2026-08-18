@@ -26,34 +26,23 @@ import {
   kitStatusVariantMap,
   type KitReport,
 } from "@/data/mockKitReports"
-import { useCan } from "@/contexts/RoleSimulationContext"
+import { useCan, useCityScopedRecords } from "@/contexts/RoleSimulationContext"
 import { KitMovementHistoryModal } from "./KitMovementHistoryModal"
 
 const COLOR_STATUS_SUCCESS = "var(--color-status-success)"
 const COLOR_STATUS_INFO = "var(--color-status-info)"
 const COLOR_GRAY_500 = "var(--color-gray-500)"
 
-const clientOptions = Array.from(
-  new Set(mockKitReports.map((k) => k.client).filter((c): c is string => !!c))
-).sort()
-
-const filterSections: FilterSection[] = [
-  {
-    id: "status",
-    title: "Status",
-    defaultExpanded: true,
-    options: [
-      { value: "Assigned",   label: "Assigned",   color: COLOR_STATUS_SUCCESS },
-      { value: "Reassigned", label: "Reassigned", color: COLOR_STATUS_INFO },
-      { value: "Created",    label: "Created",    color: COLOR_GRAY_500 },
-    ],
-  },
-  {
-    id: "client",
-    title: "Client",
-    options: clientOptions.map((client) => ({ value: client, label: client })),
-  },
-]
+const STATUS_FILTER_SECTION: FilterSection = {
+  id: "status",
+  title: "Status",
+  defaultExpanded: true,
+  options: [
+    { value: "Assigned",   label: "Assigned",   color: COLOR_STATUS_SUCCESS },
+    { value: "Reassigned", label: "Reassigned", color: COLOR_STATUS_INFO },
+    { value: "Created",    label: "Created",    color: COLOR_GRAY_500 },
+  ],
+}
 
 const defaultFilters: GenericFilterState = {
   status: [],
@@ -127,10 +116,25 @@ export default function KitReportsPage() {
   const [selectedKit, setSelectedKit] = useState<KitReport | null>(null)
   const activeFilterCount = getActiveFilterCount(filters)
   const canKitReassignment = useCan("kit.reassignment")
+  const scopedKits = useCityScopedRecords(mockKitReports, "location")
+
+  const filterSections: FilterSection[] = useMemo(() => {
+    const clientOptions = Array.from(
+      new Set(scopedKits.map((k) => k.client).filter((c): c is string => !!c))
+    ).sort()
+    return [
+      STATUS_FILTER_SECTION,
+      {
+        id: "client",
+        title: "Client",
+        options: clientOptions.map((client) => ({ value: client, label: client })),
+      },
+    ]
+  }, [scopedKits])
 
   const filteredKits = useMemo(
     () =>
-      mockKitReports.filter((kit) => {
+      scopedKits.filter((kit) => {
         if (filters.status.length > 0 && !filters.status.includes(kit.status)) return false
         if (filters.client.length > 0 && (kit.client === null || !filters.client.includes(kit.client))) return false
         if (searchQuery) {
@@ -141,7 +145,7 @@ export default function KitReportsPage() {
         }
         return true
       }),
-    [filters, searchQuery]
+    [filters, searchQuery, scopedKits]
   )
 
   return (

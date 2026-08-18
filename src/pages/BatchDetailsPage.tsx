@@ -1,8 +1,10 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 
 import { TopBar, BackButton } from "@/components/max"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+import { useRoleSimulation } from "@/contexts/RoleSimulationContext"
+import { mockBatches } from "@/data/mockBatches"
 import { getBatchDetails } from "@/data/mockBatchDetails"
 
 import { OverviewTab } from "./batch-details/OverviewTab"
@@ -16,7 +18,15 @@ import { UploadDocumentModal } from "./batch-details/UploadDocumentModal"
 export default function BatchDetailsPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const { filterByCity } = useRoleSimulation()
+  const listBatch = mockBatches.find((batch) => batch.id === (id || "1"))
   const batch = getBatchDetails(id || "1")
+
+  useEffect(() => {
+    if (listBatch && !filterByCity(listBatch.destination)) {
+      navigate("/inbound/batches", { replace: true })
+    }
+  }, [filterByCity, listBatch, navigate])
 
   const [showAddIdentifier, setShowAddIdentifier] = useState(false)
   const [showUploadDoc, setShowUploadDoc] = useState(false)

@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect, useRef } from "react"
 import { useNavigate } from "react-router-dom"
 import { RefreshCw, SlidersHorizontal } from "lucide-react"
+import { toast } from "sonner"
 import {
   TopBar,
   PageHeader,
@@ -31,6 +32,7 @@ import { VehicleListCard } from "./VehicleListCard"
 import { VehiclesMap } from "./VehiclesMap"
 import { VehicleFilterPopover, getActiveFilterCount, type VehicleFilters } from "./VehicleFilterPanel"
 import { EnforcementHistoryModal } from "@/pages/vehicle-activity/EnforcementHistoryModal"
+import { EnforcementActionModal } from "@/pages/vehicle-activity/EnforcementActionModal"
 
 export default function VehicleRegisterPage() {
   const navigate = useNavigate()
@@ -41,6 +43,7 @@ export default function VehicleRegisterPage() {
   )
   const [expandedVehicleId, setExpandedVehicleId] = useState<string | null>(null)
   const [enforcementVehicleId, setEnforcementVehicleId] = useState<string | null>(null)
+  const [enforcementActionVehicleId, setEnforcementActionVehicleId] = useState<string | null>(null)
   const [advancedFilters, setAdvancedFilters] = useState<VehicleFilters>({
     cities: [],
     vehicleTypes: [],
@@ -140,6 +143,8 @@ export default function VehicleRegisterPage() {
       navigate(`/falcon/vehicle-register/${vehicleId}/trips`)
     } else if (action === "enforcement-history") {
       setEnforcementVehicleId(vehicleId)
+    } else if (action === "enforcement-actions") {
+      setEnforcementActionVehicleId(vehicleId)
     }
   }
 
@@ -320,6 +325,19 @@ export default function VehicleRegisterPage() {
             ? getVehicleActivity(enforcementVehicleId)?.enforcement.history ?? []
             : []
         }
+      />
+
+      <EnforcementActionModal
+        open={!!enforcementActionVehicleId}
+        onOpenChange={(open) => {
+          if (!open) setEnforcementActionVehicleId(null)
+        }}
+        onApply={({ actionLabel, reason, comment }) => {
+          setEnforcementActionVehicleId(null)
+          toast.success(`${actionLabel} applied`, {
+            description: comment ? `${reason} — ${comment}` : reason,
+          })
+        }}
       />
     </>
   )

@@ -129,7 +129,7 @@ export const checkoutFilterSections: FilterSection[] = [
     options: [
       { value: "Ikeja Yard", label: "Ikeja Yard" },
       { value: "Surulere Yard", label: "Surulere Yard" },
-      { value: "Abuja Yard", label: "Abuja Yard" },
+      { value: "Abeokuta Yard", label: "Abeokuta Yard" },
     ],
   },
   {
@@ -178,8 +178,8 @@ export const movementLogFilterSections: FilterSection[] = [
     options: [
       { value: "Surulere Yard", label: "Surulere Yard" },
       { value: "Ikeja Yard", label: "Ikeja Yard" },
-      { value: "Abuja Yard", label: "Abuja Yard" },
-      { value: "Accra 3PL", label: "Accra 3PL" },
+      { value: "Abeokuta Yard", label: "Abeokuta Yard" },
+      { value: "Ibadan 3PL", label: "Ibadan 3PL" },
     ],
   },
   {

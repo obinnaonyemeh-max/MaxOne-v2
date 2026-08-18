@@ -7,12 +7,19 @@ import {
   type ReactNode,
 } from "react"
 import type { SidebarSection } from "@/components/max"
+import { isInCityScope } from "@/data/cityScope"
+import {
+  widgetsForFullBuild,
+  widgetsForModules,
+  type DashboardWidget,
+} from "@/data/dashboardWidgets"
 import {
   filterSidebarSections,
   getPermissionsForMode,
   getRoleDefinition,
   getRoleLabel,
   type PermissionKey,
+  type RoleDataScope,
   type SimulationMode,
 } from "@/data/rolePermissions"
 import { sidebarSections } from "@/data/sidebarConfig"
@@ -22,7 +29,11 @@ const STORAGE_KEY = "maxone.simulationMode"
 function readStoredMode(): SimulationMode {
   try {
     const stored = localStorage.getItem(STORAGE_KEY)
-    if (stored === "full-build" || stored === "global-fleet-manager") {
+    if (
+      stored === "full-build" ||
+      stored === "global-fleet-manager" ||
+      stored === "city-fleet-officer"
+    ) {
       return stored
     }
   } catch {
@@ -41,6 +52,12 @@ interface RoleSimulationContextValue {
   filterSections: (sections: SidebarSection[]) => SidebarSection[]
   /** Fleet Ops sections filtered for the current role (role mode only). */
   roleSidebarSections: SidebarSection[]
+  /** Dashboard widgets derived from the current role's modules. */
+  dashboardWidgets: DashboardWidget[]
+  /** Geographic scope for list/dashboard data; null when unscoped. */
+  dataScope: RoleDataScope | null
+  /** True when the value is in-scope, or when the role has no city scope. */
+  filterByCity: (value: string | null | undefined) => boolean
 }
 
 const RoleSimulationContext = createContext<RoleSimulationContextValue | null>(null)
@@ -81,6 +98,26 @@ export function RoleSimulationProvider({ children }: { children: ReactNode }) {
     return filterSidebarSections(sidebarSections, role.navItemIds)
   }, [mode])
 
+  const dashboardWidgets = useMemo(() => {
+    if (mode === "full-build") return widgetsForFullBuild()
+    const role = getRoleDefinition(mode)
+    if (!role) return widgetsForFullBuild()
+    return widgetsForModules(role.navItemIds)
+  }, [mode])
+
+  const dataScope = useMemo(() => {
+    if (mode === "full-build") return null
+    return getRoleDefinition(mode)?.dataScope ?? null
+  }, [mode])
+
+  const filterByCity = useCallback(
+    (value: string | null | undefined) => {
+      if (!dataScope || dataScope.type !== "city") return true
+      return isInCityScope(value, dataScope.city)
+    },
+    [dataScope]
+  )
+
   const value = useMemo<RoleSimulationContextValue>(
     () => ({
       mode,
@@ -91,8 +128,11 @@ export function RoleSimulationProvider({ children }: { children: ReactNode }) {
       can,
       filterSections,
       roleSidebarSections,
+      dashboardWidgets,
+      dataScope,
+      filterByCity,
     }),
-    [mode, setMode, can, filterSections, roleSidebarSections]
+    [mode, setMode, can, filterSections, roleSidebarSections, dashboardWidgets, dataScope, filterByCity]
   )
 
   return (
@@ -113,4 +153,24 @@ export function useRoleSimulation(): RoleSimulationContextValue {
 /** Convenience hook for a single permission check. */
 export function useCan(permission: PermissionKey): boolean {
   return useRoleSimulation().can(permission)
+}
+
+/** Dashboard widgets composed from the current role's modules. */
+export function useDashboardWidgets(): DashboardWidget[] {
+  return useRoleSimulation().dashboardWidgets
+}
+
+/** Filter records by the current role's city scope. Unscoped roles return all records. */
+export function useCityScopedRecords<T>(
+  records: readonly T[],
+  locationKey: keyof T
+): T[] {
+  const { filterByCity } = useRoleSimulation()
+  return useMemo(
+    () =>
+      records.filter((item) =>
+        filterByCity(item[locationKey] as string | null | undefined)
+      ),
+    [records, filterByCity, locationKey]
+  )
 }

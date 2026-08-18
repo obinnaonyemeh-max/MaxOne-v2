@@ -10,12 +10,12 @@ export interface BatchRecord {
 }
 
 export const mockBatches = [
-  { id: "1", batchId: "BATCH-12-3056", oem: "TailG", model: "Jidi V1 Standard", qty: 20000, subBatchCount: 4, destination: "Ghana / Accra", eta: "100d" },
+  { id: "1", batchId: "BATCH-12-3056", oem: "TailG", model: "Jidi V1 Standard", qty: 20000, subBatchCount: 4, destination: "Nigeria / Ibadan", eta: "100d" },
   { id: "2", batchId: "BATCH-0990", oem: "Spiro", model: "Ekon V2 Standard", qty: 5000, subBatchCount: 2, destination: "Nigeria / Lagos", eta: "105d" },
   { id: "3", batchId: "BATCH-2026-003", oem: "King", model: "MAX M4 Cargo", qty: 2500, subBatchCount: 3, destination: "Nigeria / Lagos", eta: "75d" },
-  { id: "4", batchId: "BATCH-2026-002", oem: "TailG", model: "Jidi V1 Standard", qty: 400, subBatchCount: 1, destination: "Ghana / Accra", eta: "65d" },
+  { id: "4", batchId: "BATCH-2026-002", oem: "TailG", model: "Jidi V1 Standard", qty: 400, subBatchCount: 1, destination: "Nigeria / Ibadan", eta: "65d" },
   { id: "5", batchId: "BATCH-2026-001", oem: "Spiro", model: "Ekon V2 Standard", qty: 1000, subBatchCount: 2, destination: "Nigeria / Lagos", eta: "74d" },
   { id: "6", batchId: "BATCH-2026-006", oem: "King", model: "MAX M4 Cargo", qty: 3000, subBatchCount: 4, destination: "Nigeria / Lagos", eta: "120d" },
-  { id: "7", batchId: "BATCH-2026-007", oem: "TailG", model: "Jidi V1 Standard", qty: 1500, subBatchCount: 3, destination: "Ghana / Accra", eta: "45d" },
+  { id: "7", batchId: "BATCH-2026-007", oem: "TailG", model: "Jidi V1 Standard", qty: 1500, subBatchCount: 3, destination: "Nigeria / Ibadan", eta: "45d" },
   { id: "8", batchId: "BATCH-2026-008", oem: "Spiro", model: "Ekon V2 Standard", qty: 800, subBatchCount: 2, destination: "Nigeria / Lagos", eta: "30d" },
 ] satisfies BatchRecord[]

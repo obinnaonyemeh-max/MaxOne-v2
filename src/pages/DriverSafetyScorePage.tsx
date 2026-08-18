@@ -33,6 +33,7 @@ import {
   riskLevelVariantMap,
   type DriverRiskRecord,
 } from "@/data/mockDriverSafety"
+import { CITY_FILTER_OPTIONS } from "@/data/cities"
 
 // ── Color constants ──
 
@@ -171,13 +172,7 @@ const driverFilterSections: FilterSection[] = [
     id: "locations",
     title: "Location",
     defaultExpanded: true,
-    options: [
-      { value: "Lagos", label: "Lagos" },
-      { value: "Abuja", label: "Abuja" },
-      { value: "Kano", label: "Kano" },
-      { value: "Ibadan", label: "Ibadan" },
-      { value: "Port Harcourt", label: "Port Harcourt" },
-    ],
+    options: CITY_FILTER_OPTIONS,
   },
   {
     id: "riskLevels",

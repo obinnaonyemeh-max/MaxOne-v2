@@ -25,6 +25,8 @@ import {
 } from "@/components/ui/popover"
 
 import { mockScrapRecords, type ScrapRecord } from "@/data/mockScrap"
+import { CITY_FILTER_OPTIONS } from "@/data/cities"
+import { useCityScopedRecords } from "@/contexts/RoleSimulationContext"
 
 const stageStats = [
   { title: "Scrap In Progress", value: 2, subtitle: "Avg 11d in stage", indicatorColor: "var(--color-status-warning)" },
@@ -47,11 +49,7 @@ const filterSections: FilterSection[] = [
   {
     id: "location",
     title: "Location",
-    options: [
-      { value: "Nairobi", label: "Nairobi" },
-      { value: "Mombasa", label: "Mombasa" },
-      { value: "Kisumu", label: "Kisumu" },
-    ],
+    options: CITY_FILTER_OPTIONS,
   },
   {
     id: "sla",
@@ -183,11 +181,20 @@ export default function ScrapManagementPage() {
   const [breachFilter, setBreachFilter] = useState(false)
   const navigate = useNavigate()
   const activeFilterCount = getActiveFilterCount(filters)
+  const scopedRecords = useCityScopedRecords(mockScrapRecords, "location")
+  const scopedStageStats = useMemo(
+    () =>
+      stageStats.map((stat) => ({
+        ...stat,
+        value: scopedRecords.filter((r) => r.scrapStage === stat.title).length,
+      })),
+    [scopedRecords]
+  )
 
-  const breachCount = mockScrapRecords.filter((r) => r.sla === "Breached").length
+  const breachCount = scopedRecords.filter((r) => r.sla === "Breached").length
 
   const filteredRecords = useMemo(() => {
-    let result = mockScrapRecords
+    let result = scopedRecords
 
     if (breachFilter) {
       result = result.filter((r) => r.sla === "Breached")
@@ -213,7 +220,7 @@ export default function ScrapManagementPage() {
     }
 
     return result
-  }, [filters, searchQuery, breachFilter])
+  }, [filters, searchQuery, breachFilter, scopedRecords])
 
   return (
     <>
@@ -230,10 +237,10 @@ export default function ScrapManagementPage() {
         <div className="grid grid-cols-4 gap-2 shrink-0">
           <StatCard
             title="Total in Scrap"
-            value={mockScrapRecords.length}
+            value={scopedRecords.length}
             indicatorColor="var(--color-gray-400)"
           />
-          {stageStats.map((stat) => (
+          {scopedStageStats.map((stat) => (
             <StatCard
               key={stat.title}
               title={stat.title}

@@ -1,3 +1,4 @@
+import { useEffect } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 
 import {
@@ -8,12 +9,20 @@ import {
   InfoGrid,
 } from "@/components/max"
 import { StatCard } from "@/components/max/StatCard"
+import { useRoleSimulation } from "@/contexts/RoleSimulationContext"
 import { mockScrapRecords, stageVariantMap } from "@/pages/ScrapManagementPage"
 
 export default function ScrapDetailPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const { filterByCity } = useRoleSimulation()
   const record = mockScrapRecords.find((r) => r.assetId === id)
+
+  useEffect(() => {
+    if (record && !filterByCity(record.location)) {
+      navigate("/scrap-management", { replace: true })
+    }
+  }, [filterByCity, navigate, record])
 
   if (!record) {
     return (

@@ -34,7 +34,7 @@ import {
   type DocumentStatus,
   type ChecklistDocument,
 } from "@/data/mockVehicleDocuments"
-import { useCan } from "@/contexts/RoleSimulationContext"
+import { useCan, useCityScopedRecords, useRoleSimulation } from "@/contexts/RoleSimulationContext"
 import { DocumentChecklistModal } from "./vehicle-documents/DocumentChecklistModal"
 import { UploadDocumentModal } from "./vehicle-documents/UploadDocumentModal"
 import { UploadDocumentsForVehicleModal } from "./vehicle-documents/UploadDocumentsForVehicleModal"
@@ -217,14 +217,16 @@ export default function VehicleDocumentsPage() {
   const [bulkUploadVehicleId, setBulkUploadVehicleId] = useState<string | undefined>(undefined)
   const canUploadDoc = useCan("vehicleDocument.upload")
   const canReplaceDoc = useCan("vehicleDocument.replace")
+  const { dataScope } = useRoleSimulation()
+  const scopedDocuments = useCityScopedRecords(mockVehicleDocuments, "location")
 
   const vehicleOptions = useMemo(
     () =>
-      mockVehicleDocuments.map((r) => ({
+      scopedDocuments.map((r) => ({
         value: r.vehicleId,
         label: `${r.vehicleId} — ${r.champion}`,
       })),
-    []
+    [scopedDocuments]
   )
 
   const openUpload = (vehicleId?: string) => {
@@ -251,7 +253,7 @@ export default function VehicleDocumentsPage() {
 
   const filtered = useMemo(
     () =>
-      mockVehicleDocuments.filter((r) => {
+      scopedDocuments.filter((r) => {
         if (filters.status.length > 0 && !filters.status.includes(r.status)) return false
         if (filters.type.length > 0 && !filters.type.includes(r.type)) return false
         if (searchQuery) {
@@ -264,10 +266,41 @@ export default function VehicleDocumentsPage() {
         }
         return true
       }),
-    [filters, searchQuery]
+    [filters, searchQuery, scopedDocuments]
   )
 
-  const s = vehicleDocumentStats
+  const scopedVehicleIds = useMemo(
+    () => new Set(scopedDocuments.map((r) => r.vehicleId)),
+    [scopedDocuments]
+  )
+  const scopedAlerts = useMemo(
+    () => complianceAlerts.filter((a) => scopedVehicleIds.has(a.vehicleId)),
+    [scopedVehicleIds]
+  )
+
+  const s = dataScope
+    ? {
+        coveragePct: scopedDocuments.length
+          ? Math.round(
+              (scopedDocuments.filter((r) => r.status === "Complete").length / scopedDocuments.length) * 100
+            )
+          : 0,
+        coverageComplete: scopedDocuments.filter((r) => r.status === "Complete").length,
+        coverageTotal: scopedDocuments.length,
+        coverageTrend: vehicleDocumentStats.coverageTrend,
+        expiredCount: scopedDocuments.filter((r) => r.status === "Expired").length,
+        expiredVehicles: scopedDocuments.filter((r) => r.status === "Expired").length,
+        expiredFleetPct: scopedDocuments.length
+          ? Math.round(
+              (scopedDocuments.filter((r) => r.status === "Expired").length / scopedDocuments.length) * 100
+            )
+          : 0,
+        expiringSoonCount: scopedDocuments.filter((r) => r.status === "Expiring Soon").length,
+        expiringVehicles: scopedDocuments.filter((r) => r.status === "Expiring Soon").length,
+        totalFleet: scopedDocuments.length,
+        region: dataScope.city,
+      }
+    : vehicleDocumentStats
 
   return (
     <>
@@ -287,7 +320,7 @@ export default function VehicleDocumentsPage() {
           <div className="flex-1">
             <div className="flex items-center justify-between gap-4">
               <p className="font-bold text-sm text-status-danger">
-                {complianceAlerts.length} urgent compliance alerts require action
+                {scopedAlerts.length} urgent compliance alerts require action
               </p>
               <div className="flex items-center gap-4 shrink-0">
                 <button
@@ -317,12 +350,12 @@ export default function VehicleDocumentsPage() {
             </div>
             {alertsExpanded && (
               <ul className="mt-2 space-y-1">
-                {complianceAlerts.map((a) => (
+                {scopedAlerts.map((a) => (
                   <li key={a.vehicleId} className="text-sm">
                     <button
                       type="button"
                       onClick={() => {
-                        const record = mockVehicleDocuments.find(
+                        const record = scopedDocuments.find(
                           (r) => r.vehicleId === a.vehicleId
                         )
                         if (record) setSelectedRecord(record)

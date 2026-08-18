@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/popover"
 
 import { mockAuctionEvents, type AuctionEvent } from "@/data/mockAuction"
+import { CITY_DEPOT_OPTIONS } from "@/data/cities"
 
 const statusVariantMap: Record<AuctionEvent["status"], "success" | "info" | "default"> = {
   Active: "success",
@@ -48,18 +49,7 @@ const filterSections: FilterSection[] = [
   {
     id: "location",
     title: "Location",
-    options: [
-      { value: "Lagos Main Depot", label: "Lagos Main Depot" },
-      { value: "Abuja Fleet Depot", label: "Abuja Fleet Depot" },
-      { value: "Port Harcourt Depot", label: "Port Harcourt Depot" },
-      { value: "Kano Depot", label: "Kano Depot" },
-      { value: "Ibadan Depot", label: "Ibadan Depot" },
-      { value: "Benin Depot", label: "Benin Depot" },
-      { value: "Enugu Depot", label: "Enugu Depot" },
-      { value: "Kaduna Depot", label: "Kaduna Depot" },
-      { value: "Jos Depot", label: "Jos Depot" },
-      { value: "Warri Depot", label: "Warri Depot" },
-    ],
+    options: CITY_DEPOT_OPTIONS,
   },
 ]
 

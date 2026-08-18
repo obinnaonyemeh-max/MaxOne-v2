@@ -21,7 +21,6 @@ export const sidebarSections: SidebarSection[] = [
         id: "fleet-register",
         label: "Fleet Register",
         icon: "/images/fleet_menu.svg",
-        badge: "24K",
         href: "/fleet-register",
       },
       {

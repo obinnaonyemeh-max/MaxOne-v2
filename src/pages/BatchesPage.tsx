@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { type ColumnDef } from "@tanstack/react-table"
 import { Search, SlidersHorizontal, Plus, Calendar as CalendarIcon, Info } from "lucide-react"
@@ -33,9 +33,10 @@ import { Textarea } from "@/components/ui/textarea"
 import { Calendar } from "@/components/ui/calendar"
 
 import { mockBatches, type BatchRecord } from "@/data/mockBatches"
+import { CITY_DESTINATION_OPTIONS } from "@/data/cities"
 import { mockSubBatches } from "@/data/mockSubBatches"
 import { mockVehicleTypes } from "@/data/mockStockSetup"
-import { useCan } from "@/contexts/RoleSimulationContext"
+import { useCan, useCityScopedRecords } from "@/contexts/RoleSimulationContext"
 
 const COLOR_STATUS_INFO = "var(--color-status-info)"
 const COLOR_STATUS_WARNING = "var(--color-status-warning)"
@@ -52,9 +53,9 @@ const SUB_BATCH_STAGES = [
   { title: "Ready for Activation", indicatorColor: COLOR_STATUS_SUCCESS },
 ] as const
 
-function buildSubBatchStageStats() {
+function buildSubBatchStageStats(subBatches: typeof mockSubBatches) {
   return SUB_BATCH_STAGES.map(({ title, indicatorColor }) => {
-    const stageSubBatches = mockSubBatches.filter((sb) => sb.stage === title)
+    const stageSubBatches = subBatches.filter((sb) => sb.stage === title)
     const subBatchCount = stageSubBatches.length
     const batchCount = new Set(stageSubBatches.map((sb) => sb.batchId)).size
     const vehicleQty = stageSubBatches.reduce((sum, sb) => sum + sb.qty, 0)
@@ -70,8 +71,6 @@ function buildSubBatchStageStats() {
     }
   })
 }
-
-const subBatchStageStats = buildSubBatchStageStats()
 
 const batchColumns: ColumnDef<BatchRecord>[] = [
   {
@@ -153,10 +152,7 @@ const batchFilterSections: FilterSection[] = [
   {
     id: "destination",
     title: "Destination",
-    options: [
-      { value: "Nigeria / Lagos", label: "Nigeria / Lagos" },
-      { value: "Ghana / Accra", label: "Ghana / Accra" },
-    ],
+    options: CITY_DESTINATION_OPTIONS,
   },
 ]
 
@@ -177,6 +173,19 @@ export default function BatchesPage() {
   const [containerNumbers, setContainerNumbers] = useState<string[]>([])
   const batchFilterCount = getActiveFilterCount(batchFilters)
   const canCreateBatch = useCan("inbound.batches.create")
+  const scopedBatches = useCityScopedRecords(mockBatches, "destination")
+  const allowedBatchIds = useMemo(
+    () => new Set(scopedBatches.map((batch) => batch.batchId)),
+    [scopedBatches]
+  )
+  const scopedSubBatches = useMemo(
+    () => mockSubBatches.filter((sb) => allowedBatchIds.has(sb.batchId)),
+    [allowedBatchIds]
+  )
+  const subBatchStageStats = useMemo(
+    () => buildSubBatchStageStats(scopedSubBatches),
+    [scopedSubBatches]
+  )
 
   return (
     <div className="flex flex-1 flex-col min-h-0 mt-4">
@@ -264,15 +273,15 @@ export default function BatchesPage() {
         </div>
 
         <div className="flex-1 overflow-y-auto">
-          <DataTable columns={batchColumns} data={mockBatches} onRowClick={(row) => navigate(`/inbound/batches/${row.id}`)} />
+          <DataTable columns={batchColumns} data={scopedBatches} onRowClick={(row) => navigate(`/inbound/batches/${row.id}`)} />
         </div>
       </div>
 
       <div className="shrink-0 mt-1 mb-6 rounded-t-[4px] rounded-b-[14px] border border-table-border bg-content-card">
         <Pagination
           currentPage={batchPage}
-          totalPages={Math.ceil(mockBatches.length / batchPageSize)}
-          totalItems={mockBatches.length}
+          totalPages={Math.ceil(scopedBatches.length / batchPageSize) || 1}
+          totalItems={scopedBatches.length}
           pageSize={batchPageSize}
           onPageChange={setBatchPage}
           onPageSizeChange={setBatchPageSize}

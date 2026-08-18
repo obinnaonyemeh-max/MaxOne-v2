@@ -1,12 +1,13 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 
 import { TopBar, BackButton, StatusTimeline, StatusBadge, InfoCard, InfoGrid, Toast, useToast } from "@/components/max"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 
+import { mockBatches } from "@/data/mockBatches"
 import { getSubBatchByIds, stageVariantMap, type SubBatch } from "@/data/mockSubBatches"
-import { useCan } from "@/contexts/RoleSimulationContext"
+import { useCan, useRoleSimulation } from "@/contexts/RoleSimulationContext"
 import { MoveStageModal } from "./batch-details/MoveStageModal"
 
 const stageOrder = [
@@ -48,6 +49,8 @@ function SubBatchOverviewTab({ subBatch }: { subBatch: SubBatch }) {
 export default function SubBatchDetailsPage() {
   const { batchId, subBatchId } = useParams<{ batchId: string; subBatchId: string }>()
   const navigate = useNavigate()
+  const { filterByCity } = useRoleSimulation()
+  const parentBatch = mockBatches.find((batch) => batch.batchId === batchId)
   
   const baseSubBatch = getSubBatchByIds(batchId || "", subBatchId || "")
   
@@ -60,6 +63,12 @@ export default function SubBatchDetailsPage() {
   const [showMoveStage, setShowMoveStage] = useState(false)
   const { message: toast, variant: toastVariant, showToast } = useToast()
   const canMoveStage = useCan("inbound.batches.moveSubBatchStage")
+
+  useEffect(() => {
+    if (parentBatch && !filterByCity(parentBatch.destination)) {
+      navigate("/inbound/batches", { replace: true })
+    }
+  }, [filterByCity, navigate, parentBatch])
 
   const advanceStage = (target: string) => {
     setStage(target)

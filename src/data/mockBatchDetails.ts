@@ -36,8 +36,8 @@ export const mockBatchDetails: Record<string, BatchDetails> = {
       quantityOrdered: 20000,
       quantityReceived: 5000,
       quantityInTransit: 7500,
-      destinationCountry: "Ghana",
-      destinationCity: "Accra",
+      destinationCountry: "Nigeria",
+      destinationCity: "Ibadan",
     },
     financials: {
       paymentReference: "PAY-2026-TG-3056",
@@ -46,11 +46,11 @@ export const mockBatchDetails: Record<string, BatchDetails> = {
     shipping: {
       containerNumber: "MSKU-4829173",
       shippingLine: "Maersk",
-      portOfArrival: "Tema Port",
+      portOfArrival: "Apapa Port",
       expectedDeliveryDate: "15 Jun 2026",
     },
     createdDate: "3/17/2026",
-    notes: "Priority shipment for Ghana expansion.",
+    notes: "Priority shipment for Ibadan expansion.",
   },
   "2": {
     id: "2",
@@ -114,8 +114,8 @@ export const mockBatchDetails: Record<string, BatchDetails> = {
       quantityOrdered: 400,
       quantityReceived: 400,
       quantityInTransit: 0,
-      destinationCountry: "Ghana",
-      destinationCity: "Accra",
+      destinationCountry: "Nigeria",
+      destinationCity: "Ibadan",
     },
     financials: {
       paymentReference: "PAY-2026-TG-002",
@@ -124,7 +124,7 @@ export const mockBatchDetails: Record<string, BatchDetails> = {
     shipping: {
       containerNumber: "OOLU-3847291",
       shippingLine: "OOCL",
-      portOfArrival: "Tema Port",
+      portOfArrival: "Apapa Port",
       expectedDeliveryDate: "1 Apr 2026",
     },
     createdDate: "1/20/2026",
@@ -192,8 +192,8 @@ export const mockBatchDetails: Record<string, BatchDetails> = {
       quantityOrdered: 1500,
       quantityReceived: 375,
       quantityInTransit: 562,
-      destinationCountry: "Ghana",
-      destinationCity: "Accra",
+      destinationCountry: "Nigeria",
+      destinationCity: "Ibadan",
     },
     financials: {
       paymentReference: "PAY-2026-TG-007",
@@ -202,7 +202,7 @@ export const mockBatchDetails: Record<string, BatchDetails> = {
     shipping: {
       containerNumber: "CMAU-2938475",
       shippingLine: "CMA CGM",
-      portOfArrival: "Tema Port",
+      portOfArrival: "Apapa Port",
       expectedDeliveryDate: "25 Apr 2026",
     },
     createdDate: "2/20/2026",

@@ -92,7 +92,7 @@ export const mockKitReports: KitReport[] = [
     status: "Reassigned",
     client: "Tunde Bakare",
     plateNumber: "LND-330-QZ",
-    location: "Lagos",
+    location: "Ibadan",
     assignmentDate: "01 Jul 2026",
     lastUpdated: "19 Jul 2026",
   },

@@ -29,6 +29,8 @@ import {
 } from "@/components/ui/popover"
 
 import { mockDisposalRecords, type DisposalRecord } from "@/data/mockDisposal"
+import { CITY_FILTER_OPTIONS } from "@/data/cities"
+import { useCityScopedRecords } from "@/contexts/RoleSimulationContext"
 
 const stageStats = [
   { title: "Pending Auction", value: 3, indicatorColor: "var(--color-status-warning)" },
@@ -61,18 +63,7 @@ const filterSections: FilterSection[] = [
   {
     id: "location",
     title: "Location",
-    options: [
-      { value: "Nairobi", label: "Nairobi" },
-      { value: "Mombasa", label: "Mombasa" },
-      { value: "Kisumu", label: "Kisumu" },
-      { value: "Nakuru", label: "Nakuru" },
-      { value: "Eldoret", label: "Eldoret" },
-      { value: "Thika", label: "Thika" },
-      { value: "Nyeri", label: "Nyeri" },
-      { value: "Machakos", label: "Machakos" },
-      { value: "Kitale", label: "Kitale" },
-      { value: "Kakamega", label: "Kakamega" },
-    ],
+    options: CITY_FILTER_OPTIONS,
   },
   {
     id: "sla",
@@ -231,8 +222,16 @@ export default function DisposalManagementPage() {
   const [searchOpen, setSearchOpen] = useState(false)
   const [breachFilter, setBreachFilter] = useState(false)
   const activeFilterCount = getActiveFilterCount(filters)
-
-  const breachCount = mockDisposalRecords.filter((r) => r.sla === "Breached").length
+  const scopedRecords = useCityScopedRecords(mockDisposalRecords, "location")
+  const scopedStageStats = useMemo(
+    () =>
+      stageStats.map((stat) => ({
+        ...stat,
+        value: scopedRecords.filter((r) => r.disposalStage === stat.title).length,
+      })),
+    [scopedRecords]
+  )
+  const breachCount = scopedRecords.filter((r) => r.sla === "Breached").length
 
   const handleRowClick = (row: DisposalRecord) => {
     if (auctionLinkedStages.includes(row.disposalStage)) {
@@ -243,7 +242,7 @@ export default function DisposalManagementPage() {
   }
 
   const filteredRecords = useMemo(() => {
-    let result = mockDisposalRecords
+    let result = scopedRecords
 
     if (breachFilter) {
       result = result.filter((r) => r.sla === "Breached")
@@ -272,7 +271,7 @@ export default function DisposalManagementPage() {
     }
 
     return result
-  }, [filters, searchQuery, breachFilter])
+  }, [filters, searchQuery, breachFilter, scopedRecords])
 
   return (
     <>
@@ -303,15 +302,15 @@ export default function DisposalManagementPage() {
         <div className="grid grid-cols-5 gap-2 shrink-0">
           <StatCard
             title="Total in Disposal"
-            value={mockDisposalRecords.length}
+            value={scopedRecords.length}
             indicatorColor="var(--color-gray-400)"
           />
           <StatCard
-            title={stageStats[0].title}
-            value={stageStats[0].value}
-            indicatorColor={stageStats[0].indicatorColor}
+            title={scopedStageStats[0].title}
+            value={scopedStageStats[0].value}
+            indicatorColor={scopedStageStats[0].indicatorColor}
           />
-          {stageStats.slice(1).map((stat) => (
+          {scopedStageStats.slice(1).map((stat) => (
             <StatCard
               key={stat.title}
               title={stat.title}

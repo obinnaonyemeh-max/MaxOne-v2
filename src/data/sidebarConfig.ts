@@ -422,6 +422,7 @@ export const portfolioSidebarSections: SidebarSection[] = [
         id: "portfolio-blacklist",
         label: "Blacklist",
         icon: "/images/blacklist_menu.svg",
+        href: "/portfolio/champions/blacklist",
       },
     ],
   },
@@ -514,14 +515,10 @@ export const portfolioSidebarSections: SidebarSection[] = [
     label: "Collections",
     items: [
       {
-        id: "portfolio-collections-summary",
-        label: "Collections Summary",
-        icon: "/images/dashboard_menu.svg",
-      },
-      {
         id: "portfolio-all-collections",
         label: "All Collections",
         icon: "/images/revenue_analytics_menu.svg",
+        href: "/portfolio/collections/all",
       },
     ],
   },

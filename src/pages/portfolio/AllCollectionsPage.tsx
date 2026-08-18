@@ -83,16 +83,16 @@ const columns: ColumnDef<CollectionContract>[] = [
     accessorKey: "location",
     header: "Location",
     cell: ({ row }) => (
-      <span className="text-muted-foreground text-sm">{row.original.location}</span>
+      <span className="font-medium text-table-text text-sm">{row.original.location}</span>
     ),
   },
   {
     accessorKey: "vehicle",
     header: "Vehicle",
     cell: ({ row }) => (
-      <StatusBadge variant={row.original.vehicle === "EV" ? "success" : "default"} withDot={false} size="sm">
-        {row.original.vehicle}
-      </StatusBadge>
+      <span className="font-medium text-table-text text-sm">
+        {row.original.vehicle === "EV" ? "Electric Vehicle" : "ICE Vehicle"}
+      </span>
     ),
   },
   {
@@ -166,8 +166,8 @@ const filterSections: FilterSection[] = [
     id: "vehicle",
     title: "Vehicle",
     options: [
-      { value: "EV", label: "EV" },
-      { value: "ICE", label: "ICE" },
+      { value: "EV", label: "Electric Vehicle" },
+      { value: "ICE", label: "ICE Vehicle" },
     ],
   },
 ]

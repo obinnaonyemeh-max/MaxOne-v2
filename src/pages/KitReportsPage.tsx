@@ -38,14 +38,24 @@ const STATUS_FILTER_SECTION: FilterSection = {
   title: "Status",
   defaultExpanded: true,
   options: [
-    { value: "Assigned",   label: "Assigned",   color: COLOR_STATUS_SUCCESS },
-    { value: "Reassigned", label: "Reassigned", color: COLOR_STATUS_INFO },
-    { value: "Created",    label: "Created",    color: COLOR_GRAY_500 },
+    { value: "Assigned", label: "Assigned", color: COLOR_STATUS_SUCCESS },
+    { value: "New", label: "New", color: COLOR_GRAY_500 },
+  ],
+}
+
+const REASSIGNED_FILTER_SECTION: FilterSection = {
+  id: "reassigned",
+  title: "Reassigned?",
+  defaultExpanded: true,
+  options: [
+    { value: "Yes", label: "Yes", color: COLOR_STATUS_INFO },
+    { value: "No",  label: "No",  color: COLOR_GRAY_500 },
   ],
 }
 
 const defaultFilters: GenericFilterState = {
   status: [],
+  reassigned: [],
   client: [],
 }
 
@@ -65,6 +75,15 @@ const columns: ColumnDef<KitReport>[] = [
     cell: ({ row }) => (
       <StatusBadge variant={kitStatusVariantMap[row.original.status]} withDot>
         {row.original.status}
+      </StatusBadge>
+    ),
+  },
+  {
+    accessorKey: "reassigned",
+    header: "Reassigned?",
+    cell: ({ row }) => (
+      <StatusBadge variant={row.original.reassigned ? "info" : "default"} withDot>
+        {row.original.reassigned ? "Yes" : "No"}
       </StatusBadge>
     ),
   },
@@ -95,15 +114,6 @@ const columns: ColumnDef<KitReport>[] = [
       </span>
     ),
   },
-  {
-    accessorKey: "lastUpdated",
-    header: "Last Updated",
-    cell: ({ row }) => (
-      <span className="font-medium text-table-text" style={{ fontSize: "14px" }}>
-        {row.original.lastUpdated}
-      </span>
-    ),
-  },
 ]
 
 export default function KitReportsPage() {
@@ -124,6 +134,7 @@ export default function KitReportsPage() {
     ).sort()
     return [
       STATUS_FILTER_SECTION,
+      REASSIGNED_FILTER_SECTION,
       {
         id: "client",
         title: "Client",
@@ -136,6 +147,10 @@ export default function KitReportsPage() {
     () =>
       scopedKits.filter((kit) => {
         if (filters.status.length > 0 && !filters.status.includes(kit.status)) return false
+        if (filters.reassigned.length > 0) {
+          const reassignedLabel = kit.reassigned ? "Yes" : "No"
+          if (!filters.reassigned.includes(reassignedLabel)) return false
+        }
         if (filters.client.length > 0 && (kit.client === null || !filters.client.includes(kit.client))) return false
         if (searchQuery) {
           const q = searchQuery.toLowerCase()

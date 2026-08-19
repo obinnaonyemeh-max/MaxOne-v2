@@ -47,6 +47,10 @@ import ReferralManagementPage from "@/pages/portfolio/ReferralManagementPage"
 import BlacklistPage from "@/pages/portfolio/BlacklistPage"
 import AllCollectionsPage from "@/pages/portfolio/AllCollectionsPage"
 import ContractsPage from "@/pages/portfolio/ContractsPage"
+import InitiatedContractsPage from "@/pages/portfolio/InitiatedContractsPage"
+import RestructuredContractsPage from "@/pages/portfolio/RestructuredContractsPage"
+import PendingApprovalContractsPage from "@/pages/portfolio/PendingApprovalContractsPage"
+import DisputedContractsPage from "@/pages/portfolio/DisputedContractsPage"
 import RecoveryOfficersPage from "@/pages/portfolio/RecoveryOfficersPage"
 import VehicleRegisterPage from "@/pages/vehicle-register/VehicleRegisterPage"
 import VehicleActivityPage from "@/pages/vehicle-activity/VehicleActivityPage"
@@ -121,6 +125,10 @@ export default function App() {
         <Route path="/portfolio/champions/blacklist" element={<BlacklistPage />} />
         <Route path="/portfolio/collections/all" element={<AllCollectionsPage />} />
         <Route path="/portfolio/contracts" element={<Navigate to="/portfolio/contracts/all" replace />} />
+        <Route path="/portfolio/contracts/initiated" element={<InitiatedContractsPage />} />
+        <Route path="/portfolio/contracts/restructured" element={<RestructuredContractsPage />} />
+        <Route path="/portfolio/contracts/pending-approval" element={<PendingApprovalContractsPage />} />
+        <Route path="/portfolio/contracts/disputed" element={<DisputedContractsPage />} />
         <Route path="/portfolio/contracts/:tab" element={<ContractsPage />} />
         <Route path="/portfolio/recovery/officers" element={<RecoveryOfficersPage />} />
         <Route path="/driver-experience/dashboard" element={<DriverExperienceDashboardPage />} />

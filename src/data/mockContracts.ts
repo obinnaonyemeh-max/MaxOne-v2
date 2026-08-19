@@ -14,6 +14,10 @@ export type ContractCategory =
 
 export type DisputeStatus = "Pending Resolve" | "Resolved"
 
+export type RestructureStage = "Undergoing Restructuring" | "Awaiting Checkout"
+
+export type RetrievalStatus = "Good Standing" | "Retrieved" | "Prepaid" | "Due for Retrieval" | "Overdue"
+
 export interface ContractMetrics {
   hpAmount: number
   totalDurationDays: number
@@ -31,10 +35,18 @@ export interface DisputeComment {
   timestamp: string
 }
 
+export interface ContractAsset {
+  model: string
+  oemVendor: string
+  chassisNumber: string
+  engineNumber: string
+}
+
 export interface Contract {
   id: string
   contractId: string
   championName: string
+  championPhone: string
   maxId: string
   location: string
   vehiclePlate: string
@@ -43,14 +55,33 @@ export interface Contract {
   endDate: string
   monthlyAmount: number
   outstandingBalance: number
+  /** Days Past Due — 0 when the contract has no outstanding balance. */
+  dpd: number
+  lastAmountRemitted: number
+  lastRemittanceDate: string
+  retrievalStatus: RetrievalStatus
   status: ContractStatus
   category: ContractCategory
   metrics: ContractMetrics
+  asset: ContractAsset
   disputeStatus?: DisputeStatus
   disputeComment?: DisputeComment
+  restructureStage?: RestructureStage
 }
 
-type ContractBase = Omit<Contract, "metrics" | "disputeStatus" | "disputeComment">
+type ContractBase = Omit<
+  Contract,
+  | "metrics"
+  | "asset"
+  | "championPhone"
+  | "dpd"
+  | "lastAmountRemitted"
+  | "lastRemittanceDate"
+  | "retrievalStatus"
+  | "disputeStatus"
+  | "disputeComment"
+  | "restructureStage"
+>
 
 // Rows visible in the reference design
 const seedContractsBase: ContractBase[] = [
@@ -155,6 +186,37 @@ const disputeTimestampPool = [
   "12 Aug 2026, 05:47 PM",
 ]
 
+const modelPoolByType: Record<Contract["vehicleType"], string[]> = {
+  "Two-Wheeler": ["Max E Series", "Max E Series Pro"],
+  "Three-Wheeler": ["Max T Series", "Max T Series XL"],
+  "Four-Wheeler": ["Max C Series", "Max C Series Plus"],
+}
+const oemVendorPool = ["GreenDrive Auto", "Bajaj Motors", "TVS Mobility", "Piaggio West Africa"]
+
+function buildAssetDetails(base: ContractBase, index: number): ContractAsset {
+  const modelPool = modelPoolByType[base.vehicleType]
+  return {
+    model: modelPool[index % modelPool.length],
+    oemVendor: oemVendorPool[index % oemVendorPool.length],
+    chassisNumber: `MX${base.vehicleType[0]}${String(1000 + index * 37).padStart(5, "0")}${base.contractId.slice(-4)}`,
+    engineNumber: `EN${String(200000 + index * 913)}`,
+  }
+}
+
+const retrievalStatusPool: RetrievalStatus[] = ["Good Standing", "Prepaid", "Overdue", "Due for Retrieval", "Retrieved"]
+const remittanceMonthPool = ["Jun", "Jul", "Aug"]
+
+function buildChampionPhone(index: number): string {
+  return `+234${(7000000000 + index * 1357913).toString().slice(0, 10)}`
+}
+
+function buildRetrievalStatus(base: ContractBase, index: number): RetrievalStatus {
+  if (base.outstandingBalance <= 0) {
+    return index % 5 === 0 ? "Prepaid" : "Good Standing"
+  }
+  return retrievalStatusPool[2 + (index % 3)]
+}
+
 function withMetrics(base: ContractBase, index: number): Contract {
   const durationDays = tenorDaysByType[base.vehicleType]
   const dailyRemittanceAmount = Math.round(base.monthlyAmount / 30)
@@ -175,18 +237,31 @@ function withMetrics(base: ContractBase, index: number): Contract {
     tranches,
   }
 
-  if (base.category !== "Disputed") {
-    return { ...base, metrics }
+  const asset = buildAssetDetails(base, index)
+  const dpd = base.outstandingBalance > 0 ? 3 + ((index * 5) % 90) : 0
+  const championPhone = buildChampionPhone(index)
+  const lastAmountRemitted = Math.round(base.monthlyAmount * (0.85 + (index % 4) * 0.05))
+  const lastRemittanceDate = `${10 + (index % 18)} ${remittanceMonthPool[index % remittanceMonthPool.length]} 2026`
+  const retrievalStatus = buildRetrievalStatus(base, index)
+
+  const shared = { asset, dpd, championPhone, lastAmountRemitted, lastRemittanceDate, retrievalStatus }
+
+  if (base.category === "Disputed") {
+    const disputeStatus: DisputeStatus = index % 2 === 0 ? "Pending Resolve" : "Resolved"
+    const disputeComment: DisputeComment = {
+      rationale: disputeRationalePool[index % disputeRationalePool.length],
+      reporter: disputeReporterPool[index % disputeReporterPool.length],
+      timestamp: disputeTimestampPool[index % disputeTimestampPool.length],
+    }
+    return { ...base, metrics, ...shared, disputeStatus, disputeComment }
   }
 
-  const disputeStatus: DisputeStatus = index % 2 === 0 ? "Pending Resolve" : "Resolved"
-  const disputeComment: DisputeComment = {
-    rationale: disputeRationalePool[index % disputeRationalePool.length],
-    reporter: disputeReporterPool[index % disputeReporterPool.length],
-    timestamp: disputeTimestampPool[index % disputeTimestampPool.length],
+  if (base.category === "Restructured") {
+    const restructureStage: RestructureStage = index % 2 === 0 ? "Undergoing Restructuring" : "Awaiting Checkout"
+    return { ...base, metrics, ...shared, restructureStage }
   }
 
-  return { ...base, metrics, disputeStatus, disputeComment }
+  return { ...base, metrics, ...shared }
 }
 
 export const mockContracts: Contract[] = [...seedContractsBase, ...extraContractsBase].map(withMetrics)
@@ -211,6 +286,19 @@ export const categoryVariantMap: Record<ContractCategory, BadgeVariant> = {
 export const disputeStatusVariantMap: Record<DisputeStatus, BadgeVariant> = {
   "Pending Resolve": "danger",
   Resolved: "success",
+}
+
+export const restructureStageVariantMap: Record<RestructureStage, BadgeVariant> = {
+  "Undergoing Restructuring": "info",
+  "Awaiting Checkout": "warning",
+}
+
+export const retrievalStatusVariantMap: Record<RetrievalStatus, BadgeVariant> = {
+  "Good Standing": "success",
+  Prepaid: "info",
+  Overdue: "warning",
+  "Due for Retrieval": "danger",
+  Retrieved: "default",
 }
 
 // Headline figures for the stat-card row — always computed off the full

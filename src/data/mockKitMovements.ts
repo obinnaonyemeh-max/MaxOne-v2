@@ -18,7 +18,7 @@ const ASSIGN_ACTOR = "A. Bello (Activation Officer)"
 const REASSIGN_ACTOR = "D. Udogie (Fleet Officer)"
 
 const movements: Record<string, KitMovementEvent[]> = {
-  // Assigned
+  // Assigned — never reassigned
   "KIT-30011": [
     {
       id: "KIT-30011-0",
@@ -45,7 +45,7 @@ const movements: Record<string, KitMovementEvent[]> = {
       reason: "Initial Activation",
     },
   ],
-  // Reassigned
+  // Assigned — has been reassigned
   "KIT-30012": [
     {
       id: "KIT-30012-0",
@@ -84,7 +84,7 @@ const movements: Record<string, KitMovementEvent[]> = {
       reason: "Champion Swap",
     },
   ],
-  // Assigned
+  // Assigned — never reassigned
   "KIT-30013": [
     {
       id: "KIT-30013-0",
@@ -111,7 +111,7 @@ const movements: Record<string, KitMovementEvent[]> = {
       reason: "Initial Activation",
     },
   ],
-  // Created
+  // New
   "KIT-30014": [
     {
       id: "KIT-30014-0",
@@ -126,7 +126,7 @@ const movements: Record<string, KitMovementEvent[]> = {
       reason: "Kit Registered",
     },
   ],
-  // Created
+  // New
   "KIT-30015": [
     {
       id: "KIT-30015-0",
@@ -141,7 +141,7 @@ const movements: Record<string, KitMovementEvent[]> = {
       reason: "Kit Registered",
     },
   ],
-  // Assigned
+  // Assigned — never reassigned
   "KIT-30016": [
     {
       id: "KIT-30016-0",
@@ -168,7 +168,7 @@ const movements: Record<string, KitMovementEvent[]> = {
       reason: "Initial Activation",
     },
   ],
-  // Reassigned
+  // Assigned — has been reassigned
   "KIT-30017": [
     {
       id: "KIT-30017-0",

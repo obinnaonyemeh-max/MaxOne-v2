@@ -17,7 +17,7 @@ const KIT_LIST_ROUTE = "/activation-assignment/asset-reassignment/kit"
 const emptyDetails: NewAssignmentDetails = {
   newPlateNumber: "",
   newChassisId: "",
-  newClient: "",
+  newChampion: "",
 }
 
 export default function KitAssignmentPage() {
@@ -38,7 +38,7 @@ export default function KitAssignmentPage() {
         return (
           details.newPlateNumber.trim() !== "" &&
           details.newChassisId.trim() !== "" &&
-          details.newClient.trim() !== ""
+          details.newChampion.trim() !== ""
         )
       case 3:
         return true
@@ -99,7 +99,7 @@ export default function KitAssignmentPage() {
                 <span className="mb-2 h-1.5 w-1.5 rounded-full bg-brand-primary" />
               </h1>
               <p className="mt-1 text-sm font-medium text-breadcrumb-root">
-                Reassign a vehicle/kit to a new client in a few steps
+                Reassign a vehicle/kit to a new champion in a few steps
               </p>
             </div>
           </div>

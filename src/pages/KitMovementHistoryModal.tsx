@@ -1,24 +1,6 @@
 import { Modal, StatusTimeline, type TimelineEntryData } from "@/components/max"
-import {
-  getKitMovements,
-  type KitEventType,
-  type KitMovementEvent,
-} from "@/data/mockKitMovements"
+import { getKitMovements, type KitMovementEvent } from "@/data/mockKitMovements"
 import type { KitReport } from "@/data/mockKitReports"
-
-// Match the status colors used in the Kit Reports table (kitStatusVariantMap):
-// Created → default (gray), Assignment → success (green), Reassignment → info (blue)
-const eventVariantMap: Record<KitEventType, TimelineEntryData["statusVariant"]> = {
-  Created: "default",
-  Assignment: "success",
-  Reassignment: "info",
-}
-
-const eventActionMap: Record<KitEventType, string> = {
-  Created: "Created by",
-  Assignment: "Assigned by",
-  Reassignment: "Reassigned by",
-}
 
 function toTimelineEntry(event: KitMovementEvent): TimelineEntryData {
   const highlights: Record<string, string> = {
@@ -26,11 +8,14 @@ function toTimelineEntry(event: KitMovementEvent): TimelineEntryData {
     reason: event.reason,
   }
 
+  const isCreated = event.eventType === "Created"
+  const isReassignment = event.eventType === "Reassignment"
+
   let template: string
 
-  if (event.eventType === "Created") {
+  if (isCreated) {
     template = "Kit {chassis} was created and added to inventory. Reason: {reason}."
-  } else if (event.eventType === "Reassignment") {
+  } else if (isReassignment) {
     highlights.fromClient = event.fromClient ?? "—"
     highlights.toClient = event.toClient ?? "—"
     highlights.plate = event.plateChange
@@ -46,10 +31,10 @@ function toTimelineEntry(event: KitMovementEvent): TimelineEntryData {
   return {
     id: event.id,
     date: event.date,
-    status: event.eventType,
-    statusVariant: eventVariantMap[event.eventType],
+    status: isCreated ? "New" : "Assigned",
+    statusVariant: isCreated ? "default" : "success",
     description: { template, highlights },
-    actor: { action: eventActionMap[event.eventType], name: event.actor },
+    actor: { action: isCreated ? "Created by" : "Assigned by", name: event.actor },
     duration: { range: event.dateTime, total: "" },
   }
 }

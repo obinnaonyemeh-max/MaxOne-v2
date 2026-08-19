@@ -46,6 +46,8 @@ import ChampionsOverviewPage from "@/pages/portfolio/ChampionsOverviewPage"
 import ReferralManagementPage from "@/pages/portfolio/ReferralManagementPage"
 import BlacklistPage from "@/pages/portfolio/BlacklistPage"
 import AllCollectionsPage from "@/pages/portfolio/AllCollectionsPage"
+import ContractsPage from "@/pages/portfolio/ContractsPage"
+import RecoveryOfficersPage from "@/pages/portfolio/RecoveryOfficersPage"
 import VehicleRegisterPage from "@/pages/vehicle-register/VehicleRegisterPage"
 import VehicleActivityPage from "@/pages/vehicle-activity/VehicleActivityPage"
 import VehicleTripsPage from "@/pages/vehicle-trips/VehicleTripsPage"
@@ -122,6 +124,9 @@ export default function App() {
         <Route path="/portfolio/champions/referrals" element={<ReferralManagementPage />} />
         <Route path="/portfolio/champions/blacklist" element={<BlacklistPage />} />
         <Route path="/portfolio/collections/all" element={<AllCollectionsPage />} />
+        <Route path="/portfolio/contracts" element={<Navigate to="/portfolio/contracts/all" replace />} />
+        <Route path="/portfolio/contracts/:tab" element={<ContractsPage />} />
+        <Route path="/portfolio/recovery/officers" element={<RecoveryOfficersPage />} />
         <Route path="/driver-experience/dashboard" element={<DriverExperienceDashboardPage />} />
         <Route path="/driver-experience/approvals" element={<ApprovalsPage />} />
       </Routes>

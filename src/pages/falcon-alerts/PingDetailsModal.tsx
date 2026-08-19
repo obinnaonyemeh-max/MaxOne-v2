@@ -33,8 +33,8 @@ export function PingDetailsModal({ open, onOpenChange, details, onResolve }: Pin
     {
       label: "Status",
       value: (
-        <StatusBadge variant="success" withDot>
-          Active
+        <StatusBadge variant="warning" withDot>
+          Pending
         </StatusBadge>
       ),
     },

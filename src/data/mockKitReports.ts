@@ -6,7 +6,7 @@ export interface KitReport {
   model: string
   status: KitStatus
   reassigned: boolean
-  client: string | null
+  champion: string | null
   plateNumber: string | null
   location: string
   assignmentDate: string | null
@@ -24,7 +24,7 @@ export const mockKitReports: KitReport[] = [
     model: "Conversion Kit",
     status: "Assigned",
     reassigned: false,
-    client: "Opeyemi Orekoya",
+    champion: "Opeyemi Orekoya",
     plateNumber: "KJA-119-XL",
     location: "Lagos",
     assignmentDate: "12 Jun 2026",
@@ -35,7 +35,7 @@ export const mockKitReports: KitReport[] = [
     model: "Conversion Kit",
     status: "Assigned",
     reassigned: true,
-    client: "Amina Yusuf",
+    champion: "Amina Yusuf",
     plateNumber: "OGN-115-CT",
     location: "Lagos",
     assignmentDate: "03 Jul 2026",
@@ -46,7 +46,7 @@ export const mockKitReports: KitReport[] = [
     model: "Conversion Kit",
     status: "Assigned",
     reassigned: false,
-    client: "Chidinma Eze",
+    champion: "Chidinma Eze",
     plateNumber: "ABJ-772-KD",
     location: "Lagos",
     assignmentDate: "15 Jul 2026",
@@ -57,7 +57,7 @@ export const mockKitReports: KitReport[] = [
     model: "Conversion Kit",
     status: "New",
     reassigned: false,
-    client: null,
+    champion: null,
     plateNumber: null,
     location: "Lagos",
     assignmentDate: null,
@@ -68,7 +68,7 @@ export const mockKitReports: KitReport[] = [
     model: "Conversion Kit",
     status: "New",
     reassigned: false,
-    client: null,
+    champion: null,
     plateNumber: null,
     location: "Lagos",
     assignmentDate: null,
@@ -79,7 +79,7 @@ export const mockKitReports: KitReport[] = [
     model: "Conversion Kit",
     status: "Assigned",
     reassigned: false,
-    client: "Emeka Obi",
+    champion: "Emeka Obi",
     plateNumber: "LND-889-RS",
     location: "Lagos",
     assignmentDate: "22 Jun 2026",
@@ -90,7 +90,7 @@ export const mockKitReports: KitReport[] = [
     model: "Conversion Kit",
     status: "Assigned",
     reassigned: true,
-    client: "Tunde Bakare",
+    champion: "Tunde Bakare",
     plateNumber: "LND-330-QZ",
     location: "Ibadan",
     assignmentDate: "01 Jul 2026",

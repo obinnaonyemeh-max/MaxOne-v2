@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input"
 export interface NewAssignmentDetails {
   newPlateNumber: string
   newChassisId: string
-  newClient: string
+  newChampion: string
 }
 
 interface StepNewAssignmentProps {
@@ -42,11 +42,11 @@ export function StepNewAssignment({ details, onUpdateField }: StepNewAssignmentP
       </div>
 
       <div className="space-y-2">
-        <label className="block text-sm font-medium text-sidebar-item-active">New client</label>
+        <label className="block text-sm font-medium text-sidebar-item-active">New champion</label>
         <Input
-          value={details.newClient}
-          onChange={(e) => onUpdateField("newClient", e.target.value)}
-          placeholder="Enter new client"
+          value={details.newChampion}
+          onChange={(e) => onUpdateField("newChampion", e.target.value)}
+          placeholder="Enter new champion"
           className="h-10"
         />
       </div>

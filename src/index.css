@@ -261,3 +261,19 @@
     opacity: 0.7;
   }
 }
+
+/* Geofence hover tooltip — mirrors the app TooltipContent (bg-gray-950,
+   rounded-lg, shadow-md, text-white) since Leaflet can't host a radix tooltip. */
+.leaflet-tooltip.geofence-tooltip {
+  background: var(--color-gray-950);
+  color: #fff;
+  border: none;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  padding: 0.5rem 0.75rem;
+  white-space: nowrap;
+}
+.leaflet-tooltip.geofence-tooltip::before {
+  border-top-color: var(--color-gray-950);
+  border-bottom-color: var(--color-gray-950);
+}

@@ -141,6 +141,8 @@ export default function VehicleRegisterPage() {
       navigate(`/falcon/vehicle-register/${vehicleId}/activity`)
     } else if (action === "view-trips") {
       navigate(`/falcon/vehicle-register/${vehicleId}/trips`)
+    } else if (action === "geofence-visit-history") {
+      navigate("/falcon/geofences/visit-history")
     } else if (action === "enforcement-history") {
       setEnforcementVehicleId(vehicleId)
     } else if (action === "enforcement-actions") {

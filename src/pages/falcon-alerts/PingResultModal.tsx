@@ -1,12 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { motion, useReducedMotion } from "motion/react"
 import { Check, X, Loader2 } from "lucide-react"
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-} from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
+import { Modal } from "@/components/max"
 import { cn } from "@/lib/utils"
 
 type StepStatus = "pending" | "loading" | "success" | "fail"
@@ -111,103 +106,86 @@ export function PingResultModal({ open, onOpenChange, onViewDetails, onResolve }
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="p-0 gap-0 overflow-hidden max-w-md">
-        <div className="px-6 pt-6 pb-2">
-          <DialogTitle className="font-semibold text-sidebar-item-active" style={{ fontSize: "18px" }}>
-            Ping Result
-          </DialogTitle>
-        </div>
+    <Modal
+      open={open}
+      onOpenChange={onOpenChange}
+      title="Ping Result"
+      className="max-w-md"
+      leftAction={
+        phase === "running" ? (
+          <span className="text-sm text-gray-400">Pinging device…</span>
+        ) : undefined
+      }
+      secondaryAction={
+        phase === "done" ? { label: "View details", onClick: handleViewDetails } : undefined
+      }
+      primaryAction={
+        phase === "failed"
+          ? { label: "Retry", onClick: handleRetry }
+          : phase === "done"
+            ? { label: "Resolve tamper", onClick: handleResolve }
+            : undefined
+      }
+    >
+      <div className="py-1">
+        {STEPS.map((step, i) => {
+          const status = statuses[i]
+          const isFail = status === "fail"
+          const isSuccess = status === "success"
+          const isLoading = status === "loading"
+          const nextStatus = statuses[i + 1]
 
-        {/* Stepper */}
-        <div className="px-6 py-5">
-          {STEPS.map((step, i) => {
-            const status = statuses[i]
-            const isFail = status === "fail"
-            const isSuccess = status === "success"
-            const isLoading = status === "loading"
-            const nextStatus = statuses[i + 1]
-
-            return (
-              <div key={step.key}>
-                {revealed[i] && (
-                  <motion.div
-                    className="flex items-center gap-4"
-                    initial={reduceMotion ? { opacity: 0 } : { opacity: 0, transform: "translateY(-6px)" }}
-                    animate={{ opacity: 1, transform: "translateY(0px)" }}
-                    transition={{ duration: 0.3, ease: EASE_OUT }}
+          return (
+            <div key={step.key}>
+              {revealed[i] && (
+                <motion.div
+                  className="flex items-center gap-3"
+                  initial={reduceMotion ? { opacity: 0 } : { opacity: 0, transform: "translateY(-6px)" }}
+                  animate={{ opacity: 1, transform: "translateY(0px)" }}
+                  transition={{ duration: 0.3, ease: EASE_OUT }}
+                >
+                  <StepIcon status={status} reduceMotion={!!reduceMotion} />
+                  <span
+                    className={cn(
+                      "font-semibold transition-colors",
+                      isSuccess && "text-status-success",
+                      isFail && "text-status-danger",
+                      (isLoading || status === "pending") && "text-gray-400"
+                    )}
+                    style={{ fontSize: "14px" }}
                   >
-                    <StepIcon status={status} reduceMotion={!!reduceMotion} />
-                    <span
-                      className={cn(
-                        "font-semibold transition-colors",
-                        isSuccess && "text-status-success",
-                        isFail && "text-status-danger",
-                        (isLoading || status === "pending") && "text-gray-400"
-                      )}
-                      style={{ fontSize: "17px" }}
-                    >
-                      {isFail ? step.failLabel : step.label}
-                    </span>
-                  </motion.div>
-                )}
+                    {isFail ? step.failLabel : step.label}
+                  </span>
+                </motion.div>
+              )}
 
-                {/* Connector to the next step */}
-                {i < STEPS.length - 1 && connectors[i] && (
-                  <div className="ml-[15px] h-6 w-0.5 overflow-hidden">
-                    <motion.div
-                      className={cn(
-                        "h-full w-full origin-top",
-                        nextStatus === "fail" ? "bg-status-danger" : "bg-status-success"
-                      )}
-                      initial={reduceMotion ? { opacity: 0 } : { transform: "scaleY(0)" }}
-                      animate={reduceMotion ? { opacity: 1 } : { transform: "scaleY(1)" }}
-                      transition={{ duration: LINE_MS / 1000, ease: EASE_OUT }}
-                    />
-                  </div>
-                )}
-              </div>
-            )
-          })}
-        </div>
-
-        {/* Footer */}
-        <div className="min-h-[76px] flex items-center justify-end gap-3 px-6 py-5 border-t border-gray-100">
-          {phase === "running" && (
-            <span className="text-sm text-gray-400">Pinging device…</span>
-          )}
-          {phase === "failed" && (
-            <Button
-              className="h-10 px-6 bg-brand-dark text-white hover:bg-brand-dark/90"
-              onClick={handleRetry}
-            >
-              Retry
-            </Button>
-          )}
-          {phase === "done" && (
-            <>
-              <Button variant="outline" className="h-10 px-4" onClick={handleViewDetails}>
-                View details
-              </Button>
-              <Button
-                className="h-10 px-6 bg-brand-dark text-white hover:bg-brand-dark/90"
-                onClick={handleResolve}
-              >
-                Resolve tamper
-              </Button>
-            </>
-          )}
-        </div>
-      </DialogContent>
-    </Dialog>
+              {/* Connector to the next step */}
+              {i < STEPS.length - 1 && connectors[i] && (
+                <div className="ml-[13px] h-5 w-0.5 overflow-hidden">
+                  <motion.div
+                    className={cn(
+                      "h-full w-full origin-top",
+                      nextStatus === "fail" ? "bg-status-danger" : "bg-status-success"
+                    )}
+                    initial={reduceMotion ? { opacity: 0 } : { transform: "scaleY(0)" }}
+                    animate={reduceMotion ? { opacity: 1 } : { transform: "scaleY(1)" }}
+                    transition={{ duration: LINE_MS / 1000, ease: EASE_OUT }}
+                  />
+                </div>
+              )}
+            </div>
+          )
+        })}
+      </div>
+    </Modal>
   )
 }
 
 function StepIcon({ status, reduceMotion }: { status: StepStatus; reduceMotion: boolean }) {
   if (status === "loading" || status === "pending") {
     return (
-      <span className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-200">
-        <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
+      <span className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-gray-200">
+        <Loader2 className="h-3.5 w-3.5 animate-spin text-gray-400" />
       </span>
     )
   }
@@ -216,14 +194,14 @@ function StepIcon({ status, reduceMotion }: { status: StepStatus; reduceMotion: 
   return (
     <motion.span
       className={cn(
-        "flex h-8 w-8 items-center justify-center rounded-full text-white",
+        "flex h-7 w-7 items-center justify-center rounded-full text-white",
         isSuccess ? "bg-status-success" : "bg-status-danger"
       )}
       initial={reduceMotion ? { opacity: 0 } : { opacity: 0, transform: "scale(0.6)" }}
       animate={{ opacity: 1, transform: "scale(1)" }}
       transition={reduceMotion ? { duration: 0.15 } : { type: "spring", duration: 0.4, bounce: 0.35 }}
     >
-      {isSuccess ? <Check className="h-4 w-4" /> : <X className="h-4 w-4" />}
+      {isSuccess ? <Check className="h-3.5 w-3.5" /> : <X className="h-3.5 w-3.5" />}
     </motion.span>
   )
 }

@@ -13,7 +13,6 @@ import {
 import { Button } from "@/components/ui/button"
 import {
   mockTamperAlerts,
-  tamperTypeVariantMap,
   tamperStatusVariantMap,
   mockTamperMovementHistory,
 } from "@/data/mockTamperAlerts"
@@ -128,6 +127,7 @@ export default function TamperAlertDetailPage() {
   const parameterItems = [
     { label: "Champion ID", value: p.championId },
     { label: "Champion Name", value: p.championName },
+    { label: "Type", value: alert.type },
     { label: "Vehicle's current speed", value: p.speed },
     { label: "Odometer reading", value: p.odometer },
     {
@@ -178,11 +178,6 @@ export default function TamperAlertDetailPage() {
               {alert.plateNumber}
               <span className="mb-2 h-1.5 w-1.5 rounded-full bg-brand-primary" />
             </h1>
-            <div className="flex items-center gap-2 ml-1">
-              <StatusBadge variant={tamperTypeVariantMap[alert.type]} withDot>
-                {alert.type}
-              </StatusBadge>
-            </div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
             <Button variant="outline" className="h-10 gap-2" onClick={() => setMovementOpen(true)}>
@@ -226,7 +221,6 @@ export default function TamperAlertDetailPage() {
           <div className="w-[440px] shrink-0 overflow-y-auto">
             <InfoCard
               title="Last Reported Parameters"
-              className="h-full"
               action={
                 <Button
                   variant="ghost"

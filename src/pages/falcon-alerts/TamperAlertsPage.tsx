@@ -25,7 +25,6 @@ import {
 } from "@/components/ui/popover"
 import {
   mockTamperAlerts,
-  tamperTypeVariantMap,
   tamperStatusVariantMap,
   tamperUnresolvedCount,
   tamperResolvedCount,
@@ -82,9 +81,9 @@ const columns: ColumnDef<TamperAlert>[] = [
     accessorKey: "type",
     header: "Type",
     cell: ({ row }) => (
-      <StatusBadge variant={tamperTypeVariantMap[row.original.type]} withDot>
+      <span className="font-medium text-table-text" style={{ fontSize: "14px" }}>
         {row.original.type}
-      </StatusBadge>
+      </span>
     ),
   },
   {
@@ -94,15 +93,6 @@ const columns: ColumnDef<TamperAlert>[] = [
       <StatusBadge variant={tamperStatusVariantMap[row.original.status]} withDot>
         {row.original.status}
       </StatusBadge>
-    ),
-  },
-  {
-    accessorKey: "dateTime",
-    header: "Date & Time",
-    cell: ({ row }) => (
-      <span className="font-medium text-table-text" style={{ fontSize: "14px" }}>
-        {row.original.dateTime}
-      </span>
     ),
   },
   {
@@ -129,6 +119,15 @@ const columns: ColumnDef<TamperAlert>[] = [
     cell: ({ row }) => (
       <span className="font-medium text-table-text" style={{ fontSize: "14px" }}>
         {row.original.location}
+      </span>
+    ),
+  },
+  {
+    accessorKey: "dateTime",
+    header: "Date & Time",
+    cell: ({ row }) => (
+      <span className="font-medium text-table-text" style={{ fontSize: "14px" }}>
+        {row.original.dateTime}
       </span>
     ),
   },

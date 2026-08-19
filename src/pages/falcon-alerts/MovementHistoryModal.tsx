@@ -32,7 +32,7 @@ export function MovementHistoryModal({ open, onOpenChange, events }: MovementHis
       maxHeight="80vh"
     >
       {entries.length > 0 ? (
-        <StatusTimeline entries={entries} />
+        <StatusTimeline entries={entries} dateColumnClassName="w-44" />
       ) : (
         <p className="py-8 text-center text-sm text-breadcrumb-root">
           No movement history for this vehicle.

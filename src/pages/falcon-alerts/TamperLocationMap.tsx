@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, Marker, Tooltip, Polyline } from "react-leafle
 import L from "leaflet"
 import "leaflet/dist/leaflet.css"
 import { StatusBadge } from "@/components/max"
+import { cn } from "@/lib/utils"
 import { tamperRecoveryStatusVariantMap, type TamperRecoveryStatus } from "@/data/mockTamperAlerts"
 
 const vehicleMarkerIcon = new L.Icon({
@@ -66,9 +67,19 @@ function MarkerTooltip({ title, rows }: { title: string; rows: [string, string][
   )
 }
 
-function RecoveryField({ label, value }: { label: string; value: ReactNode }) {
+function RecoveryField({
+  label,
+  value,
+  className,
+  truncate = true,
+}: {
+  label: string
+  value: ReactNode
+  className?: string
+  truncate?: boolean
+}) {
   return (
-    <div className="min-w-0">
+    <div className={cn("min-w-0", className)}>
       <span
         className="block text-gray-500 mb-0.5"
         style={{ fontSize: "10px", fontWeight: 500, textTransform: "uppercase" }}
@@ -76,7 +87,7 @@ function RecoveryField({ label, value }: { label: string; value: ReactNode }) {
         {label}
       </span>
       <span
-        className="block text-gray-950 truncate"
+        className={cn("block text-gray-950", truncate && "truncate")}
         style={{ fontSize: "13px", fontWeight: 500 }}
         title={typeof value === "string" ? value : undefined}
       >
@@ -181,8 +192,8 @@ export function TamperLocationMap({
           scrollWheelZoom={false}
         >
           <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
+            url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
           />
           <Marker position={[location.lat, location.lng]} icon={vehicleMarkerIcon}>
             <MarkerTooltip
@@ -216,22 +227,27 @@ export function TamperLocationMap({
         {/* Moving card — shown while the recovery pair is en route */}
         {isRecovering && (
           <>
-            {/* Speed badge */}
+            {/* Speed badge — matches the Vehicle Register live-tracking badge */}
             <div
-              className="absolute top-4 right-4 z-[1000] w-[112px] rounded-xl overflow-hidden"
-              style={{ boxShadow: "0 4px 16px rgba(0,0,0,0.12)", border: "1px solid rgba(0,0,0,0.06)" }}
+              className="absolute right-4 top-4 z-[1000] overflow-hidden rounded-lg border border-gray-950 bg-white shadow-md"
+              style={{ minWidth: "84px" }}
             >
               <div
-                className="text-white text-center py-1.5"
-                style={{ background: "#22C55E", fontSize: "13px", fontWeight: 700, letterSpacing: "0.5px" }}
+                className="text-center font-semibold text-gray-950 border-b border-gray-950"
+                style={{
+                  backgroundColor: "#22C55E",
+                  fontSize: "14px",
+                  padding: "4px 6px",
+                  letterSpacing: "0.05em",
+                }}
               >
                 MOVING
               </div>
-              <div className="bg-white text-center py-2">
-                <div className="text-gray-950" style={{ fontSize: "34px", fontWeight: 700, lineHeight: 1 }}>
+              <div className="py-2 text-center" style={{ fontVariantNumeric: "tabular-nums" }}>
+                <div className="text-gray-950" style={{ fontSize: "28px", fontWeight: 600, lineHeight: 1 }}>
                   {speed}
                 </div>
-                <div className="text-gray-400" style={{ fontSize: "12px" }}>
+                <div className="text-gray-500" style={{ fontSize: "11px", fontWeight: 500 }}>
                   kmph
                 </div>
               </div>
@@ -250,10 +266,15 @@ export function TamperLocationMap({
             border: "1px solid rgba(255, 255, 255, 0.5)",
           }}
         >
-          {/* Line 1 */}
-          <div className="grid grid-cols-2 gap-x-6 gap-y-3">
+          {/* Line 1 — 3-col so Email aligns under Estimated Travelled Time */}
+          <div className="grid grid-cols-3 gap-x-6 gap-y-3">
             <RecoveryField label="Recovery Pair" value={recovery.pairNames} />
-            <RecoveryField label="Recovery Pairs Email" value={recovery.emails} />
+            <RecoveryField
+              label="Recovery Pairs Email"
+              value={recovery.emails}
+              className="col-span-2"
+              truncate={false}
+            />
           </div>
           {/* Line 2 */}
           <div className="grid grid-cols-3 gap-x-6 mt-3">

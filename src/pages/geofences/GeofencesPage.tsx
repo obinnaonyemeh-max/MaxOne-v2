@@ -173,7 +173,6 @@ export default function GeofencesPage() {
                   onToggleExpand={() =>
                     setExpandedId((prev) => (prev === geofence.id ? null : geofence.id))
                   }
-                  onViewActiveAlerts={() => navigate("/falcon/alerts/tamper")}
                 />
               ))
             )}

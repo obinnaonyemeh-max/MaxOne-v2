@@ -62,6 +62,8 @@ const filterSections: FilterSection[] = [
     options: [
       { value: "Active", label: "Active", color: COLOR_SUCCESS },
       { value: "Ended", label: "Ended", color: "var(--color-gray-500)" },
+      { value: "Inside Zone", label: "Inside Zone", color: COLOR_INFO },
+      { value: "Out of Zone", label: "Out of Zone", color: COLOR_DANGER },
     ],
   },
 ]
@@ -182,7 +184,7 @@ export default function VisitHistoryPage() {
 
       <div className="px-6 py-6 shrink-0">
         <div className="flex items-center gap-2">
-          <BackButton onClick={() => navigate("/falcon/geofences")} />
+          <BackButton onClick={() => navigate(-1)} />
           <h1
             className="flex items-end gap-1 font-semibold text-sidebar-item-active"
             style={{ fontSize: "22px" }}

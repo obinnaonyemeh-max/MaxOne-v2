@@ -10,7 +10,6 @@ interface GeofenceListCardProps {
   isExpanded: boolean
   onSelect: () => void
   onToggleExpand: () => void
-  onViewActiveAlerts: () => void
 }
 
 export function GeofenceListCard({
@@ -19,7 +18,6 @@ export function GeofenceListCard({
   isExpanded,
   onSelect,
   onToggleExpand,
-  onViewActiveAlerts,
 }: GeofenceListCardProps) {
   const badge = geofenceTypeBadge[geofence.type]
 
@@ -82,19 +80,6 @@ export function GeofenceListCard({
                 <Stat label="Number of Vehicle" value={geofence.metrics.vehicleCount.toLocaleString()} align="right" />
                 <Stat label="Unauthorized exits" value={geofence.metrics.unauthorizedExits.toLocaleString()} />
                 <Stat label="Active Alerts" value={geofence.metrics.activeAlerts.toLocaleString()} align="right" />
-              </div>
-
-              <div className="mt-4 text-right">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    onViewActiveAlerts()
-                  }}
-                  className="text-status-info hover:underline"
-                  style={{ fontSize: "12px", fontWeight: 500 }}
-                >
-                  View active alerts
-                </button>
               </div>
             </div>
           </motion.div>

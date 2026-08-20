@@ -69,7 +69,7 @@ export default function VehicleActivityPage() {
       label: "Geofence",
       value: activity.geofence === "inside" ? "Inside Zone" : "Outside Zone",
       isStatus: true,
-      statusVariant: activity.geofence === "inside" ? ("success" as const) : ("danger" as const),
+      statusVariant: activity.geofence === "inside" ? ("info" as const) : ("danger" as const),
     },
     {
       label: "Contract status",

@@ -38,6 +38,14 @@ export interface RecoveryPair {
   successfulRecoveries: number
   failedRecoveries: number
   dateFormed: string
+  // Assigned location/state — the pair's home base, distinct from `deployedZone` below.
+  assignedLocation: string
+  // The specific area the pair is actively operating in, within `assignedLocation`.
+  deployedZone: string
+  avgRecoveryMinutes: number
+  paymentRecoveries: number
+  checkInRecoveries: number
+  bonusAccrued: number
 }
 
 type BadgeVariant = "success" | "danger" | "warning" | "info" | "default" | "yard"
@@ -60,6 +68,16 @@ export const vehicleStatusVariantMap: Record<VehicleStatus, BadgeVariant> = {
 }
 
 const zones = ["Lagos", "Abuja", "Kano", "Ibadan", "Port Harcourt"]
+
+// Maps a pair's home zone to its assigned state (Pair Location widget) and the
+// specific areas it can be actively deployed to within that state (Deployed Zone widget).
+export const zoneLocationInfo: Record<string, { state: string; areas: string[] }> = {
+  Lagos: { state: "Lagos State", areas: ["Ikeja", "Lekki–Ajah Corridor", "Apapa", "Ojo"] },
+  Abuja: { state: "FCT Abuja", areas: ["Wuse", "Garki", "Gwarinpa"] },
+  Kano: { state: "Kano State", areas: ["Sabon Gari", "Nassarawa", "Fagge"] },
+  Ibadan: { state: "Oyo State", areas: ["Bodija", "Challenge", "Ring Road"] },
+  "Port Harcourt": { state: "Rivers State", areas: ["GRA Phase 2", "Trans Amadi", "Rumuola"] },
+}
 
 const agentNames = [
   ["Kelechi", "Obi"], ["Ibrahim", "Suleiman"], ["Chiamaka", "Nnamdi"], ["Tobi", "Alade"],
@@ -91,19 +109,29 @@ const pairSeeds: { zone: string; vehicleIdx: number; successful: number; failed:
   { zone: "Ibadan", vehicleIdx: 7, successful: 9, failed: 2, active: 2 },
 ]
 
-export const mockRecoveryPairs: RecoveryPair[] = pairSeeds.map((seed, i) => ({
-  id: String(i + 1),
-  pairCode: `RP-${String(i + 1).padStart(3, "0")}`,
-  officerAId: String(i * 2 + 1),
-  officerBId: String(i * 2 + 2),
-  zone: seed.zone,
-  status: "Active",
-  vehicleId: String(seed.vehicleIdx + 1),
-  activeCases: seed.active,
-  successfulRecoveries: seed.successful,
-  failedRecoveries: seed.failed,
-  dateFormed: `${3 + i} ${["Jan", "Feb", "Mar", "Apr", "May", "Jun"][i % 6]} 2025`,
-}))
+export const mockRecoveryPairs: RecoveryPair[] = pairSeeds.map((seed, i) => {
+  const location = zoneLocationInfo[seed.zone] ?? zoneLocationInfo.Lagos
+  const paymentRecoveries = Math.round(seed.successful * 0.4)
+  return {
+    id: String(i + 1),
+    pairCode: `RP-${String(i + 1).padStart(3, "0")}`,
+    officerAId: String(i * 2 + 1),
+    officerBId: String(i * 2 + 2),
+    zone: seed.zone,
+    status: "Active",
+    vehicleId: String(seed.vehicleIdx + 1),
+    activeCases: seed.active,
+    successfulRecoveries: seed.successful,
+    failedRecoveries: seed.failed,
+    dateFormed: `${3 + i} ${["Jan", "Feb", "Mar", "Apr", "May", "Jun"][i % 6]} 2025`,
+    assignedLocation: location.state,
+    deployedZone: location.areas[i % location.areas.length],
+    avgRecoveryMinutes: 95 + ((i * 17) % 120),
+    paymentRecoveries,
+    checkInRecoveries: seed.successful - paymentRecoveries,
+    bonusAccrued: seed.successful * 5000 + i * 1250,
+  }
+})
 
 const pairIdByAgentId = new Map<string, string>()
 mockRecoveryPairs.forEach((pair) => {

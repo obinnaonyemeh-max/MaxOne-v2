@@ -11,6 +11,7 @@ import {
   StatusBadge,
   GenericFilterPopover,
   getActiveFilterCount,
+  PendingRecoveryDetailSheet,
   type FilterSection,
   type GenericFilterState,
 } from "@/components/max"
@@ -23,11 +24,11 @@ import {
 } from "@/components/ui/popover"
 import {
   mockPendingRecoveries,
-  pendingRecoveryStats,
   assignmentStatusVariantMap,
   type PendingRecovery,
   type AssignmentStatus,
 } from "@/data/mockRecoveries"
+import { mockRecoveryPairs } from "@/data/mockRecoveryOfficers"
 
 function formatCurrency(amount: number): string {
   return "₦" + amount.toLocaleString()
@@ -137,17 +138,28 @@ const columns: ColumnDef<PendingRecovery>[] = [
 ]
 
 export default function PendingRecoveriesPage() {
+  const [recoveries, setRecoveries] = useState<PendingRecovery[]>(mockPendingRecoveries)
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(25)
   const [filters, setFilters] = useState<GenericFilterState>(defaultFilters)
   const [searchQuery, setSearchQuery] = useState("")
   const [searchOpen, setSearchOpen] = useState(false)
+  const [selectedRecoveryId, setSelectedRecoveryId] = useState<string | null>(null)
   const activeFilterCount = getActiveFilterCount(filters)
+
+  const stats = useMemo(
+    () => ({
+      total: recoveries.length,
+      unassigned: recoveries.filter((r) => r.assignmentStatus === "Unassigned").length,
+      assigned: recoveries.filter((r) => r.assignmentStatus === "Assigned").length,
+    }),
+    [recoveries]
+  )
 
   const filteredRecoveries = useMemo(() => {
     setCurrentPage(1)
     const q = searchQuery.trim().toLowerCase()
-    return mockPendingRecoveries.filter((record) => {
+    return recoveries.filter((record) => {
       if (filters.zone.length > 0 && !filters.zone.includes(record.zone)) return false
       if (
         filters.assignmentStatus.length > 0 &&
@@ -164,12 +176,24 @@ export default function PendingRecoveriesPage() {
         return false
       return true
     })
-  }, [filters, searchQuery])
+  }, [recoveries, filters, searchQuery])
 
   const paginatedRecoveries = useMemo(() => {
     const start = (currentPage - 1) * pageSize
     return filteredRecoveries.slice(start, start + pageSize)
   }, [filteredRecoveries, currentPage, pageSize])
+
+  const selectedRecovery = recoveries.find((r) => r.id === selectedRecoveryId) ?? null
+
+  const handleAssignPair = (recoveryId: string, pairId: string) => {
+    const pair = mockRecoveryPairs.find((p) => p.id === pairId)
+    if (!pair) return
+    setRecoveries((prev) =>
+      prev.map((r) =>
+        r.id === recoveryId ? { ...r, assignmentStatus: "Assigned", pairCode: pair.pairCode } : r
+      )
+    )
+  }
 
   return (
     <>
@@ -183,19 +207,19 @@ export default function PendingRecoveriesPage() {
       <div className="px-6 grid grid-cols-3 gap-2 shrink-0 mb-4">
         <StatCard
           title="Total Pending"
-          value={pendingRecoveryStats.total.toLocaleString()}
+          value={stats.total.toLocaleString()}
           subtitle="Cases not yet in session"
           indicatorColor="var(--color-brand-primary)"
         />
         <StatCard
           title="Unassigned"
-          value={pendingRecoveryStats.unassigned.toLocaleString()}
+          value={stats.unassigned.toLocaleString()}
           subtitle="Awaiting a recovery pair"
           indicatorColor="var(--color-status-warning)"
         />
         <StatCard
           title="Assigned"
-          value={pendingRecoveryStats.assigned.toLocaleString()}
+          value={stats.assigned.toLocaleString()}
           subtitle="Pair assigned, session not started"
           indicatorColor="var(--color-status-info)"
         />
@@ -270,6 +294,7 @@ export default function PendingRecoveriesPage() {
               columns={columns}
               data={paginatedRecoveries}
               emptyMessage="No pending recoveries found."
+              onRowClick={(record) => setSelectedRecoveryId(record.id)}
             />
           </div>
         </div>
@@ -286,6 +311,13 @@ export default function PendingRecoveriesPage() {
           />
         </div>
       </div>
+
+      <PendingRecoveryDetailSheet
+        recovery={selectedRecovery}
+        isOpen={selectedRecoveryId !== null}
+        onClose={() => setSelectedRecoveryId(null)}
+        onAssignPair={handleAssignPair}
+      />
     </>
   )
 }

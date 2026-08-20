@@ -14,6 +14,8 @@ interface ContractInformationProps {
   /** Contract end date string, e.g. "12 Sep 2025" */
   endDate: string
   className?: string
+  /** Whether the counter/progress-bar should count up on scroll into view. Defaults to true. */
+  animate?: boolean
 }
 
 const TOTAL_BARS = 136
@@ -25,15 +27,17 @@ export function ContractInformation({
   startDate,
   endDate,
   className,
+  animate = true,
 }: ContractInformationProps) {
   const filledBars = Math.round((percentage / 100) * TOTAL_BARS)
   const containerRef = useRef<HTMLDivElement>(null)
   const counterRef = useRef<HTMLSpanElement>(null)
   const barsRef = useRef<HTMLDivElement>(null)
   const hasAnimated = useRef(false)
-  const [displayDays, setDisplayDays] = useState(0)
+  const [displayDays, setDisplayDays] = useState(animate ? 0 : daysElapsed)
 
   useEffect(() => {
+    if (!animate) return
     const el = containerRef.current
     if (!el || hasAnimated.current) return
 
@@ -75,13 +79,13 @@ export function ContractInformation({
 
     observer.observe(el)
     return () => observer.disconnect()
-  }, [percentage, daysElapsed, filledBars])
+  }, [animate, percentage, daysElapsed, filledBars])
 
   return (
     <div
       ref={containerRef}
       className={cn(
-        "bg-[#f9f8f6] border border-[#f3f3f3] rounded-lg pt-7 px-5 pb-5",
+        "bg-[#f9f8f6] border border-[#f3f3f3] rounded-lg pt-7 px-5 pb-5 overflow-hidden",
         className
       )}
     >
@@ -92,7 +96,7 @@ export function ContractInformation({
             ref={counterRef}
             className="font-bold text-[28px] text-sidebar-item-active uppercase leading-none"
           >
-            0
+            {animate ? 0 : percentage}
           </span>
           <span className="font-bold text-xs text-sidebar-item-active uppercase pt-2">
             %
@@ -104,11 +108,14 @@ export function ContractInformation({
       </div>
 
       {/* Progress bar */}
-      <div ref={barsRef} className="flex items-center gap-[2px] mb-4">
+      <div ref={barsRef} className="flex items-center gap-[2px] mb-4 overflow-hidden">
         {Array.from({ length: TOTAL_BARS }).map((_, i) => (
           <div
             key={i}
-            className="h-[27px] min-w-[3px] flex-1 rounded-[2px] bg-[#d9d9d9]"
+            className={cn(
+              "h-[27px] min-w-0 flex-1 rounded-[2px]",
+              !animate && i < filledBars ? "bg-sidebar-item-active" : "bg-[#d9d9d9]"
+            )}
           />
         ))}
       </div>

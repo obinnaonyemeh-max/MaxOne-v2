@@ -1,0 +1,183 @@
+import { useEffect, useState } from "react"
+
+import { Modal, LoaderModal, DocUpload } from "@/components/max"
+import { type RecoveryPair } from "@/data/mockRecoveryOfficers"
+
+type CustomAssignmentStep = "upload" | "validating" | "validated"
+
+const stats = {
+  totalRows: 8,
+  validEntries: 6,
+  rowsWithErrors: 2,
+}
+
+const errorRows = [
+  { caseId: "RC-3099", pairCode: "RP-010", reason: "Pair code not found" },
+  { caseId: "RC-9001", pairCode: "RP-002", reason: "Case ID not found in Pending Recoveries" },
+]
+
+interface CustomAssignmentFlowProps {
+  open: boolean
+  onClose: () => void
+  pairs: RecoveryPair[]
+  onComplete: (pairIds: string[]) => void
+}
+
+export function CustomAssignmentFlow({ open, onClose, pairs, onComplete }: CustomAssignmentFlowProps) {
+  const [step, setStep] = useState<CustomAssignmentStep>("upload")
+  const [file, setFile] = useState<File | null>(null)
+
+  useEffect(() => {
+    if (!open) {
+      setStep("upload")
+      setFile(null)
+    }
+  }, [open])
+
+  const handleAssign = () => {
+    const targetPairIds = pairs.slice(0, 3).map((p) => p.id)
+    onComplete(targetPairIds)
+    onClose()
+  }
+
+  return (
+    <>
+      {/* Upload */}
+      <Modal
+        open={open && step === "upload"}
+        onOpenChange={onClose}
+        title="Make Custom Assignment"
+        subtitle="Bulk-assign pending recoveries to recovery pairs using a CSV file"
+        className="max-w-3xl"
+        primaryAction={{
+          label: "Validate data",
+          onClick: () => {
+            setStep("validating")
+            setTimeout(() => {
+              setStep("validated")
+            }, 2000)
+          },
+          disabled: !file,
+        }}
+        secondaryAction={{ label: "Cancel", onClick: onClose }}
+      >
+        <div className="flex gap-8">
+          <div className="w-[280px] shrink-0">
+            <DocUpload
+              uploadedFile={file}
+              onFileSelect={setFile}
+              accept=".xlsx,.xls,.csv"
+              maxSizeLabel=""
+              label="Drag and drop filled template sheet"
+              icon={<img src="/images/xls.svg" alt="XLS" className="mx-auto h-12 w-auto mb-2" />}
+              minHeightClass="min-h-[280px]"
+            />
+          </div>
+
+          <div className="flex-1">
+            <h4 className="font-semibold text-sidebar-item-active" style={{ fontSize: "16px" }}>
+              Assign multiple cases at once
+            </h4>
+            <p className="mt-2 text-breadcrumb-root font-medium" style={{ fontSize: "13px" }}>
+              Use the provided template to list each Case ID and the Pair Code it should be assigned to,
+              then upload the completed file to apply the assignments.
+            </p>
+            <a
+              href="#"
+              className="mt-4 inline-block underline font-medium"
+              style={{ color: "var(--color-status-amber)", fontSize: "14px" }}
+            >
+              Download template sheet
+            </a>
+            <div className="pt-2">
+              <img src="/images/upload_sheet.svg" alt="Spreadsheet preview" className="w-full" />
+            </div>
+          </div>
+        </div>
+      </Modal>
+
+      <LoaderModal open={open && step === "validating"} message="Validating file..." />
+
+      {/* Validation report */}
+      <Modal
+        open={open && step === "validated"}
+        onOpenChange={onClose}
+        title="Make Custom Assignment"
+        subtitle="Bulk-assign pending recoveries to recovery pairs using a CSV file"
+        showBackButton
+        onBack={() => setStep("upload")}
+        className="max-w-xl"
+        primaryAction={{
+          label: "Assign valid cases",
+          onClick: handleAssign,
+          icon: true,
+        }}
+        secondaryAction={{ label: "Cancel", onClick: onClose }}
+      >
+        <div className="flex flex-col items-center py-6">
+          <img src="/images/success_Checkmark.svg" alt="Success" className="h-16 w-16" />
+
+          <h3 className="mt-6 font-semibold text-sidebar-item-active" style={{ fontSize: "18px" }}>
+            Validation complete
+          </h3>
+
+          <p className="mt-2 text-center text-breadcrumb-root font-medium" style={{ fontSize: "13px" }}>
+            {stats.validEntries} of {stats.totalRows} entries are valid and will be assigned to their
+            recovery pairs. Rows with errors are listed below and will be skipped.
+          </p>
+
+          <div className="mt-8 w-full rounded-lg border border-gray-200 p-6">
+            <div className="grid grid-cols-3 divide-x divide-gray-200">
+              <div className="text-center px-4">
+                <p className="text-breadcrumb-root font-medium" style={{ fontSize: "13px" }}>Total Rows</p>
+                <p className="mt-2 font-semibold text-sidebar-item-active" style={{ fontSize: "28px" }}>
+                  {stats.totalRows}
+                </p>
+              </div>
+              <div className="text-center px-4">
+                <p className="text-breadcrumb-root font-medium" style={{ fontSize: "13px" }}>Valid Entries</p>
+                <p className="mt-2 font-semibold" style={{ fontSize: "28px", color: "var(--color-success-bright)" }}>
+                  {stats.validEntries}
+                </p>
+              </div>
+              <div className="text-center px-4">
+                <p className="text-breadcrumb-root font-medium" style={{ fontSize: "13px" }}>Rows with Errors</p>
+                <p className="mt-2 font-semibold" style={{ fontSize: "28px", color: "var(--color-status-danger)" }}>
+                  {stats.rowsWithErrors}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {errorRows.length > 0 && (
+            <div className="mt-6 w-full">
+              <h4 className="font-semibold text-sidebar-item-active mb-3" style={{ fontSize: "14px" }}>
+                Rows with errors
+              </h4>
+              <div className="rounded-lg border border-gray-200 divide-y divide-gray-100">
+                <div className="grid grid-cols-[1fr_1fr_1.5fr] gap-3 px-4 py-2.5 bg-table-header-bg">
+                  <span className="text-table-header-text font-medium" style={{ fontSize: "12px" }}>Case ID</span>
+                  <span className="text-table-header-text font-medium" style={{ fontSize: "12px" }}>Pair Code</span>
+                  <span className="text-table-header-text font-medium" style={{ fontSize: "12px" }}>Reason</span>
+                </div>
+                {errorRows.map((row) => (
+                  <div key={row.caseId} className="grid grid-cols-[1fr_1fr_1.5fr] gap-3 px-4 py-3 items-center">
+                    <span className="font-medium text-table-text" style={{ fontSize: "13px" }}>
+                      {row.caseId}
+                    </span>
+                    <span className="font-medium text-table-text" style={{ fontSize: "13px" }}>
+                      {row.pairCode}
+                    </span>
+                    <span className="font-medium text-status-danger" style={{ fontSize: "13px" }}>
+                      {row.reason}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </Modal>
+    </>
+  )
+}

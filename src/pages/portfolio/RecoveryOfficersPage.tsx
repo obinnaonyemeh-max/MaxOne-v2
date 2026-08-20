@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react"
-import { useSearchParams } from "react-router-dom"
+import { useNavigate, useSearchParams } from "react-router-dom"
 import { type ColumnDef } from "@tanstack/react-table"
-import { Search, SlidersHorizontal, UserPlus, Car, UserCheck } from "lucide-react"
+import { Search, SlidersHorizontal, UserPlus, Car, UserCheck, UserRound } from "lucide-react"
 
 import {
   TopBar,
@@ -29,12 +29,14 @@ import {
   mockRecoveryVehicles,
   officerStatusVariantMap,
   pairStatusVariantMap,
+  zoneLocationInfo,
   type RecoveryAgent,
   type RecoveryPair,
   type RecoveryVehicle,
   type OfficerStatus,
 } from "@/data/mockRecoveryOfficers"
-import { CustomerAssignmentFlow } from "./CustomerAssignmentFlow"
+import { mockRecoverySessions } from "@/data/mockRecoveries"
+import { CustomAssignmentFlow } from "./CustomAssignmentFlow"
 import { CreateRecoveryPairFlow } from "./CreateRecoveryPairFlow"
 import { ManageVehiclesFlow } from "./ManageVehiclesFlow"
 
@@ -45,10 +47,16 @@ const zones = ["Lagos", "Abuja", "Kano", "Ibadan", "Port Harcourt"]
 const officerStatusOptions: OfficerStatus[] = ["Active", "On Leave", "Inactive"]
 
 const defaultFilters: GenericFilterState = { zone: [], status: [] }
+const engagedDefaultFilters: GenericFilterState = { zone: [] }
+
+const activeSessionByPairCode = new Map(
+  mockRecoverySessions.filter((s) => s.status === "In Session").map((s) => [s.pairCode, s])
+)
 
 let nextPairSeq = mockRecoveryPairs.length + 1
 
 export default function RecoveryOfficersPage() {
+  const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const activeTab = searchParams.get("tab") || "pairs"
   const handleTabChange = (value: string) => setSearchParams({ tab: value }, { replace: true })
@@ -57,7 +65,7 @@ export default function RecoveryOfficersPage() {
   const [pairs, setPairs] = useState<RecoveryPair[]>(mockRecoveryPairs)
   const [vehicles, setVehicles] = useState<RecoveryVehicle[]>(mockRecoveryVehicles)
 
-  const [showAssignment, setShowAssignment] = useState(false)
+  const [showCustomAssignment, setShowCustomAssignment] = useState(false)
   const [showCreatePair, setShowCreatePair] = useState(false)
   const [showManageVehicles, setShowManageVehicles] = useState(false)
 
@@ -72,6 +80,12 @@ export default function RecoveryOfficersPage() {
   const [agentFilters, setAgentFilters] = useState<GenericFilterState>(defaultFilters)
   const [agentPage, setAgentPage] = useState(1)
   const [agentPageSize, setAgentPageSize] = useState(25)
+
+  const [engagedSearch, setEngagedSearch] = useState("")
+  const [engagedSearchOpen, setEngagedSearchOpen] = useState(false)
+  const [engagedFilters, setEngagedFilters] = useState<GenericFilterState>(engagedDefaultFilters)
+  const [engagedPage, setEngagedPage] = useState(1)
+  const [engagedPageSize, setEngagedPageSize] = useState(25)
 
   const agentStats = useMemo(
     () => ({
@@ -105,6 +119,10 @@ export default function RecoveryOfficersPage() {
   const agentFilterSections: FilterSection[] = [
     { id: "zone", title: "Location", defaultExpanded: true, options: zones.map((z) => ({ value: z, label: z })) },
     { id: "status", title: "Status", options: officerStatusOptions.map((s) => ({ value: s, label: s })) },
+  ]
+
+  const engagedFilterSections: FilterSection[] = [
+    { id: "zone", title: "Zone", defaultExpanded: true, options: zones.map((z) => ({ value: z, label: z })) },
   ]
 
   const filteredPairs = useMemo(() => {
@@ -142,6 +160,24 @@ export default function RecoveryOfficersPage() {
     })
   }, [agents, agentFilters, agentSearch])
 
+  const filteredEngagedPairs = useMemo(() => {
+    setEngagedPage(1)
+    const q = engagedSearch.trim().toLowerCase()
+    return pairs.filter((pair) => {
+      if (!activeSessionByPairCode.has(pair.pairCode)) return false
+      if (engagedFilters.zone.length > 0 && !engagedFilters.zone.includes(pair.zone)) return false
+      if (
+        q &&
+        !pair.pairCode.toLowerCase().includes(q) &&
+        !officerNames(pair).toLowerCase().includes(q) &&
+        !pair.zone.toLowerCase().includes(q)
+      )
+        return false
+      return true
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pairs, engagedFilters, engagedSearch, agentById])
+
   const paginatedPairs = useMemo(() => {
     const start = (pairPage - 1) * pairPageSize
     return filteredPairs.slice(start, start + pairPageSize)
@@ -151,6 +187,11 @@ export default function RecoveryOfficersPage() {
     const start = (agentPage - 1) * agentPageSize
     return filteredAgents.slice(start, start + agentPageSize)
   }, [filteredAgents, agentPage, agentPageSize])
+
+  const paginatedEngagedPairs = useMemo(() => {
+    const start = (engagedPage - 1) * engagedPageSize
+    return filteredEngagedPairs.slice(start, start + engagedPageSize)
+  }, [filteredEngagedPairs, engagedPage, engagedPageSize])
 
   const pairColumns: ColumnDef<RecoveryPair>[] = [
     {
@@ -210,17 +251,42 @@ export default function RecoveryOfficersPage() {
     },
   ]
 
+  const engagedColumns: ColumnDef<RecoveryPair>[] = [
+    ...pairColumns.slice(0, 4),
+    {
+      id: "activeCase",
+      header: "Active Case",
+      cell: ({ row }) => (
+        <span className="font-medium text-table-text text-sm">
+          {activeSessionByPairCode.get(row.original.pairCode)?.caseId ?? "—"}
+        </span>
+      ),
+    },
+    {
+      id: "activeSince",
+      header: "Active Since",
+      cell: ({ row }) => (
+        <span className="font-medium text-table-text text-sm">
+          {activeSessionByPairCode.get(row.original.pairCode)?.startedAt ?? "—"}
+        </span>
+      ),
+    },
+    {
+      id: "engagedStatus",
+      header: "Status",
+      cell: () => <StatusBadge variant="info">In Session</StatusBadge>,
+    },
+  ]
+
   const agentColumns: ColumnDef<RecoveryAgent>[] = [
     {
       accessorKey: "name",
       header: "Agent",
       cell: ({ row }) => (
         <div className="flex items-center gap-3">
-          <img
-            src="/images/champvatar.png"
-            alt={row.original.name}
-            className="h-8 w-8 rounded-full object-cover shrink-0"
-          />
+          <div className="h-8 w-8 rounded-full bg-brand-dark/10 flex items-center justify-center shrink-0">
+            <UserRound className="h-4 w-4 text-brand-dark" />
+          </div>
           <div>
             <p className="font-medium text-table-text-primary text-sm">{row.original.name}</p>
             <p className="text-xs text-muted-foreground">{row.original.staffId}</p>
@@ -266,11 +332,14 @@ export default function RecoveryOfficersPage() {
     },
   ]
 
-  const handleAssignCase = (pairId: string) => {
-    setPairs((prev) => prev.map((p) => (p.id === pairId ? { ...p, activeCases: p.activeCases + 1 } : p)))
+  const handleBulkAssign = (pairIds: string[]) => {
+    setPairs((prev) =>
+      prev.map((p) => (pairIds.includes(p.id) ? { ...p, activeCases: p.activeCases + 1 } : p))
+    )
   }
 
   const handleCreatePair = (input: { officerAId: string; officerBId: string; zone: string; vehicleId: string | null }) => {
+    const location = zoneLocationInfo[input.zone] ?? zoneLocationInfo.Lagos
     const newPair: RecoveryPair = {
       id: String(nextPairSeq),
       pairCode: `RP-${String(nextPairSeq).padStart(3, "0")}`,
@@ -283,6 +352,12 @@ export default function RecoveryOfficersPage() {
       successfulRecoveries: 0,
       failedRecoveries: 0,
       dateFormed: new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }),
+      assignedLocation: location.state,
+      deployedZone: location.areas[0],
+      avgRecoveryMinutes: 0,
+      paymentRecoveries: 0,
+      checkInRecoveries: 0,
+      bonusAccrued: 0,
     }
     nextPairSeq += 1
 
@@ -328,15 +403,15 @@ export default function RecoveryOfficersPage() {
           </Button>
           <Button
             className="h-10 gap-2 bg-brand-dark text-white hover:bg-brand-dark/90"
-            onClick={() => setShowAssignment(true)}
+            onClick={() => setShowCustomAssignment(true)}
           >
             <UserCheck className="h-4 w-4" />
-            Make Customer Assignments
+            Make Custom Assignment
           </Button>
         </div>
       </div>
 
-      <div className="px-6 grid grid-cols-3 gap-2 shrink-0 mb-4">
+      <div className="px-6 grid grid-cols-4 gap-2 shrink-0 mb-4">
         <StatCard
           title="All Recovery Officers"
           value={agentStats.total.toLocaleString()}
@@ -355,6 +430,12 @@ export default function RecoveryOfficersPage() {
           subtitle="Not currently enlisted"
           indicatorColor="var(--color-status-danger)"
         />
+        <StatCard
+          title="Recovery Pairs"
+          value={pairs.length.toLocaleString()}
+          subtitle="Two-officer field pairs formed"
+          indicatorColor="var(--color-status-info)"
+        />
       </div>
 
       <div className="px-6 flex flex-col flex-1 min-h-0">
@@ -365,6 +446,9 @@ export default function RecoveryOfficersPage() {
             </TabsTrigger>
             <TabsTrigger value="agents" className={tabTriggerClass}>
               All Agents
+            </TabsTrigger>
+            <TabsTrigger value="engaged" className={tabTriggerClass}>
+              Currently Engaged
             </TabsTrigger>
           </TabsList>
 
@@ -428,7 +512,12 @@ export default function RecoveryOfficersPage() {
               </div>
 
               <div className="flex-1 overflow-y-auto">
-                <DataTable columns={pairColumns} data={paginatedPairs} emptyMessage="No recovery pairs found." />
+                <DataTable
+                  columns={pairColumns}
+                  data={paginatedPairs}
+                  emptyMessage="No recovery pairs found."
+                  onRowClick={(pair) => navigate(`/portfolio/recovery/pairs/${pair.id}`)}
+                />
               </div>
             </div>
 
@@ -505,7 +594,12 @@ export default function RecoveryOfficersPage() {
               </div>
 
               <div className="flex-1 overflow-y-auto">
-                <DataTable columns={agentColumns} data={paginatedAgents} emptyMessage="No agents found." />
+                <DataTable
+                  columns={agentColumns}
+                  data={paginatedAgents}
+                  emptyMessage="No agents found."
+                  onRowClick={(agent) => navigate(`/portfolio/recovery/agents/${agent.id}`)}
+                />
               </div>
             </div>
 
@@ -521,15 +615,96 @@ export default function RecoveryOfficersPage() {
               />
             </div>
           </TabsContent>
+
+          <TabsContent value="engaged" className="mt-3 flex flex-col flex-1 min-h-0">
+            <div className="flex-1 flex flex-col min-h-0 rounded-t-[14px] rounded-b-[4px] border border-table-border">
+              <div className="flex items-center gap-2 px-2 py-2">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" className="h-9 gap-2">
+                      <SlidersHorizontal className="h-4 w-4" />
+                      <span className="text-sm">Filter</span>
+                      {getActiveFilterCount(engagedFilters) > 0 && (
+                        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-brand-dark text-xs text-white">
+                          {getActiveFilterCount(engagedFilters)}
+                        </span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-2" align="start">
+                    <GenericFilterPopover
+                      sections={engagedFilterSections}
+                      filters={engagedFilters}
+                      onFiltersChange={setEngagedFilters}
+                    />
+                  </PopoverContent>
+                </Popover>
+
+                {engagedSearchOpen ? (
+                  <div className="flex items-center gap-1">
+                    <Input
+                      type="text"
+                      value={engagedSearch}
+                      onChange={(e) => setEngagedSearch(e.target.value)}
+                      placeholder="Search by pair code, officer or zone..."
+                      className="h-9 w-72"
+                      autoFocus
+                      onKeyDown={(e) => {
+                        if (e.key === "Escape") {
+                          setEngagedSearchOpen(false)
+                          setEngagedSearch("")
+                        }
+                      }}
+                    />
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-9 w-9"
+                      onClick={() => {
+                        setEngagedSearchOpen(false)
+                        setEngagedSearch("")
+                      }}
+                    >
+                      ×
+                    </Button>
+                  </div>
+                ) : (
+                  <Button variant="outline" size="icon" className="h-9 w-9" onClick={() => setEngagedSearchOpen(true)}>
+                    <Search className="h-4 w-4 text-muted-foreground" />
+                  </Button>
+                )}
+              </div>
+
+              <div className="flex-1 overflow-y-auto">
+                <DataTable
+                  columns={engagedColumns}
+                  data={paginatedEngagedPairs}
+                  emptyMessage="No pairs are currently in an active session."
+                  onRowClick={(pair) => navigate(`/portfolio/recovery/pairs/${pair.id}`)}
+                />
+              </div>
+            </div>
+
+            <div className="shrink-0 mt-1 mb-6 rounded-t-[4px] rounded-b-[14px] border border-table-border bg-content-card">
+              <Pagination
+                currentPage={engagedPage}
+                totalPages={Math.max(1, Math.ceil(filteredEngagedPairs.length / engagedPageSize))}
+                totalItems={filteredEngagedPairs.length}
+                pageSize={engagedPageSize}
+                onPageChange={setEngagedPage}
+                onPageSizeChange={setEngagedPageSize}
+                itemLabel="pairs"
+              />
+            </div>
+          </TabsContent>
         </Tabs>
       </div>
 
-      <CustomerAssignmentFlow
-        open={showAssignment}
-        onClose={() => setShowAssignment(false)}
+      <CustomAssignmentFlow
+        open={showCustomAssignment}
+        onClose={() => setShowCustomAssignment(false)}
         pairs={pairs}
-        agents={agents}
-        onAssign={handleAssignCase}
+        onComplete={handleBulkAssign}
       />
       <CreateRecoveryPairFlow
         open={showCreatePair}
@@ -544,6 +719,7 @@ export default function RecoveryOfficersPage() {
         vehicles={vehicles}
         pairs={pairs}
         onReassign={handleReassignVehicle}
+        getOfficerNames={officerNames}
       />
     </>
   )

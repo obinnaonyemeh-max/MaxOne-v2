@@ -52,6 +52,13 @@ import RestructuredContractsPage from "@/pages/portfolio/RestructuredContractsPa
 import PendingApprovalContractsPage from "@/pages/portfolio/PendingApprovalContractsPage"
 import DisputedContractsPage from "@/pages/portfolio/DisputedContractsPage"
 import RecoveryOfficersPage from "@/pages/portfolio/RecoveryOfficersPage"
+import RecoveryPairDetailPage from "@/pages/portfolio/RecoveryPairDetailPage"
+import RecoveryAgentDetailPage from "@/pages/portfolio/RecoveryAgentDetailPage"
+import RecoverySessionDetailPage from "@/pages/portfolio/RecoverySessionDetailPage"
+import PendingRecoveriesPage from "@/pages/portfolio/PendingRecoveriesPage"
+import RecoveriesInSessionPage from "@/pages/portfolio/RecoveriesInSessionPage"
+import PendingCheckInsPage from "@/pages/portfolio/PendingCheckInsPage"
+import RecoveryCommandCenterPage from "@/pages/portfolio/RecoveryCommandCenterPage"
 import VehicleRegisterPage from "@/pages/vehicle-register/VehicleRegisterPage"
 import VehicleActivityPage from "@/pages/vehicle-activity/VehicleActivityPage"
 import VehicleTripsPage from "@/pages/vehicle-trips/VehicleTripsPage"
@@ -134,7 +141,15 @@ export default function App() {
         <Route path="/portfolio/contracts/pending-approval" element={<PendingApprovalContractsPage />} />
         <Route path="/portfolio/contracts/disputed" element={<DisputedContractsPage />} />
         <Route path="/portfolio/contracts/:tab" element={<ContractsPage />} />
+        <Route path="/portfolio/recovery/command-center" element={<RecoveryCommandCenterPage />} />
         <Route path="/portfolio/recovery/officers" element={<RecoveryOfficersPage />} />
+        <Route path="/portfolio/recovery/pairs/:id" element={<RecoveryPairDetailPage />} />
+        <Route path="/portfolio/recovery/agents/:id" element={<RecoveryAgentDetailPage />} />
+        <Route path="/portfolio/recovery/session/:id" element={<RecoverySessionDetailPage />} />
+        <Route path="/portfolio/recovery/pending" element={<PendingRecoveriesPage />} />
+        <Route path="/portfolio/recovery/sessions" element={<Navigate to="/portfolio/recovery/sessions/in-session" replace />} />
+        <Route path="/portfolio/recovery/sessions/:tab" element={<RecoveriesInSessionPage />} />
+        <Route path="/portfolio/recovery/check-ins" element={<PendingCheckInsPage />} />
         <Route path="/driver-experience/dashboard" element={<DriverExperienceDashboardPage />} />
         <Route path="/driver-experience/approvals" element={<ApprovalsPage />} />
       </Routes>

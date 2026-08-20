@@ -41,6 +41,8 @@ export interface RecoverySession {
   elapsedMinutes: number
   completedAt: string | null
   outcomeNotes: string | null
+  outstandingBalance: number
+  coordinates: { lat: number; lng: number }
 }
 
 export interface PendingCheckIn {
@@ -85,6 +87,21 @@ const zones = [
   { name: "Ibadan", code: "IB" },
   { name: "Port Harcourt", code: "PH" },
 ]
+
+const zoneCoordinates: Record<string, { lat: number; lng: number; variance: number }> = {
+  Lagos: { lat: 6.5244, lng: 3.3792, variance: 0.15 },
+  Abuja: { lat: 9.0765, lng: 7.3986, variance: 0.12 },
+  Kano: { lat: 12.0022, lng: 8.592, variance: 0.12 },
+  Ibadan: { lat: 7.3775, lng: 3.947, variance: 0.12 },
+  "Port Harcourt": { lat: 4.8156, lng: 7.0498, variance: 0.1 },
+}
+
+function coordinatesFor(zone: string, seed: number): { lat: number; lng: number } {
+  const center = zoneCoordinates[zone] ?? zoneCoordinates.Lagos
+  const offsetLat = (((seed * 37) % 100) / 100 - 0.5) * 2 * center.variance
+  const offsetLng = (((seed * 53) % 100) / 100 - 0.5) * 2 * center.variance
+  return { lat: center.lat + offsetLat, lng: center.lng + offsetLng }
+}
 
 const firstNames = ["Chinyere", "Segun", "Amaka", "Tobiloba", "Musa", "Ifeoma", "Kunle", "Aisha", "Chibuzo", "Ronke", "Isah", "Ngozi", "Femi", "Halima", "Obinna", "Yewande"]
 const lastNames = ["Adeyemi", "Chukwu", "Balogun", "Nwachukwu", "Suleiman", "Okoli", "Adesanya", "Bello", "Okafor", "Fashola", "Danjuma", "Umeh"]
@@ -184,6 +201,8 @@ export const mockRecoverySessions: RecoverySession[] = sessionSeeds.map((seed, i
     elapsedMinutes: seed.elapsed,
     completedAt: seed.status === "In Session" ? null : `${2 + (i % 27)} ${["Apr", "May", "Jun", "Jul"][i % 4]} 2025`,
     outcomeNotes: seed.outcomeNotes,
+    outstandingBalance: 45000 + ((i * 8300) % 220000),
+    coordinates: coordinatesFor(base.zone, i),
   }
 })
 
@@ -211,3 +230,27 @@ export const mockPendingCheckIns: PendingCheckIn[] = mockRecoverySessions
     recoveredAt: session.completedAt ?? "",
     checkInDueDate: `${4 + (i % 25)} ${["Apr", "May", "Jun", "Jul"][i % 4]} 2025`,
   }))
+
+export const pendingCheckInStats = {
+  total: mockPendingCheckIns.length,
+  pairsInvolved: new Set(mockPendingCheckIns.map((c) => c.pairCode)).size,
+  zonesAffected: new Set(mockPendingCheckIns.map((c) => c.zone)).size,
+}
+
+// ── Recovery Command Center ──
+// Rolls up the whole module: active field sessions, resolved outcomes, and follow-on check-ins.
+
+export const recoveryCommandCenterStats = {
+  activeRecoveries: recoverySessionStats.inSession,
+  successful: recoverySessionStats.successful,
+  failed: recoverySessionStats.failed,
+  successRate: Math.round(
+    (recoverySessionStats.successful /
+      Math.max(1, recoverySessionStats.successful + recoverySessionStats.failed)) *
+      100
+  ),
+  activePairs: new Set(
+    mockRecoverySessions.filter((s) => s.status === "In Session").map((s) => s.pairCode)
+  ).size,
+  pendingCheckIns: pendingCheckInStats.total,
+}

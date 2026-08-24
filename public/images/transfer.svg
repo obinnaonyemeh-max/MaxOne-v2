@@ -1,0 +1,25 @@
+<svg id="Group_54788" data-name="Group 54788" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="52.545" height="52.545" viewBox="0 0 52.545 52.545">
+  <defs>
+    <clipPath id="clip-path">
+      <rect id="SVGID" width="52.138" height="52.138" rx="26.069" transform="translate(0 52.136) rotate(-89.551)" fill="none"/>
+    </clipPath>
+  </defs>
+  <rect id="Rectangle_2923" data-name="Rectangle 2923" width="52.138" height="52.138" rx="26.069" transform="translate(0 52.136) rotate(-89.551)" fill="#e88e15" opacity="0.2"/>
+  <g id="Group_22859" data-name="Group 22859" transform="translate(0 0)">
+    <g id="Group_22858" data-name="Group 22858" transform="translate(0)" clip-path="url(#clip-path)">
+      <g id="_6fc244de32e4493d9a4ee1cea6a75530" data-name="6fc244de32e4493d9a4ee1cea6a75530" transform="translate(15.152 8.457)">
+        <path id="Path_74552" data-name="Path 74552" d="M29.254,7.4h4.129V9.2H29.254Zm-8.527,0h4.129V9.2H20.727ZM12.2,7.4h4.129V9.2H12.2Z" transform="translate(-1.248 -4.528)" fill="#e2cb5a"/>
+        <g id="Group_54075" data-name="Group 54075" transform="translate(4.489 0)">
+          <path id="Path_74553" data-name="Path 74553" d="M36.055,4.2h3.139V8.87H36.055ZM5,4.2H8.139V8.87H5Z" transform="translate(-5 -4.2)" fill="#1b1c20"/>
+        </g>
+        <path id="Path_74554" data-name="Path 74554" d="M1.7,14.4H41.641V37.019H1.7Z" transform="translate(-0.173 -5.245)" fill="#fcdd1a"/>
+        <path id="Path_74555" data-name="Path 74555" d="M.7,9.3H42.437v4.487H.7Z" transform="translate(-0.07 -4.722)" fill="#989898"/>
+        <path id="Path_74556" data-name="Path 74556" d="M42.187,39.6H.9a.848.848,0,0,0-.9.9v2.962H43.082V40.5a.848.848,0,0,0-.9-.9Z" transform="translate(0.002 -7.826)" fill="#1b1c20"/>
+        <g id="Group_54076" data-name="Group 54076" transform="translate(6.554 12.027)">
+          <path id="Path_74557" data-name="Path 74557" d="M31.085,19.934h6.283V21.46H31.085ZM11.16,17.6H9.634v2.334H7.3V21.46H9.634v2.334H11.16V21.46h2.334V19.934H11.16Z" transform="translate(-7.3 -17.6)" fill="#1b1c20"/>
+        </g>
+        <path id="Path_74558" data-name="Path 74558" d="M25.676,29.842l-3.949-2.067L16.7,32.716l4.039-10.142,4.039,2.155L29.716,19.7Z" transform="translate(-1.709 -5.787)" fill="#ceb01a"/>
+      </g>
+    </g>
+  </g>
+</svg>

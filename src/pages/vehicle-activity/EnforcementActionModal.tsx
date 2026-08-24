@@ -36,7 +36,7 @@ const ACTIONS: {
     id: "swap-block",
     title: "Swap Block",
     description: "Prevent the champion from swapping batteries.",
-    iconBg: "var(--color-success)",
+    iconBg: "var(--color-info)",
     icon: ArrowUpDown,
   },
   {

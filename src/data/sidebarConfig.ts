@@ -343,6 +343,12 @@ export const falconSidebarSections: SidebarSection[] = [
         href: "/falcon/vehicle-register",
       },
       {
+        id: "enforcement",
+        label: "Enforcement",
+        icon: "/images/failed_recovery_menu.svg",
+        href: "/falcon/enforcement",
+      },
+      {
         id: "alerts",
         label: "Alerts",
         icon: "/images/issues_menu.svg",

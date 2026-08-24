@@ -7,8 +7,9 @@ export interface DocDropZoneProps {
   onFileSelect: (file: File) => void
   accept?: string
   maxSizeLabel?: string
-  label?: string
+  label?: React.ReactNode
   icon?: React.ReactNode
+  showClickHint?: boolean
   className?: string
 }
 
@@ -19,6 +20,7 @@ export function DocDropZone({
   maxSizeLabel = "PDF, DOC up to 10MB",
   label = "Drag and drop your document",
   icon,
+  showClickHint = true,
   className,
 }: DocDropZoneProps) {
   const [isDragOver, setIsDragOver] = useState(false)
@@ -65,10 +67,12 @@ export function DocDropZone({
         <div className="text-center">
           {icon ?? <Upload className="mx-auto h-7 w-7 text-gray-400 mb-2" />}
           <p className="font-medium text-sidebar-item text-sm">{label}</p>
-          <p className="mt-1 text-sm">
-            <span className="text-sidebar-item">or </span>
-            <span className="text-status-info underline">click to upload</span>
-          </p>
+          {showClickHint && (
+            <p className="mt-1 text-sm">
+              <span className="text-sidebar-item">or </span>
+              <span className="text-status-info underline">click to upload</span>
+            </p>
+          )}
           {maxSizeLabel && <p className="mt-2 text-muted-foreground text-xs">{maxSizeLabel}</p>}
         </div>
       )}

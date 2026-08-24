@@ -23,7 +23,7 @@ function toTimelineEntry(event: EnforcementEvent): TimelineEntryData {
     id: event.id,
     date: event.timestamp,
     status: event.type,
-    statusVariant: event.statusVariant,
+    statusVariant: event.statusVariant === "success" ? "info" : event.statusVariant,
     description: { template, highlights },
   }
 }

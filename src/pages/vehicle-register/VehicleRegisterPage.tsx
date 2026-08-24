@@ -28,6 +28,7 @@ import {
   type LifecycleStatus,
 } from "@/data/mockVehicleRegister"
 import { getVehicleActivity } from "@/data/mockVehicleActivity"
+import { applyEnforcement } from "@/data/mockEnforcement"
 import { VehicleListCard } from "./VehicleListCard"
 import { VehiclesMap } from "./VehiclesMap"
 import { VehicleFilterPopover, getActiveFilterCount, type VehicleFilters } from "./VehicleFilterPanel"
@@ -334,7 +335,15 @@ export default function VehicleRegisterPage() {
         onOpenChange={(open) => {
           if (!open) setEnforcementActionVehicleId(null)
         }}
-        onApply={({ actionLabel, reason, comment }) => {
+        onApply={({ action, actionLabel, reason, comment }) => {
+          if (enforcementActionVehicleId) {
+            applyEnforcement({
+              vehicleId: enforcementActionVehicleId,
+              action,
+              reason,
+              comment,
+            })
+          }
           setEnforcementActionVehicleId(null)
           toast.success(`${actionLabel} applied`, {
             description: comment ? `${reason} — ${comment}` : reason,

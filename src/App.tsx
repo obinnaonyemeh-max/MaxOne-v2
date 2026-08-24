@@ -67,6 +67,9 @@ import TamperAlertsPage from "@/pages/falcon-alerts/TamperAlertsPage"
 import TamperAlertDetailPage from "@/pages/falcon-alerts/TamperAlertDetailPage"
 import GeofencesPage from "@/pages/geofences/GeofencesPage"
 import VisitHistoryPage from "@/pages/geofences/VisitHistoryPage"
+import EnforcementPage from "@/pages/enforcement/EnforcementPage"
+import StationsHubsPage from "@/pages/stations-hubs/StationsHubsPage"
+import StationDetailsPage from "@/pages/stations-hubs/StationDetailsPage"
 import ApprovalsPage from "@/pages/ApprovalsPage"
 import DriverExperienceDashboardPage from "@/pages/DriverExperienceDashboardPage"
 
@@ -124,6 +127,9 @@ export default function App() {
         <Route path="/falcon/alerts/tamper/:id" element={<TamperAlertDetailPage />} />
         <Route path="/falcon/geofences" element={<GeofencesPage />} />
         <Route path="/falcon/geofences/visit-history" element={<VisitHistoryPage />} />
+        <Route path="/falcon/swap-stations" element={<StationsHubsPage />} />
+        <Route path="/falcon/swap-stations/:id" element={<StationDetailsPage />} />
+        <Route path="/falcon/enforcement" element={<EnforcementPage />} />
         <Route path="/falcon/vehicle-register" element={<VehicleRegisterPage />} />
         <Route path="/falcon/vehicle-register/:id/activity" element={<VehicleActivityPage />} />
         <Route path="/falcon/vehicle-register/:id/trips" element={<VehicleTripsPage />} />

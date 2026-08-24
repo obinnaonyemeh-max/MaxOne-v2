@@ -619,7 +619,7 @@ function generateEnforcementHistory(
       timestamp: "18 Jan 2026 3:12 PM",
       triggeredType: "Automated",
       reason: "2 DPD",
-      statusVariant: "success",
+      statusVariant: "info",
     },
     {
       type: "Vehicle Lock",
@@ -659,7 +659,7 @@ function generateEnforcementHistory(
       timestamp: "18 Jan 2026 3:12 PM",
       triggeredType: "Automated",
       reason: "2 DPD",
-      statusVariant: "success",
+      statusVariant: "info",
     },
     {
       type: "Vehicle Lock",
@@ -865,6 +865,28 @@ const tripsByVehicleId: Record<string, VehicleTrip[]> = Object.fromEntries(
 
 export function getVehicleActivity(id: string): VehicleActivity | undefined {
   return activityByVehicleId[id]
+}
+
+export function addEnforcementEvent(
+  vehicleId: string,
+  event: Omit<EnforcementEvent, "id"> & { id?: string }
+): EnforcementEvent | undefined {
+  const activity = activityByVehicleId[vehicleId]
+  if (!activity) return undefined
+
+  const next: EnforcementEvent = {
+    ...event,
+    id: event.id ?? `${vehicleId}-enf-${Date.now()}`,
+  }
+
+  activity.enforcement.history.unshift(next)
+  activity.enforcement.count = activity.enforcement.history.length
+  activity.enforcement.latest = activity.enforcement.history.slice(0, 2).map((item) => ({
+    type: item.type,
+    timestamp: item.timestamp,
+  }))
+
+  return next
 }
 
 export function getVehicleTrips(id: string): VehicleTrip[] {

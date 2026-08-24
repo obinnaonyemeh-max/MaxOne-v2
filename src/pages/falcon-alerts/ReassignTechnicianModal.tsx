@@ -34,6 +34,12 @@ interface ReassignTechnicianModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   currentTechnician?: string
+  title?: string
+  subtitle?: string
+  primaryLabel?: string
+  searchPlaceholder?: string
+  entityLabel?: string
+  excludeIds?: string[]
   onReassign: (technician: Technician) => void
 }
 
@@ -41,6 +47,12 @@ export function ReassignTechnicianModal({
   open,
   onOpenChange,
   currentTechnician,
+  title = "Reassign Technician",
+  subtitle,
+  primaryLabel = "Reassign",
+  searchPlaceholder = "Search technician, specialty or city…",
+  entityLabel = "technician",
+  excludeIds = [],
   onReassign,
 }: ReassignTechnicianModalProps) {
   const [search, setSearch] = useState("")
@@ -62,14 +74,21 @@ export function ReassignTechnicianModal({
   const technicians = useMemo(
     () =>
       mockTechnicians.filter((t) => {
+        if (excludeIds.includes(t.id)) return false
         if (filters.location.length > 0 && !filters.location.includes(t.city)) return false
         if (search) {
           const q = search.toLowerCase()
-          if (!t.name.toLowerCase().includes(q) && !t.city.toLowerCase().includes(q)) return false
+          if (
+            !t.name.toLowerCase().includes(q) &&
+            !t.city.toLowerCase().includes(q) &&
+            !t.specialty.toLowerCase().includes(q)
+          ) {
+            return false
+          }
         }
         return true
       }),
-    [filters, search]
+    [excludeIds, filters, search]
   )
 
   const selected = mockTechnicians.find((t) => t.id === selectedId)
@@ -78,13 +97,18 @@ export function ReassignTechnicianModal({
     <Modal
       open={open}
       onOpenChange={handleOpenChange}
-      title="Reassign Technician"
-      subtitle={currentTechnician ? `Currently assigned to ${currentTechnician}` : "Search and select a technician to reassign this tamper."}
+      title={title}
+      subtitle={
+        subtitle ??
+        (currentTechnician
+          ? `Currently assigned to ${currentTechnician}`
+          : "Search and select a technician to reassign this tamper.")
+      }
       className="max-w-lg"
       maxHeight="80vh"
       secondaryAction={{ label: "Cancel", onClick: () => handleOpenChange(false) }}
       primaryAction={{
-        label: "Reassign",
+        label: primaryLabel,
         disabled: !selected,
         onClick: () => {
           if (!selected) return
@@ -101,7 +125,7 @@ export function ReassignTechnicianModal({
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search technician, specialty or city…"
+              placeholder={searchPlaceholder}
               className="h-10 pl-9"
             />
           </div>
@@ -124,13 +148,16 @@ export function ReassignTechnicianModal({
         </div>
 
         <span className="text-xs text-breadcrumb-root">
-          {technicians.length} technician{technicians.length === 1 ? "" : "s"} available
+          {technicians.length} {entityLabel}
+          {technicians.length === 1 ? "" : "s"} available
         </span>
 
         {/* Technician list — fixed height so the modal doesn't resize as results change */}
         <div className="h-[340px] overflow-y-auto -mx-1 px-1 space-y-2">
           {technicians.length === 0 ? (
-            <p className="py-10 text-center text-sm text-breadcrumb-root">No technicians match your search.</p>
+            <p className="py-10 text-center text-sm text-breadcrumb-root">
+              No {entityLabel}s match your search.
+            </p>
           ) : (
             technicians.map((tech) => {
               const isSelected = tech.id === selectedId

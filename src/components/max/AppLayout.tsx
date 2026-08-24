@@ -1,4 +1,4 @@
-import { useEffect, useMemo, type ReactNode } from "react"
+import { useEffect, useMemo, type CSSProperties, type ReactNode } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
 import { Toaster } from "sonner"
 import { PageLayout } from "./PageLayout"
@@ -131,7 +131,21 @@ export function AppLayout({ children }: AppLayoutProps) {
 
   return (
     <>
-      <Toaster position="top-right" richColors />
+      <Toaster
+        position="bottom-center"
+        closeButton={false}
+        style={{ "--width": "min(420px, calc(100vw - 32px))" } as CSSProperties}
+        toastOptions={{
+          unstyled: true,
+          classNames: {
+            toast: "max-toast",
+            title: "max-toast-title",
+            description: "max-toast-description",
+            icon: "max-toast-icon",
+            content: "max-toast-content",
+          },
+        }}
+      />
       <PageLayout
         sidebar={({ isCollapsed, onToggleCollapse }) => (
           <Sidebar

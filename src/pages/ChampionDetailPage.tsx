@@ -17,6 +17,9 @@ import {
   MaxIDCard,
   AssignmentHistoryCard,
   Modal,
+  ReassignChampionsModal,
+  Toast,
+  useToast,
   GenericFilterPopover,
   getActiveFilterCount,
   type FilterSection,
@@ -25,7 +28,7 @@ import {
 import { format } from "date-fns"
 import { AddPaymentTransactionFlow } from "@/pages/portfolio/AddPaymentTransactionFlow"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import { Phone, MessageSquare, MessageCircle, User, Plus, History, ChevronDown, SlidersHorizontal, Search, RotateCcw } from "lucide-react"
+import { Phone, MessageSquare, MessageCircle, User, Plus, History, ChevronDown, SlidersHorizontal, Search, RotateCcw, UserPlus } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import {
@@ -50,6 +53,7 @@ import {
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input"
+import { mockAgentPortfolioRecords } from "@/data/mockAgentPortfolio"
 import { getChampionDetails, type WalletTransaction, type WelfareNote, type ChampionDetails } from "@/data/mockChampionDetails"
 import {
   type TicketRecord,
@@ -458,6 +462,8 @@ export default function ChampionDetailPage() {
     setSearchParams({ tab: value }, { replace: true })
   }
 
+  const [reassignOpen, setReassignOpen] = useState(false)
+  const { message: reassignToast, variant: reassignToastVariant, showToast } = useToast()
   const [showCreateTimeOff, setShowCreateTimeOff] = useState(false)
   const [showLeaveHistory, setShowLeaveHistory] = useState(false)
   const [timeOffForm, setTimeOffForm] = useState({ type: "", startDate: "", endDate: "", reason: "" })
@@ -578,6 +584,13 @@ export default function ChampionDetailPage() {
                 {champion.championId} &middot; Showing champion profile and activity details
               </p>
             </div>
+            <Button
+              className="h-10 gap-2 bg-brand-dark text-white hover:bg-brand-dark/90 pl-3 pr-4"
+              onClick={() => setReassignOpen(true)}
+            >
+              <UserPlus className="h-4 w-4" />
+              Reassign
+            </Button>
           </div>
         </div>
 
@@ -1332,6 +1345,20 @@ export default function ChampionDetailPage() {
           />
         </div>
       </Modal>
+
+      <ReassignChampionsModal
+        open={reassignOpen}
+        onOpenChange={setReassignOpen}
+        championCount={1}
+        onConfirm={(agentIds, reason) => {
+          if (agentIds.length === 0 || !reason) return
+          const target = mockAgentPortfolioRecords.find((a) => a.id === agentIds[0])
+          showToast(`${champion.name} reassigned to ${target?.agent} (${reason})`)
+          setReassignOpen(false)
+        }}
+      />
+
+      <Toast message={reassignToast} variant={reassignToastVariant} />
     </>
   )
 }

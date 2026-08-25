@@ -35,6 +35,9 @@ import CreateTicketPage from "@/pages/CreateTicketPage"
 import DriverSafetyScorePage from "@/pages/DriverSafetyScorePage"
 import WelfarePage from "@/pages/WelfarePage"
 import PerformancePage from "@/pages/PerformancePage"
+import AgentPortfolioPage from "@/pages/AgentPortfolioPage"
+import AgentDetailPage from "@/pages/AgentDetailPage"
+import AssignmentHistoryPage from "@/pages/AssignmentHistoryPage"
 import BatteriesDashboardPage from "@/pages/BatteriesDashboardPage"
 import BatteryRegisterPage from "@/pages/battery-register/BatteryRegisterPage"
 import BatteryDetailsPage from "@/pages/battery-register/BatteryDetailsPage"
@@ -112,6 +115,9 @@ export default function App() {
         <Route path="/portfolio/champions/referrals" element={<ReferralManagementPage />} />
         <Route path="/driver-experience/dashboard" element={<DriverExperienceDashboardPage />} />
         <Route path="/driver-experience/approvals" element={<ApprovalsPage />} />
+        <Route path="/driver-experience/agents/portfolio" element={<AgentPortfolioPage />} />
+        <Route path="/driver-experience/agents/portfolio/:agentId" element={<AgentDetailPage />} />
+        <Route path="/driver-experience/agents/assignment-history" element={<AssignmentHistoryPage />} />
       </Routes>
     </AppLayout>
   )

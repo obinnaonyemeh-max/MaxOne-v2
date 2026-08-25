@@ -43,6 +43,7 @@ const appDefaultRoutes: Record<string, string> = {
 
 const driverGrowthPrefixes = ["/growth-activation", "/mcp-management"]
 const driverExperiencePrefixes = [
+  "/driver-experience",
   "/champion-360",
   "/ticket-management",
   "/driver-safety-score",

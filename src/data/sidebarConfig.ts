@@ -311,10 +311,26 @@ export const driverExperienceSidebarSections: SidebarSection[] = [
         href: "/driver-experience/approvals",
       },
       {
-        id: "performance",
-        label: "Performance",
-        icon: "/images/fleet_performance_menu.svg",
-        href: "/performance",
+        id: "agents-management",
+        label: "Agents Management",
+        icon: "/images/agent_menu.svg",
+        children: [
+          {
+            id: "agent-portfolio",
+            label: "Agent Portfolio",
+            href: "/driver-experience/agents/portfolio",
+          },
+          {
+            id: "agent-assignment-history",
+            label: "Assignment History",
+            href: "/driver-experience/agents/assignment-history",
+          },
+          {
+            id: "performance",
+            label: "Performance",
+            href: "/performance",
+          },
+        ],
       },
     ],
   },

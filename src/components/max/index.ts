@@ -17,6 +17,7 @@ export { AssignmentHistoryCard, type AssignmentRecord } from "./AssignmentHistor
 export { TimelineEntry, type TimelineEntryData } from "./TimelineEntry"
 export { StatusTimeline } from "./StatusTimeline"
 export { Modal, type ModalProps, type ModalAction } from "./Modal"
+export { ReassignChampionsModal, type ReassignChampionsModalProps } from "./ReassignChampionsModal"
 export { ConfirmModal, type ConfirmModalProps, type ConfirmModalAction, type ConfirmModalVariant } from "./ConfirmModal"
 export { TagInput, type TagInputProps } from "./TagInput"
 export { BackButton } from "./BackButton"

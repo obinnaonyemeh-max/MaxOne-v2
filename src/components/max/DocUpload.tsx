@@ -15,8 +15,9 @@ export interface DocUploadProps {
   onFileSelect: (file: File) => void
   accept?: string
   maxSizeLabel?: string
-  label?: string
+  label?: React.ReactNode
   icon?: React.ReactNode
+  showClickHint?: boolean
   /** Tailwind min-height class applied to every state so the box keeps a stable size. */
   minHeightClass?: string
 }
@@ -28,6 +29,7 @@ export function DocUpload({
   maxSizeLabel = "PDF, DOC up to 10MB",
   label,
   icon,
+  showClickHint,
   minHeightClass = "min-h-[100px]",
 }: DocUploadProps) {
   const [uploadState, setUploadState] = useState<UploadState>(
@@ -128,6 +130,7 @@ export function DocUpload({
           maxSizeLabel={maxSizeLabel}
           label={label}
           icon={icon}
+          showClickHint={showClickHint}
           className={minHeightClass}
         />
       )}

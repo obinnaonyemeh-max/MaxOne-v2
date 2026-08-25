@@ -113,19 +113,19 @@ export function StepSelectVehicle({
           </InfoCard>
 
           <div className="space-y-2">
-            <p className="text-sm text-breadcrumb-root">Client currently attached to this vehicle/kit:</p>
+            <p className="text-sm text-breadcrumb-root">Champion currently attached to this vehicle/kit:</p>
             <div className="flex items-center gap-3 rounded-lg border border-border bg-gray-50 p-4">
               <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gray-200">
                 <span className="text-sm font-medium text-sidebar-item">
-                  {selectedVehicle.currentClient.name.charAt(0)}
+                  {selectedVehicle.currentChampion.name.charAt(0)}
                 </span>
               </div>
               <div className="min-w-0">
                 <p className="font-medium text-sidebar-item-active" style={{ fontSize: "14px" }}>
-                  {selectedVehicle.currentClient.name}
+                  {selectedVehicle.currentChampion.name}
                 </p>
                 <p className="mt-0.5 truncate text-xs text-breadcrumb-root">
-                  {selectedVehicle.currentClient.clientId} &middot; {selectedVehicle.currentClient.phoneNumber} &middot; {selectedVehicle.currentClient.email}
+                  {selectedVehicle.currentChampion.championId} &middot; {selectedVehicle.currentChampion.phoneNumber} &middot; {selectedVehicle.currentChampion.email}
                 </p>
               </div>
             </div>

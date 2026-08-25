@@ -111,7 +111,7 @@ function TreeChildItem({ item, isLast, isActiveAbove, onItemClick }: TreeChildIt
         {item.badge !== undefined && (
           <span
             className={cn(
-              "rounded-full px-1.5 py-0.5 text-xs font-medium",
+              "rounded-full px-1.5 py-0.5 text-[10px] font-medium",
               item.badgeVariant === "notification"
                 ? "bg-status-danger text-white"
                 : item.badgeVariant === "coming-soon"
@@ -213,7 +213,7 @@ function SidebarNavItem({ item, onItemClick, isExpanded = false, onToggleExpand,
         {item.badge !== undefined && !hasChildren && (
           <span
             className={cn(
-              "rounded-full px-1.5 py-0.5 text-xs font-medium",
+              "rounded-full px-1.5 py-0.5 text-[10px] font-medium",
               item.badgeVariant === "notification"
                 ? "bg-status-danger text-white"
                 : item.badgeVariant === "coming-soon"

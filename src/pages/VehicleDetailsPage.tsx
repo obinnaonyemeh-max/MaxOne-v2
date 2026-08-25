@@ -1,6 +1,6 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useParams, useNavigate, useLocation } from "react-router-dom"
-import { RotateCcw, Pencil } from "lucide-react"
+import { Pencil } from "lucide-react"
 
 import {
   TopBar,
@@ -13,15 +13,27 @@ import {
 } from "@/components/max"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+import { useCan, useRoleSimulation } from "@/contexts/RoleSimulationContext"
 import { getVehicleDetails } from "@/data/mockVehicleDetails"
+import { mockVehicles } from "@/data/mockVehicles"
 
 export default function VehicleDetailsPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const location = useLocation()
+  const { filterByCity } = useRoleSimulation()
+  const canEditVehicle = useCan("fleetRegister.editVehicle")
   const isFromAssetMovement = location.pathname.startsWith("/asset-movement")
+  const registerVehicle = mockVehicles.find((v) => v.id === id)
   const vehicle = getVehicleDetails(id || "1")
   const [assignmentIndex, setAssignmentIndex] = useState(0)
+  const listHref = isFromAssetMovement ? "/asset-movement" : "/fleet-register"
+
+  useEffect(() => {
+    if (registerVehicle && !filterByCity(registerVehicle.location)) {
+      navigate(listHref, { replace: true })
+    }
+  }, [filterByCity, listHref, navigate, registerVehicle])
 
   const overviewDetails = [
     { label: "Asset type", value: vehicle.assetType },
@@ -71,16 +83,14 @@ export default function VehicleDetailsPage() {
                 Showing vehicle information and possible champion assignment history
               </p>
             </div>
-            <div className="flex items-center gap-3">
-              <Button variant="outline" className="h-10 gap-2">
-                <RotateCcw className="h-4 w-4" />
-                Reverse Assignment
-              </Button>
-              <Button className="h-10 gap-2 bg-sidebar-item-active hover:bg-sidebar-item-active/90">
-                <Pencil className="h-4 w-4" />
-                Edit Vehicle Info
-              </Button>
-            </div>
+            {canEditVehicle && (
+              <div className="flex items-center gap-3">
+                <Button className="h-10 gap-2 bg-sidebar-item-active hover:bg-sidebar-item-active/90">
+                  <Pencil className="h-4 w-4" />
+                  Edit Vehicle Info
+                </Button>
+              </div>
+            )}
           </div>
         </div>
 

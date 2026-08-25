@@ -26,38 +26,37 @@ import {
   kitStatusVariantMap,
   type KitReport,
 } from "@/data/mockKitReports"
-import { useCan } from "@/contexts/RoleSimulationContext"
+import { useCan, useCityScopedRecords } from "@/contexts/RoleSimulationContext"
 import { KitMovementHistoryModal } from "./KitMovementHistoryModal"
 
 const COLOR_STATUS_SUCCESS = "var(--color-status-success)"
 const COLOR_STATUS_INFO = "var(--color-status-info)"
 const COLOR_GRAY_500 = "var(--color-gray-500)"
 
-const clientOptions = Array.from(
-  new Set(mockKitReports.map((k) => k.client).filter((c): c is string => !!c))
-).sort()
+const STATUS_FILTER_SECTION: FilterSection = {
+  id: "status",
+  title: "Status",
+  defaultExpanded: true,
+  options: [
+    { value: "Assigned", label: "Assigned", color: COLOR_STATUS_SUCCESS },
+    { value: "New", label: "New", color: COLOR_GRAY_500 },
+  ],
+}
 
-const filterSections: FilterSection[] = [
-  {
-    id: "status",
-    title: "Status",
-    defaultExpanded: true,
-    options: [
-      { value: "Assigned",   label: "Assigned",   color: COLOR_STATUS_SUCCESS },
-      { value: "Reassigned", label: "Reassigned", color: COLOR_STATUS_INFO },
-      { value: "Created",    label: "Created",    color: COLOR_GRAY_500 },
-    ],
-  },
-  {
-    id: "client",
-    title: "Client",
-    options: clientOptions.map((client) => ({ value: client, label: client })),
-  },
-]
+const REASSIGNED_FILTER_SECTION: FilterSection = {
+  id: "reassigned",
+  title: "Reassigned?",
+  defaultExpanded: true,
+  options: [
+    { value: "Yes", label: "Yes", color: COLOR_STATUS_INFO },
+    { value: "No",  label: "No",  color: COLOR_GRAY_500 },
+  ],
+}
 
 const defaultFilters: GenericFilterState = {
   status: [],
-  client: [],
+  reassigned: [],
+  champion: [],
 }
 
 const columns: ColumnDef<KitReport>[] = [
@@ -80,11 +79,20 @@ const columns: ColumnDef<KitReport>[] = [
     ),
   },
   {
-    accessorKey: "client",
-    header: "Current Client",
+    accessorKey: "reassigned",
+    header: "Reassigned?",
+    cell: ({ row }) => (
+      <StatusBadge variant={row.original.reassigned ? "info" : "default"} withDot>
+        {row.original.reassigned ? "Yes" : "No"}
+      </StatusBadge>
+    ),
+  },
+  {
+    accessorKey: "champion",
+    header: "Current Champion",
     cell: ({ row }) => (
       <span className="font-medium text-table-text" style={{ fontSize: "14px" }}>
-        {row.original.client ?? "—"}
+        {row.original.champion ?? "—"}
       </span>
     ),
   },
@@ -106,15 +114,6 @@ const columns: ColumnDef<KitReport>[] = [
       </span>
     ),
   },
-  {
-    accessorKey: "lastUpdated",
-    header: "Last Updated",
-    cell: ({ row }) => (
-      <span className="font-medium text-table-text" style={{ fontSize: "14px" }}>
-        {row.original.lastUpdated}
-      </span>
-    ),
-  },
 ]
 
 export default function KitReportsPage() {
@@ -127,12 +126,32 @@ export default function KitReportsPage() {
   const [selectedKit, setSelectedKit] = useState<KitReport | null>(null)
   const activeFilterCount = getActiveFilterCount(filters)
   const canKitReassignment = useCan("kit.reassignment")
+  const scopedKits = useCityScopedRecords(mockKitReports, "location")
+
+  const filterSections: FilterSection[] = useMemo(() => {
+    const championOptions = Array.from(
+      new Set(scopedKits.map((k) => k.champion).filter((c): c is string => !!c))
+    ).sort()
+    return [
+      STATUS_FILTER_SECTION,
+      REASSIGNED_FILTER_SECTION,
+      {
+        id: "champion",
+        title: "Champion",
+        options: championOptions.map((champion) => ({ value: champion, label: champion })),
+      },
+    ]
+  }, [scopedKits])
 
   const filteredKits = useMemo(
     () =>
-      mockKitReports.filter((kit) => {
+      scopedKits.filter((kit) => {
         if (filters.status.length > 0 && !filters.status.includes(kit.status)) return false
-        if (filters.client.length > 0 && (kit.client === null || !filters.client.includes(kit.client))) return false
+        if (filters.reassigned.length > 0) {
+          const reassignedLabel = kit.reassigned ? "Yes" : "No"
+          if (!filters.reassigned.includes(reassignedLabel)) return false
+        }
+        if (filters.champion.length > 0 && (kit.champion === null || !filters.champion.includes(kit.champion))) return false
         if (searchQuery) {
           const q = searchQuery.toLowerCase()
           const matchesId = kit.id.toLowerCase().includes(q)
@@ -141,7 +160,7 @@ export default function KitReportsPage() {
         }
         return true
       }),
-    [filters, searchQuery]
+    [filters, searchQuery, scopedKits]
   )
 
   return (

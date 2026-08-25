@@ -33,19 +33,19 @@ export const riskLevelVariantMap: Record<RiskLevel, "success" | "warning" | "dan
 export const mockDriverRiskRecords: DriverRiskRecord[] = [
   { id: "1",  championName: "Adaeze Okonkwo",    championId: "CHM-1001", location: "Lagos",          safetyScore: 92, riskLevel: "Low",      recentIncident: "None",            totalSafetyEvents: 2,  lastActivity: "30 May 2026" },
   { id: "2",  championName: "Emeka Nwosu",        championId: "CHM-1002", location: "Lagos",          safetyScore: 78, riskLevel: "Medium",   recentIncident: "Harsh Braking",   totalSafetyEvents: 8,  lastActivity: "29 May 2026" },
-  { id: "3",  championName: "Ibrahim Yusuf",      championId: "CHM-1003", location: "Kano",           safetyScore: 45, riskLevel: "Critical", recentIncident: "Collision",       totalSafetyEvents: 22, lastActivity: "28 May 2026" },
+  { id: "3",  championName: "Ibrahim Yusuf",      championId: "CHM-1003", location: "Osogbo",           safetyScore: 45, riskLevel: "Critical", recentIncident: "Collision",       totalSafetyEvents: 22, lastActivity: "28 May 2026" },
   { id: "4",  championName: "Oluwaseun Bello",    championId: "CHM-1004", location: "Ibadan",         safetyScore: 85, riskLevel: "Low",      recentIncident: "None",            totalSafetyEvents: 3,  lastActivity: "30 May 2026" },
   { id: "5",  championName: "Funmilayo Ade",      championId: "CHM-1005", location: "Lagos",          safetyScore: 61, riskLevel: "High",     recentIncident: "Speeding",        totalSafetyEvents: 14, lastActivity: "27 May 2026" },
-  { id: "6",  championName: "Tunde Bakare",       championId: "CHM-1006", location: "Abuja",          safetyScore: 72, riskLevel: "Medium",   recentIncident: "Sharp Cornering", totalSafetyEvents: 9,  lastActivity: "29 May 2026" },
-  { id: "7",  championName: "Chioma Obi",         championId: "CHM-1007", location: "Port Harcourt",  safetyScore: 88, riskLevel: "Low",      recentIncident: "None",            totalSafetyEvents: 4,  lastActivity: "30 May 2026" },
-  { id: "8",  championName: "Yemi Adesanya",      championId: "CHM-1008", location: "Abuja",          safetyScore: 53, riskLevel: "High",     recentIncident: "Night Driving",   totalSafetyEvents: 17, lastActivity: "26 May 2026" },
+  { id: "6",  championName: "Tunde Bakare",       championId: "CHM-1006", location: "Abeokuta",          safetyScore: 72, riskLevel: "Medium",   recentIncident: "Sharp Cornering", totalSafetyEvents: 9,  lastActivity: "29 May 2026" },
+  { id: "7",  championName: "Chioma Obi",         championId: "CHM-1007", location: "Sango Ota",  safetyScore: 88, riskLevel: "Low",      recentIncident: "None",            totalSafetyEvents: 4,  lastActivity: "30 May 2026" },
+  { id: "8",  championName: "Yemi Adesanya",      championId: "CHM-1008", location: "Abeokuta",          safetyScore: 53, riskLevel: "High",     recentIncident: "Night Driving",   totalSafetyEvents: 17, lastActivity: "26 May 2026" },
   { id: "9",  championName: "Amaka Eze",          championId: "CHM-1009", location: "Lagos",          safetyScore: 95, riskLevel: "Low",      recentIncident: "None",            totalSafetyEvents: 1,  lastActivity: "30 May 2026" },
-  { id: "10", championName: "Ngozi Eze",          championId: "CHM-1010", location: "Port Harcourt",  safetyScore: 67, riskLevel: "Medium",   recentIncident: "Idling Abuse",    totalSafetyEvents: 11, lastActivity: "28 May 2026" },
-  { id: "11", championName: "Chukwuemeka Ibe",    championId: "CHM-1011", location: "Kano",           safetyScore: 39, riskLevel: "Critical", recentIncident: "Collision",       totalSafetyEvents: 26, lastActivity: "25 May 2026" },
+  { id: "10", championName: "Ngozi Eze",          championId: "CHM-1010", location: "Sango Ota",  safetyScore: 67, riskLevel: "Medium",   recentIncident: "Idling Abuse",    totalSafetyEvents: 11, lastActivity: "28 May 2026" },
+  { id: "11", championName: "Chukwuemeka Ibe",    championId: "CHM-1011", location: "Osogbo",           safetyScore: 39, riskLevel: "Critical", recentIncident: "Collision",       totalSafetyEvents: 26, lastActivity: "25 May 2026" },
   { id: "12", championName: "Adaora Nwosu",       championId: "CHM-1012", location: "Lagos",          safetyScore: 81, riskLevel: "Low",      recentIncident: "Harsh Braking",   totalSafetyEvents: 5,  lastActivity: "29 May 2026" },
   { id: "13", championName: "Segun Falowo",       championId: "CHM-1013", location: "Ibadan",         safetyScore: 58, riskLevel: "High",     recentIncident: "Speeding",        totalSafetyEvents: 15, lastActivity: "27 May 2026" },
-  { id: "14", championName: "Kemi Adeyemi",       championId: "CHM-1014", location: "Abuja",          safetyScore: 74, riskLevel: "Medium",   recentIncident: "Sharp Cornering", totalSafetyEvents: 7,  lastActivity: "28 May 2026" },
-  { id: "15", championName: "Bola Okafor",        championId: "CHM-1015", location: "Kano",           safetyScore: 90, riskLevel: "Low",      recentIncident: "None",            totalSafetyEvents: 2,  lastActivity: "30 May 2026" },
+  { id: "14", championName: "Kemi Adeyemi",       championId: "CHM-1014", location: "Abeokuta",          safetyScore: 74, riskLevel: "Medium",   recentIncident: "Sharp Cornering", totalSafetyEvents: 7,  lastActivity: "28 May 2026" },
+  { id: "15", championName: "Bola Okafor",        championId: "CHM-1015", location: "Osogbo",           safetyScore: 90, riskLevel: "Low",      recentIncident: "None",            totalSafetyEvents: 2,  lastActivity: "30 May 2026" },
 ]
 
 export const mockCriticalEvents: CriticalEventCategory[] = [

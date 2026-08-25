@@ -9,6 +9,7 @@ interface BatteryLevelIconProps {
   chargeLevel: number
   isCharging?: boolean
   isPluggedIn?: boolean
+  tooltip?: string
   className?: string
 }
 
@@ -22,6 +23,7 @@ export function BatteryLevelIcon({
   chargeLevel,
   isCharging = false,
   isPluggedIn = false,
+  tooltip,
   className,
 }: BatteryLevelIconProps) {
   const fillColor = getFillColor(chargeLevel)
@@ -105,7 +107,7 @@ export function BatteryLevelIcon({
         </svg>
       </TooltipTrigger>
       <TooltipContent>
-        Battery: {chargeLevel}%
+        {tooltip ?? `Battery: ${chargeLevel}%`}
       </TooltipContent>
     </Tooltip>
   )

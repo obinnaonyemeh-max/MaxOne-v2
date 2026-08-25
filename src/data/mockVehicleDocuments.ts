@@ -136,7 +136,7 @@ export const mockVehicleDocuments: VehicleDocumentRecord[] = [
     completion: 88,
     status: "Complete",
     lastUpdated: "05 May 2026",
-    location: "Lagos, Nigeria",
+    location: "Accra, Ghana",
     checklist: defaultChecklist,
   },
 ]

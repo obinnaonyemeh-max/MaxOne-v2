@@ -18,6 +18,7 @@ import { priorityVariantMap } from "@/data/mockTicketRecords"
 import type { ChampionDetails } from "@/data/mockChampionDetails"
 import { CallScriptRenderer } from "./CallScriptRenderer"
 import type { TicketCategory, TicketSubcategory, TicketDetailsForm } from "./types"
+import { CITIES } from "@/data/cities"
 
 const vehicleRelatedCategoryIds = new Set(["cat-1", "cat-5", "cat-7", "cat-11"])
 
@@ -99,11 +100,9 @@ export function StepTicketDetails({
                     <SelectValue placeholder="Select city" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Lagos">Lagos</SelectItem>
-                    <SelectItem value="Abuja">Abuja</SelectItem>
-                    <SelectItem value="Kano">Kano</SelectItem>
-                    <SelectItem value="Ibadan">Ibadan</SelectItem>
-                    <SelectItem value="Port Harcourt">Port Harcourt</SelectItem>
+                    {CITIES.map((city) => (
+                      <SelectItem key={city} value={city}>{city}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </FormField>

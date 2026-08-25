@@ -21,7 +21,6 @@ export const sidebarSections: SidebarSection[] = [
         id: "fleet-register",
         label: "Fleet Register",
         icon: "/images/fleet_menu.svg",
-        badge: "24K",
         href: "/fleet-register",
       },
       {
@@ -360,10 +359,19 @@ export const falconSidebarSections: SidebarSection[] = [
         href: "/falcon/vehicle-register",
       },
       {
+        id: "enforcement",
+        label: "Enforcement",
+        icon: "/images/failed_recovery_menu.svg",
+        href: "/falcon/enforcement",
+      },
+      {
         id: "alerts",
         label: "Alerts",
         icon: "/images/issues_menu.svg",
-        href: "/falcon/alerts",
+        children: [
+          { id: "tamper-alerts", label: "Tamper Alerts", href: "/falcon/alerts/tamper" },
+          { id: "battery-alerts", label: "Battery Alerts", href: "/falcon/alerts/battery" },
+        ],
       },
       {
         id: "geofencing",
@@ -438,6 +446,7 @@ export const portfolioSidebarSections: SidebarSection[] = [
         id: "portfolio-blacklist",
         label: "Blacklist",
         icon: "/images/blacklist_menu.svg",
+        href: "/portfolio/champions/blacklist",
       },
     ],
   },
@@ -449,26 +458,31 @@ export const portfolioSidebarSections: SidebarSection[] = [
         id: "portfolio-all-contracts",
         label: "All Contracts",
         icon: "/images/document_menu.svg",
+        href: "/portfolio/contracts/all",
       },
       {
         id: "portfolio-initiated-contracts",
         label: "Initiated Contracts",
         icon: "/images/initiated_contract_menu.svg",
+        href: "/portfolio/contracts/initiated",
       },
       {
         id: "portfolio-restructured-contracts",
         label: "Restructured Contracts",
         icon: "/images/restructured_contract_menu.svg",
+        href: "/portfolio/contracts/restructured",
       },
       {
         id: "portfolio-pending-approval",
         label: "Pending Approval",
         icon: "/images/memo_circle_check_menu.svg",
+        href: "/portfolio/contracts/pending-approval",
       },
       {
         id: "portfolio-disputed-contracts",
         label: "Disputed Contracts",
         icon: "/images/disputed_contract_menu.svg",
+        href: "/portfolio/contracts/disputed",
       },
     ],
   },
@@ -530,14 +544,10 @@ export const portfolioSidebarSections: SidebarSection[] = [
     label: "Collections",
     items: [
       {
-        id: "portfolio-collections-summary",
-        label: "Collections Summary",
-        icon: "/images/dashboard_menu.svg",
-      },
-      {
         id: "portfolio-all-collections",
         label: "All Collections",
         icon: "/images/revenue_analytics_menu.svg",
+        href: "/portfolio/collections/all",
       },
     ],
   },
@@ -549,16 +559,19 @@ export const portfolioSidebarSections: SidebarSection[] = [
         id: "portfolio-recovery-command-center",
         label: "Recovery Command Center",
         icon: "/images/dashboard_menu.svg",
+        href: "/portfolio/recovery/command-center",
       },
       {
         id: "portfolio-recovery-officers",
         label: "Recovery Officers",
         icon: "/images/agent_menu.svg",
+        href: "/portfolio/recovery/officers",
       },
       {
         id: "portfolio-pending-recoveries",
         label: "Pending Recoveries",
         icon: "/images/pending_recovery_menu.svg",
+        href: "/portfolio/recovery/pending",
       },
       {
         id: "portfolio-recoveries-in-session",
@@ -566,12 +579,19 @@ export const portfolioSidebarSections: SidebarSection[] = [
         icon: "/images/recovery_in_session_menu.svg",
         children: [
           {
+            id: "portfolio-active-recoveries",
+            label: "In Session",
+            href: "/portfolio/recovery/sessions/in-session",
+          },
+          {
             id: "portfolio-successful-recoveries",
             label: "Successful Recoveries",
+            href: "/portfolio/recovery/sessions/successful",
           },
           {
             id: "portfolio-failed-recoveries",
             label: "Failed Recoveries",
+            href: "/portfolio/recovery/sessions/failed",
           },
         ],
       },
@@ -579,6 +599,7 @@ export const portfolioSidebarSections: SidebarSection[] = [
         id: "portfolio-pending-check-ins",
         label: "Pending Check-Ins",
         icon: "/images/pending_checkin_menu.svg",
+        href: "/portfolio/recovery/check-ins",
       },
     ],
   },

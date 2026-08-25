@@ -720,7 +720,7 @@ import { LocationAutocomplete } from "@/components/max"
 - MapPin icon inside the input and beside each suggestion row
 - Click-outside-to-close via `useRef` + `useEffect`
 - Dropdown appears only when the input has a non-empty query with matches
-- Default suggestions cover Lagos, Abuja, Kano, Ibadan, and Port Harcourt
+- Default suggestions cover Lagos, Sagamu, Ibadan, Abeokuta, Sango Ota, Osogbo, and Akure
 
 #### Styling Notes
 

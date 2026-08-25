@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/popover"
 
 import { mockChairmanAllocations, type ChairmanAllocation } from "@/data/mockChairmanAllocations"
+import { CITY_FILTER_OPTIONS } from "@/data/cities"
 
 const mcpStats = [
   {
@@ -78,10 +79,7 @@ const filterSections: FilterSection[] = [
   {
     id: "locations",
     title: "Locations",
-    options: [
-      { value: "Addis Ababa", label: "Addis Ababa" },
-      { value: "Hawassa", label: "Hawassa" },
-    ],
+    options: CITY_FILTER_OPTIONS,
   },
   {
     id: "subcities",

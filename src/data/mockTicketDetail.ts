@@ -311,7 +311,7 @@ const ticketDetails: Record<string, TicketDetail> = {
     category: "Vehicle Breakdown",
     dateCreated: "25 May 2026",
     incident: {
-      location: "Kano \u2013 Sabon Gari",
+      location: "Osogbo",
       reporter: "Ibrahim Yusuf",
       dateOfIncident: "25 May 2026",
       timeOfIncident: "11:45 AM",
@@ -342,7 +342,7 @@ const ticketDetails: Record<string, TicketDetail> = {
       model: "Camry 2022",
       brand: "Toyota",
       currentStatus: "Breakdown",
-      lastKnownLocation: "Kano \u2013 Sabon Gari, Bompai Road",
+      lastKnownLocation: "Osogbo – Oke Fia, Gbongan Road",
       utilization: "78%",
     },
     contract: {

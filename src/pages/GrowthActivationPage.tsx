@@ -55,6 +55,7 @@ import {
   mockGrowthActivationRecords,
   type GrowthActivationRecord,
 } from "@/data/mockGrowthActivation"
+import { CITY_FILTER_OPTIONS } from "@/data/cities"
 
 // ── Channel cards data ──
 
@@ -182,13 +183,7 @@ const activationFilterSections: FilterSection[] = [
   {
     id: "locations",
     title: "Locations",
-    options: [
-      { value: "Riyadh", label: "Riyadh" },
-      { value: "Jeddah", label: "Jeddah" },
-      { value: "Dubai", label: "Dubai" },
-      { value: "Cairo", label: "Cairo" },
-      { value: "Dammam", label: "Dammam" },
-    ],
+    options: CITY_FILTER_OPTIONS,
   },
   {
     id: "officers",

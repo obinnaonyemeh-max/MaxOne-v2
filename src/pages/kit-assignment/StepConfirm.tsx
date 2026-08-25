@@ -17,7 +17,7 @@ export function StepConfirm({ vehicle, details }: StepConfirmProps) {
         Confirm Assignment
       </h3>
       <p className="text-sm text-breadcrumb-root">
-        Review the details below before assigning. This will move the vehicle/kit to the new client.
+        Review the details below before assigning. This will move the vehicle/kit to the new champion.
       </p>
 
       <InfoCard title="Vehicle / Kit">
@@ -28,7 +28,7 @@ export function StepConfirm({ vehicle, details }: StepConfirmProps) {
             { label: "Vehicle Model", value: vehicle.vehicleModel },
             { label: "Current Plate Number", value: vehicle.currentPlateNumber },
             { label: "Current Chassis/Kit ID", value: vehicle.currentChassisId },
-            { label: "Current Client", value: `${vehicle.currentClient.name} (${vehicle.currentClient.clientId})` },
+            { label: "Current Champion", value: `${vehicle.currentChampion.name} (${vehicle.currentChampion.championId})` },
           ]}
         />
       </InfoCard>
@@ -39,7 +39,7 @@ export function StepConfirm({ vehicle, details }: StepConfirmProps) {
           items={[
             { label: "New Plate Number", value: details.newPlateNumber },
             { label: "New Chassis", value: details.newChassisId },
-            { label: "New Client", value: details.newClient || "—" },
+            { label: "New Champion", value: details.newChampion || "—" },
           ]}
         />
       </InfoCard>

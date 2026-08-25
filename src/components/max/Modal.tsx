@@ -31,6 +31,7 @@ export interface ModalProps {
   secondaryAction?: ModalAction
   leftAction?: ReactNode
   className?: string
+  contentClassName?: string
   maxHeight?: string
   hideHeader?: boolean
 }
@@ -47,6 +48,7 @@ export function Modal({
   secondaryAction,
   leftAction,
   className,
+  contentClassName,
   maxHeight,
   hideHeader = false,
 }: ModalProps) {
@@ -96,7 +98,13 @@ export function Modal({
         )}
 
         {/* Modal Content */}
-        <div className={cn("min-h-0 flex-1 overflow-y-auto", hideHeader ? "p-6" : "px-6 py-6")}>
+        <div
+          className={cn(
+            "min-h-0 flex-1 overflow-y-auto",
+            hideHeader ? "p-6" : "px-6 py-6",
+            contentClassName
+          )}
+        >
           {children}
         </div>
 

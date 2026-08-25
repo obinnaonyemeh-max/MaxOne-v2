@@ -1,3 +1,5 @@
+import { CITIES, CITY_COORDINATES } from "./cities"
+
 export type TrackingStatus = "moving" | "stopped" | "offline" | "pending"
 export type CheckStatus = "checked-out" | "checked-in"
 export type VehicleCategory = "ev" | "ice"
@@ -36,20 +38,11 @@ export interface TrackingStatusCount {
   color: string
 }
 
-export const CITIES = ["Lagos", "Ibadan", "Abuja", "Port Harcourt", "Kano", "Enugu"] as const
+export { CITIES }
 export const VEHICLE_TYPES: VehicleType[] = ["2 Wheeler", "3 Wheeler", "4 Wheeler"]
 export const FINANCIERS: Financier[] = ["MAX Capital", "Sterling Bank", "LAPO MFB", "Access Bank"]
 export const BRANDS: Brand[] = ["TVS", "Bajaj", "Piaggio", "Ekon", "Jidi"]
 export const LIFECYCLE_STATUSES: LifecycleStatus[] = ["Exit", "Active", "Inbound", "Operational Fleet", "3PL Check-in", "Yard Check-in"]
-
-const cityCoordinates: Record<string, { lat: number; lng: number; variance: number }> = {
-  Lagos: { lat: 6.5244, lng: 3.3792, variance: 0.15 },
-  Ibadan: { lat: 7.3775, lng: 3.9470, variance: 0.12 },
-  Abuja: { lat: 9.0579, lng: 7.4951, variance: 0.10 },
-  "Port Harcourt": { lat: 4.8156, lng: 7.0498, variance: 0.08 },
-  Kano: { lat: 12.0022, lng: 8.5920, variance: 0.10 },
-  Enugu: { lat: 6.4584, lng: 7.5464, variance: 0.08 },
-}
 
 function randomInRange(base: number, variance: number): number {
   return base + (Math.random() - 0.5) * 2 * variance
@@ -93,7 +86,7 @@ function generateVehicle(index: number): VehicleRegisterItem {
   const selectedModel = models[Math.floor(Math.random() * models.length)]
   
   const cityName = CITIES[Math.floor(Math.random() * CITIES.length)]
-  const cityCoord = cityCoordinates[cityName]
+  const cityCoord = CITY_COORDINATES[cityName]
   
   const trackingStatuses: TrackingStatus[] = ["moving", "stopped", "offline", "pending"]
   const trackingWeights = [0.43, 0.34, 0.15, 0.08]

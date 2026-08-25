@@ -15,6 +15,7 @@ import {
   type VehicleRegisterItem,
   type VehicleType,
 } from "@/data/mockVehicleRegister"
+import { CITY_LIVE_ADDRESSES } from "./cities"
 
 export type TripEventType =
   | "start"
@@ -165,6 +166,8 @@ export interface VehicleActivity {
     totalDistanceKm: number
     averageSpeedKmph: number
     totalDurationHours: number
+    totalStopDurationHours: number
+    alertCount: number
   }
 }
 
@@ -211,15 +214,6 @@ const SWAP_DATES = [
   "16 Jan 2026 • 18:03",
   "08 Jan 2026 • 06:40",
 ]
-
-const CITY_LIVE_ADDRESSES: Record<string, string> = {
-  Lagos: "Lekki—Epe Expressway, Ajah",
-  Ibadan: "Ring Road, Challenge",
-  Abuja: "Airport Road, Garki",
-  "Port Harcourt": "Aba Road, Rumuomasi",
-  Kano: "Zoo Road, Nassarawa",
-  Enugu: "Okpara Avenue, GRA",
-}
 
 const PRIME_STOP_STREETS = [
   "12 Bello Osagie St",
@@ -625,7 +619,7 @@ function generateEnforcementHistory(
       timestamp: "18 Jan 2026 3:12 PM",
       triggeredType: "Automated",
       reason: "2 DPD",
-      statusVariant: "success",
+      statusVariant: "info",
     },
     {
       type: "Vehicle Lock",
@@ -665,7 +659,7 @@ function generateEnforcementHistory(
       timestamp: "18 Jan 2026 3:12 PM",
       triggeredType: "Automated",
       reason: "2 DPD",
-      statusVariant: "success",
+      statusVariant: "info",
     },
     {
       type: "Vehicle Lock",
@@ -803,6 +797,8 @@ function generateActivity(vehicle: VehicleRegisterItem): VehicleActivity {
       totalDistanceKm: 220 + Math.floor(rand() * 900),
       averageSpeedKmph: 35 + Math.floor(rand() * 50),
       totalDurationHours: 400 + Math.floor(rand() * 8000),
+      totalStopDurationHours: 40 + Math.floor(rand() * 600),
+      alertCount: 8 + Math.floor(rand() * 72),
     },
   }
 }
@@ -869,6 +865,28 @@ const tripsByVehicleId: Record<string, VehicleTrip[]> = Object.fromEntries(
 
 export function getVehicleActivity(id: string): VehicleActivity | undefined {
   return activityByVehicleId[id]
+}
+
+export function addEnforcementEvent(
+  vehicleId: string,
+  event: Omit<EnforcementEvent, "id"> & { id?: string }
+): EnforcementEvent | undefined {
+  const activity = activityByVehicleId[vehicleId]
+  if (!activity) return undefined
+
+  const next: EnforcementEvent = {
+    ...event,
+    id: event.id ?? `${vehicleId}-enf-${Date.now()}`,
+  }
+
+  activity.enforcement.history.unshift(next)
+  activity.enforcement.count = activity.enforcement.history.length
+  activity.enforcement.latest = activity.enforcement.history.slice(0, 2).map((item) => ({
+    type: item.type,
+    timestamp: item.timestamp,
+  }))
+
+  return next
 }
 
 export function getVehicleTrips(id: string): VehicleTrip[] {

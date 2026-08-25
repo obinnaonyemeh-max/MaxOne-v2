@@ -1,3 +1,7 @@
+import { CITY_DEPOT_OPTIONS } from "./cities"
+import type { FilterSection, GenericFilterState } from "@/components/max"
+import { mockDisposalRecords } from "./mockDisposal"
+
 export interface AuctionEvent {
   id: string
   title: string
@@ -8,9 +12,6 @@ export interface AuctionEvent {
   minBid: string
   status: "Active" | "Upcoming" | "Closed"
 }
-
-import type { FilterSection, GenericFilterState } from "@/components/max"
-import { mockDisposalRecords } from "./mockDisposal"
 
 export interface AuctionVehicle {
   id: string
@@ -25,12 +26,12 @@ export interface AuctionVehicle {
 }
 
 export const mockAuctionVehicles = [
-  { id: "1", vehicleId: "VH-00421", plateNumber: "LND-421-HB", makeModel: "Honda CB125F", type: "2W", condition: "Excellent", score: 87, location: "Lagos Main Depot", startingBid: "₦150,000" },
-  { id: "2", vehicleId: "VH-00398", plateNumber: "LND-398-KA", makeModel: "Bajaj Maxima C", type: "3W", condition: "Fair", score: 61, location: "Lagos Main Depot", startingBid: "₦100,000" },
-  { id: "3", vehicleId: "VH-00289", plateNumber: "ABJ-289-FC", makeModel: "TVS Apache RTR 160", type: "2W", condition: "Excellent", score: 92, location: "Abuja Fleet Depot", startingBid: "₦180,000" },
-  { id: "4", vehicleId: "VH-00315", plateNumber: "LND-315-PQ", makeModel: "Yamaha Crux Rev", type: "2W", condition: "Salvage", score: 34, location: "Lagos Main Depot", startingBid: "₦30,000" },
-  { id: "5", vehicleId: "VH-00276", plateNumber: "ABJ-276-GH", makeModel: "Honda CG 125", type: "2W", condition: "Fair", score: 58, location: "Abuja Fleet Depot", startingBid: "₦80,000" },
-  { id: "6", vehicleId: "VH-00251", plateNumber: "RIV-251-PH", makeModel: "Keke Napep 200", type: "3W", condition: "Fair", score: 55, location: "Port Harcourt Depot", startingBid: "₦90,000" },
+  { id: "1", vehicleId: "VH-00421", plateNumber: "LND-421-HB", makeModel: "Honda CB125F", type: "2W", condition: "Excellent", score: 87, location: "Lagos Depot", startingBid: "₦150,000" },
+  { id: "2", vehicleId: "VH-00398", plateNumber: "LND-398-KA", makeModel: "Bajaj Maxima C", type: "3W", condition: "Fair", score: 61, location: "Lagos Depot", startingBid: "₦100,000" },
+  { id: "3", vehicleId: "VH-00289", plateNumber: "ABJ-289-FC", makeModel: "TVS Apache RTR 160", type: "2W", condition: "Excellent", score: 92, location: "Abeokuta Depot", startingBid: "₦180,000" },
+  { id: "4", vehicleId: "VH-00315", plateNumber: "LND-315-PQ", makeModel: "Yamaha Crux Rev", type: "2W", condition: "Salvage", score: 34, location: "Lagos Depot", startingBid: "₦30,000" },
+  { id: "5", vehicleId: "VH-00276", plateNumber: "ABJ-276-GH", makeModel: "Honda CG 125", type: "2W", condition: "Fair", score: 58, location: "Abeokuta Depot", startingBid: "₦80,000" },
+  { id: "6", vehicleId: "VH-00251", plateNumber: "RIV-251-PH", makeModel: "Keke Napep 200", type: "3W", condition: "Fair", score: 55, location: "Sango Ota Depot", startingBid: "₦90,000" },
 ] satisfies AuctionVehicle[]
 
 export const auctionVehicleFilterSections: FilterSection[] = [
@@ -55,11 +56,7 @@ export const auctionVehicleFilterSections: FilterSection[] = [
   {
     id: "location",
     title: "Location",
-    options: [
-      { value: "Lagos Main Depot", label: "Lagos Main Depot" },
-      { value: "Abuja Fleet Depot", label: "Abuja Fleet Depot" },
-      { value: "Port Harcourt Depot", label: "Port Harcourt Depot" },
-    ],
+    options: CITY_DEPOT_OPTIONS,
   },
 ]
 
@@ -112,11 +109,7 @@ export const allocationFilterSections: FilterSection[] = [
   {
     id: "location",
     title: "Location",
-    options: [
-      { value: "Lagos Main Depot", label: "Lagos Main Depot" },
-      { value: "Abuja Fleet Depot", label: "Abuja Fleet Depot" },
-      { value: "Port Harcourt Depot", label: "Port Harcourt Depot" },
-    ],
+    options: CITY_DEPOT_OPTIONS,
   },
 ]
 
@@ -133,12 +126,12 @@ export const mockAuctionAllocations: AuctionAllocation[] = [
     uniqueBidders: 18,
     endsInSeconds: 9606,
     vehicles: [
-      { id: "1", vehicleId: "VH-00421", plateNumber: "LND-421-HB", makeModel: "Honda CB125F", location: "Lagos Main Depot", type: "2W", auctionStatus: "Available", bids: 7, winningBid: "₦210,000", leadingBidId: "BID-00891" },
-      { id: "2", vehicleId: "VH-00398", plateNumber: "LND-398-KA", makeModel: "Bajaj Maxima C", location: "Lagos Main Depot", type: "3W", auctionStatus: "Available", bids: 4, winningBid: "₦165,000", leadingBidId: "BID-00742" },
-      { id: "3", vehicleId: "VH-00289", plateNumber: "ABJ-289-FC", makeModel: "TVS Apache RTR 160", location: "Abuja Fleet Depot", type: "2W", auctionStatus: "Sold", bids: 9, winningBid: "₦255,000", leadingBidId: "BID-00915" },
-      { id: "4", vehicleId: "VH-00315", plateNumber: "LND-315-PQ", makeModel: "Yamaha Crux Rev", location: "Lagos Main Depot", type: "2W", auctionStatus: "Available", bids: 0, winningBid: null },
-      { id: "5", vehicleId: "VH-00276", plateNumber: "ABJ-276-GH", makeModel: "Honda CG 125", location: "Abuja Fleet Depot", type: "2W", auctionStatus: "Available", bids: 5, winningBid: "₦135,000", leadingBidId: "BID-00688" },
-      { id: "6", vehicleId: "VH-00251", plateNumber: "RIV-251-PH", makeModel: "Keke Napep 200", location: "Port Harcourt Depot", type: "3W", auctionStatus: "Reserved", bids: 3, winningBid: "₦120,000", leadingBidId: "BID-00574" },
+      { id: "1", vehicleId: "VH-00421", plateNumber: "LND-421-HB", makeModel: "Honda CB125F", location: "Lagos Depot", type: "2W", auctionStatus: "Available", bids: 7, winningBid: "₦210,000", leadingBidId: "BID-00891" },
+      { id: "2", vehicleId: "VH-00398", plateNumber: "LND-398-KA", makeModel: "Bajaj Maxima C", location: "Lagos Depot", type: "3W", auctionStatus: "Available", bids: 4, winningBid: "₦165,000", leadingBidId: "BID-00742" },
+      { id: "3", vehicleId: "VH-00289", plateNumber: "ABJ-289-FC", makeModel: "TVS Apache RTR 160", location: "Abeokuta Depot", type: "2W", auctionStatus: "Sold", bids: 9, winningBid: "₦255,000", leadingBidId: "BID-00915" },
+      { id: "4", vehicleId: "VH-00315", plateNumber: "LND-315-PQ", makeModel: "Yamaha Crux Rev", location: "Lagos Depot", type: "2W", auctionStatus: "Available", bids: 0, winningBid: null },
+      { id: "5", vehicleId: "VH-00276", plateNumber: "ABJ-276-GH", makeModel: "Honda CG 125", location: "Abeokuta Depot", type: "2W", auctionStatus: "Available", bids: 5, winningBid: "₦135,000", leadingBidId: "BID-00688" },
+      { id: "6", vehicleId: "VH-00251", plateNumber: "RIV-251-PH", makeModel: "Keke Napep 200", location: "Sango Ota Depot", type: "3W", auctionStatus: "Reserved", bids: 3, winningBid: "₦120,000", leadingBidId: "BID-00574" },
     ],
   },
   {
@@ -147,11 +140,11 @@ export const mockAuctionAllocations: AuctionAllocation[] = [
     uniqueBidders: 0,
     endsInSeconds: 0,
     vehicles: [
-      { id: "1", vehicleId: "VH-00512", plateNumber: "ABJ-512-LM", makeModel: "Honda CB125F", location: "Abuja Fleet Depot", type: "2W", auctionStatus: "Available", bids: 0, winningBid: null },
-      { id: "2", vehicleId: "VH-00488", plateNumber: "ABJ-488-NP", makeModel: "Bajaj Boxer", location: "Abuja Fleet Depot", type: "2W", auctionStatus: "Available", bids: 0, winningBid: null },
-      { id: "3", vehicleId: "VH-00455", plateNumber: "ABJ-455-QR", makeModel: "Bajaj Maxima C", location: "Abuja Fleet Depot", type: "3W", auctionStatus: "Available", bids: 0, winningBid: null },
-      { id: "4", vehicleId: "VH-00432", plateNumber: "ABJ-432-ST", makeModel: "TVS Apache RTR 160", location: "Abuja Fleet Depot", type: "2W", auctionStatus: "Available", bids: 0, winningBid: null },
-      { id: "5", vehicleId: "VH-00401", plateNumber: "ABJ-401-UV", makeModel: "Yamaha Crux Rev", location: "Abuja Fleet Depot", type: "2W", auctionStatus: "Available", bids: 0, winningBid: null },
+      { id: "1", vehicleId: "VH-00512", plateNumber: "ABJ-512-LM", makeModel: "Honda CB125F", location: "Abeokuta Depot", type: "2W", auctionStatus: "Available", bids: 0, winningBid: null },
+      { id: "2", vehicleId: "VH-00488", plateNumber: "ABJ-488-NP", makeModel: "Bajaj Boxer", location: "Abeokuta Depot", type: "2W", auctionStatus: "Available", bids: 0, winningBid: null },
+      { id: "3", vehicleId: "VH-00455", plateNumber: "ABJ-455-QR", makeModel: "Bajaj Maxima C", location: "Abeokuta Depot", type: "3W", auctionStatus: "Available", bids: 0, winningBid: null },
+      { id: "4", vehicleId: "VH-00432", plateNumber: "ABJ-432-ST", makeModel: "TVS Apache RTR 160", location: "Abeokuta Depot", type: "2W", auctionStatus: "Available", bids: 0, winningBid: null },
+      { id: "5", vehicleId: "VH-00401", plateNumber: "ABJ-401-UV", makeModel: "Yamaha Crux Rev", location: "Abeokuta Depot", type: "2W", auctionStatus: "Available", bids: 0, winningBid: null },
     ],
   },
   {
@@ -160,10 +153,10 @@ export const mockAuctionAllocations: AuctionAllocation[] = [
     uniqueBidders: 0,
     endsInSeconds: 0,
     vehicles: [
-      { id: "1", vehicleId: "VH-00321", plateNumber: "RIV-321-AB", makeModel: "Keke Napep 200", location: "Port Harcourt Depot", type: "3W", auctionStatus: "Available", bids: 0, winningBid: null },
-      { id: "2", vehicleId: "VH-00298", plateNumber: "RIV-298-CD", makeModel: "Honda CG 125", location: "Port Harcourt Depot", type: "2W", auctionStatus: "Available", bids: 0, winningBid: null },
-      { id: "3", vehicleId: "VH-00277", plateNumber: "RIV-277-EF", makeModel: "Bajaj Maxima C", location: "Port Harcourt Depot", type: "3W", auctionStatus: "Available", bids: 0, winningBid: null },
-      { id: "4", vehicleId: "VH-00254", plateNumber: "RIV-254-GH", makeModel: "TVS King 3W", location: "Port Harcourt Depot", type: "3W", auctionStatus: "Available", bids: 0, winningBid: null },
+      { id: "1", vehicleId: "VH-00321", plateNumber: "RIV-321-AB", makeModel: "Keke Napep 200", location: "Sango Ota Depot", type: "3W", auctionStatus: "Available", bids: 0, winningBid: null },
+      { id: "2", vehicleId: "VH-00298", plateNumber: "RIV-298-CD", makeModel: "Honda CG 125", location: "Sango Ota Depot", type: "2W", auctionStatus: "Available", bids: 0, winningBid: null },
+      { id: "3", vehicleId: "VH-00277", plateNumber: "RIV-277-EF", makeModel: "Bajaj Maxima C", location: "Sango Ota Depot", type: "3W", auctionStatus: "Available", bids: 0, winningBid: null },
+      { id: "4", vehicleId: "VH-00254", plateNumber: "RIV-254-GH", makeModel: "TVS King 3W", location: "Sango Ota Depot", type: "3W", auctionStatus: "Available", bids: 0, winningBid: null },
     ],
   },
   {
@@ -172,10 +165,10 @@ export const mockAuctionAllocations: AuctionAllocation[] = [
     uniqueBidders: 24,
     endsInSeconds: 0,
     vehicles: [
-      { id: "1", vehicleId: "VH-00188", plateNumber: "LND-188-RT", makeModel: "Honda CB125F", location: "Lagos Main Depot", type: "2W", auctionStatus: "Sold", bids: 11, winningBid: "₦240,000", leadingBidId: "BID-01120" },
-      { id: "2", vehicleId: "VH-00203", plateNumber: "LND-203-MN", makeModel: "Bajaj Boxer", location: "Lagos Main Depot", type: "2W", auctionStatus: "Sold", bids: 8, winningBid: "₦195,000", leadingBidId: "BID-00803" },
-      { id: "3", vehicleId: "VH-00167", plateNumber: "LND-167-WX", makeModel: "TVS King 3W", location: "Lagos Main Depot", type: "3W", auctionStatus: "Reserved", bids: 2, winningBid: "₦150,000", leadingBidId: "BID-00667" },
-      { id: "4", vehicleId: "VH-00210", plateNumber: "LND-210-ZA", makeModel: "Yamaha Crux Rev", location: "Lagos Main Depot", type: "2W", auctionStatus: "Sold", bids: 6, winningBid: "₦175,000", leadingBidId: "BID-00759" },
+      { id: "1", vehicleId: "VH-00188", plateNumber: "LND-188-RT", makeModel: "Honda CB125F", location: "Lagos Depot", type: "2W", auctionStatus: "Sold", bids: 11, winningBid: "₦240,000", leadingBidId: "BID-01120" },
+      { id: "2", vehicleId: "VH-00203", plateNumber: "LND-203-MN", makeModel: "Bajaj Boxer", location: "Lagos Depot", type: "2W", auctionStatus: "Sold", bids: 8, winningBid: "₦195,000", leadingBidId: "BID-00803" },
+      { id: "3", vehicleId: "VH-00167", plateNumber: "LND-167-WX", makeModel: "TVS King 3W", location: "Lagos Depot", type: "3W", auctionStatus: "Reserved", bids: 2, winningBid: "₦150,000", leadingBidId: "BID-00667" },
+      { id: "4", vehicleId: "VH-00210", plateNumber: "LND-210-ZA", makeModel: "Yamaha Crux Rev", location: "Lagos Depot", type: "2W", auctionStatus: "Sold", bids: 6, winningBid: "₦175,000", leadingBidId: "BID-00759" },
     ],
   },
 ]
@@ -222,21 +215,21 @@ export const mockAuctionClosedResults: AuctionClosedResult[] = [
     totalRevenue: "₦545K",
     fillRate: 75,
     allocatedVehicles: [
-      { id: "1", vehicleId: "VH-00421", plateNumber: "LND-421-HB", makeModel: "Honda CB125F", location: "Lagos Main", type: "2W", winner: "BID-00891", winningBid: "₦190,000", payment: "Paid", status: "Sold", action: "Checkout" },
-      { id: "2", vehicleId: "VH-00398", plateNumber: "LND-398-KA", makeModel: "Bajaj Maxima C", location: "Lagos Main", type: "3W", winner: "BID-00445", winningBid: "₦145,000", payment: "Awaiting", status: "Secured", action: "Reallocate" },
-      { id: "3", vehicleId: "VH-00289", plateNumber: "ABJ-289-FC", makeModel: "TVS Apache RTR", location: "Abuja Depot", type: "2W", winner: "BID-00612", winningBid: "₦210,000", payment: "Paid", status: "Sold", action: "Collected" },
+      { id: "1", vehicleId: "VH-00421", plateNumber: "LND-421-HB", makeModel: "Honda CB125F", location: "Lagos Depot", type: "2W", winner: "BID-00891", winningBid: "₦190,000", payment: "Paid", status: "Sold", action: "Checkout" },
+      { id: "2", vehicleId: "VH-00398", plateNumber: "LND-398-KA", makeModel: "Bajaj Maxima C", location: "Lagos Depot", type: "3W", winner: "BID-00445", winningBid: "₦145,000", payment: "Awaiting", status: "Secured", action: "Reallocate" },
+      { id: "3", vehicleId: "VH-00289", plateNumber: "ABJ-289-FC", makeModel: "TVS Apache RTR", location: "Abeokuta Depot", type: "2W", winner: "BID-00612", winningBid: "₦210,000", payment: "Paid", status: "Sold", action: "Collected" },
     ],
     unallocatedVehicles: [
-      { id: "1", vehicleId: "VH-00315", plateNumber: "LND-315-PQ", makeModel: "Yamaha Crux Rev", location: "Lagos Main", type: "2W", reason: "No bids placed" },
+      { id: "1", vehicleId: "VH-00315", plateNumber: "LND-315-PQ", makeModel: "Yamaha Crux Rev", location: "Lagos Depot", type: "2W", reason: "No bids placed" },
     ],
   },
 ]
 
 export const mockAuctionEvents = [
-  { id: "1", title: "Lagos Disposal Run #14", location: "Lagos Main Depot", startDate: "10 Jun 2026", endDate: "12 Jun 2026", vehicles: 24, minBid: "₦100,000", status: "Active" },
-  { id: "2", title: "Abuja Fleet Clear Q2", location: "Abuja Fleet Depot", startDate: "20 Jun 2026", endDate: "22 Jun 2026", vehicles: 18, minBid: "₦80,000", status: "Upcoming" },
-  { id: "3", title: "PH Cycle 3 Disposal", location: "Port Harcourt Depot", startDate: "25 Jun 2026", endDate: "27 Jun 2026", vehicles: 9, minBid: "₦60,000", status: "Upcoming" },
-  { id: "4", title: "Lagos Disposal Run #13", location: "Lagos Main Depot", startDate: "01 Jun 2026", endDate: "03 Jun 2026", vehicles: 31, minBid: "₦100,000", status: "Closed" },
+  { id: "1", title: "Lagos Disposal Run #14", location: "Lagos Depot", startDate: "10 Jun 2026", endDate: "12 Jun 2026", vehicles: 24, minBid: "₦100,000", status: "Active" },
+  { id: "2", title: "Abeokuta Fleet Clear Q2", location: "Abeokuta Depot", startDate: "20 Jun 2026", endDate: "22 Jun 2026", vehicles: 18, minBid: "₦80,000", status: "Upcoming" },
+  { id: "3", title: "Sango Ota Cycle 3 Disposal", location: "Sango Ota Depot", startDate: "25 Jun 2026", endDate: "27 Jun 2026", vehicles: 9, minBid: "₦60,000", status: "Upcoming" },
+  { id: "4", title: "Lagos Disposal Run #13", location: "Lagos Depot", startDate: "01 Jun 2026", endDate: "03 Jun 2026", vehicles: 31, minBid: "₦100,000", status: "Closed" },
 ] satisfies AuctionEvent[]
 
 export type AuctionVehicleStatusVariant =

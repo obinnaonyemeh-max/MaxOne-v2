@@ -261,3 +261,96 @@
     opacity: 0.7;
   }
 }
+
+/* Geofence hover tooltip — mirrors the app TooltipContent (bg-gray-950,
+   rounded-lg, shadow-md, text-white) since Leaflet can't host a radix tooltip. */
+.leaflet-tooltip.geofence-tooltip {
+  background: var(--color-gray-950);
+  color: #fff;
+  border: none;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  padding: 0.5rem 0.75rem;
+  white-space: nowrap;
+}
+.leaflet-tooltip.geofence-tooltip::before {
+  border-top-color: var(--color-gray-950);
+  border-bottom-color: var(--color-gray-950);
+}
+
+/* Compact dark-pill toast (Sonner + custom Toast) */
+@keyframes toast-slide-up {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 16px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+.max-toast {
+  --toast-dot: var(--color-success);
+  display: flex;
+  align-items: center;
+  width: max-content;
+  max-width: 100%;
+  padding: 10px 16px 10px 32px;
+  border: none;
+  border-radius: 12px;
+  background-color: #1e1e1e;
+  background-image: radial-gradient(circle, var(--toast-dot) 4px, transparent 4.5px);
+  background-repeat: no-repeat;
+  background-position: 16px center;
+  background-size: 8px 8px;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.18);
+  overflow-wrap: normal;
+}
+
+.max-toast[data-type="error"] {
+  --toast-dot: var(--color-danger);
+}
+
+.max-toast[data-type="warning"] {
+  --toast-dot: var(--color-warning);
+}
+
+.max-toast[data-type="info"] {
+  --toast-dot: var(--color-info);
+}
+
+.max-toast-icon,
+[data-sonner-toast] [data-icon] {
+  display: none;
+}
+
+.max-toast-content {
+  display: block;
+}
+
+.max-toast-title,
+.max-toast-description {
+  display: inline;
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.25rem;
+}
+
+.max-toast-description::before {
+  content: " ";
+}
+
+.max-toast-custom {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  z-index: 50;
+  transform: translateX(-50%);
+  animation: toast-slide-up 0.25s ease-out;
+}
+
+[data-sonner-toast] [data-close-button] {
+  display: none;
+}

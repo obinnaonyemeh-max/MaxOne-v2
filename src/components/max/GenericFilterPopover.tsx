@@ -101,8 +101,35 @@ export function GenericFilterPopover({
     onFiltersChange({ ...filters, [sectionId]: updated })
   }
 
+  const activeFilterCount = getActiveFilterCount(filters)
+
+  const clearFilters = () => {
+    const cleared: GenericFilterState = {}
+    Object.keys(filters).forEach((key) => {
+      cleared[key] = []
+    })
+    sections.forEach((section) => {
+      cleared[section.id] = []
+    })
+    onFiltersChange(cleared)
+  }
+
   return (
     <div className={cn("w-64 max-h-[calc(var(--radix-popover-content-available-height)-2rem)] overflow-y-auto p-1", className)}>
+      {activeFilterCount > 0 && (
+        <div className="flex items-center justify-between px-2 pt-1 pb-2 mb-1 border-b border-divider">
+          <span className="text-xs font-medium text-gray-500">
+            {activeFilterCount} selected
+          </span>
+          <button
+            type="button"
+            onClick={clearFilters}
+            className="text-sm font-medium text-gray-950 hover:underline"
+          >
+            Clear filter
+          </button>
+        </div>
+      )}
       {sections.map((section, index) => (
         <div key={section.id}>
           {index > 0 && <div className="h-px bg-divider mx-2 mb-2" />}

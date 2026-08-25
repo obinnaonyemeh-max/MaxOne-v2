@@ -1,4 +1,4 @@
-import { useEffect, type ReactNode } from "react"
+import { useEffect, useMemo, type CSSProperties, type ReactNode } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
 import { Toaster } from "sonner"
 import { PageLayout } from "./PageLayout"
@@ -11,11 +11,24 @@ import {
   portfolioSidebarSections,
   sidebarUser,
 } from "@/data/sidebarConfig"
+import { mockVehicles } from "@/data/mockVehicles"
 import { useRoleSimulation } from "@/contexts/RoleSimulationContext"
 import {
   getFallbackPathForDenied,
   isPathAllowedForMode,
 } from "@/data/rolePermissions"
+
+function withFleetRegisterCount(
+  sections: SidebarSection[],
+  count: number
+): SidebarSection[] {
+  return sections.map((section) => ({
+    ...section,
+    items: section.items.map((item) =>
+      item.id === "fleet-register" ? { ...item, badge: count } : item
+    ),
+  }))
+}
 
 function markActiveSections(sections: SidebarSection[], pathname: string): SidebarSection[] {
   return sections.map((section) => ({
@@ -66,8 +79,13 @@ interface AppLayoutProps {
 export function AppLayout({ children }: AppLayoutProps) {
   const navigate = useNavigate()
   const location = useLocation()
-  const { mode, isFullBuild, roleLabel, roleSidebarSections } = useRoleSimulation()
+  const { mode, isFullBuild, roleLabel, roleSidebarSections, filterByCity } =
+    useRoleSimulation()
   const selectedAppId = getAppIdFromPathname(location.pathname)
+  const fleetRegisterCount = useMemo(
+    () => mockVehicles.filter((vehicle) => filterByCity(vehicle.location)).length,
+    [filterByCity]
+  )
 
   useEffect(() => {
     if (isFullBuild) return
@@ -88,7 +106,10 @@ export function AppLayout({ children }: AppLayoutProps) {
             : sidebarSections
     : roleSidebarSections
 
-  const activeSections = markActiveSections(sections, location.pathname)
+  const activeSections = markActiveSections(
+    withFleetRegisterCount(sections, fleetRegisterCount),
+    location.pathname
+  )
 
   const displayUser = {
     ...sidebarUser,
@@ -110,7 +131,21 @@ export function AppLayout({ children }: AppLayoutProps) {
 
   return (
     <>
-      <Toaster position="top-right" richColors />
+      <Toaster
+        position="bottom-center"
+        closeButton={false}
+        style={{ "--width": "min(420px, calc(100vw - 32px))" } as CSSProperties}
+        toastOptions={{
+          unstyled: true,
+          classNames: {
+            toast: "max-toast",
+            title: "max-toast-title",
+            description: "max-toast-description",
+            icon: "max-toast-icon",
+            content: "max-toast-content",
+          },
+        }}
+      />
       <PageLayout
         sidebar={({ isCollapsed, onToggleCollapse }) => (
           <Sidebar

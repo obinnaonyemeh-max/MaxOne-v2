@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/popover"
 
 import { mockClosedAssets, type ClosedAssetRecord } from "@/data/mockClosedAssets"
+import { CITY_FILTER_OPTIONS } from "@/data/cities"
 
 const methodVariantMap: Record<string, "default" | "info"> = {
   "Disposed": "default",
@@ -43,11 +44,7 @@ const filterSections: FilterSection[] = [
   {
     id: "location",
     title: "Location",
-    options: [
-      { value: "Nairobi", label: "Nairobi" },
-      { value: "Mombasa", label: "Mombasa" },
-      { value: "Kisumu", label: "Kisumu" },
-    ],
+    options: CITY_FILTER_OPTIONS,
   },
 ]
 

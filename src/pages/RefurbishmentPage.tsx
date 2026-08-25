@@ -20,13 +20,6 @@ import { StatCard } from "@/components/max/StatCard"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import {
   Popover,
   PopoverContent,
   PopoverTrigger,
@@ -35,14 +28,16 @@ import {
 import {
   mockRefurbishmentRecords,
   mockRefurbishmentPartsMap,
+  mockRefurbishmentAdditionalPartsMap,
   type RefurbishmentRecord,
   type RequiredPart,
 } from "@/data/mockRefurbishment"
-import { useCan } from "@/contexts/RoleSimulationContext"
+import { CITY_HUB_OPTIONS } from "@/data/cities"
+import { useCityScopedRecords } from "@/contexts/RoleSimulationContext"
 
 const stageStats = [
-  { title: "Awaiting Supply", value: 3, subtitle: "avg 6d", indicatorColor: "var(--color-status-warning)" },
-  { title: "In Progress", value: 3, subtitle: "avg 4d", indicatorColor: "var(--color-status-info)" },
+  { title: "Awaiting Supply", value: 2, subtitle: "avg 6d", indicatorColor: "var(--color-status-warning)" },
+  { title: "In Progress", value: 4, subtitle: "avg 5d", indicatorColor: "var(--color-status-info)" },
   { title: "Quality Check", value: 2, subtitle: "avg 2d", indicatorColor: "var(--color-badge-active-text)" },
   { title: "Tracking IoT", value: 2, subtitle: "avg 2d", indicatorColor: "var(--color-status-cyan)" },
   { title: "Activation Ready", value: 2, subtitle: "avg 1d", indicatorColor: "var(--color-status-purple)" },
@@ -64,10 +59,7 @@ const filterSections: FilterSection[] = [
   {
     id: "location",
     title: "Location",
-    options: [
-      { value: "Lagos Hub", label: "Lagos Hub" },
-      { value: "Accra Hub", label: "Accra Hub" },
-    ],
+    options: CITY_HUB_OPTIONS,
   },
   {
     id: "manufacturer",
@@ -205,57 +197,41 @@ const columns: ColumnDef<RefurbishmentRecord>[] = [
   },
 ]
 
-const partStatusOptions = ["Ordered", "Awaiting Supply", "Received"]
-
-function getPartsColumns(
-  onStatusChange: (partId: string, status: string) => void,
-  canAdjust: boolean
-): ColumnDef<RequiredPart>[] {
-  return [
-    {
-      accessorKey: "partName",
-      header: "Part Name",
-      cell: ({ row }) => (
-        <span className="font-medium text-table-text" style={{ fontSize: "14px" }}>
-          {row.original.partName}
-        </span>
-      ),
-    },
-    {
-      accessorKey: "qty",
-      header: "Qty",
-      cell: ({ row }) => (
-        <span className="font-medium text-table-text" style={{ fontSize: "14px" }}>
-          {row.original.qty}
-        </span>
-      ),
-    },
-    {
-      accessorKey: "status",
-      header: "Status",
-      cell: ({ row }) =>
-        canAdjust ? (
-          <Select
-            value={row.original.status}
-            onValueChange={(val) => onStatusChange(row.original.id, val)}
-          >
-            <SelectTrigger className="h-9 w-40">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {partStatusOptions.map((s) => (
-                <SelectItem key={s} value={s}>{s}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        ) : (
-          <span className="font-medium text-table-text" style={{ fontSize: "14px" }}>
-            {row.original.status}
-          </span>
-        ),
-    },
-  ]
+const partStatusVariantMap: Record<string, "warning" | "info" | "success"> = {
+  Ordered: "info",
+  "Awaiting Supply": "warning",
+  Received: "success",
 }
+
+const partsColumns: ColumnDef<RequiredPart>[] = [
+  {
+    accessorKey: "partName",
+    header: "Part Name",
+    cell: ({ row }) => (
+      <span className="font-medium text-table-text" style={{ fontSize: "14px" }}>
+        {row.original.partName}
+      </span>
+    ),
+  },
+  {
+    accessorKey: "qty",
+    header: "Qty",
+    cell: ({ row }) => (
+      <span className="font-medium text-table-text" style={{ fontSize: "14px" }}>
+        {row.original.qty}
+      </span>
+    ),
+  },
+  {
+    accessorKey: "status",
+    header: "Status",
+    cell: ({ row }) => (
+      <StatusBadge variant={partStatusVariantMap[row.original.status] || "default"}>
+        {row.original.status}
+      </StatusBadge>
+    ),
+  },
+]
 
 function FormSection({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -277,55 +253,32 @@ export default function RefurbishmentPage() {
   const [filters, setFilters] = useState<GenericFilterState>(defaultFilters)
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedRecord, setSelectedRecord] = useState<RefurbishmentRecord | null>(null)
-  const [parts, setParts] = useState<RequiredPart[]>([])
-  const [newPartName, setNewPartName] = useState("")
-  const [newPartQty, setNewPartQty] = useState("1")
   const [searchOpen, setSearchOpen] = useState(false)
   const [breachFilter, setBreachFilter] = useState(false)
-  const canAdjustWorkOrder = useCan("refurbishment.adjustWorkOrder")
   const activeFilterCount = getActiveFilterCount(filters)
+  const scopedRecords = useCityScopedRecords(mockRefurbishmentRecords, "location")
+  const scopedStageStats = useMemo(
+    () =>
+      stageStats.map((stat) => ({
+        ...stat,
+        value: scopedRecords.filter((r) => r.refurbishmentStage === stat.title).length,
+      })),
+    [scopedRecords]
+  )
 
   const handleRowClick = (row: RefurbishmentRecord) => {
     setSelectedRecord(row)
-    setParts(mockRefurbishmentPartsMap[row.assetId] || [])
-    setNewPartName("")
-    setNewPartQty("1")
   }
 
-  const handlePartStatusChange = (partId: string, status: string) => {
-    setParts((prev) =>
-      prev.map((p) => (p.id === partId ? { ...p, status: status as RequiredPart["status"] } : p))
-    )
-  }
-
-  const handleAddPart = () => {
-    if (!newPartName.trim()) return
-    const newPart: RequiredPart = {
-      id: String(Date.now()),
-      partName: newPartName.trim(),
-      qty: parseInt(newPartQty) || 1,
-      status: "Awaiting Supply",
-    }
-    setParts((prev) => [...prev, newPart])
-    setNewPartName("")
-    setNewPartQty("1")
-  }
-
-  const partsColumns = getPartsColumns(handlePartStatusChange, canAdjustWorkOrder)
-  const allPartsReceived = parts.length > 0 && parts.every((p) => p.status === "Received")
-
-  const stageFlow: Record<string, { label: string; nextStage: string }> = {
-    "Awaiting Supply": { label: "Start Refurbishment", nextStage: "In Progress" },
-    "In Progress": { label: "Move to Quality Check", nextStage: "Quality Check" },
-    "Quality Check": { label: "Move to Tracking IoT", nextStage: "Tracking IoT" },
-    "Tracking IoT": { label: "Mark Activation Ready", nextStage: "Activation Ready" },
-    "Activation Ready": { label: "Complete Refurbishment", nextStage: "Completed" },
-  }
-
-  const currentStageAction = selectedRecord ? stageFlow[selectedRecord.refurbishmentStage] : null
+  const requiredParts = selectedRecord
+    ? mockRefurbishmentPartsMap[selectedRecord.assetId] || []
+    : []
+  const additionalParts = selectedRecord
+    ? mockRefurbishmentAdditionalPartsMap[selectedRecord.assetId] || []
+    : []
 
   const filteredRecords = useMemo(() => {
-    let result = mockRefurbishmentRecords
+    let result = scopedRecords
 
     if (breachFilter) {
       result = result.filter((r) => parseInt(r.daysInStage) >= 6)
@@ -357,7 +310,7 @@ export default function RefurbishmentPage() {
     }
 
     return result
-  }, [filters, searchQuery, breachFilter])
+  }, [filters, searchQuery, breachFilter, scopedRecords])
 
   return (
     <>
@@ -374,19 +327,19 @@ export default function RefurbishmentPage() {
         <div className="grid grid-cols-7 gap-2 shrink-0">
           <StatCard
             title="All"
-            value={mockRefurbishmentRecords.length}
+            value={scopedRecords.length}
             indicatorColor="var(--color-status-warning)"
             onClick={() => setBreachFilter(false)}
             className={!breachFilter ? "border-gray-950" : ""}
           />
           <StatCard
             title="Breach / SLA"
-            value={mockRefurbishmentRecords.filter((r) => parseInt(r.daysInStage) >= 6).length}
+            value={scopedRecords.filter((r) => parseInt(r.daysInStage) >= 6).length}
             indicatorColor="var(--color-danger)"
             onClick={() => setBreachFilter(!breachFilter)}
             className={breachFilter ? "border-danger" : ""}
           />
-          {stageStats.map((stat) => (
+          {scopedStageStats.map((stat) => (
             <StatCard
               key={stat.title}
               title={stat.title}
@@ -481,17 +434,8 @@ export default function RefurbishmentPage() {
         subtitle={selectedRecord ? `${selectedRecord.plateNumber} • ${selectedRecord.vehicleModel} • ${selectedRecord.manufacturer}` : ""}
         maxHeight="85vh"
         className="max-w-lg"
-        primaryAction={
-          canAdjustWorkOrder && selectedRecord?.refurbishmentStage !== "Activation Ready"
-            ? {
-                label: currentStageAction?.label || "Start Refurbishment",
-                onClick: () => setSelectedRecord(null),
-                disabled: selectedRecord?.refurbishmentStage === "Awaiting Supply" && !allPartsReceived,
-              }
-            : undefined
-        }
         secondaryAction={{
-          label: canAdjustWorkOrder ? "Cancel" : "Close",
+          label: "Close",
           onClick: () => setSelectedRecord(null),
         }}
       >
@@ -519,46 +463,31 @@ export default function RefurbishmentPage() {
 
             <FormSection title="Required Parts">
               <div className="rounded-lg border border-table-border pt-2">
-                <DataTable columns={partsColumns} data={parts} emptyMessage="No parts added yet." />
+                <DataTable
+                  columns={partsColumns}
+                  data={requiredParts}
+                  emptyMessage="No required parts."
+                />
               </div>
             </FormSection>
 
-            {canAdjustWorkOrder && selectedRecord.refurbishmentStage === "Awaiting Supply" && (
-              <p className="text-left text-sm text-muted-foreground">
-                <span className="text-danger">*</span> All parts must be marked as Received before starting.
-              </p>
-            )}
-
-            {canAdjustWorkOrder && (
-              <FormSection title="Add New Part">
-                <div className="flex items-end gap-2">
-                  <div className="flex-1 flex flex-col gap-2">
-                    <label className="text-gray-400 font-medium" style={{ fontSize: "13px" }}>Part Name</label>
-                    <Input
-                      type="text"
-                      placeholder="e.g. Battery Pack"
-                      value={newPartName}
-                      onChange={(e) => setNewPartName(e.target.value)}
-                      className="h-12 bg-gray-50"
-                      onKeyDown={(e) => e.key === "Enter" && handleAddPart()}
-                    />
-                  </div>
-                  <div className="flex flex-col gap-2">
-                    <label className="text-gray-400 font-medium" style={{ fontSize: "13px" }}>Qty</label>
-                    <Input
-                      type="number"
-                      min="1"
-                      value={newPartQty}
-                      onChange={(e) => setNewPartQty(e.target.value)}
-                      className="h-12 w-16 bg-gray-50"
-                    />
-                  </div>
-                  <Button variant="outline" className="h-12" onClick={handleAddPart}>
-                    Add
-                  </Button>
+            {additionalParts.length > 0 && (
+              <FormSection title="Additional Parts">
+                <div className="rounded-lg border border-table-border pt-2">
+                  <DataTable columns={partsColumns} data={additionalParts} />
                 </div>
               </FormSection>
             )}
+
+            {selectedRecord.refurbishmentStage === "Awaiting Supply" ? (
+              <p className="text-left text-sm text-muted-foreground">
+                Refurbishment starts automatically once all required parts are received.
+              </p>
+            ) : selectedRecord.refurbishmentStage !== "Activation Ready" ? (
+              <p className="text-left text-sm text-muted-foreground">
+                This stage updates automatically when the technician marks the work order complete on the mobile app.
+              </p>
+            ) : null}
           </div>
         )}
       </Modal>

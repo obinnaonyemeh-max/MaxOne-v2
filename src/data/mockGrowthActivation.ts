@@ -43,11 +43,13 @@ export const growthTrendData = [
 ]
 
 export const growthLocationData = [
-  { name: "Riyadh", value: 245 },
-  { name: "Jeddah", value: 198 },
-  { name: "Dubai", value: 142 },
-  { name: "Cairo", value: 105 },
-  { name: "Dammam", value: 72 },
+  { name: "Lagos", value: 245 },
+  { name: "Sagamu", value: 198 },
+  { name: "Ibadan", value: 142 },
+  { name: "Abeokuta", value: 105 },
+  { name: "Sango Ota", value: 72 },
+  { name: "Osogbo", value: 88 },
+  { name: "Akure", value: 61 },
 ]
 
 export const mockGrowthActivationRecords = [
@@ -58,7 +60,7 @@ export const mockGrowthActivationRecords = [
     customerName: "Mohammed Ali",
     channel: "Retail",
     officer: "Ahmed Al-Rashid",
-    location: "Riyadh",
+    location: "Lagos",
     activationTime: "2026-03-10 09:15",
   },
   {
@@ -68,7 +70,7 @@ export const mockGrowthActivationRecords = [
     customerName: "Khalid Enterprises",
     channel: "Enterprise",
     officer: "Sarah Khan",
-    location: "Jeddah",
+    location: "Sagamu",
     activationTime: "2026-03-10 10:30",
   },
   {
@@ -78,7 +80,7 @@ export const mockGrowthActivationRecords = [
     customerName: "Fleet Corp MCP",
     channel: "MCP",
     officer: "Omar Hassan",
-    location: "Dubai",
+    location: "Ibadan",
     activationTime: "2026-03-10 11:00",
   },
   {
@@ -88,7 +90,7 @@ export const mockGrowthActivationRecords = [
     customerName: "Nadia Saleh",
     channel: "Retail",
     officer: "Fatima Noor",
-    location: "Cairo",
+    location: "Abeokuta",
     activationTime: "2026-03-10 12:45",
   },
   {
@@ -98,7 +100,7 @@ export const mockGrowthActivationRecords = [
     customerName: "Hassan Trading Co",
     channel: "Enterprise",
     officer: "Ahmed Al-Rashid",
-    location: "Riyadh",
+    location: "Lagos",
     activationTime: "2026-03-10 13:20",
   },
   {
@@ -108,7 +110,7 @@ export const mockGrowthActivationRecords = [
     customerName: "Ali Transport",
     channel: "MCP",
     officer: "Yusuf Bakr",
-    location: "Dammam",
+    location: "Sango Ota",
     activationTime: "2026-03-10 14:00",
   },
   {
@@ -118,7 +120,7 @@ export const mockGrowthActivationRecords = [
     customerName: "Fahad Motors",
     channel: "Outright Sale",
     officer: "Sarah Khan",
-    location: "Jeddah",
+    location: "Sagamu",
     activationTime: "2026-03-10 14:30",
   },
   {
@@ -128,7 +130,7 @@ export const mockGrowthActivationRecords = [
     customerName: "Layla Ibrahim",
     channel: "Retail",
     officer: "Omar Hassan",
-    location: "Dubai",
+    location: "Ibadan",
     activationTime: "2026-03-10 15:10",
   },
 ] satisfies GrowthActivationRecord[]

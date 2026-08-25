@@ -1,21 +1,20 @@
-export type KitStatus = "Assigned" | "Reassigned" | "Created"
+export type KitStatus = "Assigned" | "New"
 
 export interface KitReport {
   id: string
   vehicleType: string
   model: string
   status: KitStatus
-  client: string | null
+  reassigned: boolean
+  champion: string | null
   plateNumber: string | null
   location: string
   assignmentDate: string | null
-  lastUpdated: string
 }
 
-export const kitStatusVariantMap: Record<KitStatus, "success" | "info" | "default"> = {
+export const kitStatusVariantMap: Record<KitStatus, "success" | "default"> = {
   Assigned: "success",
-  Reassigned: "info",
-  Created: "default",
+  New: "default",
 }
 
 export const mockKitReports: KitReport[] = [
@@ -24,76 +23,76 @@ export const mockKitReports: KitReport[] = [
     vehicleType: "E-tricycle Conversion Kit",
     model: "Conversion Kit",
     status: "Assigned",
-    client: "Opeyemi Orekoya",
+    reassigned: false,
+    champion: "Opeyemi Orekoya",
     plateNumber: "KJA-119-XL",
     location: "Lagos",
     assignmentDate: "12 Jun 2026",
-    lastUpdated: "18 Jul 2026",
   },
   {
     id: "KIT-30012",
     vehicleType: "E-tricycle Conversion Kit",
     model: "Conversion Kit",
-    status: "Reassigned",
-    client: "Amina Yusuf",
+    status: "Assigned",
+    reassigned: true,
+    champion: "Amina Yusuf",
     plateNumber: "OGN-115-CT",
     location: "Lagos",
     assignmentDate: "03 Jul 2026",
-    lastUpdated: "20 Jul 2026",
   },
   {
     id: "KIT-30013",
     vehicleType: "E-tricycle Conversion Kit",
     model: "Conversion Kit",
     status: "Assigned",
-    client: "Chidinma Eze",
+    reassigned: false,
+    champion: "Chidinma Eze",
     plateNumber: "ABJ-772-KD",
     location: "Lagos",
     assignmentDate: "15 Jul 2026",
-    lastUpdated: "15 Jul 2026",
   },
   {
     id: "KIT-30014",
     vehicleType: "E-tricycle Conversion Kit",
     model: "Conversion Kit",
-    status: "Created",
-    client: null,
+    status: "New",
+    reassigned: false,
+    champion: null,
     plateNumber: null,
     location: "Lagos",
     assignmentDate: null,
-    lastUpdated: "10 Jul 2026",
   },
   {
     id: "KIT-30015",
     vehicleType: "E-tricycle Conversion Kit",
     model: "Conversion Kit",
-    status: "Created",
-    client: null,
+    status: "New",
+    reassigned: false,
+    champion: null,
     plateNumber: null,
     location: "Lagos",
     assignmentDate: null,
-    lastUpdated: "08 Jul 2026",
   },
   {
     id: "KIT-30016",
     vehicleType: "E-tricycle Conversion Kit",
     model: "Conversion Kit",
     status: "Assigned",
-    client: "Emeka Obi",
+    reassigned: false,
+    champion: "Emeka Obi",
     plateNumber: "LND-889-RS",
     location: "Lagos",
     assignmentDate: "22 Jun 2026",
-    lastUpdated: "22 Jun 2026",
   },
   {
     id: "KIT-30017",
     vehicleType: "E-tricycle Conversion Kit",
     model: "Conversion Kit",
-    status: "Reassigned",
-    client: "Tunde Bakare",
+    status: "Assigned",
+    reassigned: true,
+    champion: "Tunde Bakare",
     plateNumber: "LND-330-QZ",
-    location: "Lagos",
+    location: "Ibadan",
     assignmentDate: "01 Jul 2026",
-    lastUpdated: "19 Jul 2026",
   },
 ]

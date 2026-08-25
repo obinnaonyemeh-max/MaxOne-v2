@@ -4,6 +4,8 @@ import { TimelineEntry, type TimelineEntryData } from "./TimelineEntry"
 interface StatusTimelineProps {
   entries: TimelineEntryData[]
   className?: string
+  /** Width class for the date column (default "w-28"). Widen to keep long timestamps on one line. */
+  dateColumnClassName?: string
 }
 
 const variantToColor: Record<string, string> = {
@@ -14,7 +16,7 @@ const variantToColor: Record<string, string> = {
   default: "bg-gray-400",
 }
 
-export function StatusTimeline({ entries, className }: StatusTimelineProps) {
+export function StatusTimeline({ entries, className, dateColumnClassName = "w-28" }: StatusTimelineProps) {
   const groupedEntries = entries.reduce<Record<string, TimelineEntryData[]>>(
     (acc, entry) => {
       if (!acc[entry.date]) {
@@ -47,7 +49,7 @@ export function StatusTimeline({ entries, className }: StatusTimelineProps) {
               return (
                 <div key={entry.id} className="flex">
                   {/* Date Column */}
-                  <div className="w-28 shrink-0">
+                  <div className={cn("shrink-0", dateColumnClassName)}>
                     {isFirstInDate && (
                       <span className="text-sm font-medium text-sidebar-item-active">
                         {date}

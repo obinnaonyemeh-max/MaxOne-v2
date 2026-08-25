@@ -31,6 +31,8 @@ import {
   type ServiceRecord,
   type RequiredPart,
 } from "@/data/mockServiceSchedule"
+import { CITY_HUB_OPTIONS } from "@/data/cities"
+import { useCityScopedRecords } from "@/contexts/RoleSimulationContext"
 
 const stageStats = [
   { title: "Awaiting Supply", value: 3, subtitle: "avg 5d", indicatorColor: "var(--color-status-warning)" },
@@ -56,10 +58,7 @@ const filterSections: FilterSection[] = [
   {
     id: "location",
     title: "Location",
-    options: [
-      { value: "Lagos Hub", label: "Lagos Hub" },
-      { value: "Accra Hub", label: "Accra Hub" },
-    ],
+    options: CITY_HUB_OPTIONS,
   },
   {
     id: "model",
@@ -298,6 +297,15 @@ export default function ServiceSchedulePage() {
   const [searchOpen, setSearchOpen] = useState(false)
   const [breachFilter, setBreachFilter] = useState(false)
   const activeFilterCount = getActiveFilterCount(filters)
+  const scopedRecords = useCityScopedRecords(mockServiceRecords, "location")
+  const scopedStageStats = useMemo(
+    () =>
+      stageStats.map((stat) => ({
+        ...stat,
+        value: scopedRecords.filter((r) => r.stage === stat.title).length,
+      })),
+    [scopedRecords]
+  )
 
   const handleRowClick = (row: ServiceRecord) => {
     setSelectedRecord(row)
@@ -305,7 +313,7 @@ export default function ServiceSchedulePage() {
   }
 
   const filteredRecords = useMemo(() => {
-    let result = mockServiceRecords
+    let result = scopedRecords
 
     if (breachFilter) {
       result = result.filter((r) => parseInt(r.days) >= 6)
@@ -340,7 +348,7 @@ export default function ServiceSchedulePage() {
     }
 
     return result
-  }, [filters, searchQuery, breachFilter])
+  }, [filters, searchQuery, breachFilter, scopedRecords])
 
   return (
     <>
@@ -357,19 +365,19 @@ export default function ServiceSchedulePage() {
         <div className="grid grid-cols-7 gap-2 shrink-0">
           <StatCard
             title="All"
-            value={mockServiceRecords.length}
+            value={scopedRecords.length}
             indicatorColor="var(--color-status-warning)"
             onClick={() => setBreachFilter(false)}
             className={!breachFilter ? "border-gray-950" : ""}
           />
           <StatCard
             title="Breach / SLA"
-            value={mockServiceRecords.filter((r) => r.sla === "Breached").length}
+            value={scopedRecords.filter((r) => r.sla === "Breached").length}
             indicatorColor="var(--color-danger)"
             onClick={() => setBreachFilter(!breachFilter)}
             className={breachFilter ? "border-danger" : ""}
           />
-          {stageStats.map((stat) => (
+          {scopedStageStats.map((stat) => (
             <StatCard
               key={stat.title}
               title={stat.title}

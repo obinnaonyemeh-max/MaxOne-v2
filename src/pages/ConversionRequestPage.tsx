@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/popover"
 
 import { mockConversionRecords, type ConversionRecord } from "@/data/mockConversion"
+import { useCityScopedRecords } from "@/contexts/RoleSimulationContext"
 
 const statusVariantMap: Record<string, "warning" | "success" | "danger" | "default"> = {
   "Pending": "warning",
@@ -131,13 +132,14 @@ export default function ConversionRequestPage() {
   const [selectedRecord, setSelectedRecord] = useState<ConversionRecord | null>(null)
   const [searchOpen, setSearchOpen] = useState(false)
   const activeFilterCount = getActiveFilterCount(filters)
+  const scopedRecords = useCityScopedRecords(mockConversionRecords, "location")
 
   const handleRowClick = (row: ConversionRecord) => {
     setSelectedRecord(row)
   }
 
   const filteredRecords = useMemo(() => {
-    let result = mockConversionRecords
+    let result = scopedRecords
 
     if (filters.status?.length) {
       result = result.filter((r) => filters.status!.includes(r.status))
@@ -154,11 +156,11 @@ export default function ConversionRequestPage() {
     }
 
     return result
-  }, [filters, searchQuery])
+  }, [filters, searchQuery, scopedRecords])
 
-  const pendingCount = mockConversionRecords.filter((r) => r.status === "Pending").length
-  const approvedCount = mockConversionRecords.filter((r) => r.status === "Approved").length
-  const rejectedCount = mockConversionRecords.filter((r) => r.status === "Rejected").length
+  const pendingCount = scopedRecords.filter((r) => r.status === "Pending").length
+  const approvedCount = scopedRecords.filter((r) => r.status === "Approved").length
+  const rejectedCount = scopedRecords.filter((r) => r.status === "Rejected").length
 
   return (
     <>
@@ -175,7 +177,7 @@ export default function ConversionRequestPage() {
         <div className="grid grid-cols-4 gap-2 shrink-0">
           <StatCard
             title="Total Requests"
-            value={mockConversionRecords.length}
+            value={scopedRecords.length}
             indicatorColor="var(--color-gray-400)"
           />
           <StatCard

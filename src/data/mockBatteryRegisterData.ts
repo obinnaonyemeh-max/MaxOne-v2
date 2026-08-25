@@ -1,3 +1,5 @@
+import { findStationBatteryById, getStationById, type StationBattery } from "./mockStationsData"
+
 export type BatteryStatus = "riding" | "in-transit" | "idle" | "checked-in" | "retired" | "unknown"
 
 export interface BatteryAlert {
@@ -332,7 +334,53 @@ export const mockBatteryRegisterItems: BatteryRegisterItem[] = [
 export const totalBatteries = batteryStatusCounts.reduce((sum, item) => sum + item.count, 0)
 
 export function getBatteryById(id: string): BatteryRegisterItem | undefined {
-  return mockBatteryRegisterItems.find((battery) => battery.id === id)
+  const fromRegister = mockBatteryRegisterItems.find((battery) => battery.id === id)
+  if (fromRegister) return fromRegister
+
+  const stationBattery = findStationBatteryById(id)
+  if (!stationBattery) return undefined
+  return mapStationBatteryToRegisterItem(stationBattery)
+}
+
+function mapStationBatteryToRegisterItem(battery: StationBattery): BatteryRegisterItem {
+  const station = getStationById(battery.stationId)
+  const location = station?.coordinates ?? { lat: 0, lng: 0 }
+
+  return {
+    id: battery.id,
+    status: "checked-in",
+    lastUpdate: "Checked in at station",
+    stateOfCharge: battery.stateOfCharge,
+    stateOfHealth: 80,
+    distanceLeft: 0,
+    voltage: 0,
+    current: 0,
+    temperature: 0,
+    location,
+    lastSeen: station
+      ? `Lat ${location.lat.toFixed(6)}, Long ${location.lng.toFixed(6)}`
+      : "Unknown",
+    lastPinged: "Checked in at station",
+    sohHistory: [],
+    alerts: [],
+    cellVoltages: [],
+    cycleCount: 0,
+    isCharging: battery.isCharging,
+    isPluggedIn: battery.isPluggedIn,
+    simNumber: "—",
+    assignmentStatus: "unassigned",
+    assignedTo: null,
+    batteryModel: battery.provider,
+    lastReportedTime: "—",
+    lastSwapTime: "—",
+    uniqueId: battery.id,
+    imeiNumber: "—",
+    capacity: 0,
+    owner: battery.provider,
+    currentStation: station?.name ?? "Unknown",
+    bmsNumber: "—",
+    registrationDate: "—",
+  }
 }
 
 // Alert History types and mock data

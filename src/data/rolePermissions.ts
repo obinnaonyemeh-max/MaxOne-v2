@@ -1,10 +1,12 @@
 import type { SidebarItem, SidebarSection } from "@/components/max"
+import type { CityId } from "@/data/cityScope"
 
-export type SimulationMode = "full-build" | "global-fleet-manager"
+export type SimulationMode = "full-build" | "global-fleet-manager" | "city-fleet-officer"
 
 export type PermissionKey =
   | "fleetRegister.addVehicles"
   | "fleetRegister.bulkUpdate"
+  | "fleetRegister.editVehicle"
   | "fleetRegister.column.contractRisk"
   | "fleetRegister.column.collectionPercent"
   | "inbound.batches.create"
@@ -18,8 +20,12 @@ export type PermissionKey =
   | "activationReadiness.bulkUpload"
   | "vehicleDocument.upload"
   | "vehicleDocument.replace"
-  | "refurbishment.adjustWorkOrder"
   | "kit.reassignment"
+
+export interface RoleDataScope {
+  type: "city"
+  city: CityId
+}
 
 export interface RoleDefinition {
   id: Exclude<SimulationMode, "full-build">
@@ -28,12 +34,15 @@ export interface RoleDefinition {
   navItemIds: string[]
   /** Permissions granted to this role. Full Build grants all. */
   permissions: PermissionKey[]
+  /** Optional geographic / org scope for list and dashboard data. */
+  dataScope?: RoleDataScope
 }
 
 /** All permission keys — used by Full Build. */
 export const ALL_PERMISSIONS: PermissionKey[] = [
   "fleetRegister.addVehicles",
   "fleetRegister.bulkUpdate",
+  "fleetRegister.editVehicle",
   "fleetRegister.column.contractRisk",
   "fleetRegister.column.collectionPercent",
   "inbound.batches.create",
@@ -47,7 +56,6 @@ export const ALL_PERMISSIONS: PermissionKey[] = [
   "activationReadiness.bulkUpload",
   "vehicleDocument.upload",
   "vehicleDocument.replace",
-  "refurbishment.adjustWorkOrder",
   "kit.reassignment",
 ]
 
@@ -74,16 +82,31 @@ export const GLOBAL_FLEET_MANAGER: RoleDefinition = {
     "asset-reassignment-kit",
   ],
   permissions: [
-    // Fleet Register: view columns except contract risk / collection %; no add/bulk
-    // Vehicle details: all actions allowed (no keys denied)
+    // Fleet Register: view columns except contract risk / collection %; no add/bulk/edit
+    // Vehicle details: no edit vehicle info
     // Asset Movement: everything
     // Inbound batches: view only for create/identifier/csv/docs/stage move
     // Stock setup: view tabs, no add/edit
     // Activation readiness: no update / bulk upload
     // Vehicle document: no upload / replace
-    // Refurbishment: no work-order adjustments
     // Service schedule / disposal modules: everything (no denied keys)
     // Kit: no reassignment action
+  ],
+}
+
+const FLEET_OPS_NAV_ITEM_IDS = GLOBAL_FLEET_MANAGER.navItemIds
+
+export const CITY_FLEET_OFFICER: RoleDefinition = {
+  id: "city-fleet-officer",
+  label: "City Fleet Officer",
+  navItemIds: FLEET_OPS_NAV_ITEM_IDS,
+  dataScope: { type: "city", city: "Lagos" },
+  permissions: [
+    "activationReadiness.update",
+    "activationReadiness.bulkUpload",
+    "vehicleDocument.upload",
+    "vehicleDocument.replace",
+    "kit.reassignment",
   ],
 }
 
@@ -92,11 +115,13 @@ export const SIMULATION_OPTIONS: {
   label: string
 }[] = [
   { mode: "global-fleet-manager", label: "Global Fleet Manager" },
+  { mode: "city-fleet-officer", label: "City Fleet Officer" },
   { mode: "full-build", label: "Full Build" },
 ]
 
 export function getRoleDefinition(mode: SimulationMode): RoleDefinition | null {
   if (mode === "global-fleet-manager") return GLOBAL_FLEET_MANAGER
+  if (mode === "city-fleet-officer") return CITY_FLEET_OFFICER
   return null
 }
 

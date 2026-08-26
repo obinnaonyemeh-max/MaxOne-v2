@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { Check } from "lucide-react"
 
+import { Banner } from "./Banner"
 import { Modal } from "./Modal"
 import {
   Select,
@@ -24,6 +25,8 @@ export interface ReassignChampionsModalProps {
   fromLabel?: string
   /** Agent to leave out of the list, usually the current owner. */
   excludeAgentId?: string
+  /** Where the champions sit today. Picking an agent elsewhere raises a warning. */
+  fromLocation?: string
   onConfirm: (agentIds: string[], reason: string) => void
 }
 
@@ -33,6 +36,7 @@ export function ReassignChampionsModal({
   championCount,
   fromLabel,
   excludeAgentId,
+  fromLocation,
   onConfirm,
 }: ReassignChampionsModalProps) {
   const [targetAgentIds, setTargetAgentIds] = useState<string[]>([])
@@ -62,6 +66,16 @@ export function ReassignChampionsModal({
 
   const plural = championCount === 1 ? "" : "s"
 
+  // Champions are normally served by an agent in their own city, so flag any
+  // selection that would move them out of it.
+  const outOfLocation = fromLocation
+    ? agents.filter(
+        (agent) => targetAgentIds.includes(agent.id) && agent.state !== fromLocation
+      )
+    : []
+
+  const outOfLocationCities = [...new Set(outOfLocation.map((agent) => agent.state))]
+
   return (
     <Modal
       open={open}
@@ -84,6 +98,35 @@ export function ReassignChampionsModal({
       }}
     >
       <div className="flex flex-col gap-3">
+        {outOfLocation.length > 0 && (
+          <Banner
+            variant="warning"
+            title={
+              outOfLocation.length === 1
+                ? "Selected agent is in a different location"
+                : "Selected agents are in different locations"
+            }
+            description={
+              <>
+                You're about to move {championCount} champion{plural} to{" "}
+                {outOfLocation.length === 1 ? (
+                  <>
+                    <span className="font-medium">{outOfLocation[0].agent}</span> in{" "}
+                    <span className="font-medium">{outOfLocation[0].state}</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="font-medium">{outOfLocation.length} agents</span> in{" "}
+                    <span className="font-medium">{outOfLocationCities.join(", ")}</span>
+                  </>
+                )}
+                , outside their current agent's location of{" "}
+                <span className="font-medium">{fromLocation}</span>.
+              </>
+            }
+          />
+        )}
+
         {/* Reason */}
         <div className="flex flex-col gap-1.5">
           <label className="text-sm font-medium text-table-text-primary">Reason</label>
@@ -145,7 +188,7 @@ export function ReassignChampionsModal({
                       {agent.agent}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {agent.department} &middot; {agent.total} champions
+                      {agent.state} &middot; {agent.total} champions
                     </p>
                   </div>
                   <span

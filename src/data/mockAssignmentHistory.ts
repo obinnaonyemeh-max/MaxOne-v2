@@ -6,7 +6,18 @@ import {
 
 export type AssignmentChangeType = "Assigned" | "Bulk Reassignment"
 
-export type ChangedBy = "Admin" | "System"
+/** Either "System" for automated changes, or the name of the operator. */
+export type ChangedBy = string
+
+/** Operators who action bulk reassignments. */
+const ADMIN_USERS = [
+  "Desmond Nsogbuwa",
+  "Samson Oluwaseun",
+  "Adaeze Umeh",
+  "Ibrahim Musa",
+]
+
+export const SYSTEM_ACTOR = "System"
 
 export interface AssignmentHistoryRecord {
   id: string
@@ -26,7 +37,6 @@ export const assignmentChangeTypes: AssignmentChangeType[] = [
   "Bulk Reassignment",
 ]
 
-export const changedByOptions: ChangedBy[] = ["Admin", "System"]
 
 export const changeTypeVariantMap: Record<AssignmentChangeType, "info" | "neutral"> = {
   "Assigned":          "info",
@@ -66,7 +76,9 @@ function buildHistory(): AssignmentHistoryRecord[] {
     // onboarding pipeline, which is why they read as System.
     const isBulk = index % 5 < 2
     const changeType: AssignmentChangeType = isBulk ? "Bulk Reassignment" : "Assigned"
-    const changedBy: ChangedBy = isBulk ? "Admin" : "System"
+    const changedBy: ChangedBy = isBulk
+      ? ADMIN_USERS[Math.floor(seededRandom(seed + 29) * ADMIN_USERS.length)]
+      : SYSTEM_ACTOR
 
     const newAgent = agents[Math.floor(seededRandom(seed) * agents.length)]
     let previousAgent = "—"
@@ -92,3 +104,12 @@ function buildHistory(): AssignmentHistoryRecord[] {
 }
 
 export const mockAssignmentHistory: AssignmentHistoryRecord[] = buildHistory()
+
+/** Filter options: the operators that actually appear, plus System. */
+export const changedByOptions: ChangedBy[] = [
+  ...new Set(mockAssignmentHistory.map((record) => record.changedBy)),
+].sort((a, b) => {
+  if (a === SYSTEM_ACTOR) return -1
+  if (b === SYSTEM_ACTOR) return 1
+  return a.localeCompare(b)
+})

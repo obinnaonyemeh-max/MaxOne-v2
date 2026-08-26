@@ -253,7 +253,7 @@ export default function AgentDetailPage() {
         <TopBar
           breadcrumbs={[
             { label: "Driver Experience" },
-            { label: "Agents Management" },
+            { label: "Agent Management" },
             { label: "Agent Portfolio", href: "/driver-experience/agents/portfolio" },
             { label: "Not found" },
           ]}
@@ -282,7 +282,7 @@ export default function AgentDetailPage() {
       <TopBar
         breadcrumbs={[
           { label: "Driver Experience" },
-          { label: "Agents Management" },
+          { label: "Agent Management" },
           { label: "Agent Portfolio", href: "/driver-experience/agents/portfolio" },
           { label: agent.agent },
         ]}
@@ -421,6 +421,7 @@ export default function AgentDetailPage() {
         championCount={selectedIds.length}
         fromLabel={agent.agent}
         excludeAgentId={agent.id}
+        fromLocation={agent.state}
         onConfirm={handleReassign}
       />
 

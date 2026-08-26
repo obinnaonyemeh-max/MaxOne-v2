@@ -33,13 +33,12 @@ const COLOR_GRAY_500 = "var(--color-gray-500)"
 
 const filterSections: FilterSection[] = [
   {
-    id: "department",
-    title: "Department",
+    id: "location",
+    title: "Location",
     defaultExpanded: true,
-    options: [
-      { value: "Welfare",    label: "Welfare" },
-      { value: "Operations", label: "Operations" },
-    ],
+    options: [...new Set(mockAgentPortfolioRecords.map((a) => a.state))]
+      .sort()
+      .map((state) => ({ value: state, label: state })),
   },
   {
     id: "status",
@@ -53,7 +52,7 @@ const filterSections: FilterSection[] = [
 ]
 
 const defaultFilters: GenericFilterState = {
-  department: [],
+  location: [],
   status: [],
 }
 
@@ -62,17 +61,22 @@ const columns: ColumnDef<AgentPortfolioRecord>[] = [
     accessorKey: "agent",
     header: "Agent",
     cell: ({ row }) => (
-      <span className="font-medium text-table-text-primary" style={{ fontSize: "14px" }}>
-        {row.original.agent}
-      </span>
+      <div className="flex items-center gap-3">
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gray-100 text-sm font-medium text-table-text-primary">
+          {row.original.agent.charAt(0)}
+        </span>
+        <span className="font-medium text-table-text-primary" style={{ fontSize: "14px" }}>
+          {row.original.agent}
+        </span>
+      </div>
     ),
   },
   {
-    accessorKey: "department",
-    header: "Department",
+    accessorKey: "state",
+    header: "Location",
     cell: ({ row }) => (
       <span className="font-medium text-table-text" style={{ fontSize: "14px" }}>
-        {row.original.department}
+        {row.original.state}
       </span>
     ),
   },
@@ -134,12 +138,13 @@ export default function AgentPortfolioPage() {
 
   const filteredRecords = useMemo(() =>
     mockAgentPortfolioRecords.filter((record) => {
-      if (filters.department.length > 0 && !filters.department.includes(record.department)) return false
+      if (filters.location.length > 0 && !filters.location.includes(record.state)) return false
       if (filters.status.length > 0 && !filters.status.includes(record.status)) return false
       if (searchQuery) {
         const q = searchQuery.toLowerCase()
         if (
           !record.agent.toLowerCase().includes(q) &&
+          !record.state.toLowerCase().includes(q) &&
           !record.department.toLowerCase().includes(q)
         ) return false
       }
@@ -158,7 +163,7 @@ export default function AgentPortfolioPage() {
       <TopBar
         breadcrumbs={[
           { label: "Driver Experience" },
-          { label: "Agents Management" },
+          { label: "Agent Management" },
           { label: "Agent Portfolio" },
         ]}
       />
@@ -198,7 +203,7 @@ export default function AgentPortfolioPage() {
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search agent or department..."
+                  placeholder="Search agent, location or department..."
                   className="h-9 w-56"
                   autoFocus
                   onKeyDown={(e) => {

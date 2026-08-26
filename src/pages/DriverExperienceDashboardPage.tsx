@@ -6,12 +6,27 @@ import {
 import { StatCard } from "@/components/max/StatCard"
 import { DistributionChart } from "@/components/max/DistributionChart"
 import { HorizontalBarChart, type BarChartSeries } from "@/components/max/HorizontalBarChart"
+import { Badge } from "@/components/ui/badge"
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from "@/components/ui/table"
 
 import { mockTicketRecords } from "@/data/mockTicketRecords"
 import { mockDriverRiskRecords } from "@/data/mockDriverSafety"
 import { mockMarkedTransfers } from "@/data/mockMarkedTransfers"
 import { mockTimeOffApprovals } from "@/data/mockTimeOffApprovals"
 import { mockChampionDetails } from "@/data/mockChampionDetails"
+import {
+  ticketPerformanceMetrics,
+  resolverPerformance,
+  categoryPerformance,
+  maxResolverFalseRate,
+} from "@/data/mockTicketPerformance"
 
 // --- Color tokens ---
 const COLOR_BRAND_PRIMARY = "var(--color-brand-primary)"
@@ -22,6 +37,7 @@ const COLOR_STATUS_SUCCESS = "var(--color-success)"
 const COLOR_STATUS_CLOSED = "var(--color-status-closed)"
 const COLOR_DANGER = "var(--color-danger)"
 const COLOR_GRAY_500 = "var(--color-gray-500)"
+const COLOR_STATUS_DANGER = "var(--color-status-danger)"
 
 // --- Champion data (mirrors Champion360Page inline mockChampions) ---
 interface Champion {
@@ -282,6 +298,140 @@ export default function DriverExperienceDashboardPage() {
             categories={championLocations}
             series={championLocationSeries}
           />
+        </div>
+
+        {/* Row 5 — Ticket resolution quality (moved from the Performance page) */}
+        <div className="grid grid-cols-4 gap-2 mt-6">
+          <StatCard
+            title="Total Tickets"
+            value={ticketPerformanceMetrics.total.toLocaleString()}
+            indicatorColor={COLOR_BRAND_PRIMARY}
+            onClick={() => navigate("/ticket-management")}
+          />
+          <StatCard
+            title="Resolved"
+            value={ticketPerformanceMetrics.resolved.toLocaleString()}
+            subtitle={`${((ticketPerformanceMetrics.resolved / ticketPerformanceMetrics.total) * 100).toFixed(1)}% of total`}
+            indicatorColor={COLOR_STATUS_SUCCESS}
+          />
+          <StatCard
+            title="Reopened"
+            value={ticketPerformanceMetrics.reopened.toLocaleString()}
+            subtitle={`${((ticketPerformanceMetrics.reopened / ticketPerformanceMetrics.total) * 100).toFixed(1)}% of total`}
+            indicatorColor={COLOR_STATUS_WARNING}
+          />
+          <StatCard
+            title="False Resolution Rate"
+            value={`${ticketPerformanceMetrics.falseResolutionRate.toFixed(1)}%`}
+            subtitle="Reopened / Resolved"
+            indicatorColor={COLOR_STATUS_DANGER}
+          />
+        </div>
+
+        {/* Row 6 — False Resolution Rate by Resolver */}
+        <div className="mt-6 rounded-lg border border-gray-200 bg-gray-25">
+          <div className="px-4 py-3 border-b border-gray-200">
+            <h3 className="text-[13px] font-medium text-gray-600">
+              False Resolution Rate by Resolver
+            </h3>
+          </div>
+          <div className="divide-y divide-gray-100">
+            {resolverPerformance.map((resolver, idx) => (
+              <div key={resolver.name} className="flex items-center gap-4 px-4 py-2.5">
+                <span className="w-5 text-[12px] font-medium text-gray-400 text-right">
+                  {idx + 1}
+                </span>
+                <span className="w-36 truncate text-[13px] font-medium text-gray-950">
+                  {resolver.name}
+                </span>
+                <div className="flex-1 flex items-center gap-3">
+                  <div className="flex-1 h-2 rounded-full bg-gray-100 overflow-hidden">
+                    <div
+                      className="h-full rounded-full transition-all"
+                      style={{
+                        width: `${(resolver.falseRate / maxResolverFalseRate) * 100}%`,
+                        backgroundColor:
+                          resolver.falseRate >= 50
+                            ? COLOR_STATUS_DANGER
+                            : resolver.falseRate >= 30
+                              ? COLOR_STATUS_WARNING
+                              : COLOR_STATUS_SUCCESS,
+                      }}
+                    />
+                  </div>
+                  <span className="w-14 text-right text-[13px] font-medium text-gray-950">
+                    {resolver.falseRate.toFixed(1)}%
+                  </span>
+                </div>
+                <Badge variant="outline" className="text-[11px] text-gray-500 font-normal">
+                  {resolver.reopened}/{resolver.resolved} reopened
+                </Badge>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Row 7 — Reopen Rate by Ticket Category */}
+        <div className="mt-6 rounded-lg border border-gray-200 bg-gray-25">
+          <div className="px-4 py-3 border-b border-gray-200">
+            <h3 className="text-[13px] font-medium text-gray-600">
+              Reopen Rate by Ticket Category
+            </h3>
+          </div>
+          <Table>
+            <TableHeader>
+              <TableRow className="hover:bg-transparent">
+                <TableHead className="text-[12px] text-gray-500 font-medium">Category</TableHead>
+                <TableHead className="text-[12px] text-gray-500 font-medium text-right">Total</TableHead>
+                <TableHead className="text-[12px] text-gray-500 font-medium text-right">Reopened</TableHead>
+                <TableHead className="text-[12px] text-gray-500 font-medium text-right">Reopen Rate</TableHead>
+                <TableHead className="text-[12px] text-gray-500 font-medium">Distribution</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {categoryPerformance.map((cat) => (
+                <TableRow key={cat.category}>
+                  <TableCell className="text-[13px] font-medium text-gray-950">
+                    {cat.category}
+                  </TableCell>
+                  <TableCell className="text-[13px] text-gray-700 text-right">{cat.total}</TableCell>
+                  <TableCell className="text-[13px] text-gray-700 text-right">{cat.reopened}</TableCell>
+                  <TableCell className="text-right">
+                    <Badge
+                      variant="outline"
+                      className="text-[11px] font-medium"
+                      style={{
+                        color:
+                          cat.reopenRate >= 40
+                            ? COLOR_STATUS_DANGER
+                            : cat.reopenRate >= 25
+                              ? COLOR_STATUS_WARNING
+                              : COLOR_STATUS_SUCCESS,
+                      }}
+                    >
+                      {cat.reopenRate.toFixed(1)}%
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1 h-1.5 rounded-full bg-gray-100 overflow-hidden">
+                        <div
+                          className="h-full rounded-full"
+                          style={{
+                            width: `${cat.distribution}%`,
+                            backgroundColor: COLOR_BRAND_PRIMARY,
+                          }}
+                        />
+                      </div>
+                      <span className="w-10 text-right text-[12px] text-gray-500">
+                        {cat.distribution.toFixed(1)}%
+                      </span>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </div>
       </div>
     </>

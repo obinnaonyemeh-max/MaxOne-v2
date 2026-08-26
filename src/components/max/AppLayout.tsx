@@ -61,7 +61,6 @@ const driverExperiencePrefixes = [
   "/ticket-management",
   "/driver-safety-score",
   "/welfare",
-  "/performance",
 ]
 
 function getAppIdFromPathname(pathname: string): string {

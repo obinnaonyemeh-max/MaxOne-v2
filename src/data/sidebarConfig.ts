@@ -311,7 +311,7 @@ export const driverExperienceSidebarSections: SidebarSection[] = [
       },
       {
         id: "agents-management",
-        label: "Agents Management",
+        label: "Agent Management",
         icon: "/images/agent_menu.svg",
         children: [
           {
@@ -323,11 +323,6 @@ export const driverExperienceSidebarSections: SidebarSection[] = [
             id: "agent-assignment-history",
             label: "Assignment History",
             href: "/driver-experience/agents/assignment-history",
-          },
-          {
-            id: "performance",
-            label: "Performance",
-            href: "/performance",
           },
         ],
       },

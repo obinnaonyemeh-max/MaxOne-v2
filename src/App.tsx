@@ -59,6 +59,17 @@ import PendingRecoveriesPage from "@/pages/portfolio/PendingRecoveriesPage"
 import RecoveriesInSessionPage from "@/pages/portfolio/RecoveriesInSessionPage"
 import PendingCheckInsPage from "@/pages/portfolio/PendingCheckInsPage"
 import RecoveryCommandCenterPage from "@/pages/portfolio/RecoveryCommandCenterPage"
+import FinanciersPage from "@/pages/portfolio/FinanciersPage"
+import SubscriptionPlansListPage from "@/pages/portfolio/SubscriptionPlansListPage"
+import SubscriptionPlansPage from "@/pages/portfolio/SubscriptionPlansPage"
+import PricingBatchesListPage from "@/pages/portfolio/PricingBatchesListPage"
+import PricingBatchFormPage from "@/pages/portfolio/PricingBatchFormPage"
+import RemittancePlanPage from "@/pages/portfolio/RemittancePlanPage"
+import CreatePricingTemplatePage from "@/pages/create-pricing-template/CreatePricingTemplatePage"
+import PricingTemplatesListPage from "@/pages/portfolio/PricingTemplatesListPage"
+import DynamicRepricingEnginePage from "@/pages/portfolio/DynamicRepricingEnginePage"
+import EarlyTerminationEnginePage from "@/pages/portfolio/EarlyTerminationEnginePage"
+import RevenueRecognitionPage from "@/pages/portfolio/RevenueRecognitionPage"
 import VehicleRegisterPage from "@/pages/vehicle-register/VehicleRegisterPage"
 import VehicleActivityPage from "@/pages/vehicle-activity/VehicleActivityPage"
 import VehicleTripsPage from "@/pages/vehicle-trips/VehicleTripsPage"
@@ -150,6 +161,18 @@ export default function App() {
         <Route path="/portfolio/recovery/sessions" element={<Navigate to="/portfolio/recovery/sessions/in-session" replace />} />
         <Route path="/portfolio/recovery/sessions/:tab" element={<RecoveriesInSessionPage />} />
         <Route path="/portfolio/recovery/check-ins" element={<PendingCheckInsPage />} />
+        <Route path="/portfolio/funding/financiers" element={<FinanciersPage />} />
+        <Route path="/portfolio/pricing-configuration/subscription-plans" element={<SubscriptionPlansListPage />} />
+        <Route path="/portfolio/pricing-configuration/subscription-plans/new" element={<SubscriptionPlansPage />} />
+        <Route path="/portfolio/pricing-configuration/pricing-batches" element={<PricingBatchesListPage />} />
+        <Route path="/portfolio/pricing-configuration/pricing-batches/new" element={<PricingBatchFormPage />} />
+        <Route path="/portfolio/pricing-configuration/pricing-batches/:id/edit" element={<PricingBatchFormPage />} />
+        <Route path="/portfolio/pricing-configuration/remittance-plan" element={<RemittancePlanPage />} />
+        <Route path="/portfolio/pricing-configuration/templates" element={<PricingTemplatesListPage />} />
+        <Route path="/portfolio/pricing-configuration/templates/create" element={<CreatePricingTemplatePage />} />
+        <Route path="/portfolio/products-pricing/repricing-engine" element={<DynamicRepricingEnginePage />} />
+        <Route path="/portfolio/products-pricing/early-termination-engine" element={<EarlyTerminationEnginePage />} />
+        <Route path="/portfolio/products-pricing/revenue-recognition" element={<RevenueRecognitionPage />} />
         <Route path="/driver-experience/dashboard" element={<DriverExperienceDashboardPage />} />
         <Route path="/driver-experience/approvals" element={<ApprovalsPage />} />
       </Routes>

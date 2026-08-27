@@ -491,30 +491,45 @@ export const portfolioSidebarSections: SidebarSection[] = [
         icon: "/images/config_menu.svg",
         children: [
           {
-            id: "portfolio-pricing-config-new-asset",
-            label: "New Asset",
+            id: "portfolio-pricing-config-batch-pricing",
+            label: "Pricing Batches",
+            href: "/portfolio/pricing-configuration/pricing-batches",
+          },
+          {
+            id: "portfolio-pricing-config-subscription-plans",
+            label: "Subscription Plans",
+            href: "/portfolio/pricing-configuration/subscription-plans",
+          },
+          {
+            id: "portfolio-pricing-config-remittance-plan",
+            label: "Remittance Plan",
+            href: "/portfolio/pricing-configuration/remittance-plan",
           },
         ],
       },
       {
-        id: "portfolio-dynamic-pricing-engine",
-        label: "Dynamic Pricing Engine",
+        id: "portfolio-pricing-templates",
+        label: "Pricing Templates",
         icon: "/images/pricing_engine_menu.svg",
+        href: "/portfolio/pricing-configuration/templates",
       },
       {
         id: "portfolio-dynamic-repricing-engine",
         label: "Dynamic Repricing Engine",
         icon: "/images/pricing_engine_menu.svg",
+        href: "/portfolio/products-pricing/repricing-engine",
       },
       {
         id: "portfolio-early-termination-engine",
         label: "Early Termination Engine",
         icon: "/images/early_termination_menu.svg",
+        href: "/portfolio/products-pricing/early-termination-engine",
       },
       {
         id: "portfolio-revenue-recognition",
         label: "Revenue Recognition",
         icon: "/images/revenue_analytics_menu.svg",
+        href: "/portfolio/products-pricing/revenue-recognition",
       },
     ],
   },
@@ -614,9 +629,10 @@ export const portfolioSidebarSections: SidebarSection[] = [
     label: "Funding",
     items: [
       {
-        id: "portfolio-financier-setup",
-        label: "Financier Setup",
+        id: "portfolio-financiers",
+        label: "Financier",
         icon: "/images/config_menu.svg",
+        href: "/portfolio/funding/financiers",
       },
     ],
   },

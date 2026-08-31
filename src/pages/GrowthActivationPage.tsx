@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { type ColumnDef } from "@tanstack/react-table"
-import { Search, SlidersHorizontal } from "lucide-react"
+import { SlidersHorizontal } from "lucide-react"
 import {
   TopBar,
   PageHeader,
@@ -9,13 +9,13 @@ import {
   StatusBadge,
   Pagination,
   StatCard,
+  ExpandableSearch,
   GenericFilterPopover,
   getActiveFilterCount,
   type FilterSection,
   type GenericFilterState,
 } from "@/components/max"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import {
   Popover,
   PopoverContent,
@@ -629,39 +629,13 @@ export default function GrowthActivationPage() {
                   </PopoverContent>
                 </Popover>
 
-                {searchOpen ? (
-                  <div className="flex items-center gap-1">
-                    <Input
-                      type="text"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Search activations..."
-                      className="h-9 w-48"
-                      autoFocus
-                    />
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-9 w-9"
-                      onClick={() => {
-                        setSearchOpen(false)
-                        setSearchQuery("")
-                      }}
-                    >
-                      <span className="sr-only">Close search</span>
-                      ×
-                    </Button>
-                  </div>
-                ) : (
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="h-9 bg-gray-100 hover:bg-gray-200"
-                    onClick={() => setSearchOpen(true)}
-                  >
-                    <Search className="h-4 w-4 text-muted-foreground" />
-                  </Button>
-                )}
+                <ExpandableSearch
+                  open={searchOpen}
+                  onOpenChange={setSearchOpen}
+                  value={searchQuery}
+                  onValueChange={setSearchQuery}
+                  placeholder="Search activations..."
+                />
               </div>
             </div>
             <div className="flex-1 overflow-y-auto">

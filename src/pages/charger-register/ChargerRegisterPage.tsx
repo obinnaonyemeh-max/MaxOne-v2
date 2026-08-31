@@ -101,9 +101,9 @@ export default function ChargerRegisterPage() {
         className="shrink-0"
       />
 
-      <div className="flex-1 flex overflow-hidden px-6 pb-6 gap-4">
+      <div className="flex-1 flex min-w-0 overflow-hidden px-6 pb-6 gap-4">
         {/* Left Panel - Charger List */}
-        <div className="w-[390px] shrink-0 border border-gray-200 rounded-lg flex flex-col bg-white overflow-hidden">
+        <div className="w-[390px] max-w-[min(390px,45vw)] min-w-0 shrink border border-gray-200 rounded-lg flex flex-col bg-white overflow-hidden">
           {/* Header */}
           <div className="p-4 border-b border-gray-200">
             <div className="flex items-center justify-between mb-4">
@@ -125,6 +125,7 @@ export default function ChargerRegisterPage() {
                 variant="ghost"
                 size="icon"
                 className="h-9 w-9"
+                aria-label="Refresh chargers"
                 onClick={() => {
                   // Refresh action
                 }}
@@ -207,7 +208,7 @@ export default function ChargerRegisterPage() {
         </div>
 
         {/* Right Panel - Map */}
-        <div className="relative z-0 flex-1 border border-gray-200 rounded-lg overflow-hidden bg-white p-2 min-h-0 isolate">
+        <div className="relative z-0 flex-1 min-w-0 border border-gray-200 rounded-lg overflow-hidden bg-white p-2 min-h-0 isolate">
           <ChargersMap
             chargers={filteredChargers}
             selectedChargerId={selectedChargerId}

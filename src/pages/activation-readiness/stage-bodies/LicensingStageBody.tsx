@@ -41,7 +41,7 @@ export function LicensingStageBody({ onMarkCompleted }: Props) {
       />
 
       <div>
-        <label className="text-gray-400 font-medium block mb-1.5" style={{ fontSize: "12px" }}>
+        <label className="text-gray-600 font-medium block mb-1.5" style={{ fontSize: "12px" }}>
           Plate Number
         </label>
         <Input

@@ -1,18 +1,18 @@
 import { useState, useMemo } from "react"
 import { type ColumnDef } from "@tanstack/react-table"
-import { Search, SlidersHorizontal, CalendarDays } from "lucide-react"
+import { SlidersHorizontal, CalendarDays } from "lucide-react"
 import { format } from "date-fns"
 
 import {
   DataTable,
   StatusBadge,
   Pagination,
+  ExpandableSearch,
   GenericFilterPopover,
   getActiveFilterCount,
   type FilterSection,
   type GenericFilterState,
 } from "@/components/max"
-import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import {
   Popover,
@@ -333,47 +333,17 @@ export function AlertHistoryTab() {
           </Popover>
 
           {/* Search */}
-          {searchOpen ? (
-            <div className="flex items-center gap-1">
-              <Input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => {
-                  setSearchQuery(e.target.value)
-                  setCurrentPage(1)
-                }}
-                placeholder="Search alert ID, type, or assignee..."
-                className="h-9 w-64"
-                autoFocus
-                onKeyDown={(e) => {
-                  if (e.key === "Escape") {
-                    setSearchOpen(false)
-                    setSearchQuery("")
-                  }
-                }}
-              />
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-9 w-9"
-                onClick={() => {
-                  setSearchOpen(false)
-                  setSearchQuery("")
-                }}
-              >
-                ×
-              </Button>
-            </div>
-          ) : (
-            <Button
-              variant="outline"
-              size="icon"
-              className="h-9 w-9"
-              onClick={() => setSearchOpen(true)}
-            >
-              <Search className="h-4 w-4 text-muted-foreground" />
-            </Button>
-          )}
+          <ExpandableSearch
+            open={searchOpen}
+            onOpenChange={setSearchOpen}
+            value={searchQuery}
+            onValueChange={(value) => {
+              setSearchQuery(value)
+              setCurrentPage(1)
+            }}
+            placeholder="Search alert ID, type, or assignee..."
+            inputClassName="w-64"
+          />
         </div>
 
         {/* Table */}

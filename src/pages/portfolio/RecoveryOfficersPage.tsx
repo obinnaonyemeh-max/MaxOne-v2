@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react"
 import { useNavigate, useSearchParams } from "react-router-dom"
 import { type ColumnDef } from "@tanstack/react-table"
-import { Search, SlidersHorizontal, UserPlus, Car, UserCheck, UserRound } from "lucide-react"
+import { SlidersHorizontal, UserPlus, Car, UserCheck, UserRound } from "lucide-react"
 
 import {
   TopBar,
@@ -10,6 +10,7 @@ import {
   Pagination,
   StatCard,
   StatusBadge,
+  ExpandableSearch,
   GenericFilterPopover,
   getActiveFilterCount,
   type FilterSection,
@@ -17,7 +18,6 @@ import {
 } from "@/components/max"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import {
   Popover,
   PopoverContent,
@@ -476,39 +476,14 @@ export default function RecoveryOfficersPage() {
                   </PopoverContent>
                 </Popover>
 
-                {pairSearchOpen ? (
-                  <div className="flex items-center gap-1">
-                    <Input
-                      type="text"
-                      value={pairSearch}
-                      onChange={(e) => setPairSearch(e.target.value)}
-                      placeholder="Search by pair code, officer or zone..."
-                      className="h-9 w-72"
-                      autoFocus
-                      onKeyDown={(e) => {
-                        if (e.key === "Escape") {
-                          setPairSearchOpen(false)
-                          setPairSearch("")
-                        }
-                      }}
-                    />
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-9 w-9"
-                      onClick={() => {
-                        setPairSearchOpen(false)
-                        setPairSearch("")
-                      }}
-                    >
-                      ×
-                    </Button>
-                  </div>
-                ) : (
-                  <Button variant="outline" size="icon" className="h-9 w-9" onClick={() => setPairSearchOpen(true)}>
-                    <Search className="h-4 w-4 text-muted-foreground" />
-                  </Button>
-                )}
+                <ExpandableSearch
+                  open={pairSearchOpen}
+                  onOpenChange={setPairSearchOpen}
+                  value={pairSearch}
+                  onValueChange={setPairSearch}
+                  placeholder="Search by pair code, officer or zone..."
+                  inputClassName="w-72"
+                />
               </div>
 
               <div className="flex-1 overflow-y-auto">
@@ -558,39 +533,14 @@ export default function RecoveryOfficersPage() {
                   </PopoverContent>
                 </Popover>
 
-                {agentSearchOpen ? (
-                  <div className="flex items-center gap-1">
-                    <Input
-                      type="text"
-                      value={agentSearch}
-                      onChange={(e) => setAgentSearch(e.target.value)}
-                      placeholder="Search by name, staff ID or phone..."
-                      className="h-9 w-72"
-                      autoFocus
-                      onKeyDown={(e) => {
-                        if (e.key === "Escape") {
-                          setAgentSearchOpen(false)
-                          setAgentSearch("")
-                        }
-                      }}
-                    />
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-9 w-9"
-                      onClick={() => {
-                        setAgentSearchOpen(false)
-                        setAgentSearch("")
-                      }}
-                    >
-                      ×
-                    </Button>
-                  </div>
-                ) : (
-                  <Button variant="outline" size="icon" className="h-9 w-9" onClick={() => setAgentSearchOpen(true)}>
-                    <Search className="h-4 w-4 text-muted-foreground" />
-                  </Button>
-                )}
+                <ExpandableSearch
+                  open={agentSearchOpen}
+                  onOpenChange={setAgentSearchOpen}
+                  value={agentSearch}
+                  onValueChange={setAgentSearch}
+                  placeholder="Search by name, staff ID or phone..."
+                  inputClassName="w-72"
+                />
               </div>
 
               <div className="flex-1 overflow-y-auto">
@@ -640,39 +590,14 @@ export default function RecoveryOfficersPage() {
                   </PopoverContent>
                 </Popover>
 
-                {engagedSearchOpen ? (
-                  <div className="flex items-center gap-1">
-                    <Input
-                      type="text"
-                      value={engagedSearch}
-                      onChange={(e) => setEngagedSearch(e.target.value)}
-                      placeholder="Search by pair code, officer or zone..."
-                      className="h-9 w-72"
-                      autoFocus
-                      onKeyDown={(e) => {
-                        if (e.key === "Escape") {
-                          setEngagedSearchOpen(false)
-                          setEngagedSearch("")
-                        }
-                      }}
-                    />
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-9 w-9"
-                      onClick={() => {
-                        setEngagedSearchOpen(false)
-                        setEngagedSearch("")
-                      }}
-                    >
-                      ×
-                    </Button>
-                  </div>
-                ) : (
-                  <Button variant="outline" size="icon" className="h-9 w-9" onClick={() => setEngagedSearchOpen(true)}>
-                    <Search className="h-4 w-4 text-muted-foreground" />
-                  </Button>
-                )}
+                <ExpandableSearch
+                  open={engagedSearchOpen}
+                  onOpenChange={setEngagedSearchOpen}
+                  value={engagedSearch}
+                  onValueChange={setEngagedSearch}
+                  placeholder="Search by pair code, officer or zone..."
+                  inputClassName="w-72"
+                />
               </div>
 
               <div className="flex-1 overflow-y-auto">

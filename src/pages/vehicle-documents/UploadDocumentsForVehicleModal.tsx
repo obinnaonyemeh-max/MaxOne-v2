@@ -44,7 +44,7 @@ interface Props {
 
 function FieldLabel({ children }: { children: React.ReactNode }) {
   return (
-    <label className="text-gray-400 font-medium" style={{ fontSize: "13px" }}>
+    <label className="text-gray-600 font-medium" style={{ fontSize: "13px" }}>
       {children}
     </label>
   )

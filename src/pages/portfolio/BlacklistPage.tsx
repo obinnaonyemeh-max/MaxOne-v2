@@ -1,18 +1,15 @@
 import { useMemo, useState } from "react"
 import { useSearchParams } from "react-router-dom"
 import { type ColumnDef } from "@tanstack/react-table"
-import { Search } from "lucide-react"
-
 import {
   TopBar,
   PageHeader,
   DataTable,
   Pagination,
   StatusBadge,
+  ExpandableSearch,
 } from "@/components/max"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import {
   mockBlacklistedChampions,
   mockBlacklistedGuarantors,
@@ -198,44 +195,14 @@ export default function BlacklistPage() {
           <TabsContent value="champions" className="mt-3 flex flex-col flex-1 min-h-0">
             <div className="flex-1 flex flex-col min-h-0 rounded-t-[14px] rounded-b-[4px] border border-table-border">
               <div className="flex items-center gap-2 px-2 py-2">
-                {championSearchOpen ? (
-                  <div className="flex items-center gap-1">
-                    <Input
-                      type="text"
-                      value={championSearch}
-                      onChange={(e) => setChampionSearch(e.target.value)}
-                      placeholder="Search by name, MAX ID, city or phone..."
-                      className="h-9 w-72"
-                      autoFocus
-                      onKeyDown={(e) => {
-                        if (e.key === "Escape") {
-                          setChampionSearchOpen(false)
-                          setChampionSearch("")
-                        }
-                      }}
-                    />
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-9 w-9"
-                      onClick={() => {
-                        setChampionSearchOpen(false)
-                        setChampionSearch("")
-                      }}
-                    >
-                      ×
-                    </Button>
-                  </div>
-                ) : (
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="h-9 w-9"
-                    onClick={() => setChampionSearchOpen(true)}
-                  >
-                    <Search className="h-4 w-4 text-muted-foreground" />
-                  </Button>
-                )}
+                <ExpandableSearch
+                  open={championSearchOpen}
+                  onOpenChange={setChampionSearchOpen}
+                  value={championSearch}
+                  onValueChange={setChampionSearch}
+                  placeholder="Search by name, MAX ID, city or phone..."
+                  inputClassName="w-72"
+                />
               </div>
 
               <div className="flex-1 overflow-y-auto">
@@ -260,44 +227,14 @@ export default function BlacklistPage() {
           <TabsContent value="guarantors" className="mt-3 flex flex-col flex-1 min-h-0">
             <div className="flex-1 flex flex-col min-h-0 rounded-t-[14px] rounded-b-[4px] border border-table-border">
               <div className="flex items-center gap-2 px-2 py-2">
-                {guarantorSearchOpen ? (
-                  <div className="flex items-center gap-1">
-                    <Input
-                      type="text"
-                      value={guarantorSearch}
-                      onChange={(e) => setGuarantorSearch(e.target.value)}
-                      placeholder="Search by name, ID, LGA or phone..."
-                      className="h-9 w-72"
-                      autoFocus
-                      onKeyDown={(e) => {
-                        if (e.key === "Escape") {
-                          setGuarantorSearchOpen(false)
-                          setGuarantorSearch("")
-                        }
-                      }}
-                    />
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-9 w-9"
-                      onClick={() => {
-                        setGuarantorSearchOpen(false)
-                        setGuarantorSearch("")
-                      }}
-                    >
-                      ×
-                    </Button>
-                  </div>
-                ) : (
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="h-9 w-9"
-                    onClick={() => setGuarantorSearchOpen(true)}
-                  >
-                    <Search className="h-4 w-4 text-muted-foreground" />
-                  </Button>
-                )}
+                <ExpandableSearch
+                  open={guarantorSearchOpen}
+                  onOpenChange={setGuarantorSearchOpen}
+                  value={guarantorSearch}
+                  onValueChange={setGuarantorSearch}
+                  placeholder="Search by name, ID, LGA or phone..."
+                  inputClassName="w-72"
+                />
               </div>
 
               <div className="flex-1 overflow-y-auto">

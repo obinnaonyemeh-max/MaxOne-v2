@@ -1,7 +1,13 @@
 import { InfoCard, InfoGrid } from "@/components/max"
 import type { BatchDetails } from "@/data/mockBatchDetails"
 
-export function OverviewTab({ batch }: { batch: BatchDetails }) {
+export function OverviewTab({
+  batch,
+  identifiersUploaded,
+}: {
+  batch: BatchDetails
+  identifiersUploaded: number
+}) {
   return (
     <div className="bg-content-card flex flex-col gap-3 h-fit rounded-lg border border-border p-3">
       <InfoCard title="BATCH INFORMATION">
@@ -28,7 +34,7 @@ export function OverviewTab({ batch }: { batch: BatchDetails }) {
           columns={4}
           showDividers
           items={[
-            { label: "Identifiers Uploaded", value: "1/400" },
+            { label: "Identifiers Uploaded", value: `${identifiersUploaded.toLocaleString()}/${batch.batchInfo.quantityOrdered.toLocaleString()}` },
             { label: "Registration Complete", value: "1/400" },
           ]}
         />

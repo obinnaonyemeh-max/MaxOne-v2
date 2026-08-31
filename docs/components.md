@@ -11,29 +11,69 @@ This document catalogs all reusable components in the MaxOne design system. Thes
   - [Sidebar](#sidebar)
   - [TopBar](#topbar)
   - [PageHeader](#pageheader)
+  - [AppLayout](#applayout)
+  - [BackButton](#backbutton)
 - [Navigation Components](#navigation-components)
   - [StatusTabs](#statustabs)
 - [Data Display Components](#data-display-components)
   - [DataTable](#datatable)
   - [StatusBadge](#statusbadge)
   - [Pagination](#pagination)
+  - [StatCard](#statcard)
+  - [TimelineEntry](#timelineentry)
+  - [StatusTimeline](#statustimeline)
+- [Chart Components](#chart-components)
+  - [DistributionChart](#distributionchart)
+  - [HorizontalBarChart](#horizontalbarchart)
 - [Form/Filter Components](#formfilter-components)
   - [FilterBar](#filterbar)
   - [FilterPopover](#filterpopover)
+  - [ExpandableSearch](#expandablesearch)
+  - [GenericFilterPopover](#genericfilterpopover)
   - [LocationAutocomplete](#locationautocomplete)
   - [DatePickerField](#datepickerfield)
   - [DocDropZone](#docdropzone)
+  - [FormField](#formfield)
+  - [CheckboxGrid](#checkboxgrid)
+- [Form/Input Components](#forminput-components)
+  - [TagInput](#taginput)
+  - [DocUpload](#docupload)
+- [Dialog Components](#dialog-components)
+  - [Modal](#modal)
+  - [ConfirmModal](#confirmmodal)
+  - [LoaderModal](#loadermodal)
 - [Feedback Components](#feedback-components)
   - [Banner](#banner)
   - [Toast](#toast)
+  - [Tooltip](#tooltip)
 - [Data Card Components](#data-card-components)
   - [InfoCard](#infocard)
   - [InfoGrid](#infogrid)
   - [ChampionInformation](#championinformation)
+  - [VehicleOverviewCard](#vehicleoverviewcard)
+  - [AssignmentHistoryCard](#assignmenthistorycard)
+  - [LifecycleMiniCard](#lifecycleminicard)
+  - [LifecycleFlowCard](#lifecycleflowcard)
+  - [FleetDistributionCard](#fleetdistributioncard)
+  - [ActivationQueueCard](#activationqueuecard)
+  - [ContractInformation](#contractinformation)
+  - [WalletInformation](#walletinformation)
+  - [MaxIDCard](#maxidcard)
 - [Map Components](#map-components)
   - [BatteryMap](#batterymap)
+  - [BatteryStatusFilterChips](#batterystatusfilterchips)
+  - [BatteryListCard](#batterylistcard)
+  - [BatteryLevelIcon](#batterylevelicon)
 - [Sheet Components](#sheet-components)
   - [TicketDetailSheet](#ticketdetailsheet)
+  - [DriverDetailSheet](#driverdetailsheet)
+  - [IncidentChampionsSheet](#incidentchampionssheet)
+  - [WelfareDetailSheet](#welfaredetailsheet)
+  - [TransferRequestSheet](#transferrequestsheet)
+  - [ContractDetailSheet](#contractdetailsheet)
+  - [PendingRecoveryDetailSheet](#pendingrecoverydetailsheet)
+- [Icon Components](#icon-components)
+  - [VehicleIcon](#vehicleicon)
 - [Page Patterns](#page-patterns)
   - [Create Ticket Wizard](#create-ticket-wizard)
 - [Color Tokens](#color-tokens)
@@ -59,25 +99,59 @@ src/components/
 │   └── ...
 └── max/          # MaxOne design system components (use these in pages)
     ├── PageLayout.tsx
+    ├── AppLayout.tsx
     ├── Sidebar.tsx
     ├── TopBar.tsx
     ├── PageHeader.tsx
     ├── BackButton.tsx
     ├── StatusTabs.tsx
     ├── FilterBar.tsx
+    ├── ExpandableSearch.tsx
     ├── FilterPopover.tsx
+    ├── GenericFilterPopover.tsx
     ├── DataTable.tsx
     ├── StatusBadge.tsx
     ├── Pagination.tsx
+    ├── StatCard.tsx
+    ├── TimelineEntry.tsx
+    ├── StatusTimeline.tsx
+    ├── DistributionChart.tsx
+    ├── HorizontalBarChart.tsx
     ├── InfoCard.tsx
     ├── InfoGrid.tsx
     ├── ChampionInformation.tsx
+    ├── VehicleOverviewCard.tsx
+    ├── AssignmentHistoryCard.tsx
+    ├── LifecycleMiniCard.tsx
+    ├── LifecycleFlowCard.tsx
+    ├── FleetDistributionCard.tsx
+    ├── ActivationQueueCard.tsx
+    ├── ContractInformation.tsx
+    ├── WalletInformation.tsx
+    ├── MaxIDCard.tsx
     ├── BatteryMap.tsx
+    ├── BatteryStatusFilterChips.tsx
+    ├── BatteryListCard.tsx
+    ├── BatteryLevelIcon.tsx
     ├── LocationAutocomplete.tsx
     ├── DatePickerField.tsx
+    ├── FormField.tsx
+    ├── CheckboxGrid.tsx
+    ├── TagInput.tsx
     ├── DocDropZone.tsx
+    ├── DocUpload.tsx
+    ├── Modal.tsx
     ├── ConfirmModal.tsx
+    ├── LoaderModal.tsx
+    ├── Tooltip.tsx
+    ├── VehicleIcon.tsx
     ├── TicketDetailSheet.tsx
+    ├── DriverDetailSheet.tsx
+    ├── IncidentChampionsSheet.tsx
+    ├── WelfareDetailSheet.tsx
+    ├── TransferRequestSheet.tsx
+    ├── ContractDetailSheet.tsx
+    ├── PendingRecoveryDetailSheet.tsx
     └── index.ts   # Barrel export
 ```
 
@@ -88,23 +162,35 @@ Always import components from the MaxOne design system:
 ```tsx
 import {
   PageLayout,
+  AppLayout,
   Sidebar,
   TopBar,
   PageHeader,
   BackButton,
   StatusTabs,
   FilterBar,
+  ExpandableSearch,
+  GenericFilterPopover,
   DataTable,
   StatusBadge,
   Pagination,
+  StatCard,
+  TimelineEntry,
+  StatusTimeline,
+  DistributionChart,
+  HorizontalBarChart,
   InfoCard,
   InfoGrid,
   ChampionInformation,
-  BatteryMap,
-  LocationAutocomplete,
-  DatePickerField,
-  DocDropZone,
+  VehicleOverviewCard,
+  FormField,
+  CheckboxGrid,
+  Modal,
   ConfirmModal,
+  LoaderModal,
+  Tooltip,
+  BatteryMap,
+  BatteryListCard,
   TicketDetailSheet,
 } from "@/components/max"
 ```
@@ -343,6 +429,70 @@ import { PageHeader } from "@/components/max"
 
 ---
 
+### AppLayout
+
+Root application shell used by every routed page. Wraps children in `PageLayout` + `Sidebar`, applies role-simulation path guards, and mounts the global Sonner `<Toaster>` once.
+
+#### Import
+
+```tsx
+import { AppLayout } from "@/components/max"
+```
+
+#### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `children` | `ReactNode` | required | Page content rendered inside the content card |
+
+#### Usage
+
+```tsx
+<AppLayout>
+  <DashboardPage />
+</AppLayout>
+```
+
+#### Styling Notes
+
+- Requires `RoleSimulationContext` and React Router
+- Redirects disallowed paths when role simulation is not in full-build mode
+- Toaster is mounted at `position="bottom-center"` with `max-toast` class names
+- Sidebar app switching is enabled only when `isFullBuild` is true
+
+---
+
+### BackButton
+
+Compact chevron-left control used in modal headers and similar back-navigation contexts. `Modal` renders this automatically when `showBackButton` is true.
+
+#### Import
+
+```tsx
+import { BackButton } from "@/components/max"
+```
+
+#### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `onClick` | `() => void` | - | Click handler |
+| `className` | `string` | - | Additional classes |
+
+#### Usage
+
+```tsx
+<BackButton onClick={() => setStep(step - 1)} />
+```
+
+#### Styling Notes
+
+- 18×18 `ChevronLeft` icon on a gray (`bg-gray-50`) padded button
+- Asymmetric radii: 8px on the left, 4px on the right
+- `aria-label="Back"`
+
+---
+
 ## Navigation Components
 
 ### StatusTabs
@@ -557,6 +707,222 @@ import { Pagination } from "@/components/max"
 
 ---
 
+### StatCard
+
+Dashboard metric tile with a colored dot indicator, optional subtitle, and optional trend percentage.
+
+#### Import
+
+```tsx
+import { StatCard } from "@/components/max"
+```
+
+#### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `title` | `string` | required | Metric label |
+| `value` | `string \| number` | required | Primary value (28px) |
+| `subtitle` | `string` | - | Secondary caption |
+| `trend` | `{ value: number; direction: "up" \| "down" }` | - | Trend percent and arrow |
+| `indicatorColor` | `string` | required | CSS color for the 8px header dot |
+| `onClick` | `() => void` | - | Makes the card a clickable surface |
+| `className` | `string` | - | Additional classes |
+
+#### Usage
+
+```tsx
+<StatCard
+  title="Active Vehicles"
+  value={1284}
+  indicatorColor="var(--color-status-success)"
+  trend={{ value: 12, direction: "up" }}
+  onClick={() => navigate("/vehicles")}
+/>
+```
+
+#### Styling Notes
+
+- Surface: `bg-gray-25`, `border-gray-200`, hover darkens to `border-gray-950`
+- Up trend uses `text-status-success-text`; down uses `text-status-danger`
+
+---
+
+### TimelineEntry
+
+Single timeline event: status badge, templated description with highlighted `{placeholders}`, and an optional actor + duration row.
+
+#### Import
+
+```tsx
+import { TimelineEntry, type TimelineEntryData } from "@/components/max"
+```
+
+#### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `entry` | `TimelineEntryData` | required | Event payload |
+| `className` | `string` | - | Additional classes |
+
+#### TimelineEntryData
+
+```tsx
+interface TimelineEntryData {
+  id: string
+  date: string
+  status: string
+  statusVariant: "success" | "warning" | "info" | "danger" | "default"
+  description: {
+    template: string
+    highlights: Record<string, string>
+  }
+  actor?: { action: string; name: string; avatar?: string }
+  duration?: { range: string; total: string }
+}
+```
+
+#### Usage
+
+```tsx
+<TimelineEntry
+  entry={{
+    id: "1",
+    date: "8 Jun 2026",
+    status: "Completed",
+    statusVariant: "success",
+    description: { template: "Vehicle {id} activated", highlights: { id: "MAX-001" } },
+  }}
+/>
+```
+
+#### Styling Notes
+
+- `{key}` placeholders in `description.template` render in `text-sidebar-item-active`; surrounding text uses `text-breadcrumb-root`
+- Actor/duration row only renders when **both** `actor` and `duration` are set
+
+---
+
+### StatusTimeline
+
+Vertical timeline that groups `TimelineEntry` items by date, with a colored dot and connector line.
+
+#### Import
+
+```tsx
+import { StatusTimeline } from "@/components/max"
+```
+
+#### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `entries` | `TimelineEntryData[]` | required | Events in display order |
+| `className` | `string` | - | Additional classes |
+| `dateColumnClassName` | `string` | `"w-28"` | Width class for the date column |
+
+#### Usage
+
+```tsx
+<StatusTimeline entries={timelineData} dateColumnClassName="w-36" />
+```
+
+#### Styling Notes
+
+- Dot color maps from `statusVariant` (success/warning/info/danger/default)
+- Connector line min-height is 100px except on the last entry (4px)
+
+---
+
+## Chart Components
+
+### DistributionChart
+
+Donut chart card with a legend for categorical distribution data (Recharts).
+
+#### Import
+
+```tsx
+import { DistributionChart, type DistributionDataItem } from "@/components/max"
+```
+
+#### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `title` | `string` | required | Chart heading |
+| `data` | `DistributionDataItem[]` | required | Slices (`label`, `value`, `color`) |
+| `className` | `string` | - | Additional classes |
+
+#### Usage
+
+```tsx
+<DistributionChart
+  title="Lagos"
+  data={[
+    { label: "Active", value: 420, color: "#22C55E" },
+    { label: "Idle", value: 80, color: "#F59E0B" },
+  ]}
+/>
+```
+
+#### Styling Notes
+
+- Chart area 185×185px, innerRadius 45, outerRadius 75
+- Hover dims non-active slices to 35% opacity
+
+---
+
+### HorizontalBarChart
+
+Horizontal bar chart card with hover dimming and optional stacked/legend modes.
+
+#### Import
+
+```tsx
+import { HorizontalBarChart, type BarChartSeries } from "@/components/max"
+```
+
+#### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `title` | `string` | required | Chart heading |
+| `categories` | `string[]` | required | Y-axis labels |
+| `series` | `BarChartSeries[]` | required | Named numeric series with colors |
+| `showLegend` | `boolean` | `false` | Show Recharts legend |
+| `stacked` | `boolean` | `false` | Stack series on a shared `stackId` |
+| `className` | `string` | - | Additional classes |
+
+#### BarChartSeries
+
+```tsx
+interface BarChartSeries {
+  name: string
+  data: number[]
+  color: string
+}
+```
+
+#### Usage
+
+```tsx
+<HorizontalBarChart
+  title="Recoveries by Zone"
+  categories={["North", "South"]}
+  series={[{ name: "Open", data: [12, 8], color: "#3B82F6" }]}
+  stacked
+  showLegend
+/>
+```
+
+#### Styling Notes
+
+- Chart height 250px; Y-axis width 70
+- Bar size: 16px stacked, 12px grouped; last stack segment has rounded right corners
+
+---
+
 ## Form/Filter Components
 
 ### FilterBar
@@ -623,6 +989,7 @@ interface FilterBarAction {
 - Secondary button: White background, #3F3F46 text, outline style
 - Filter count badge: #121314 background, white text, rounded-full
 - Input field focus: #FCDD00 border, 2px ring at 10% opacity
+- Search uses `ExpandableSearch` internally (icon button expands into a 192px input)
 
 ---
 
@@ -682,6 +1049,127 @@ const [filters, setFilters] = useState<FilterState>({
 - Section header: Font-weight 500, color #555556
 - Hover background: #F6F6F6
 - Smooth expand/collapse animation (200ms)
+
+---
+
+### ExpandableSearch
+
+Icon button that expands into a controlled search input. Escape clears the value and closes; Enter calls `onSubmit`.
+
+#### Import
+
+```tsx
+import { ExpandableSearch } from "@/components/max"
+```
+
+#### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `open` | `boolean` | required | Whether the search input is expanded |
+| `onOpenChange` | `(open: boolean) => void` | required | Called when the control opens or closes |
+| `value` | `string` | required | Current query string |
+| `onValueChange` | `(value: string) => void` | required | Called as the user types |
+| `placeholder` | `string` | `"Search..."` | Input placeholder and `aria-label` |
+| `onSubmit` | `(query: string) => void` | - | Called on Enter |
+| `className` | `string` | - | Extra classes on the expanded wrapper |
+| `inputClassName` | `string` | - | Extra classes on the input |
+
+#### Usage
+
+```tsx
+const [open, setOpen] = useState(false)
+const [query, setQuery] = useState("")
+
+<ExpandableSearch
+  open={open}
+  onOpenChange={setOpen}
+  value={query}
+  onValueChange={setQuery}
+  placeholder="Search vehicles..."
+  onSubmit={(q) => filterRows(q)}
+/>
+```
+
+#### Styling Notes
+
+- Closed: 36×36 outline icon button (`h-9 w-9`, `bg-gray-100`)
+- Open: `w-48 h-9` input plus a ghost close button
+
+---
+
+### GenericFilterPopover
+
+Accordion-style multi-section filter panel with a switch per option. Use this when filter sections are data-driven; prefer `FilterPopover` for the fixed champion/contract/location set.
+
+#### Import
+
+```tsx
+import {
+  GenericFilterPopover,
+  getActiveFilterCount,
+  type FilterSection,
+  type FilterOption,
+  type GenericFilterState,
+} from "@/components/max"
+```
+
+#### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `sections` | `FilterSection[]` | required | Filter groups and their options |
+| `filters` | `GenericFilterState` | required | Selected values keyed by section id |
+| `onFiltersChange` | `(filters: GenericFilterState) => void` | required | Called when a switch toggles or Clear is clicked |
+| `className` | `string` | - | Additional classes |
+
+#### FilterSection / FilterOption
+
+```tsx
+interface FilterOption {
+  value: string
+  label: string
+  color?: string
+}
+
+interface FilterSection {
+  id: string
+  title: string
+  options: FilterOption[]
+  defaultExpanded?: boolean
+}
+
+interface GenericFilterState {
+  [key: string]: string[]
+}
+```
+
+`getActiveFilterCount(filters)` returns the total number of selected values across all sections.
+
+#### Usage
+
+```tsx
+<GenericFilterPopover
+  sections={[
+    {
+      id: "status",
+      title: "Status",
+      options: [
+        { value: "active", label: "Active", color: "#22C55E" },
+        { value: "idle", label: "Idle", color: "#F59E0B" },
+      ],
+    },
+  ]}
+  filters={filters}
+  onFiltersChange={setFilters}
+/>
+```
+
+#### Styling Notes
+
+- Fixed width `w-64`, scrollable to the popover’s available height
+- Only one section is expanded at a time; first section (or `defaultExpanded`) opens by default
+- Header shows “N selected” and a Clear filter action when any option is on
 
 ---
 
@@ -808,6 +1296,80 @@ import { DocDropZone } from "@/components/max"
 
 ---
 
+### FormField
+
+Accessible label wrapper that injects `id`, `aria-invalid`, and `aria-describedby` into a single child control. Shows an error message (replacing the hint) when `error` is set.
+
+#### Import
+
+```tsx
+import { FormField } from "@/components/max"
+```
+
+#### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `label` | `string` | required | Visible field label |
+| `htmlFor` | `string` | auto `useId()` | Optional explicit control id |
+| `error` | `string` | - | Validation message; sets `role="alert"` |
+| `hint` | `string` | - | Helper text, hidden while `error` is present |
+| `children` | `ReactNode` | required | Single form control |
+
+#### Usage
+
+```tsx
+<FormField label="Plate Number" error={errors.plate} hint="Include state prefix">
+  <Input value={plate} onChange={(e) => setPlate(e.target.value)} />
+</FormField>
+```
+
+#### Styling Notes
+
+- Label: 13px, `font-medium`, `text-gray-600`
+- Error: 12px, `text-status-danger`
+- Hint: 12px, `text-gray-600`
+
+---
+
+### CheckboxGrid
+
+Grid of bordered checkbox tiles for multi-select option sets.
+
+#### Import
+
+```tsx
+import { CheckboxGrid, type CheckboxGridItem } from "@/components/max"
+```
+
+#### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `items` | `CheckboxGridItem[]` | required | Options (`id` + `label`) |
+| `checked` | `Set<string>` | required | Selected item ids |
+| `onToggle` | `(id: string) => void` | required | Called when a tile is clicked |
+| `columns` | `1 \| 2 \| 3` | `2` | Grid column count |
+| `className` | `string` | - | Additional classes |
+
+#### Usage
+
+```tsx
+<CheckboxGrid
+  items={[{ id: "a", label: "Option A" }, { id: "b", label: "Option B" }]}
+  checked={selected}
+  onToggle={(id) => toggle(id)}
+  columns={3}
+/>
+```
+
+#### Styling Notes
+
+- Unchecked: white tile, `border-gray-200`
+- Checked: `border-brand-primary`, `bg-brand-primary/10`
+
+---
+
 ## Form/Input Components
 
 ### TagInput
@@ -888,6 +1450,70 @@ const [file, setFile] = useState<File | null>(null)
 
 ## Dialog Components
 
+### Modal
+
+Standard dialog for forms and multi-step flows. Optional back button, header/subtitle, scrollable body, and primary/secondary/left footer actions.
+
+#### Import
+
+```tsx
+import { Modal, type ModalAction } from "@/components/max"
+```
+
+#### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `open` | `boolean` | required | Whether the dialog is visible |
+| `onOpenChange` | `(open: boolean) => void` | required | Called when the dialog requests open/close |
+| `title` | `string` | - | Header title (16px semibold) |
+| `subtitle` | `string` | - | Header subtitle (13px medium) |
+| `showBackButton` | `boolean` | `false` | Renders `BackButton` in the header |
+| `onBack` | `() => void` | - | Back-button click handler |
+| `children` | `ReactNode` | required | Scrollable body content |
+| `primaryAction` | `ModalAction` | - | Right-most brand-dark button |
+| `secondaryAction` | `ModalAction` | - | Outline button to its left |
+| `leftAction` | `ReactNode` | - | Slot on the left side of the footer |
+| `className` | `string` | - | Classes on `DialogContent` |
+| `contentClassName` | `string` | - | Classes on the body wrapper |
+| `maxHeight` | `string` | - | Inline max-height on the dialog |
+| `hideHeader` | `boolean` | `false` | Hide title, back, and close (used by `LoaderModal`) |
+
+#### ModalAction
+
+```tsx
+interface ModalAction {
+  label: string
+  onClick: () => void
+  disabled?: boolean
+  icon?: boolean  // adds a Plus icon to the primary button
+  className?: string
+}
+```
+
+#### Usage
+
+```tsx
+<Modal
+  open={open}
+  onOpenChange={setOpen}
+  title="Add Vehicle"
+  primaryAction={{ label: "Save", onClick: handleSave }}
+  secondaryAction={{ label: "Cancel", onClick: () => setOpen(false) }}
+>
+  <FormContent />
+</Modal>
+```
+
+#### Styling Notes
+
+- Built on shadcn `Dialog`
+- Primary button: `h-10`, `bg-brand-dark`
+- Footer only renders when any action or `leftAction` is provided
+- Use `ConfirmModal` for binary confirm/cancel decisions with no form fields
+
+---
+
 ### ConfirmModal
 
 Centered confirmation dialog for destructive or affirmative actions (delete, archive, publish, etc.). Renders an icon, title, and subtitle stacked centrally, with primary + optional secondary action buttons in the footer.
@@ -949,6 +1575,37 @@ import { ConfirmModal } from "@/components/max"
 - Typography matches `Modal` (same title/subtitle styles) so the two read as part of the same family
 - `destructive` and `success` variants render static images instead of the Lucide icon circle
 - `warning` and `default` variants render a Lucide icon inside a tinted circle (10% opacity background)
+
+---
+
+### LoaderModal
+
+Non-dismissible loading overlay with an animated spinner and message. Overlay clicks do not close it.
+
+#### Import
+
+```tsx
+import { LoaderModal } from "@/components/max"
+```
+
+#### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `open` | `boolean` | required | Whether the overlay is visible |
+| `message` | `string` | `"Processing..."` | Status text under the spinner |
+
+#### Usage
+
+```tsx
+<LoaderModal open={isSubmitting} message="Saving changes..." />
+```
+
+#### Styling Notes
+
+- Composes `Modal` with `hideHeader` and `max-w-[280px]`
+- `role="status"`, `aria-live="polite"`, `aria-busy={open}`
+- Amber radial spinner (80×80)
 
 ---
 
@@ -1090,6 +1747,35 @@ function MyPage() {
 
 ---
 
+### Tooltip
+
+Re-export of the styled Radix tooltip (`Tooltip`, `TooltipTrigger`, `TooltipContent`, `TooltipProvider`) from `@/components/ui/tooltip`. Each `Tooltip` instance wraps its own provider.
+
+#### Import
+
+```tsx
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/max"
+```
+
+#### Usage
+
+```tsx
+<Tooltip>
+  <TooltipTrigger asChild>
+    <button type="button" aria-label="Info">?</button>
+  </TooltipTrigger>
+  <TooltipContent>Primary account</TooltipContent>
+</Tooltip>
+```
+
+#### Styling Notes
+
+- Default provider `delayDuration` is 300ms
+- Content: `bg-gray-950`, `max-w-xs`, 12px medium white text, includes an arrow
+- Default `sideOffset` is 4
+
+---
+
 ## Data Card Components
 
 ### InfoCard
@@ -1218,6 +1904,355 @@ import { ChampionInformation } from "@/components/max"
 
 ---
 
+### VehicleOverviewCard
+
+Vehicle summary card with optional image, centered status badge, and label/value detail rows.
+
+#### Import
+
+```tsx
+import { VehicleOverviewCard } from "@/components/max"
+```
+
+#### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `title` | `string` | `"Vehicle Overview"` | Card heading |
+| `subtitle` | `string` | - | Optional subheading |
+| `headerRight` | `ReactNode` | - | Slot on the right of the header |
+| `footer` | `ReactNode` | - | Optional footer below a divider |
+| `status` | `string` | - | Centered `StatusBadge` label |
+| `statusVariant` | `OverviewStatusVariant` | `"info"` | Badge variant for the header status |
+| `imageUrl` | `string` | - | Vehicle image source |
+| `showImage` | `boolean` | `true` | Hide the image even if `imageUrl` is set |
+| `details` | `{ label, value, hint?, indicator?, isStatus?, statusVariant? }[]` | required | Detail rows |
+| `className` | `string` | - | Additional classes |
+
+`OverviewStatusVariant` is `"success" | "warning" | "info" | "danger" | "default" | "refurb"`.
+
+#### Usage
+
+```tsx
+<VehicleOverviewCard
+  title="MAX-1024"
+  status="Active"
+  statusVariant="success"
+  imageUrl="/images/vehicle.png"
+  details={[{ label: "Plate", value: "ABC-123" }]}
+/>
+```
+
+#### Styling Notes
+
+- Image height 141px
+- Per-row `isStatus` uses `StatusBadge` size `sm`
+
+---
+
+### AssignmentHistoryCard
+
+Paginated assignment-history viewer with prev/next navigation.
+
+#### Import
+
+```tsx
+import { AssignmentHistoryCard, type AssignmentRecord } from "@/components/max"
+```
+
+#### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `assignments` | `AssignmentRecord[]` | required | History records |
+| `currentIndex` | `number` | required | Visible record index |
+| `onPrevious` | `() => void` | required | Previous-record handler |
+| `onNext` | `() => void` | required | Next-record handler |
+| `title` | `string` | `"Assignment History"` | Card heading |
+| `showNavigation` | `boolean` | `true` | Hide the chevron controls |
+| `className` | `string` | - | Additional classes |
+
+#### AssignmentRecord
+
+```tsx
+interface AssignmentRecord {
+  id: string
+  duration: string
+  assigneeName: string
+  assigneeAvatar?: string
+  status: "Active" | "Inactive" | "HP Complete"
+  isCurrent: boolean
+}
+```
+
+#### Usage
+
+```tsx
+<AssignmentHistoryCard
+  assignments={records}
+  currentIndex={index}
+  onPrevious={() => setIndex((i) => i - 1)}
+  onNext={() => setIndex((i) => i + 1)}
+/>
+```
+
+#### Styling Notes
+
+- Empty state when no record exists at `currentIndex`
+- Avatar fallback: first letter, 44×44
+
+---
+
+### LifecycleMiniCard
+
+Compact lifecycle-stage metric with an optional SLA indicator.
+
+#### Import
+
+```tsx
+import { LifecycleMiniCard } from "@/components/max"
+```
+
+#### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `title` | `string` | required | Stage name |
+| `value` | `string \| number` | required | Primary count (24px) |
+| `subtitle` | `string` | required | Caption under the value |
+| `showSla` | `boolean` | `false` | Warning border + SLA badge |
+| `titleVariant` | `"default" \| "warning"` | `"default"` | Title color |
+| `className` | `string` | - | Additional classes |
+
+#### Usage
+
+```tsx
+<LifecycleMiniCard title="QC" value={42} subtitle="In queue" showSla titleVariant="warning" />
+```
+
+#### Styling Notes
+
+- Min-width 160px
+- SLA mode uses `border-status-warning` and the `/images/sla.svg` badge
+
+---
+
+### LifecycleFlowCard
+
+Horizontal, scrollable row of `LifecycleMiniCard` stages connected by arrow icons.
+
+#### Import
+
+```tsx
+import { LifecycleFlowCard, type LifecycleStage } from "@/components/max"
+```
+
+#### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `title` | `string` | `"Lifecycle Flow"` | Card heading |
+| `stages` | `LifecycleStage[]` | required | Stage metrics |
+| `className` | `string` | - | Additional classes |
+
+#### Usage
+
+```tsx
+<LifecycleFlowCard
+  stages={[
+    { title: "Inbound", value: 12, subtitle: "Today" },
+    { title: "QC", value: 5, subtitle: "Pending", showSla: true },
+  ]}
+/>
+```
+
+---
+
+### FleetDistributionCard
+
+Dashboard card that renders a 2-column grid of regional `DistributionChart`s.
+
+#### Import
+
+```tsx
+import { FleetDistributionCard, type RegionDistribution } from "@/components/max"
+```
+
+#### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `title` | `string` | `"Fleet Distribution"` | Card heading |
+| `regions` | `RegionDistribution[]` | required | Region name + slice data |
+| `className` | `string` | - | Additional classes |
+
+#### RegionDistribution
+
+```tsx
+interface RegionDistribution {
+  region: string
+  data: DistributionDataItem[]
+}
+```
+
+#### Usage
+
+```tsx
+<FleetDistributionCard regions={[{ region: "Lagos", data: distributionData }]} />
+```
+
+---
+
+### ActivationQueueCard
+
+Table card showing activation-queue counts and >48hr overdue totals.
+
+#### Import
+
+```tsx
+import { ActivationQueueCard, type ActivationQueueItem } from "@/components/max"
+```
+
+#### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `title` | `string` | `"Activation Queue"` | Card heading |
+| `data` | `ActivationQueueItem[]` | required | Rows (`activationType`, `count`, `overdue`) |
+| `className` | `string` | - | Additional classes |
+
+#### Usage
+
+```tsx
+<ActivationQueueCard
+  data={[{ activationType: "New HP", count: 24, overdue: 3 }]}
+/>
+```
+
+#### Styling Notes
+
+- Overdue column uses `text-status-danger`
+- Nested white table with `bg-gray-100` header
+
+---
+
+### ContractInformation
+
+Animated contract-progress widget with a segmented bar (136 bars) and elapsed-day counter.
+
+#### Import
+
+```tsx
+import { ContractInformation } from "@/components/max"
+```
+
+#### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `percentage` | `number` | required | Percent elapsed (0–100) |
+| `totalDays` | `number` | required | Contract length in days |
+| `daysElapsed` | `number` | required | Days elapsed so far |
+| `startDate` | `string` | required | Start date label |
+| `endDate` | `string` | required | End date label |
+| `animate` | `boolean` | `true` | Count up on scroll into view |
+| `className` | `string` | - | Additional classes |
+
+#### Usage
+
+```tsx
+<ContractInformation
+  percentage={65}
+  totalDays={365}
+  daysElapsed={237}
+  startDate="12 Mar 2024"
+  endDate="12 Mar 2025"
+/>
+```
+
+#### Styling Notes
+
+- GSAP animation via IntersectionObserver (threshold 0.1)
+- Pass `animate={false}` in sheets (e.g. `ContractDetailSheet`) to skip the count-up
+
+---
+
+### WalletInformation
+
+Champion wallet card with an animated balance counter and linked bank-account tiles.
+
+#### Import
+
+```tsx
+import { WalletInformation } from "@/components/max"
+```
+
+#### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `balance` | `string` | required | Numeric balance string (commas allowed) |
+| `bvn` | `string` | - | Declared on the type; not rendered |
+| `bankAccounts` | `{ bankName, accountNumber, iconUrl?, isPrimary? }[]` | required | Linked accounts |
+| `className` | `string` | - | Additional classes |
+
+#### Usage
+
+```tsx
+<WalletInformation
+  balance="125,000"
+  bankAccounts={[{ bankName: "GTBank", accountNumber: "0123456789", isPrimary: true }]}
+/>
+```
+
+#### Styling Notes
+
+- Balance animates from 0 when the card scrolls into view
+- Primary account shows a star tooltip
+
+---
+
+### MaxIDCard
+
+Champion MAX ID card panel with active and inactive states.
+
+#### Import
+
+```tsx
+import { MaxIDCard, type MaxIDCardVariant } from "@/components/max"
+```
+
+#### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `variant` | `"active" \| "inactive"` | `"active"` | Card state |
+| `dateGenerated` | `string` | - | Shown when active |
+| `generatedBy` | `string` | - | Shown when active |
+| `onViewCard` | `() => void` | - | View action (active) |
+| `onExportCard` | `() => void` | - | Export action (active) |
+| `onGenerateCard` | `() => void` | - | Generate CTA (inactive) |
+| `className` | `string` | - | Additional classes |
+
+#### Usage
+
+```tsx
+<MaxIDCard
+  variant="active"
+  dateGenerated="12 Jan 2025"
+  generatedBy="Admin User"
+  onViewCard={openPreview}
+  onExportCard={downloadPdf}
+/>
+```
+
+#### Styling Notes
+
+- Inactive shows a “Generate ID Card” CTA; active shows View/Export
+- Pattern header strip is 70px tall
+
+---
+
 ## Map Components
 
 ### BatteryMap
@@ -1314,6 +2349,140 @@ import "leaflet/dist/leaflet.css"
 
 ---
 
+### BatteryStatusFilterChips
+
+Legend plus a proportional segmented bar for filtering batteries by status. Clicking the active chip clears the filter (`null`).
+
+#### Import
+
+```tsx
+import { BatteryStatusFilterChips, type BatteryStatusChip } from "@/components/max"
+```
+
+#### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `chips` | `BatteryStatusChip[]` | required | Status segments (`id`, `label`, `count`, `color`) |
+| `activeChipId` | `string \| null` | required | Currently selected chip, or `null` for all |
+| `onChipClick` | `(chipId: string \| null) => void` | required | Toggle handler |
+| `className` | `string` | - | Additional classes |
+
+#### Usage
+
+```tsx
+<BatteryStatusFilterChips
+  chips={statusCounts}
+  activeChipId={filter}
+  onChipClick={setFilter}
+/>
+```
+
+#### Styling Notes
+
+- Segmented bar height 40px
+- Count labels render only when a segment is at least 8% of the total width
+- Active segment gets an inset `ring-gray-950`
+
+---
+
+### BatteryListCard
+
+Expandable battery list item with status badges, an actions menu, and a detail grid.
+
+#### Import
+
+```tsx
+import { BatteryListCard } from "@/components/max"
+```
+
+#### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `id` | `string` | required | Battery identifier |
+| `status` | `BatteryStatus` | required | From `@/data/mockBatteryRegisterData` |
+| `lastUpdate` | `string` | required | Last-update caption |
+| `chargeLevel` | `number` | required | 0–100 charge percent |
+| `isCharging` | `boolean` | `false` | Charging overlay on the battery icon |
+| `isPluggedIn` | `boolean` | `false` | Plugged-in overlay on the battery icon |
+| `isSelected` | `boolean` | `false` | Selected border (`border-gray-950`) |
+| `isExpanded` | `boolean` | `false` | Show the detail grid |
+| `simNumber` | `string` | required | SIM number |
+| `assignmentStatus` | `AssignmentStatus` | required | assigned / unassigned / maintenance |
+| `assignedTo` | `string \| null` | required | Assignee name |
+| `currentLocation` | `string` | required | Location label |
+| `batteryModel` | `string` | required | Model label |
+| `lastReportedTime` | `string` | required | Last reported time |
+| `lastSwapTime` | `string` | required | Last swap time |
+| `onClick` | `() => void` | - | Card click |
+| `onExpandClick` | `() => void` | - | Expand chevron click |
+| `onMenuItemClick` | `(action: string) => void` | - | Overflow-menu action id |
+| `onViewFullInfo` | `() => void` | - | “View full info” in the expanded grid |
+| `className` | `string` | - | Additional classes |
+
+Menu action ids: `"telemetry" | "alert-history" | "movement-history" | "command-center"`.
+
+#### Usage
+
+```tsx
+<BatteryListCard
+  id="BAT-001"
+  status="riding"
+  chargeLevel={78}
+  lastUpdate="2 min ago"
+  simNumber="08012345678"
+  assignmentStatus="assigned"
+  assignedTo="Champ A"
+  currentLocation="Lagos"
+  batteryModel="LG-48V"
+  lastReportedTime="10:30"
+  lastSwapTime="Yesterday"
+  isExpanded={expanded}
+  onExpandClick={() => setExpanded(!expanded)}
+/>
+```
+
+#### Styling Notes
+
+- Expand animation via `motion/react`
+- Uses `BatteryLevelIcon` for the charge glyph
+
+---
+
+### BatteryLevelIcon
+
+SVG battery glyph with charge fill, charging bolt, or plugged-not-charging X overlay.
+
+#### Import
+
+```tsx
+import { BatteryLevelIcon } from "@/components/max"
+```
+
+#### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `chargeLevel` | `number` | required | 0–100 fill percent |
+| `isCharging` | `boolean` | `false` | Show lightning bolt |
+| `isPluggedIn` | `boolean` | `false` | Show red X when not charging |
+| `tooltip` | `string` | `` `Battery: ${chargeLevel}%` `` | Tooltip content |
+| `className` | `string` | - | Additional classes |
+
+#### Usage
+
+```tsx
+<BatteryLevelIcon chargeLevel={35} isCharging={false} isPluggedIn />
+```
+
+#### Styling Notes
+
+- Fill colors: ≥50 success, ≥20 warning, else danger
+- Size `h-4 w-6`
+
+---
+
 ## Sheet Components
 
 ### TicketDetailSheet
@@ -1363,6 +2532,275 @@ File-type icons are mapped by extension:
 - Maximum width: `max-w-[40vw]` (40% of viewport)
 - Body: `overflow-y-auto`, `space-y-5` between sections
 - Footer: Sticky, three action buttons (outline, warning-outline, destructive)
+
+---
+
+### DriverDetailSheet
+
+Side sheet showing a driver safety profile, score breakdown, and activity summary.
+
+#### Import
+
+```tsx
+import { DriverDetailSheet } from "@/components/max"
+```
+
+#### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `driver` | `DriverRiskRecord \| null` | required | From `@/data/mockDriverSafety`; renders nothing if null |
+| `isOpen` | `boolean` | required | Whether the sheet is visible |
+| `onClose` | `() => void` | required | Close handler |
+
+#### Usage
+
+```tsx
+<DriverDetailSheet driver={selected} isOpen={!!selected} onClose={() => setSelected(null)} />
+```
+
+#### Styling Notes
+
+- Sheet size `lg`, `max-w-[40vw]`
+- Score color thresholds: 80+ / 60+
+
+---
+
+### IncidentChampionsSheet
+
+Sheet listing champions that share a specific critical-incident type.
+
+#### Import
+
+```tsx
+import { IncidentChampionsSheet } from "@/components/max"
+```
+
+#### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `incident` | `CriticalEventCategory \| null` | required | From `@/data/mockDriverSafety`; renders nothing if null |
+| `isOpen` | `boolean` | required | Whether the sheet is visible |
+| `onClose` | `() => void` | required | Close handler |
+
+#### Usage
+
+```tsx
+<IncidentChampionsSheet incident={incident} isOpen={open} onClose={() => setOpen(false)} />
+```
+
+#### Styling Notes
+
+- Filters `mockDriverRiskRecords` by `recentIncident === incident.name`
+- Empty state when no matches
+
+---
+
+### WelfareDetailSheet
+
+Welfare champion detail sheet with profile, risk flags, interaction timeline, and footer CTAs.
+
+#### Import
+
+```tsx
+import { WelfareDetailSheet, type WelfareChampion } from "@/components/max"
+```
+
+#### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `champion` | `WelfareChampion \| null` | required | Champion payload; renders nothing if null |
+| `isOpen` | `boolean` | required | Whether the sheet is visible |
+| `onClose` | `() => void` | required | Close handler |
+| `onLogNote` | `(champion: WelfareChampion) => void` | - | Footer “Log Note” callback |
+
+#### WelfareChampion
+
+```tsx
+interface WelfareChampion {
+  id: string
+  name: string
+  championId: string
+  avatarUrl: string
+  location: string
+  vehicle: string
+  welfareStatus: "Healthy" | "Needs Attention" | "At Risk" | "Critical"
+  championState: "Active" | "Inactive" | "On Leave" | "Suspended"
+  lastContact: string
+  nextFollowUp: string
+  issuesLogged: number
+  phoneNumber: string
+  transferRejection?: {
+    date: string
+    ownershipType: string
+    rejectionReason: string
+  }
+}
+```
+
+#### Usage
+
+```tsx
+<WelfareDetailSheet
+  champion={champ}
+  isOpen={open}
+  onClose={() => setOpen(false)}
+  onLogNote={(c) => openLogModal(c)}
+/>
+```
+
+#### Styling Notes
+
+- Timeline data comes from an internal mock map keyed by champion id
+- Footer: Call / Schedule / Log Note
+
+---
+
+### TransferRequestSheet
+
+Ownership-transfer review sheet with approve/reject flows, contract preview, and confirmation dialogs.
+
+#### Import
+
+```tsx
+import { TransferRequestSheet } from "@/components/max"
+```
+
+#### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `transfer` | `MarkedTransferRecord \| null` | required | From `@/data/mockMarkedTransfers`; renders nothing if null |
+| `isOpen` | `boolean` | required | Whether the sheet is visible |
+| `onClose` | `() => void` | required | Close handler |
+| `onStatusChange` | `(id: string, status: MarkedTransferRecord["status"], rejectionReason?: string) => void` | - | Called after approve or reject |
+
+#### Usage
+
+```tsx
+<TransferRequestSheet
+  transfer={record}
+  isOpen={open}
+  onClose={() => setOpen(false)}
+  onStatusChange={(id, status, reason) => updateTransfer(id, status, reason)}
+/>
+```
+
+#### Styling Notes
+
+- Pending transfers require a confirmation checkbox before Approve
+- Reject requires a reason textarea
+- Uses Sonner toasts for success/error
+
+---
+
+### ContractDetailSheet
+
+Portfolio contract detail sheet with progress, accordion sections, amortisation schedule, and workflow actions.
+
+#### Import
+
+```tsx
+import { ContractDetailSheet } from "@/components/max"
+```
+
+#### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `contract` | `Contract \| null` | required | From `@/data/mockContracts`; renders nothing if null |
+| `isOpen` | `boolean` | required | Whether the sheet is visible |
+| `onClose` | `() => void` | required | Close handler |
+| `onUpdate` | `(id: string, updates: Partial<Contract>) => void` | - | Called after workflow actions |
+
+#### Usage
+
+```tsx
+<ContractDetailSheet
+  contract={contract}
+  isOpen={open}
+  onClose={() => setOpen(false)}
+  onUpdate={(id, updates) => patchContract(id, updates)}
+/>
+```
+
+#### Styling Notes
+
+- Accordion sections: details / payment / asset / schedule (one open at a time)
+- Footer actions depend on status: Approve, Dispute, Resolve, Mark to Market
+- “See Champion Profile” navigates to the champion page
+- Uses `ContractInformation` with `animate={false}`
+
+---
+
+### PendingRecoveryDetailSheet
+
+Recovery-case detail sheet with an assign/reassign recovery-pair dialog.
+
+#### Import
+
+```tsx
+import { PendingRecoveryDetailSheet } from "@/components/max"
+```
+
+#### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `recovery` | `PendingRecovery \| null` | required | From `@/data/mockRecoveries`; renders nothing if null |
+| `isOpen` | `boolean` | required | Whether the sheet is visible |
+| `onClose` | `() => void` | required | Close handler |
+| `onAssignPair` | `(recoveryId: string, pairId: string) => void` | required | Called when a recovery pair is assigned |
+
+#### Usage
+
+```tsx
+<PendingRecoveryDetailSheet
+  recovery={recoveryCase}
+  isOpen={open}
+  onClose={() => setOpen(false)}
+  onAssignPair={(recoveryId, pairId) => assign(recoveryId, pairId)}
+/>
+```
+
+#### Styling Notes
+
+- Sheet `max-w-[36vw]`
+- Assign dialog lists active pairs from `mockRecoveryPairs`
+
+---
+
+## Icon Components
+
+### VehicleIcon
+
+Renders a 2/3/4-wheeler icon from an asset-type string. Also exports `getVehicleIcon(assetType)` which returns the SVG path.
+
+#### Import
+
+```tsx
+import { VehicleIcon, getVehicleIcon } from "@/components/max"
+```
+
+#### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `assetType` | `string` | required | Matched on `"2"`, `"3"`, or `"4"`; otherwise 2-wheeler |
+
+#### Usage
+
+```tsx
+<VehicleIcon assetType="3 Wheeler" />
+<img src={getVehicleIcon("4 Wheeler")} alt="" />
+```
+
+#### Styling Notes
+
+- Container 32×32 rounded `bg-muted`; icon 20×20
+- Paths: `/images/2_wheeler.svg`, `/images/3_wheeler.svg`, `/images/4_wheeler.svg`
 
 ---
 
@@ -1564,6 +3002,7 @@ The design system uses custom Tailwind color tokens defined in `src/index.css`:
 
 | Date | Component | Change |
 |------|-----------|--------|
+| 2026-08-26 | All undocumented max/ components | Documented AppLayout, BackButton, ExpandableSearch, GenericFilterPopover, FormField, CheckboxGrid, Modal, LoaderModal, Tooltip, StatCard, TimelineEntry, StatusTimeline, DistributionChart, HorizontalBarChart, VehicleOverviewCard, AssignmentHistoryCard, LifecycleMiniCard, LifecycleFlowCard, FleetDistributionCard, ActivationQueueCard, ContractInformation, WalletInformation, MaxIDCard, BatteryStatusFilterChips, BatteryListCard, BatteryLevelIcon, DriverDetailSheet, IncidentChampionsSheet, WelfareDetailSheet, TransferRequestSheet, ContractDetailSheet, PendingRecoveryDetailSheet, VehicleIcon |
 | 2026-07-30 | BatteryMap | New reusable map component with React-Leaflet, frosted glass overlay panels, battery markers, and alerts carousel |
 | 2026-06-01 | Create Ticket Wizard | Added 4-step wizard page at `/ticket-management/create` with champion search, category grid, subcategory list, and ticket details form |
 | 2026-06-01 | LocationAutocomplete | New reusable component — map-style text field with dropdown location suggestions |

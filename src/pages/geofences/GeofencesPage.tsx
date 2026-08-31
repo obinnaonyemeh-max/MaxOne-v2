@@ -95,9 +95,9 @@ export default function GeofencesPage() {
         className="shrink-0"
       />
 
-      <div className="flex-1 flex overflow-hidden px-6 pb-6 gap-4">
+      <div className="flex-1 flex min-w-0 overflow-hidden px-6 pb-6 gap-4">
         {/* Left Panel - Geofence List */}
-        <div className="w-[390px] shrink-0 border border-gray-200 rounded-lg flex flex-col bg-white overflow-hidden">
+        <div className="w-[390px] max-w-[min(390px,45vw)] min-w-0 shrink border border-gray-200 rounded-lg flex flex-col bg-white overflow-hidden">
           {/* Header */}
           <div className="p-4 border-b border-gray-200">
             <div className="flex items-center justify-between mb-4">
@@ -112,7 +112,7 @@ export default function GeofencesPage() {
               <div className="flex items-center gap-1">
                 <Popover>
                   <PopoverTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-9 w-9 relative">
+                    <Button variant="ghost" size="icon" className="h-9 w-9 relative" aria-label="Filter geofences">
                       <SlidersHorizontal className="h-4 w-4 text-gray-500" />
                       {activeFilterCount > 0 && (
                         <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-brand-dark text-[10px] text-white flex items-center justify-center">
@@ -129,7 +129,7 @@ export default function GeofencesPage() {
                     />
                   </PopoverContent>
                 </Popover>
-                <Button variant="ghost" size="icon" className="h-9 w-9">
+                <Button variant="ghost" size="icon" className="h-9 w-9" aria-label="Refresh geofences">
                   <RefreshCw className="h-4 w-4 text-gray-500" />
                 </Button>
               </div>
@@ -180,7 +180,7 @@ export default function GeofencesPage() {
         </div>
 
         {/* Right Panel - Map */}
-        <div className="relative z-0 flex-1 border border-gray-200 rounded-lg overflow-hidden bg-white p-2 min-h-0 isolate">
+        <div className="relative z-0 flex-1 min-w-0 border border-gray-200 rounded-lg overflow-hidden bg-white p-2 min-h-0 isolate">
           <GeofencesMap
             geofences={mapGeofences}
             selectedId={effectiveSelectedId}

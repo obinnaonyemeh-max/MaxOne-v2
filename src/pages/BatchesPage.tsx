@@ -1,12 +1,13 @@
 import { useMemo, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { type ColumnDef } from "@tanstack/react-table"
-import { Search, SlidersHorizontal, Plus, Calendar as CalendarIcon, Info } from "lucide-react"
+import { SlidersHorizontal, Plus, Calendar as CalendarIcon, Info } from "lucide-react"
 import { format } from "date-fns"
 
 import {
   DataTable,
   Pagination,
+  ExpandableSearch,
   GenericFilterPopover,
   getActiveFilterCount,
   Modal,
@@ -34,7 +35,7 @@ import { Calendar } from "@/components/ui/calendar"
 
 import { mockBatches, type BatchRecord } from "@/data/mockBatches"
 import { CITY_DESTINATION_OPTIONS } from "@/data/cities"
-import { mockSubBatches } from "@/data/mockSubBatches"
+import { useInboundStore } from "@/data/inboundStore"
 import { mockVehicleTypes } from "@/data/mockStockSetup"
 import { useCan, useCityScopedRecords } from "@/contexts/RoleSimulationContext"
 
@@ -53,7 +54,7 @@ const SUB_BATCH_STAGES = [
   { title: "Ready for Activation", indicatorColor: COLOR_STATUS_SUCCESS },
 ] as const
 
-function buildSubBatchStageStats(subBatches: typeof mockSubBatches) {
+function buildSubBatchStageStats(subBatches: { batchId: string; stage: string; qty: number }[]) {
   return SUB_BATCH_STAGES.map(({ title, indicatorColor }) => {
     const stageSubBatches = subBatches.filter((sb) => sb.stage === title)
     const subBatchCount = stageSubBatches.length
@@ -172,6 +173,7 @@ export default function BatchesPage() {
   const [expectedDeliveryDate, setExpectedDeliveryDate] = useState<Date | undefined>(undefined)
   const [containerNumbers, setContainerNumbers] = useState<string[]>([])
   const batchFilterCount = getActiveFilterCount(batchFilters)
+  const { subBatches } = useInboundStore()
   const canCreateBatch = useCan("inbound.batches.create")
   const scopedBatches = useCityScopedRecords(mockBatches, "destination")
   const allowedBatchIds = useMemo(
@@ -179,12 +181,20 @@ export default function BatchesPage() {
     [scopedBatches]
   )
   const scopedSubBatches = useMemo(
-    () => mockSubBatches.filter((sb) => allowedBatchIds.has(sb.batchId)),
-    [allowedBatchIds]
+    () => subBatches.filter((sb) => allowedBatchIds.has(sb.batchId)),
+    [allowedBatchIds, subBatches]
   )
   const subBatchStageStats = useMemo(
     () => buildSubBatchStageStats(scopedSubBatches),
     [scopedSubBatches]
+  )
+  const batchesWithCounts = useMemo(
+    () =>
+      scopedBatches.map((batch) => ({
+        ...batch,
+        subBatchCount: subBatches.filter((sb) => sb.batchId === batch.batchId).length,
+      })),
+    [scopedBatches, subBatches],
   )
 
   return (
@@ -225,43 +235,14 @@ export default function BatchesPage() {
               </PopoverContent>
             </Popover>
 
-            {batchSearchOpen ? (
-              <div className="flex items-center gap-1">
-                <Input
-                  type="text"
-                  value={batchSearchQuery}
-                  onChange={(e) => setBatchSearchQuery(e.target.value)}
-                  placeholder="Search batches..."
-                  className="h-9 w-48"
-                  autoFocus
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      console.log("Search:", batchSearchQuery)
-                    }
-                  }}
-                />
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-9 w-9"
-                  onClick={() => {
-                    setBatchSearchOpen(false)
-                    setBatchSearchQuery("")
-                  }}
-                >
-                  <span className="sr-only">Close search</span>
-                  ×
-                </Button>
-              </div>
-            ) : (
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => setBatchSearchOpen(true)}
-              >
-                <Search className="h-4 w-4 text-muted-foreground" />
-              </Button>
-            )}
+            <ExpandableSearch
+              open={batchSearchOpen}
+              onOpenChange={setBatchSearchOpen}
+              value={batchSearchQuery}
+              onValueChange={setBatchSearchQuery}
+              placeholder="Search batches..."
+              onSubmit={(query) => console.log("Search:", query)}
+            />
           </div>
 
           {canCreateBatch && (
@@ -273,15 +254,15 @@ export default function BatchesPage() {
         </div>
 
         <div className="flex-1 overflow-y-auto">
-          <DataTable columns={batchColumns} data={scopedBatches} onRowClick={(row) => navigate(`/inbound/batches/${row.id}`)} />
+          <DataTable columns={batchColumns} data={batchesWithCounts} onRowClick={(row) => navigate(`/inbound/batches/${row.id}`)} />
         </div>
       </div>
 
       <div className="shrink-0 mt-1 mb-6 rounded-t-[4px] rounded-b-[14px] border border-table-border bg-content-card">
         <Pagination
           currentPage={batchPage}
-          totalPages={Math.ceil(scopedBatches.length / batchPageSize) || 1}
-          totalItems={scopedBatches.length}
+          totalPages={Math.ceil(batchesWithCounts.length / batchPageSize) || 1}
+          totalItems={batchesWithCounts.length}
           pageSize={batchPageSize}
           onPageChange={setBatchPage}
           onPageSizeChange={setBatchPageSize}
@@ -319,15 +300,15 @@ export default function BatchesPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="flex flex-col gap-2">
-                <label className="text-gray-400 font-medium" style={{ fontSize: "13px" }}>Batch ID</label>
+                <label className="text-gray-600 font-medium" style={{ fontSize: "13px" }}>Batch ID</label>
                 <Input placeholder="e.g. BATCH-2026-001" className="h-12 bg-input-soft" />
               </div>
               <div className="flex flex-col gap-2">
-                <label className="text-gray-400 font-medium" style={{ fontSize: "13px" }}>Quantity</label>
+                <label className="text-gray-600 font-medium" style={{ fontSize: "13px" }}>Quantity</label>
                 <Input placeholder="Enter quantity" className="h-12 bg-input-soft" type="number" />
               </div>
               <div className="flex flex-col gap-2">
-                <label className="text-gray-400 font-medium" style={{ fontSize: "13px" }}>Manufacturer / OEM</label>
+                <label className="text-gray-600 font-medium" style={{ fontSize: "13px" }}>Manufacturer / OEM</label>
                 <Select>
                   <SelectTrigger className="h-12 w-full bg-input-soft">
                     <SelectValue placeholder="Select manufacturer / OEM" />
@@ -340,7 +321,7 @@ export default function BatchesPage() {
                 </Select>
               </div>
               <div className="flex flex-col gap-2">
-                <label className="text-gray-400 font-medium" style={{ fontSize: "13px" }}>Name</label>
+                <label className="text-gray-600 font-medium" style={{ fontSize: "13px" }}>Name</label>
                 <Select>
                   <SelectTrigger className="h-12 w-full bg-input-soft">
                     <SelectValue placeholder="Select name" />
@@ -355,25 +336,25 @@ export default function BatchesPage() {
             </div>
             <div className="grid grid-cols-3 gap-4">
               <div className="flex flex-col gap-2">
-                <label className="text-gray-400 font-medium" style={{ fontSize: "13px" }}>Trim</label>
+                <label className="text-gray-600 font-medium" style={{ fontSize: "13px" }}>Trim</label>
                 <Input placeholder="Enter trim" className="h-12 bg-input-soft" />
               </div>
               <div className="flex flex-col gap-2">
-                <label className="text-gray-400 font-medium" style={{ fontSize: "13px" }}>Destination Country</label>
+                <label className="text-gray-600 font-medium" style={{ fontSize: "13px" }}>Destination Country</label>
                 <Input placeholder="Enter country" className="h-12 bg-input-soft" />
               </div>
               <div className="flex flex-col gap-2">
-                <label className="text-gray-400 font-medium" style={{ fontSize: "13px" }}>Destination City</label>
+                <label className="text-gray-600 font-medium" style={{ fontSize: "13px" }}>Destination City</label>
                 <Input placeholder="Enter city" className="h-12 bg-input-soft" />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="flex flex-col gap-2">
-                <label className="text-gray-400 font-medium" style={{ fontSize: "13px" }}>Payment Reference</label>
+                <label className="text-gray-600 font-medium" style={{ fontSize: "13px" }}>Payment Reference</label>
                 <Input placeholder="Enter payment reference" className="h-12 bg-input-soft" />
               </div>
               <div className="flex flex-col gap-2">
-                <label className="text-gray-400 font-medium" style={{ fontSize: "13px" }}>Expected Delivery Date</label>
+                <label className="text-gray-600 font-medium" style={{ fontSize: "13px" }}>Expected Delivery Date</label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
@@ -405,7 +386,7 @@ export default function BatchesPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="flex flex-col gap-2">
-                <label className="text-gray-400 font-medium" style={{ fontSize: "13px" }}>Container Number</label>
+                <label className="text-gray-600 font-medium" style={{ fontSize: "13px" }}>Container Number</label>
                 <TagInput
                   value={containerNumbers}
                   onChange={setContainerNumbers}
@@ -417,20 +398,20 @@ export default function BatchesPage() {
                 </span>
               </div>
               <div className="flex flex-col gap-2">
-                <label className="text-gray-400 font-medium" style={{ fontSize: "13px" }}>Shipping Line</label>
+                <label className="text-gray-600 font-medium" style={{ fontSize: "13px" }}>Shipping Line</label>
                 <Input placeholder="Enter shipping line" className="h-12 bg-input-soft" />
               </div>
               <div className="flex flex-col gap-2">
-                <label className="text-gray-400 font-medium" style={{ fontSize: "13px" }}>Port of Arrival</label>
+                <label className="text-gray-600 font-medium" style={{ fontSize: "13px" }}>Port of Arrival</label>
                 <Input placeholder="Enter port of arrival" className="h-12 bg-input-soft" />
               </div>
               <div className="flex flex-col gap-2">
-                <label className="text-gray-400 font-medium" style={{ fontSize: "13px" }}>Invoice / PO Reference</label>
+                <label className="text-gray-600 font-medium" style={{ fontSize: "13px" }}>Invoice / PO Reference</label>
                 <Input placeholder="Enter invoice or PO reference" className="h-12 bg-input-soft" />
               </div>
             </div>
             <div className="flex flex-col gap-2">
-              <label className="text-gray-400 font-medium" style={{ fontSize: "13px" }}>Notes</label>
+              <label className="text-gray-600 font-medium" style={{ fontSize: "13px" }}>Notes</label>
               <Textarea placeholder="Enter any additional notes" className="min-h-[120px] bg-input-soft" />
             </div>
           </div>

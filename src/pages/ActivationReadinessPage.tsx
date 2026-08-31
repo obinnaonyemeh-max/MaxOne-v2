@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react"
 import { type ColumnDef } from "@tanstack/react-table"
-import { Search, SlidersHorizontal } from "lucide-react"
+import { SlidersHorizontal } from "lucide-react"
 
 import {
   TopBar,
@@ -11,6 +11,7 @@ import {
   Modal,
   LoaderModal,
   DocUpload,
+  ExpandableSearch,
   GenericFilterPopover,
   getActiveFilterCount,
   type FilterSection,
@@ -18,7 +19,6 @@ import {
 } from "@/components/max"
 import { StatCard } from "@/components/max/StatCard"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { useCan, useCityScopedRecords } from "@/contexts/RoleSimulationContext"
 import { useUpdateModal } from "./activation-readiness/useUpdateModal"
@@ -284,25 +284,17 @@ export default function ActivationReadinessPage() {
               </PopoverContent>
             </Popover>
 
-            {searchOpen ? (
-              <div className="flex items-center gap-1">
-                <Input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1) }}
-                  placeholder="Search chassis or sub-batch number..."
-                  className="h-9 w-56"
-                  autoFocus
-                  onKeyDown={(e) => { if (e.key === "Escape") { setSearchOpen(false); setSearchQuery("") } }}
-                />
-                <Button variant="ghost" size="icon" className="h-9 w-9"
-                  onClick={() => { setSearchOpen(false); setSearchQuery("") }}>×</Button>
-              </div>
-            ) : (
-              <Button variant="outline" size="icon" className="h-9 w-9" onClick={() => setSearchOpen(true)}>
-                <Search className="h-4 w-4 text-muted-foreground" />
-              </Button>
-            )}
+            <ExpandableSearch
+              open={searchOpen}
+              onOpenChange={setSearchOpen}
+              value={searchQuery}
+              onValueChange={(value) => {
+                setSearchQuery(value)
+                setCurrentPage(1)
+              }}
+              placeholder="Search chassis or sub-batch number..."
+              inputClassName="w-56"
+            />
           </div>
 
           <div className="flex-1 overflow-y-auto">

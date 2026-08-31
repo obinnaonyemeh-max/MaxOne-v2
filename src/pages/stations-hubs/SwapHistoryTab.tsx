@@ -1,13 +1,13 @@
 import { useMemo, useState } from "react"
 import { type ColumnDef } from "@tanstack/react-table"
-import { Search, SlidersHorizontal } from "lucide-react"
+import { SlidersHorizontal } from "lucide-react"
 import { startOfDay, endOfDay } from "date-fns"
 import {
   DataTable,
   Pagination,
+  ExpandableSearch,
 } from "@/components/max"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import {
   Popover,
   PopoverContent,
@@ -179,49 +179,20 @@ export function SwapHistoryTab({ stationId }: SwapHistoryTabProps) {
             </PopoverContent>
           </Popover>
 
-          {searchOpen ? (
-            <div className="flex items-center gap-1">
-              <Input
-                type="text"
-                value={searchQuery}
-                onChange={(event) => {
-                  setSearchQuery(event.target.value)
-                  setCurrentPage(1)
-                }}
-                placeholder="Search swap ID, operator, champion, or battery..."
-                className="h-9 w-80"
-                autoFocus
-                onKeyDown={(event) => {
-                  if (event.key === "Escape") {
-                    setSearchOpen(false)
-                    setSearchQuery("")
-                    setCurrentPage(1)
-                  }
-                }}
-              />
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-9 w-9"
-                onClick={() => {
-                  setSearchOpen(false)
-                  setSearchQuery("")
-                  setCurrentPage(1)
-                }}
-              >
-                ×
-              </Button>
-            </div>
-          ) : (
-            <Button
-              variant="outline"
-              size="icon"
-              className="h-9 w-9"
-              onClick={() => setSearchOpen(true)}
-            >
-              <Search className="h-4 w-4 text-muted-foreground" />
-            </Button>
-          )}
+          <ExpandableSearch
+            open={searchOpen}
+            onOpenChange={(open) => {
+              setSearchOpen(open)
+              if (!open) setCurrentPage(1)
+            }}
+            value={searchQuery}
+            onValueChange={(value) => {
+              setSearchQuery(value)
+              setCurrentPage(1)
+            }}
+            placeholder="Search swap ID, operator, champion, or battery..."
+            inputClassName="w-80"
+          />
         </div>
 
         <div className="overflow-x-auto">

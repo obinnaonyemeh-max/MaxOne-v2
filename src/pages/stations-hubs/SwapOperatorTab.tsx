@@ -1,14 +1,14 @@
 import { useMemo, useState } from "react"
 import { type ColumnDef } from "@tanstack/react-table"
-import { Search, UserPlus } from "lucide-react"
+import { UserPlus } from "lucide-react"
 import {
   ConfirmModal,
   DataTable,
   Pagination,
   StatusBadge,
+  ExpandableSearch,
 } from "@/components/max"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { ReassignTechnicianModal } from "@/pages/falcon-alerts/ReassignTechnicianModal"
 import {
   assignOperatorToStation,
@@ -123,49 +123,20 @@ export function SwapOperatorTab({ stationId, stationName }: SwapOperatorTabProps
     <>
       <div className="flex flex-col rounded-t-[14px] rounded-b-[4px] border border-table-border">
         <div className="flex items-center gap-2 px-2 py-2">
-          {searchOpen ? (
-            <div className="flex items-center gap-1">
-              <Input
-                type="text"
-                value={searchQuery}
-                onChange={(event) => {
-                  setSearchQuery(event.target.value)
-                  setCurrentPage(1)
-                }}
-                placeholder="Search operator or MAX ID..."
-                className="h-9 w-72"
-                autoFocus
-                onKeyDown={(event) => {
-                  if (event.key === "Escape") {
-                    setSearchOpen(false)
-                    setSearchQuery("")
-                    setCurrentPage(1)
-                  }
-                }}
-              />
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-9 w-9"
-                onClick={() => {
-                  setSearchOpen(false)
-                  setSearchQuery("")
-                  setCurrentPage(1)
-                }}
-              >
-                ×
-              </Button>
-            </div>
-          ) : (
-            <Button
-              variant="outline"
-              size="icon"
-              className="h-9 w-9"
-              onClick={() => setSearchOpen(true)}
-            >
-              <Search className="h-4 w-4 text-muted-foreground" />
-            </Button>
-          )}
+          <ExpandableSearch
+            open={searchOpen}
+            onOpenChange={(open) => {
+              setSearchOpen(open)
+              if (!open) setCurrentPage(1)
+            }}
+            value={searchQuery}
+            onValueChange={(value) => {
+              setSearchQuery(value)
+              setCurrentPage(1)
+            }}
+            placeholder="Search operator or MAX ID..."
+            inputClassName="w-72"
+          />
 
           <Button
             className="ml-auto h-9 gap-2 bg-brand-dark px-3 text-white hover:bg-brand-dark/90"

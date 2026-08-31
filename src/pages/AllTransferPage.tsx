@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { type ColumnDef } from "@tanstack/react-table"
-import { Search, SlidersHorizontal } from "lucide-react"
+import { SlidersHorizontal } from "lucide-react"
 
 import {
   TopBar,
@@ -10,6 +10,7 @@ import {
   Pagination,
   StatusTabs,
   type StatusTab,
+  ExpandableSearch,
   GenericFilterPopover,
   getActiveFilterCount,
   type FilterSection,
@@ -17,7 +18,6 @@ import {
 } from "@/components/max"
 import { StatCard } from "@/components/max/StatCard"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import {
   Popover,
   PopoverContent,
@@ -277,39 +277,14 @@ export default function AllTransferPage() {
               </PopoverContent>
             </Popover>
 
-            {searchOpen ? (
-              <div className="flex items-center gap-1">
-                <Input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search vehicle or champion..."
-                  className="h-9 w-56"
-                  autoFocus
-                  onKeyDown={(e) => {
-                    if (e.key === "Escape") {
-                      setSearchOpen(false)
-                      setSearchQuery("")
-                    }
-                  }}
-                />
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-9 w-9"
-                  onClick={() => {
-                    setSearchOpen(false)
-                    setSearchQuery("")
-                  }}
-                >
-                  ×
-                </Button>
-              </div>
-            ) : (
-              <Button variant="outline" size="icon" className="h-9 w-9" onClick={() => setSearchOpen(true)}>
-                <Search className="h-4 w-4 text-muted-foreground" />
-              </Button>
-            )}
+            <ExpandableSearch
+              open={searchOpen}
+              onOpenChange={setSearchOpen}
+              value={searchQuery}
+              onValueChange={setSearchQuery}
+              placeholder="Search vehicle or champion..."
+              inputClassName="w-56"
+            />
           </div>
 
           <div className="flex-1 overflow-y-auto">

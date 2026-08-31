@@ -1,11 +1,17 @@
 import { useEffect, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 
-import { TopBar, BackButton } from "@/components/max"
+import { TopBar, BackButton, Toast, useToast } from "@/components/max"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { useRoleSimulation } from "@/contexts/RoleSimulationContext"
 import { mockBatches } from "@/data/mockBatches"
 import { getBatchDetails } from "@/data/mockBatchDetails"
+import {
+  createSubBatchFromIdentifiers,
+  parseIdentifierCsv,
+  useInboundStore,
+} from "@/data/inboundStore"
+import type { IdentifierInput } from "@/data/mockBatchDetailRows"
 
 import { OverviewTab } from "./batch-details/OverviewTab"
 import { SubBatchesTab } from "./batch-details/SubBatchesTab"
@@ -14,13 +20,16 @@ import { RegistrationPrepTab } from "./batch-details/RegistrationPrepTab"
 import { DocumentsTab } from "./batch-details/DocumentsTab"
 import { AddIdentifierModal } from "./batch-details/AddIdentifierModal"
 import { UploadDocumentModal } from "./batch-details/UploadDocumentModal"
+import { UploadIdentifiersCsvModal } from "./batch-details/UploadIdentifiersCsvModal"
 
 export default function BatchDetailsPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { filterByCity } = useRoleSimulation()
+  const { identifiers } = useInboundStore()
   const listBatch = mockBatches.find((batch) => batch.id === (id || "1"))
   const batch = getBatchDetails(id || "1")
+  const identifiersUploaded = identifiers.filter((row) => row.batchId === batch.batchId).length
 
   useEffect(() => {
     if (listBatch && !filterByCity(listBatch.destination)) {
@@ -29,7 +38,35 @@ export default function BatchDetailsPage() {
   }, [filterByCity, listBatch, navigate])
 
   const [showAddIdentifier, setShowAddIdentifier] = useState(false)
+  const [showUploadCsv, setShowUploadCsv] = useState(false)
   const [showUploadDoc, setShowUploadDoc] = useState(false)
+  const { message: toast, variant: toastVariant, showToast, showError } = useToast()
+
+  const handleAddIdentifier = (input: IdentifierInput) => {
+    const created = createSubBatchFromIdentifiers(batch.batchId, [input])
+    if (!created) {
+      showError("Enter a chassis number to create a sub-batch.")
+      return
+    }
+    showToast(`Sub-batch ${created.subBatch.subBatchId} created with 1 identifier`)
+  }
+
+  const handleUploadCsv = async (file: File) => {
+    const text = await file.text()
+    const rows = parseIdentifierCsv(text)
+    if (rows.length === 0) {
+      showError("No valid identifier rows found in the CSV.")
+      return
+    }
+    const created = createSubBatchFromIdentifiers(batch.batchId, rows)
+    if (!created) {
+      showError("Could not create a sub-batch from this CSV.")
+      return
+    }
+    showToast(
+      `Sub-batch ${created.subBatch.subBatchId} created with ${created.identifiers.length} identifier${created.identifiers.length === 1 ? "" : "s"}`,
+    )
+  }
 
   return (
     <>
@@ -97,7 +134,7 @@ export default function BatchDetailsPage() {
               </TabsList>
 
               <TabsContent value="overview" className="mt-0 flex-1 min-h-0 overflow-y-auto">
-                <OverviewTab batch={batch} />
+                <OverviewTab batch={batch} identifiersUploaded={identifiersUploaded} />
               </TabsContent>
 
               <TabsContent value="sub-batches" className="mt-0 flex-1 min-h-0 overflow-y-auto">
@@ -105,7 +142,11 @@ export default function BatchDetailsPage() {
               </TabsContent>
 
               <TabsContent value="vehicle-ids" className="mt-0 flex-1 min-h-0 overflow-y-auto">
-                <VehicleIdsTab onAddIdentifier={() => setShowAddIdentifier(true)} />
+                <VehicleIdsTab
+                  batchId={batch.batchId}
+                  onAddIdentifier={() => setShowAddIdentifier(true)}
+                  onUploadCsv={() => setShowUploadCsv(true)}
+                />
               </TabsContent>
 
               <TabsContent value="registration-prep" className="mt-0 flex-1 min-h-0 overflow-y-auto">
@@ -120,8 +161,18 @@ export default function BatchDetailsPage() {
         </div>
       </div>
 
-      <AddIdentifierModal open={showAddIdentifier} onOpenChange={setShowAddIdentifier} />
+      <AddIdentifierModal
+        open={showAddIdentifier}
+        onOpenChange={setShowAddIdentifier}
+        onSubmit={handleAddIdentifier}
+      />
+      <UploadIdentifiersCsvModal
+        open={showUploadCsv}
+        onOpenChange={setShowUploadCsv}
+        onSubmit={handleUploadCsv}
+      />
       <UploadDocumentModal open={showUploadDoc} onOpenChange={setShowUploadDoc} />
+      <Toast message={toast} variant={toastVariant} />
     </>
   )
 }

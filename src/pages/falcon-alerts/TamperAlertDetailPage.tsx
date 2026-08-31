@@ -228,6 +228,7 @@ export default function TamperAlertDetailPage() {
                   className="h-8 w-8"
                   onClick={handleRefresh}
                   disabled={isRefreshing}
+                  aria-label="Refresh parameters"
                   title="Refresh parameters"
                 >
                   <RefreshCw className={`h-4 w-4 text-gray-500 ${isRefreshing ? "animate-spin" : ""}`} />

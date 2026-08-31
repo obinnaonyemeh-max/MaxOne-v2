@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react"
 import { type ColumnDef } from "@tanstack/react-table"
-import { Search, SlidersHorizontal, Calendar as CalendarIcon } from "lucide-react"
+import { SlidersHorizontal, Calendar as CalendarIcon } from "lucide-react"
 import { format } from "date-fns"
 import type { DateRange } from "react-day-picker"
 
@@ -11,13 +11,13 @@ import {
   Pagination,
   StatCard,
   StatusBadge,
+  ExpandableSearch,
   GenericFilterPopover,
   getActiveFilterCount,
   type FilterSection,
   type GenericFilterState,
 } from "@/components/max"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Calendar } from "@/components/ui/calendar"
 import {
   Popover,
@@ -295,44 +295,14 @@ export default function AllCollectionsPage() {
               </PopoverContent>
             </Popover>
 
-            {searchOpen ? (
-              <div className="flex items-center gap-1">
-                <Input
-                  type="text"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Search contract or champion..."
-                  className="h-9 w-72"
-                  autoFocus
-                  onKeyDown={(e) => {
-                    if (e.key === "Escape") {
-                      setSearchOpen(false)
-                      setSearch("")
-                    }
-                  }}
-                />
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-9 w-9"
-                  onClick={() => {
-                    setSearchOpen(false)
-                    setSearch("")
-                  }}
-                >
-                  ×
-                </Button>
-              </div>
-            ) : (
-              <Button
-                variant="outline"
-                size="icon"
-                className="h-9 w-9"
-                onClick={() => setSearchOpen(true)}
-              >
-                <Search className="h-4 w-4 text-muted-foreground" />
-              </Button>
-            )}
+            <ExpandableSearch
+              open={searchOpen}
+              onOpenChange={setSearchOpen}
+              value={search}
+              onValueChange={setSearch}
+              placeholder="Search contract or champion..."
+              inputClassName="w-72"
+            />
           </div>
 
           <div>

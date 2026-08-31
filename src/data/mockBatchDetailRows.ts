@@ -1,5 +1,7 @@
 export interface VehicleIdentifier {
   id: string
+  batchId: string
+  subBatchId: string
   chassisVin: string
   engineNo: string
   ignitionNo: string
@@ -7,6 +9,8 @@ export interface VehicleIdentifier {
   color: string
   receiver: string
 }
+
+export type IdentifierInput = Omit<VehicleIdentifier, "id" | "batchId" | "subBatchId">
 
 export interface RegistrationRecord {
   id: string
@@ -24,17 +28,36 @@ export interface BatchDocument {
   uploaded: string
 }
 
-export const mockIdentifiers = [
-  {
-    id: "1",
-    chassisVin: "WE3234777TYT",
-    engineNo: "EV387465",
-    ignitionNo: "TH19009",
-    batterySn: "BAT90909",
-    color: "YELLOW",
-    receiver: "FLEETOPS",
-  },
-] satisfies VehicleIdentifier[]
+function identifier(
+  id: string,
+  batchId: string,
+  subBatchId: string,
+  chassisVin: string,
+  engineNo: string,
+  ignitionNo: string,
+  batterySn: string,
+  color: string,
+  receiver = "FLEETOPS",
+): VehicleIdentifier {
+  return { id, batchId, subBatchId, chassisVin, engineNo, ignitionNo, batterySn, color, receiver }
+}
+
+export let mockIdentifiers: VehicleIdentifier[] = [
+  identifier("1", "BATCH-12-3056", "SB-12-3056-A", "WE3234777TYT", "EV387465", "TH19009", "BAT90909", "YELLOW"),
+  identifier("2", "BATCH-12-3056", "SB-12-3056-A", "WE3234778KLM", "EV387466", "TH19010", "BAT90910", "BLACK"),
+  identifier("3", "BATCH-12-3056", "SB-12-3056-A", "WE3234779PQR", "EV387467", "TH19011", "BAT90911", "RED"),
+  identifier("4", "BATCH-12-3056", "SB-12-3056-B", "WE3234801ABC", "EV388001", "TH19101", "BAT91001", "YELLOW"),
+  identifier("5", "BATCH-12-3056", "SB-12-3056-B", "WE3234802DEF", "EV388002", "TH19102", "BAT91002", "WHITE"),
+  identifier("6", "BATCH-12-3056", "SB-12-3056-B", "WE3234803GHI", "EV388003", "TH19103", "BAT91003", "BLACK"),
+  identifier("7", "BATCH-12-3056", "SB-12-3056-C", "WE3234901JKL", "EV389001", "TH19201", "BAT92001", "YELLOW"),
+  identifier("8", "BATCH-12-3056", "SB-12-3056-C", "WE3234902MNO", "EV389002", "TH19202", "BAT92002", "BLUE"),
+  identifier("9", "BATCH-12-3056", "SB-12-3056-C", "WE3234903STU", "EV389003", "TH19203", "BAT92003", "RED"),
+  identifier("10", "BATCH-12-3056", "SB-12-3056-D", "WE3235001VWX", "EV390001", "TH19301", "BAT93001", "YELLOW"),
+  identifier("11", "BATCH-12-3056", "SB-12-3056-D", "WE3235002YZA", "EV390002", "TH19302", "BAT93002", "BLACK"),
+  identifier("12", "BATCH-0990", "SB-0990-A", "SP0990001AAA", "SP387001", "IG09901", "BAT09901", "GREEN"),
+  identifier("13", "BATCH-0990", "SB-0990-A", "SP0990002BBB", "SP387002", "IG09902", "BAT09902", "WHITE"),
+  identifier("14", "BATCH-0990", "SB-0990-B", "SP0990101CCC", "SP388001", "IG09911", "BAT09911", "GREEN"),
+]
 
 export const mockRegistrationRecords = [
   {

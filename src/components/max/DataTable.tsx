@@ -19,6 +19,7 @@ interface DataTableProps<TData, TValue> {
   data: TData[]
   isLoading?: boolean
   onRowClick?: (row: TData) => void
+  getRowAriaLabel?: (row: TData) => string
   emptyMessage?: string
   className?: string
 }
@@ -28,6 +29,7 @@ export function DataTable<TData, TValue>({
   data,
   isLoading = false,
   onRowClick,
+  getRowAriaLabel,
   emptyMessage = "No results found.",
   className,
 }: DataTableProps<TData, TValue>) {
@@ -106,7 +108,17 @@ export function DataTable<TData, TValue>({
                   "border-gray-100",
                   onRowClick && "cursor-pointer"
                 )}
+                tabIndex={onRowClick ? 0 : undefined}
+                aria-label={getRowAriaLabel?.(row.original)}
                 onClick={() => onRowClick?.(row.original)}
+                onKeyDown={(event) => {
+                  if (!onRowClick) return
+                  if (event.target !== event.currentTarget) return
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault()
+                    onRowClick(row.original)
+                  }
+                }}
               >
                 {row.getVisibleCells().map((cell) => (
                   <TableCell

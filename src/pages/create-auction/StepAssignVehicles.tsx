@@ -1,7 +1,8 @@
-import { Search, SlidersHorizontal, X } from "lucide-react"
+import { SlidersHorizontal, X } from "lucide-react"
 
 import {
   DataTable,
+  ExpandableSearch,
   GenericFilterPopover,
   getActiveFilterCount,
   type GenericFilterState,
@@ -96,34 +97,14 @@ export function StepAssignVehicles(props: StepAssignVehiclesProps) {
                 </PopoverContent>
               </Popover>
 
-              {vehicleSearchOpen ? (
-                <div className="flex items-center gap-1">
-                  <Input
-                    type="text"
-                    value={vehicleSearch}
-                    onChange={(e) => onSearchChange(e.target.value)}
-                    placeholder="Search ID, plate or model..."
-                    className="h-9 w-56"
-                    autoFocus
-                  />
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-9 w-9"
-                    onClick={() => {
-                      onSearchOpenChange(false)
-                      onSearchChange("")
-                    }}
-                  >
-                    <span className="sr-only">Close search</span>
-                    ×
-                  </Button>
-                </div>
-              ) : (
-                <Button variant="outline" size="icon" onClick={() => onSearchOpenChange(true)}>
-                  <Search className="h-4 w-4 text-muted-foreground" />
-                </Button>
-              )}
+              <ExpandableSearch
+                open={vehicleSearchOpen}
+                onOpenChange={onSearchOpenChange}
+                value={vehicleSearch}
+                onValueChange={onSearchChange}
+                placeholder="Search ID, plate or model..."
+                inputClassName="w-56"
+              />
 
               <Button variant="outline" className="h-9 gap-2 ml-auto" onClick={onBulkUpload}>
                 <img src="/images/bulk_update.svg" alt="" className="h-4 w-4" />
@@ -198,10 +179,10 @@ export function StepAssignVehicles(props: StepAssignVehiclesProps) {
                       variant="ghost"
                       size="icon"
                       className="h-7 w-7 shrink-0 ml-auto text-muted-foreground hover:text-status-danger"
+                      aria-label={`Remove ${v.vehicleId}`}
                       onClick={() => onRemoveVehicle(v.id)}
                     >
-                      <span className="sr-only">Remove {v.vehicleId}</span>
-                      <X className="h-3.5 w-3.5" />
+                      <X className="h-3.5 w-3.5" aria-hidden />
                     </Button>
                   </div>
                 ))}

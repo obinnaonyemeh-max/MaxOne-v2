@@ -28,7 +28,7 @@ function FormField({
     <div className="flex flex-col gap-2">
       <label
         htmlFor={htmlFor}
-        className="font-medium text-gray-400"
+        className="font-medium text-gray-600"
         style={{ fontSize: "13px" }}
       >
         {label}

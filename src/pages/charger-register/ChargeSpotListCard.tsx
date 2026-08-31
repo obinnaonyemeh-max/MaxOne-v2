@@ -1,5 +1,6 @@
 import { Share2 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { clickableSurfaceProps } from "@/lib/clickableSurface"
 import {
   Tooltip,
   TooltipContent,
@@ -41,7 +42,7 @@ export function ChargeSpotListCard({
           : "border-gray-200 hover:border-gray-300",
         className
       )}
-      onClick={onClick}
+      {...clickableSurfaceProps(onClick, spot.title)}
     >
       <div className="flex items-start justify-between gap-2 mb-3">
         <h3

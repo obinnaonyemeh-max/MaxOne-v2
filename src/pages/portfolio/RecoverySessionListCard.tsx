@@ -1,6 +1,7 @@
 import { ChevronDown } from "lucide-react"
 import { motion, AnimatePresence } from "motion/react"
 import { cn } from "@/lib/utils"
+import { clickableSurfaceProps } from "@/lib/clickableSurface"
 import { StatusBadge } from "@/components/max/StatusBadge"
 import { sessionStatusVariantMap, type RecoverySession } from "@/data/mockRecoveries"
 
@@ -28,7 +29,7 @@ export function RecoverySessionListCard({
         isSelected ? "border-gray-950 shadow-sm" : "border-gray-200 hover:border-gray-300",
         className
       )}
-      onClick={onClick}
+      {...clickableSurfaceProps(onClick, session.championName)}
     >
       <div className="p-4">
         <div className="flex items-start gap-3 pr-6">

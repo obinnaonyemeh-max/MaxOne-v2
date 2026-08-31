@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { type ColumnDef } from "@tanstack/react-table"
-import { Search, SlidersHorizontal } from "lucide-react"
+import { SlidersHorizontal } from "lucide-react"
 
 import {
   TopBar,
@@ -12,13 +12,13 @@ import {
   Banner,
   ConfirmModal,
   VehicleIcon,
+  ExpandableSearch,
   GenericFilterPopover,
   getActiveFilterCount,
   type GenericFilterState,
 } from "@/components/max"
 import { StatCard } from "@/components/max/StatCard"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import {
   Popover,
   PopoverContent,
@@ -325,38 +325,14 @@ export default function AuctionDetailPage() {
                 </PopoverContent>
               </Popover>
 
-              {searchOpen ? (
-                <div className="flex items-center gap-1">
-                  <Input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search vehicle, plate or model..."
-                    className="h-9 w-56"
-                    autoFocus
-                  />
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-9 w-9"
-                    onClick={() => {
-                      setSearchOpen(false)
-                      setSearchQuery("")
-                    }}
-                  >
-                    <span className="sr-only">Close search</span>
-                    ×
-                  </Button>
-                </div>
-              ) : (
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => setSearchOpen(true)}
-                >
-                  <Search className="h-4 w-4 text-muted-foreground" />
-                </Button>
-              )}
+              <ExpandableSearch
+                open={searchOpen}
+                onOpenChange={setSearchOpen}
+                value={searchQuery}
+                onValueChange={setSearchQuery}
+                placeholder="Search vehicle, plate or model..."
+                inputClassName="w-56"
+              />
             </div>
           </div>
 

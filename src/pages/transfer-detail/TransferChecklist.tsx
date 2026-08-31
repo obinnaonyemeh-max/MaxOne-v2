@@ -28,12 +28,8 @@ export function TransferChecklist({ isInProgressMode, checkedIds, onToggle }: Pr
       <div className="flex flex-col divide-y divide-border">
         {checklistItems.map((item) => {
           const isChecked = !isInProgressMode || checkedIds.has(item.id)
-          return (
-            <div
-              key={item.id}
-              className={cn("flex items-start gap-3 py-3", isInProgressMode && "cursor-pointer")}
-              onClick={() => isInProgressMode && onToggle(item.id)}
-            >
+          const body = (
+            <>
               {isChecked ? <CheckedBox /> : <EmptyBox />}
               <div className="flex flex-col gap-0.5">
                 <span
@@ -52,6 +48,23 @@ export function TransferChecklist({ isInProgressMode, checkedIds, onToggle }: Pr
                   </span>
                 )}
               </div>
+            </>
+          )
+          if (isInProgressMode) {
+            return (
+              <button
+                key={item.id}
+                type="button"
+                className="flex w-full items-start gap-3 py-3 text-left cursor-pointer"
+                onClick={() => onToggle(item.id)}
+              >
+                {body}
+              </button>
+            )
+          }
+          return (
+            <div key={item.id} className="flex items-start gap-3 py-3">
+              {body}
             </div>
           )
         })}

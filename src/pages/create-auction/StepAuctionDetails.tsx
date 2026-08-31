@@ -90,7 +90,7 @@ export function StepAuctionDetails({ form, onUpdateField, onStartDateChange }: S
 
           <FormField label="Minimum increment" hint="Smallest amount a bid can increase by">
             <div className="relative">
-              <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 font-medium text-gray-400" style={{ fontSize: "13px" }}>
+              <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 font-medium text-gray-600" style={{ fontSize: "13px" }}>
                 ₦
               </span>
               <Input

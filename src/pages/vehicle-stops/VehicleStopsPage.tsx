@@ -270,8 +270,8 @@ export default function VehicleStopsPage() {
         </div>
       </div>
 
-      <div className="flex-1 flex overflow-hidden px-6 pb-6 gap-4">
-        <div className="w-[390px] shrink-0 border border-gray-200 rounded-lg flex flex-col bg-white overflow-hidden">
+      <div className="flex-1 flex min-w-0 overflow-hidden px-6 pb-6 gap-4">
+        <div className="w-[390px] max-w-[min(390px,45vw)] min-w-0 shrink border border-gray-200 rounded-lg flex flex-col bg-white overflow-hidden">
           <div className="p-4 border-b border-gray-200">
             <div className="flex items-center justify-between">
               <div>
@@ -324,7 +324,7 @@ export default function VehicleStopsPage() {
           </div>
         </div>
 
-        <div className="relative z-0 flex-1 border border-gray-200 rounded-lg overflow-hidden bg-white p-2 min-h-0 isolate">
+        <div className="relative z-0 flex-1 min-w-0 border border-gray-200 rounded-lg overflow-hidden bg-white p-2 min-h-0 isolate">
           {isPrime ? (
             <ChargeSpotsMap
               spots={filteredPrimeStops}

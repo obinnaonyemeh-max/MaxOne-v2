@@ -1,7 +1,5 @@
 import { useMemo, useState } from "react"
-import { Search } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { ExpandableSearch } from "@/components/max"
 import {
   Select,
   SelectContent,
@@ -70,7 +68,7 @@ export function StationBatteryListTab({
             value={statusFilter || undefined}
             onValueChange={(value) => setStatusFilter(value === "all" ? "" : value)}
           >
-            <SelectTrigger className="h-9 min-w-[160px] [&_svg]:text-brand-primary [&_svg]:opacity-100">
+            <SelectTrigger className="h-9 min-w-[160px] [&_svg]:text-gray-700 [&_svg]:opacity-100">
               <SelectValue placeholder="- Select status -" />
             </SelectTrigger>
             <SelectContent>
@@ -82,44 +80,14 @@ export function StationBatteryListTab({
             </SelectContent>
           </Select>
 
-          {searchOpen ? (
-            <div className="flex items-center gap-1">
-              <Input
-                type="text"
-                value={searchQuery}
-                onChange={(event) => setSearchQuery(event.target.value)}
-                placeholder="Search battery ID or brand"
-                className="h-9 w-56"
-                autoFocus
-                onKeyDown={(event) => {
-                  if (event.key === "Escape") {
-                    setSearchOpen(false)
-                    setSearchQuery("")
-                  }
-                }}
-              />
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-9 w-9"
-                onClick={() => {
-                  setSearchOpen(false)
-                  setSearchQuery("")
-                }}
-              >
-                ×
-              </Button>
-            </div>
-          ) : (
-            <Button
-              variant="outline"
-              size="icon"
-              className="h-9 w-9"
-              onClick={() => setSearchOpen(true)}
-            >
-              <Search className="h-4 w-4 text-muted-foreground" />
-            </Button>
-          )}
+          <ExpandableSearch
+            open={searchOpen}
+            onOpenChange={setSearchOpen}
+            value={searchQuery}
+            onValueChange={setSearchQuery}
+            placeholder="Search battery ID or brand"
+            inputClassName="w-56"
+          />
         </div>
       </div>
 

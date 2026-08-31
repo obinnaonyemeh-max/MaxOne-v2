@@ -258,7 +258,7 @@ export function TransferBatteriesModal({
 
             <div className="min-w-0 flex-1 space-y-2">
               <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-3">
-                <p className="text-xs font-medium text-gray-400">From</p>
+                <p className="text-xs font-medium text-gray-600">From</p>
                 <p className="mt-0.5 text-sm font-semibold text-gray-950">{station.name}</p>
                 <p className="text-xs text-breadcrumb-root">
                   {station.city} · {station.provider}
@@ -267,7 +267,7 @@ export function TransferBatteriesModal({
 
               <div ref={destinationRef} className="relative">
                 <div className="rounded-lg border border-gray-200 bg-white px-3 py-2 focus-within:border-brand-primary">
-                  <p className="text-xs font-medium text-gray-400">To</p>
+                  <p className="text-xs font-medium text-gray-600">To</p>
                   <div className="relative mt-0.5">
                     <Search className="pointer-events-none absolute left-0 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
@@ -288,7 +288,7 @@ export function TransferBatteriesModal({
                         }
                       }}
                       placeholder="Search destination station"
-                      className="h-9 border-0 bg-transparent px-0 pl-6 shadow-none focus-visible:ring-0"
+                      className="h-9 border-0 bg-transparent px-0 pl-6 shadow-none"
                     />
                   </div>
                 </div>

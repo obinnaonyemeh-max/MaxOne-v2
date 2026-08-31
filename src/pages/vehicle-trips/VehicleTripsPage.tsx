@@ -216,7 +216,7 @@ export default function VehicleTripsPage() {
           />
         </div>
       </div>
-      <div className="w-[340px] shrink-0 flex flex-col gap-4 min-h-0 overflow-y-auto">
+      <div className="w-[340px] max-w-[min(340px,40vw)] min-w-0 shrink flex flex-col gap-4 min-h-0 overflow-y-auto">
         <VehicleOverviewCard
           className="shrink-0"
           title="Vehicle State"
@@ -294,7 +294,7 @@ export default function VehicleTripsPage() {
               dashboard
             ) : (
               <>
-                <div className="w-[340px] shrink-0 border border-gray-200 rounded-lg flex flex-col bg-white overflow-hidden">
+                <div className="w-[340px] max-w-[min(340px,40vw)] min-w-0 shrink border border-gray-200 rounded-lg flex flex-col bg-white overflow-hidden">
                 <div className="p-4 border-b border-gray-200 flex items-start justify-between">
                   <div>
                     <p className="text-gray-950" style={{ fontSize: "28px", fontWeight: 600, lineHeight: 1 }}>

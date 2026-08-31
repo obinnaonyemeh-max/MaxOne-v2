@@ -10,6 +10,7 @@ export function BackButton({ onClick, className }: BackButtonProps) {
   return (
     <button
       type="button"
+      aria-label="Back"
       onClick={onClick}
       className={cn(
         "p-[7px] bg-gray-50 border border-gray-200 transition-colors hover:bg-gray-200",
@@ -22,7 +23,7 @@ export function BackButton({ onClick, className }: BackButtonProps) {
         borderBottomRightRadius: '4px'
       }}
     >
-      <ChevronLeft className="h-[18px] w-[18px] text-sidebar-item" />
+      <ChevronLeft className="h-[18px] w-[18px] text-sidebar-item" aria-hidden />
     </button>
   )
 }

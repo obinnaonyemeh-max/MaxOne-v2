@@ -67,6 +67,14 @@ export function TagInput({
         className
       )}
       onClick={() => inputRef.current?.focus()}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault()
+          inputRef.current?.focus()
+        }
+      }}
+      role="group"
+      aria-label={placeholder ?? "Tags"}
     >
       {value.map((tag, i) => (
         <span
@@ -101,6 +109,7 @@ export function TagInput({
         onKeyDown={handleKeyDown}
         onBlur={() => { if (draft.trim()) commit(draft) }}
         placeholder={value.length === 0 ? placeholder : ""}
+        aria-label={placeholder ?? "Add tags"}
         disabled={disabled}
         className="flex-1 min-w-[80px] bg-transparent outline-none font-medium text-brand-dark placeholder:font-medium placeholder:text-gray-500" style={{ fontSize: "14px" }}
       />

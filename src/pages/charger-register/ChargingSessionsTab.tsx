@@ -1,17 +1,17 @@
 import { useMemo, useState } from "react"
 import { type ColumnDef } from "@tanstack/react-table"
-import { Search, SlidersHorizontal } from "lucide-react"
+import { SlidersHorizontal } from "lucide-react"
 import {
   DataTable,
   Pagination,
   StatusBadge,
+  ExpandableSearch,
   GenericFilterPopover,
   getActiveFilterCount,
   type FilterSection,
   type GenericFilterState,
 } from "@/components/max"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import {
   Popover,
   PopoverContent,
@@ -259,46 +259,24 @@ export function ChargingSessionsTab({ chargerId }: ChargingSessionsTabProps) {
               </PopoverContent>
             </Popover>
 
-            {searchOpen ? (
-              <div className="flex items-center gap-1">
-                <Input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search session or battery..."
-                  className="h-9 w-56"
-                  autoFocus
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      setSubmittedSearch(searchQuery)
-                      setCurrentPage(1)
-                    }
-                  }}
-                />
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-9 w-9"
-                  onClick={() => {
-                    setSearchOpen(false)
-                    setSearchQuery("")
-                    setSubmittedSearch("")
-                    setCurrentPage(1)
-                  }}
-                >
-                  <span className="sr-only">Close search</span>
-                  ×
-                </Button>
-              </div>
-            ) : (
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => setSearchOpen(true)}
-              >
-                <Search className="h-4 w-4 text-muted-foreground" />
-              </Button>
-            )}
+            <ExpandableSearch
+              open={searchOpen}
+              onOpenChange={(open) => {
+                setSearchOpen(open)
+                if (!open) {
+                  setSubmittedSearch("")
+                  setCurrentPage(1)
+                }
+              }}
+              value={searchQuery}
+              onValueChange={setSearchQuery}
+              placeholder="Search session or battery..."
+              inputClassName="w-56"
+              onSubmit={(query) => {
+                setSubmittedSearch(query)
+                setCurrentPage(1)
+              }}
+            />
           </div>
         </div>
 

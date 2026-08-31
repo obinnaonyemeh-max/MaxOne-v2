@@ -11,6 +11,7 @@ export type PermissionKey =
   | "fleetRegister.column.collectionPercent"
   | "inbound.batches.create"
   | "inbound.batches.addIdentifier"
+  | "inbound.batches.editIdentifier"
   | "inbound.batches.uploadCsv"
   | "inbound.batches.uploadDocuments"
   | "inbound.batches.moveSubBatchStage"
@@ -47,6 +48,7 @@ export const ALL_PERMISSIONS: PermissionKey[] = [
   "fleetRegister.column.collectionPercent",
   "inbound.batches.create",
   "inbound.batches.addIdentifier",
+  "inbound.batches.editIdentifier",
   "inbound.batches.uploadCsv",
   "inbound.batches.uploadDocuments",
   "inbound.batches.moveSubBatchStage",
@@ -85,7 +87,7 @@ export const GLOBAL_FLEET_MANAGER: RoleDefinition = {
     // Fleet Register: view columns except contract risk / collection %; no add/bulk/edit
     // Vehicle details: no edit vehicle info
     // Asset Movement: everything
-    // Inbound batches: view only for create/identifier/csv/docs/stage move
+    // Inbound batches: view only for create/identifier add/edit/csv/docs/stage move
     // Stock setup: view tabs, no add/edit
     // Activation readiness: no update / bulk upload
     // Vehicle document: no upload / replace

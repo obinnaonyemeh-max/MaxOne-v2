@@ -1,20 +1,20 @@
 import { useMemo, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { type ColumnDef } from "@tanstack/react-table"
-import { Plus, Search, SlidersHorizontal } from "lucide-react"
+import { Plus, SlidersHorizontal } from "lucide-react"
 
 import {
   TopBar,
   DataTable,
   StatusBadge,
   Pagination,
+  ExpandableSearch,
   GenericFilterPopover,
   getActiveFilterCount,
   type FilterSection,
   type GenericFilterState,
 } from "@/components/max"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import {
   Popover,
   PopoverContent,
@@ -211,42 +211,17 @@ export default function KitReportsPage() {
               </PopoverContent>
             </Popover>
 
-            {searchOpen ? (
-              <div className="flex items-center gap-1">
-                <Input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => {
-                    setSearchQuery(e.target.value)
-                    setCurrentPage(1)
-                  }}
-                  placeholder="Search Kit ID or plate number"
-                  className="h-9 w-64"
-                  autoFocus
-                  onKeyDown={(e) => {
-                    if (e.key === "Escape") {
-                      setSearchOpen(false)
-                      setSearchQuery("")
-                    }
-                  }}
-                />
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-9 w-9"
-                  onClick={() => {
-                    setSearchOpen(false)
-                    setSearchQuery("")
-                  }}
-                >
-                  ×
-                </Button>
-              </div>
-            ) : (
-              <Button variant="outline" size="icon" className="h-9 w-9" onClick={() => setSearchOpen(true)}>
-                <Search className="h-4 w-4 text-muted-foreground" />
-              </Button>
-            )}
+            <ExpandableSearch
+              open={searchOpen}
+              onOpenChange={setSearchOpen}
+              value={searchQuery}
+              onValueChange={(value) => {
+                setSearchQuery(value)
+                setCurrentPage(1)
+              }}
+              placeholder="Search Kit ID or plate number"
+              inputClassName="w-64"
+            />
             </div>
 
             {canKitReassignment && (

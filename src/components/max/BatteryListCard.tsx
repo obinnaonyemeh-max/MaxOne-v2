@@ -2,6 +2,7 @@ import { useState } from "react"
 import { ChevronDown, MoreHorizontal } from "lucide-react"
 import { motion, AnimatePresence } from "motion/react"
 import { cn } from "@/lib/utils"
+import { clickableSurfaceProps } from "@/lib/clickableSurface"
 import { StatusBadge } from "./StatusBadge"
 import { BatteryLevelIcon } from "./BatteryLevelIcon"
 import {
@@ -104,7 +105,7 @@ export function BatteryListCard({
           : "border-gray-200 hover:border-gray-300",
         className
       )}
-      onClick={onClick}
+      {...clickableSurfaceProps(onClick, id)}
     >
       <div className="p-4">
         {/* First Row: ID, Battery Icon, Status Badge, Menu */}
@@ -132,6 +133,8 @@ export function BatteryListCard({
               <Popover open={menuOpen} onOpenChange={setMenuOpen}>
                 <PopoverTrigger asChild>
                   <button
+                    type="button"
+                    aria-label="Battery actions"
                     onClick={(e) => {
                       e.stopPropagation()
                     }}

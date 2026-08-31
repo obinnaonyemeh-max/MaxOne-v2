@@ -558,6 +558,7 @@ export function Sidebar({ logo, collapsedLogo, sections, user, onItemClick, isCo
           <button
             onClick={onToggleCollapse}
             className="group relative flex items-center justify-center rounded p-1 hover:bg-sidebar-hover transition-colors"
+            aria-label="Expand sidebar"
             title="Expand sidebar"
           >
             {/* Logo - visible by default, hidden on hover */}
@@ -580,6 +581,7 @@ export function Sidebar({ logo, collapsedLogo, sections, user, onItemClick, isCo
               <button
                 onClick={onToggleCollapse}
                 className="rounded p-1 hover:bg-sidebar-hover transition-colors"
+                aria-label="Collapse sidebar"
                 title="Collapse sidebar"
               >
                 <img 

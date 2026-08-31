@@ -173,7 +173,7 @@ export default function VehicleActivityPage() {
                 </div>
               )}
             </div>
-            <div className="w-[340px] shrink-0 flex flex-col gap-4">
+            <div className="w-[340px] max-w-[min(340px,40vw)] min-w-0 shrink flex flex-col gap-4">
               <VehicleOverviewCard
                 status={vehicle.lifecycleStatus}
                 statusVariant={

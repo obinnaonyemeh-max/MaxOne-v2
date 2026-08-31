@@ -1,22 +1,23 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { type ColumnDef } from "@tanstack/react-table"
-import { Search, SlidersHorizontal } from "lucide-react"
+import { SlidersHorizontal } from "lucide-react"
 
 import {
   DataTable,
   StatusBadge,
   Pagination,
+  ExpandableSearch,
   GenericFilterPopover,
   getActiveFilterCount,
   type FilterSection,
   type GenericFilterState,
 } from "@/components/max"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 
-import { getSubBatchesByBatchId, stageVariantMap, type SubBatch } from "@/data/mockSubBatches"
+import { useInboundStore } from "@/data/inboundStore"
+import { stageVariantMap, type SubBatch } from "@/data/mockSubBatches"
 
 interface SubBatchesTabProps {
   batchId: string
@@ -84,7 +85,8 @@ const defaultFilters: GenericFilterState = {
 
 export function SubBatchesTab({ batchId }: SubBatchesTabProps) {
   const navigate = useNavigate()
-  const subBatches = getSubBatchesByBatchId(batchId)
+  const { subBatches } = useInboundStore()
+  const batchSubBatches = subBatches.filter((sb) => sb.batchId === batchId)
   
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(25)
@@ -94,7 +96,7 @@ export function SubBatchesTab({ batchId }: SubBatchesTabProps) {
   
   const filterCount = getActiveFilterCount(filters)
 
-  const filteredSubBatches = subBatches.filter((sb) => {
+  const filteredSubBatches = batchSubBatches.filter((sb) => {
     if (filters.stage.length > 0 && !filters.stage.includes(sb.stage)) {
       return false
     }
@@ -136,25 +138,17 @@ export function SubBatchesTab({ batchId }: SubBatchesTabProps) {
             </PopoverContent>
           </Popover>
 
-          {searchOpen ? (
-            <div className="flex items-center gap-1">
-              <Input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1) }}
-                placeholder="Search sub-batch ID..."
-                className="h-9 w-56"
-                autoFocus
-                onKeyDown={(e) => { if (e.key === "Escape") { setSearchOpen(false); setSearchQuery("") } }}
-              />
-              <Button variant="ghost" size="icon" className="h-9 w-9"
-                onClick={() => { setSearchOpen(false); setSearchQuery("") }}>×</Button>
-            </div>
-          ) : (
-            <Button variant="outline" size="icon" className="h-9 w-9" onClick={() => setSearchOpen(true)}>
-              <Search className="h-4 w-4 text-muted-foreground" />
-            </Button>
-          )}
+          <ExpandableSearch
+            open={searchOpen}
+            onOpenChange={setSearchOpen}
+            value={searchQuery}
+            onValueChange={(value) => {
+              setSearchQuery(value)
+              setCurrentPage(1)
+            }}
+            placeholder="Search sub-batch ID..."
+            inputClassName="w-56"
+          />
         </div>
 
         <div className="flex-1 overflow-y-auto">

@@ -148,7 +148,7 @@ export default function TransferDetailPage() {
         </div>
 
         <div className="px-6 pb-6 flex gap-6 items-start">
-          <div className="w-[340px] shrink-0 flex flex-col gap-4">
+          <div className="w-[340px] max-w-[min(340px,40vw)] min-w-0 shrink flex flex-col gap-4">
             <VehicleOverviewCard
               status={displayStatus}
               statusVariant={displayStatusVariant}

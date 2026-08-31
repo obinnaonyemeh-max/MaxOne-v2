@@ -60,7 +60,7 @@
 
   /* Muted */
   --color-muted: var(--color-gray-100);
-  --color-muted-foreground: var(--color-gray-500);
+  --color-muted-foreground: var(--color-gray-600);
 
   /* Accent */
   --color-accent: var(--color-gray-100);
@@ -85,7 +85,7 @@
   --color-sidebar-hover: var(--color-gray-200);
   --color-sidebar-active: var(--color-gray-200);
   --color-sidebar-border: var(--color-gray-200);
-  --color-sidebar-label: var(--color-gray-400);
+  --color-sidebar-label: var(--color-gray-600);
   --color-sidebar-item: var(--color-gray-600);
   --color-sidebar-item-active: var(--color-gray-950);
   --color-sidebar-user-role: var(--color-gray-500);
@@ -124,8 +124,8 @@
   --color-table-header-text: var(--color-gray-600);
   --color-table-text: var(--color-gray-600);
   --color-table-text-primary: var(--color-gray-950);
-  --color-table-text-warning: var(--color-warning);
-  --color-pagination-text: var(--color-gray-400);
+  --color-table-text-warning: var(--color-status-warning-text);
+  --color-pagination-text: var(--color-gray-600);
 
   /* Input / Form */
   --color-input-soft: #F8F8F8;
@@ -137,6 +137,8 @@
   --color-success-bright: #22C55E;
   --color-status-pink-text: #DB2777;
   --color-status-pink-bg: #FDF2F8;
+  --color-status-success-text: #008356;
+  --color-status-warning-text: #B45309;
 
   /* ============================================
      RADIUS TOKENS

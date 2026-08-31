@@ -8,6 +8,7 @@ import { StatCard } from "@/components/max/StatCard"
 import { FleetDistributionCard } from "@/components/max/FleetDistributionCard"
 import { ActivationQueueCard } from "@/components/max/ActivationQueueCard"
 import { HorizontalBarChart } from "@/components/max/HorizontalBarChart"
+import { clickableSurfaceProps } from "@/lib/clickableSurface"
 import { useDashboardWidgets, useRoleSimulation } from "@/contexts/RoleSimulationContext"
 import {
   ACTIVATION_QUEUE_DATA,
@@ -40,7 +41,10 @@ function ChartWidget({
 
   if (widget.id === "chart-activation-queue") {
     return (
-      <div onClick={handleClick} className={handleClick ? "cursor-pointer" : undefined}>
+      <div
+        className={handleClick ? "cursor-pointer" : undefined}
+        {...clickableSurfaceProps(handleClick, title)}
+      >
         <ActivationQueueCard data={ACTIVATION_QUEUE_DATA} />
       </div>
     )
@@ -50,7 +54,10 @@ function ChartWidget({
   if (!chart) return null
 
   return (
-    <div onClick={handleClick} className={handleClick ? "cursor-pointer" : undefined}>
+    <div
+      className={handleClick ? "cursor-pointer" : undefined}
+      {...clickableSurfaceProps(handleClick, title)}
+    >
       <HorizontalBarChart
         title={title}
         categories={chart.categories}

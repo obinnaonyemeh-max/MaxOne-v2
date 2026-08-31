@@ -2,6 +2,7 @@ import { useState } from "react"
 import { ChevronDown, MoreHorizontal, Signal } from "lucide-react"
 import { motion, AnimatePresence } from "motion/react"
 import { cn } from "@/lib/utils"
+import { clickableSurfaceProps } from "@/lib/clickableSurface"
 import { StatusBadge } from "@/components/max/StatusBadge"
 import { BatteryLevelIcon } from "@/components/max/BatteryLevelIcon"
 import {
@@ -151,7 +152,7 @@ export function VehicleListCard({
           : "border-gray-200 hover:border-gray-300",
         className
       )}
-      onClick={onClick}
+      {...clickableSurfaceProps(onClick, plateNumber)}
     >
       <div className="p-4">
         <div className="flex items-start gap-3 pr-6">
@@ -190,6 +191,8 @@ export function VehicleListCard({
               <Popover open={menuOpen} onOpenChange={setMenuOpen}>
                 <PopoverTrigger asChild>
                   <button
+                    type="button"
+                    aria-label="Vehicle actions"
                     onClick={(e) => e.stopPropagation()}
                     className="p-1 rounded hover:bg-gray-100 transition-colors"
                   >

@@ -86,6 +86,21 @@ export const defaultDocFilters: GenericFilterState = {
   type: [],
 }
 
+export const defaultIdentifierFilters: GenericFilterState = {
+  subBatchId: [],
+}
+
+export function identifierFilterSections(subBatchIds: string[]): FilterSection[] {
+  return [
+    {
+      id: "subBatchId",
+      title: "Sub-Batch ID",
+      defaultExpanded: true,
+      options: subBatchIds.map((id) => ({ value: id, label: id })),
+    },
+  ]
+}
+
 export function getRegistrationStats(records: RegistrationRecord[]) {
   return [
     { title: "Total Uploaded", value: records.length, indicatorColor: "var(--color-status-amber)" },

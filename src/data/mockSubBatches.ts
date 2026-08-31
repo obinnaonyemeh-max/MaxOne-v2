@@ -45,7 +45,75 @@ const createStageHistory = (currentStage: string): TimelineEntryData[] => {
   }))
 }
 
-export const mockSubBatches: SubBatch[] = [
+export function createIdentifierUploadHistory(createdDate: string): TimelineEntryData[] {
+  return [
+    {
+      id: "sh1",
+      date: createdDate,
+      status: "Identifier Upload",
+      statusVariant: "info",
+      description: {
+        template: "Sub-batch created from vehicle identifier upload",
+        highlights: {},
+      },
+      actor: {
+        action: "Created by",
+        name: "System",
+      },
+      duration: {
+        range: "—",
+        total: "—",
+      },
+    },
+  ]
+}
+
+function indexToLetters(index: number): string {
+  let n = index
+  let suffix = ""
+  while (n >= 0) {
+    suffix = String.fromCharCode(65 + (n % 26)) + suffix
+    n = Math.floor(n / 26) - 1
+  }
+  return suffix
+}
+
+export function nextSubBatchId(batchId: string, existing: SubBatch[]): string {
+  const prefix = batchId.replace(/^BATCH-/, "SB-")
+  const used = new Set(
+    existing
+      .filter((sb) => sb.batchId === batchId)
+      .map((sb) => sb.subBatchId.match(/-([A-Z]+)$/)?.[1] ?? ""),
+  )
+
+  for (let i = 0; i < 1000; i++) {
+    const suffix = indexToLetters(i)
+    if (!used.has(suffix)) return `${prefix}-${suffix}`
+  }
+
+  return `${prefix}-${Date.now()}`
+}
+
+export function createSubBatchFromUpload(batchId: string, qty: number, existing: SubBatch[]): SubBatch {
+  const createdDate = new Date().toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  })
+
+  return {
+    id: `sb-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+    subBatchId: nextSubBatchId(batchId, existing),
+    batchId,
+    qty,
+    stage: "Identifier Upload",
+    stageVariant: "info",
+    stageHistory: createIdentifierUploadHistory(createdDate),
+    createdDate,
+  }
+}
+
+export let mockSubBatches: SubBatch[] = [
   // BATCH-12-3056 sub-batches (4)
   {
     id: "sb-1-1",

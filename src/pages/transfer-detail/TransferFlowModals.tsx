@@ -39,7 +39,7 @@ export function TransferFlowModals({
       <LoaderModal open={flow.is("submit", "submitting")} message="Submitting..." />
       <ConfirmModal
         open={flow.is("submit", "submitted")}
-        onOpenChange={() => {}}
+        onOpenChange={(open) => { if (!open) onBackToList() }}
         variant="success"
         title="Submitted for Approval"
         subtitle="Your transfer record has been submitted. The Fleet Manager will review and approve or reject it."
@@ -49,7 +49,7 @@ export function TransferFlowModals({
       <LoaderModal open={flow.is("approve", "submitting")} message="Approving transfer..." />
       <ConfirmModal
         open={flow.is("approve", "submitted")}
-        onOpenChange={() => {}}
+        onOpenChange={(open) => { if (!open) onBackToList() }}
         variant="success"
         title="Transfer Approved"
         subtitle="The ownership transfer has been approved. The champion will be notified."
@@ -59,7 +59,7 @@ export function TransferFlowModals({
       <LoaderModal open={flow.is("reject", "submitting")} message="Submitting rejection..." />
       <ConfirmModal
         open={flow.is("reject", "submitted")}
-        onOpenChange={() => {}}
+        onOpenChange={(open) => { if (!open) onBackToList() }}
         variant="destructive"
         title="Rejection Submitted"
         subtitle="The transfer has been rejected and returned to the Documentation Officer for corrections."

@@ -1,15 +1,15 @@
 import { useState } from "react"
-import { SlidersHorizontal, Search, Calendar as CalendarIcon, PlayCircle, CheckCircle2, UserRoundPlus } from "lucide-react"
+import { SlidersHorizontal, Calendar as CalendarIcon, PlayCircle, CheckCircle2, UserRoundPlus } from "lucide-react"
 import {
   DataTable,
   Pagination,
   StatCard,
+  ExpandableSearch,
   GenericFilterPopover,
   getActiveFilterCount,
   type GenericFilterState,
 } from "@/components/max"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Calendar } from "@/components/ui/calendar"
 import { mockRegistrationRecords, type RegistrationRecord } from "@/data/mockBatchDetailRows"
@@ -193,38 +193,13 @@ export function RegistrationPrepTab() {
                 </PopoverContent>
               </Popover>
 
-              {regSearchOpen ? (
-                <div className="flex items-center gap-1">
-                  <Input
-                    type="text"
-                    value={regSearchQuery}
-                    onChange={(e) => setRegSearchQuery(e.target.value)}
-                    placeholder="Search chassis, engine no."
-                    className="h-9 w-48"
-                    autoFocus
-                  />
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-9 w-9"
-                    onClick={() => {
-                      setRegSearchOpen(false)
-                      setRegSearchQuery("")
-                    }}
-                  >
-                    <span className="sr-only">Close search</span>
-                    ×
-                  </Button>
-                </div>
-              ) : (
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => setRegSearchOpen(true)}
-                >
-                  <Search className="h-4 w-4 text-muted-foreground" />
-                </Button>
-              )}
+              <ExpandableSearch
+                open={regSearchOpen}
+                onOpenChange={setRegSearchOpen}
+                value={regSearchQuery}
+                onValueChange={setRegSearchQuery}
+                placeholder="Search chassis, engine no."
+              />
             </div>
           )}
         </div>

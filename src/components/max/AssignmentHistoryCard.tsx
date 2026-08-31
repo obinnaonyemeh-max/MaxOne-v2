@@ -57,18 +57,22 @@ export function AssignmentHistoryCard({
         {showNavigation && (
           <div className="flex items-center gap-0.5">
             <button
+              type="button"
+              aria-label="Previous assignment"
               onClick={onPrevious}
               disabled={!hasPrevious}
               className="p-1.5 bg-gray-50 border border-border rounded-l-lg rounded-r transition-colors disabled:cursor-not-allowed disabled:bg-white disabled:border-gray-100 hover:not-disabled:bg-border"
             >
-              <ChevronLeft className={cn("h-4 w-4 text-sidebar-item", !hasPrevious && "opacity-30")} />
+              <ChevronLeft className={cn("h-4 w-4 text-sidebar-item", !hasPrevious && "opacity-30")} aria-hidden />
             </button>
             <button
+              type="button"
+              aria-label="Next assignment"
               onClick={onNext}
               disabled={!hasNext}
               className="p-1.5 bg-gray-50 border border-border rounded-l rounded-r-lg transition-colors disabled:cursor-not-allowed disabled:bg-white disabled:border-gray-100 hover:not-disabled:bg-border"
             >
-              <ChevronRight className={cn("h-4 w-4 text-sidebar-item", !hasNext && "opacity-30")} />
+              <ChevronRight className={cn("h-4 w-4 text-sidebar-item", !hasNext && "opacity-30")} aria-hidden />
             </button>
           </div>
         )}

@@ -13,8 +13,13 @@ export function LoaderModal({ open, message = "Processing..." }: LoaderModalProp
       hideHeader
       className="max-w-[280px]"
     >
-      <div className="flex flex-col items-center justify-center py-12">
-        <div className="animate-spin">
+      <div
+        className="flex flex-col items-center justify-center py-12"
+        role="status"
+        aria-live="polite"
+        aria-busy={open}
+      >
+        <div className="animate-spin" aria-hidden>
           <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M40 10V20" stroke="var(--color-status-amber)" strokeWidth="6" strokeLinecap="round"/>
             <path d="M40 60V70" stroke="var(--color-status-amber)" strokeWidth="6" strokeLinecap="round"/>

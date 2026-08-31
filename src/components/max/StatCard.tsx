@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils"
+import { clickableSurfaceProps } from "@/lib/clickableSurface"
 
 interface StatCardProps {
   title: string
@@ -24,12 +25,12 @@ export function StatCard({
 }: StatCardProps) {
   return (
     <div
-      onClick={onClick}
       className={cn(
         "bg-gray-25 border border-gray-200 rounded-lg transition-colors hover:border-gray-950",
         onClick && "cursor-pointer",
         className
       )}
+      {...clickableSurfaceProps(onClick, title)}
     >
       <div className="pt-2 pl-2">
         <span
@@ -86,7 +87,7 @@ export function StatCard({
                   <span
                     className={cn(
                       trend.direction === "up"
-                        ? "text-status-success"
+                        ? "text-status-success-text"
                         : "text-status-danger"
                     )}
                     style={{ fontSize: "13px", fontWeight: 500 }}

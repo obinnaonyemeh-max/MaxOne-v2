@@ -22,7 +22,7 @@ export function GenericStageBody({ status, onClose, onStatusChange, onMarkComple
   return (
     <>
       <div>
-        <label className="text-gray-400 font-medium block mb-2" style={{ fontSize: "12px" }}>
+        <label className="text-gray-600 font-medium block mb-2" style={{ fontSize: "12px" }}>
           Update status
         </label>
         <Select value={draft} onValueChange={(v) => setDraft(v as StageStatus)}>

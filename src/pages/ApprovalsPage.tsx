@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react"
 import { type ColumnDef } from "@tanstack/react-table"
-import { Search, SlidersHorizontal, Eye } from "lucide-react"
+import { SlidersHorizontal, Eye } from "lucide-react"
 import {
   TopBar,
   PageHeader,
@@ -9,6 +9,7 @@ import {
   Pagination,
   StatCard,
   StatusTabs,
+  ExpandableSearch,
   GenericFilterPopover,
   getActiveFilterCount,
   TransferRequestSheet,
@@ -16,7 +17,6 @@ import {
   type GenericFilterState,
 } from "@/components/max"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import {
   Popover,
   PopoverContent,
@@ -95,8 +95,8 @@ const transferColumns: ColumnDef<MarkedTransferRecord>[] = [
     id: "actions",
     header: "",
     cell: () => (
-      <Button variant="ghost" size="icon" className="h-8 w-8">
-        <Eye className="h-4 w-4 text-muted-foreground" />
+      <Button variant="ghost" size="icon" className="h-8 w-8" aria-label="View approval">
+        <Eye className="h-4 w-4 text-muted-foreground" aria-hidden />
       </Button>
     ),
   },
@@ -372,42 +372,17 @@ export default function ApprovalsPage() {
                   </PopoverContent>
                 </Popover>
 
-                {transferSearchOpen ? (
-                  <div className="flex items-center gap-1">
-                    <Input
-                      type="text"
-                      value={transferSearch}
-                      onChange={(e) => {
-                        setTransferSearch(e.target.value)
-                        setTransferPage(1)
-                      }}
-                      placeholder="Search name, ID, or plate..."
-                      className="h-9 w-56"
-                      autoFocus
-                      onKeyDown={(e) => {
-                        if (e.key === "Escape") {
-                          setTransferSearchOpen(false)
-                          setTransferSearch("")
-                        }
-                      }}
-                    />
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-9 w-9"
-                      onClick={() => {
-                        setTransferSearchOpen(false)
-                        setTransferSearch("")
-                      }}
-                    >
-                      ×
-                    </Button>
-                  </div>
-                ) : (
-                  <Button variant="outline" size="icon" className="h-9 w-9" onClick={() => setTransferSearchOpen(true)}>
-                    <Search className="h-4 w-4 text-muted-foreground" />
-                  </Button>
-                )}
+                <ExpandableSearch
+                  open={transferSearchOpen}
+                  onOpenChange={setTransferSearchOpen}
+                  value={transferSearch}
+                  onValueChange={(value) => {
+                    setTransferSearch(value)
+                    setTransferPage(1)
+                  }}
+                  placeholder="Search name, ID, or plate..."
+                  inputClassName="w-56"
+                />
               </div>
 
               <DataTable
@@ -463,42 +438,17 @@ export default function ApprovalsPage() {
                   </PopoverContent>
                 </Popover>
 
-                {timeOffSearchOpen ? (
-                  <div className="flex items-center gap-1">
-                    <Input
-                      type="text"
-                      value={timeOffSearch}
-                      onChange={(e) => {
-                        setTimeOffSearch(e.target.value)
-                        setTimeOffPage(1)
-                      }}
-                      placeholder="Search name or ID..."
-                      className="h-9 w-56"
-                      autoFocus
-                      onKeyDown={(e) => {
-                        if (e.key === "Escape") {
-                          setTimeOffSearchOpen(false)
-                          setTimeOffSearch("")
-                        }
-                      }}
-                    />
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-9 w-9"
-                      onClick={() => {
-                        setTimeOffSearchOpen(false)
-                        setTimeOffSearch("")
-                      }}
-                    >
-                      ×
-                    </Button>
-                  </div>
-                ) : (
-                  <Button variant="outline" size="icon" className="h-9 w-9" onClick={() => setTimeOffSearchOpen(true)}>
-                    <Search className="h-4 w-4 text-muted-foreground" />
-                  </Button>
-                )}
+                <ExpandableSearch
+                  open={timeOffSearchOpen}
+                  onOpenChange={setTimeOffSearchOpen}
+                  value={timeOffSearch}
+                  onValueChange={(value) => {
+                    setTimeOffSearch(value)
+                    setTimeOffPage(1)
+                  }}
+                  placeholder="Search name or ID..."
+                  inputClassName="w-56"
+                />
               </div>
 
               <DataTable

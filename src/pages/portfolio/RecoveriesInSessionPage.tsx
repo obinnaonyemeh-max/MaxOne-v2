@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import { type ColumnDef } from "@tanstack/react-table"
-import { Search, SlidersHorizontal } from "lucide-react"
+import { SlidersHorizontal } from "lucide-react"
 
 import {
   TopBar,
@@ -11,6 +11,7 @@ import {
   StatCard,
   StatusBadge,
   StatusTabs,
+  ExpandableSearch,
   GenericFilterPopover,
   getActiveFilterCount,
   type StatusTab,
@@ -18,7 +19,6 @@ import {
   type GenericFilterState,
 } from "@/components/max"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import {
   Popover,
   PopoverContent,
@@ -111,8 +111,10 @@ const inSessionColumn: ColumnDef<RecoverySession> = {
   header: "Session Timer",
   cell: ({ row }) => (
     <div className="flex items-center gap-2">
-      <span className="h-1.5 w-1.5 rounded-full bg-status-info animate-pulse" />
-      <span className="font-medium text-table-text text-sm">{formatElapsed(row.original.elapsedMinutes)}</span>
+      <span className="h-1.5 w-1.5 rounded-full bg-status-info animate-pulse" aria-hidden />
+      <span className="font-medium text-table-text text-sm">
+        Active · {formatElapsed(row.original.elapsedMinutes)}
+      </span>
     </div>
   ),
 }
@@ -262,44 +264,14 @@ export default function RecoveriesInSessionPage() {
               </PopoverContent>
             </Popover>
 
-            {searchOpen ? (
-              <div className="flex items-center gap-1">
-                <Input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search by case, champion or pair..."
-                  className="h-9 w-72"
-                  autoFocus
-                  onKeyDown={(e) => {
-                    if (e.key === "Escape") {
-                      setSearchOpen(false)
-                      setSearchQuery("")
-                    }
-                  }}
-                />
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-9 w-9"
-                  onClick={() => {
-                    setSearchOpen(false)
-                    setSearchQuery("")
-                  }}
-                >
-                  ×
-                </Button>
-              </div>
-            ) : (
-              <Button
-                variant="outline"
-                size="icon"
-                className="h-9 w-9"
-                onClick={() => setSearchOpen(true)}
-              >
-                <Search className="h-4 w-4 text-muted-foreground" />
-              </Button>
-            )}
+            <ExpandableSearch
+              open={searchOpen}
+              onOpenChange={setSearchOpen}
+              value={searchQuery}
+              onValueChange={setSearchQuery}
+              placeholder="Search by case, champion or pair..."
+              inputClassName="w-72"
+            />
           </div>
 
           <div className="flex-1 overflow-y-auto">

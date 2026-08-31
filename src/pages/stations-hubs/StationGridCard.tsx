@@ -59,7 +59,7 @@ export function StationGridCard({ station, onClick, onMenuAction }: StationGridC
             className="mt-1 text-gray-500"
             style={{ fontSize: "11px", fontWeight: 500 }}
           >
-            <span style={{ color: isEmpty ? "#B5A018" : "inherit", fontWeight: 600 }}>
+            <span className={isEmpty ? "font-semibold text-status-warning-text" : "font-semibold"}>
               {station.batteriesAvailable}
             </span>
             {` of ${station.batteriesCapacity} batteries available`}

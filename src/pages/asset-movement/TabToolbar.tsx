@@ -1,14 +1,14 @@
 import { useState } from "react"
-import { Search, SlidersHorizontal } from "lucide-react"
+import { SlidersHorizontal } from "lucide-react"
 
 import {
+  ExpandableSearch,
   GenericFilterPopover,
   getActiveFilterCount,
   type FilterSection,
   type GenericFilterState,
 } from "@/components/max"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import {
   Popover,
   PopoverContent,
@@ -58,43 +58,14 @@ export function TabToolbar({
           </PopoverContent>
         </Popover>
 
-        {searchOpen ? (
-          <div className="flex items-center gap-1">
-            <Input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={searchPlaceholder}
-              className="h-9 w-48"
-              autoFocus
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  onSearchSubmit?.(searchQuery)
-                }
-              }}
-            />
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-9 w-9"
-              onClick={() => {
-                setSearchOpen(false)
-                setSearchQuery("")
-              }}
-            >
-              <span className="sr-only">Close search</span>
-              ×
-            </Button>
-          </div>
-        ) : (
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => setSearchOpen(true)}
-          >
-            <Search className="h-4 w-4 text-muted-foreground" />
-          </Button>
-        )}
+        <ExpandableSearch
+          open={searchOpen}
+          onOpenChange={setSearchOpen}
+          value={searchQuery}
+          onValueChange={setSearchQuery}
+          placeholder={searchPlaceholder}
+          onSubmit={onSearchSubmit}
+        />
       </div>
     </div>
   )

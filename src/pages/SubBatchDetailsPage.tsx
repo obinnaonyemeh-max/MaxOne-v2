@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 
 import { TopBar, BackButton, StatusTimeline, StatusBadge, InfoCard, InfoGrid, Toast, useToast } from "@/components/max"
@@ -6,9 +6,11 @@ import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 
 import { mockBatches } from "@/data/mockBatches"
-import { getSubBatchByIds, stageVariantMap, type SubBatch } from "@/data/mockSubBatches"
+import { getSubBatchByIds, useInboundStore } from "@/data/inboundStore"
+import { stageVariantMap, type SubBatch } from "@/data/mockSubBatches"
 import { useCan, useRoleSimulation } from "@/contexts/RoleSimulationContext"
 import { MoveStageModal } from "./batch-details/MoveStageModal"
+import { VehicleIdsTab } from "./batch-details/VehicleIdsTab"
 
 const stageOrder = [
   "In Production",
@@ -26,7 +28,13 @@ function getNextStage(currentStage: string): string | null {
   return stageOrder[index + 1]
 }
 
-function SubBatchOverviewTab({ subBatch }: { subBatch: SubBatch }) {
+function SubBatchOverviewTab({
+  subBatch,
+  identifierCount,
+}: {
+  subBatch: SubBatch
+  identifierCount: number
+}) {
   return (
     <div className="bg-content-card flex flex-col gap-3 h-fit rounded-lg border border-border p-3">
       <InfoCard title="SUB-BATCH INFORMATION">
@@ -37,6 +45,7 @@ function SubBatchOverviewTab({ subBatch }: { subBatch: SubBatch }) {
             { label: "Sub-Batch ID", value: subBatch.subBatchId },
             { label: "Parent Batch", value: subBatch.batchId },
             { label: "Quantity", value: subBatch.qty.toLocaleString() },
+            { label: "Identifiers", value: identifierCount.toLocaleString() },
             { label: "Created Date", value: subBatch.createdDate },
             { label: "Current Stage", value: <StatusBadge variant={subBatch.stageVariant} withDot>{subBatch.stage}</StatusBadge> },
           ]}
@@ -50,15 +59,21 @@ export default function SubBatchDetailsPage() {
   const { batchId, subBatchId } = useParams<{ batchId: string; subBatchId: string }>()
   const navigate = useNavigate()
   const { filterByCity } = useRoleSimulation()
+  const { identifiers } = useInboundStore()
   const parentBatch = mockBatches.find((batch) => batch.batchId === batchId)
-  
+  const batchDetailsPath = `/inbound/batches/${parentBatch?.id ?? batchId}`
+
   const baseSubBatch = getSubBatchByIds(batchId || "", subBatchId || "")
-  
-  const [stage, setStage] = useState(baseSubBatch?.stage || "In Production")
+
+  const [stage, setStage] = useState(baseSubBatch?.stage || "Identifier Upload")
   const nextStage = getNextStage(stage)
   const stageVariant = stageVariantMap[stage] ?? "default"
-  
+
   const subBatch = baseSubBatch ? { ...baseSubBatch, stage, stageVariant } : null
+  const identifierCount = useMemo(
+    () => identifiers.filter((row) => row.subBatchId === subBatchId).length,
+    [identifiers, subBatchId],
+  )
 
   const [showMoveStage, setShowMoveStage] = useState(false)
   const { message: toast, variant: toastVariant, showToast } = useToast()
@@ -69,6 +84,11 @@ export default function SubBatchDetailsPage() {
       navigate("/inbound/batches", { replace: true })
     }
   }, [filterByCity, navigate, parentBatch])
+
+  useEffect(() => {
+    const found = getSubBatchByIds(batchId || "", subBatchId || "")
+    if (found) setStage(found.stage)
+  }, [batchId, subBatchId])
 
   const advanceStage = (target: string) => {
     setStage(target)
@@ -109,7 +129,7 @@ export default function SubBatchDetailsPage() {
           { label: "Deployment" },
           { label: "Inbound", href: "/inbound/batches" },
           { label: "Batches", href: "/inbound/batches" },
-          { label: subBatch.batchId, href: `/inbound/batches/${batchId}` },
+          { label: subBatch.batchId, href: batchDetailsPath },
           { label: subBatch.subBatchId },
         ]}
       />
@@ -119,14 +139,14 @@ export default function SubBatchDetailsPage() {
           <div className="flex items-start justify-between">
             <div>
               <div className="flex items-center gap-2">
-                <BackButton onClick={() => navigate(`/inbound/batches/${batchId}`)} />
+                <BackButton onClick={() => navigate(batchDetailsPath)} />
                 <h1 className="flex items-end gap-1 font-semibold text-sidebar-item-active" style={{ fontSize: "22px" }}>
                   {subBatch.subBatchId}
                   <span className="mb-2 h-1.5 w-1.5 rounded-full bg-brand-primary" />
                 </h1>
               </div>
               <p className="mt-1 text-sm font-medium text-breadcrumb-root">
-                Showing sub-batch information and stage history
+                Showing sub-batch information, identifiers, and stage history
               </p>
             </div>
             {canMoveStage && nextStage && (
@@ -153,6 +173,12 @@ export default function SubBatchDetailsPage() {
                   Overview
                 </TabsTrigger>
                 <TabsTrigger
+                  value="vehicle-ids"
+                  className="px-4 py-3 text-sm font-medium data-[state=active]:text-sidebar-item-active data-[state=inactive]:text-breadcrumb-root"
+                >
+                  Vehicle IDs
+                </TabsTrigger>
+                <TabsTrigger
                   value="tracker"
                   className="px-4 py-3 text-sm font-medium data-[state=active]:text-sidebar-item-active data-[state=inactive]:text-breadcrumb-root"
                 >
@@ -161,7 +187,18 @@ export default function SubBatchDetailsPage() {
               </TabsList>
 
               <TabsContent value="overview" className="mt-0 flex-1 min-h-0 overflow-y-auto">
-                <SubBatchOverviewTab subBatch={subBatch} />
+                <SubBatchOverviewTab subBatch={subBatch} identifierCount={identifierCount} />
+              </TabsContent>
+
+              <TabsContent value="vehicle-ids" className="mt-0 flex-1 min-h-0 overflow-y-auto">
+                <VehicleIdsTab
+                  batchId={subBatch.batchId}
+                  subBatchId={subBatch.subBatchId}
+                  onSubBatchRemoved={() => {
+                    showToast(`Sub-batch ${subBatch.subBatchId} removed`)
+                    navigate(batchDetailsPath)
+                  }}
+                />
               </TabsContent>
 
               <TabsContent value="tracker" className="mt-0 flex-1 min-h-0 overflow-y-auto">

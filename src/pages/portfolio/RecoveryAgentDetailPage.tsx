@@ -70,6 +70,7 @@ export default function RecoveryAgentDetailPage() {
             variant="ghost"
             size="icon"
             className="h-9 w-9"
+            aria-label="Back"
             onClick={() => navigate("/portfolio/recovery/officers?tab=agents")}
           >
             <ArrowLeft className="h-4 w-4" />
@@ -237,8 +238,8 @@ export default function RecoveryAgentDetailPage() {
                     <span>Case {activeSession.caseId}</span>
                     <div className="flex items-center gap-3">
                       <span className="flex items-center gap-1.5">
-                        <span className="h-1.5 w-1.5 rounded-full bg-status-info animate-pulse" />
-                        {formatElapsed(activeSession.elapsedMinutes)} elapsed
+                        <span className="h-1.5 w-1.5 rounded-full bg-status-info animate-pulse" aria-hidden />
+                        Active · {formatElapsed(activeSession.elapsedMinutes)} elapsed
                       </span>
                       <Button
                         variant="secondary"

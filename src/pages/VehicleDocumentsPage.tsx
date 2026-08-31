@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react"
 import { type ColumnDef } from "@tanstack/react-table"
-import { Search, SlidersHorizontal, AlertTriangle, ChevronDown, ChevronUp, Plus } from "lucide-react"
+import { SlidersHorizontal, AlertTriangle, ChevronDown, ChevronUp, Plus } from "lucide-react"
 
 import {
   TopBar,
@@ -14,6 +14,7 @@ import {
   TooltipTrigger,
   TooltipContent,
   VehicleIcon,
+  ExpandableSearch,
   GenericFilterPopover,
   getActiveFilterCount,
   type FilterSection,
@@ -22,7 +23,6 @@ import {
 import { StatCard } from "@/components/max/StatCard"
 import { vehicleTypeLabel } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 
 import {
@@ -92,8 +92,10 @@ function DocumentsCell({
         return (
           <Tooltip key={i}>
             <TooltipTrigger asChild>
-              <span
+              <button
+                type="button"
                 className={`h-3 w-3 rounded-sm ${docColorClass[d]} cursor-pointer`}
+                aria-label={`${name}: ${statusLabel[d]}`}
               />
             </TooltipTrigger>
             <TooltipContent side="top">
@@ -111,7 +113,7 @@ function CompletionCell({ value }: { value: number }) {
   const color =
     value >= 100 ? "bg-status-success" : value >= 80 ? "bg-status-warning" : "bg-status-danger"
   const textColor =
-    value >= 100 ? "text-status-success" : value >= 80 ? "text-status-warning" : "text-status-danger"
+    value >= 100 ? "text-status-success-text" : value >= 80 ? "text-status-warning-text" : "text-status-danger"
   return (
     <div className="flex items-center gap-2 min-w-[140px]">
       <div className="h-1.5 flex-1 rounded-full bg-gray-100 overflow-hidden">
@@ -431,42 +433,17 @@ export default function VehicleDocumentsPage() {
               </PopoverContent>
             </Popover>
 
-            {searchOpen ? (
-              <div className="flex items-center gap-1">
-                <Input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => {
-                    setSearchQuery(e.target.value)
-                    setCurrentPage(1)
-                  }}
-                  placeholder="Search vehicle or champion..."
-                  className="h-9 w-56"
-                  autoFocus
-                  onKeyDown={(e) => {
-                    if (e.key === "Escape") {
-                      setSearchOpen(false)
-                      setSearchQuery("")
-                    }
-                  }}
-                />
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-9 w-9"
-                  onClick={() => {
-                    setSearchOpen(false)
-                    setSearchQuery("")
-                  }}
-                >
-                  ×
-                </Button>
-              </div>
-            ) : (
-              <Button variant="outline" size="icon" className="h-9 w-9" onClick={() => setSearchOpen(true)}>
-                <Search className="h-4 w-4 text-muted-foreground" />
-              </Button>
-            )}
+            <ExpandableSearch
+              open={searchOpen}
+              onOpenChange={setSearchOpen}
+              value={searchQuery}
+              onValueChange={(value) => {
+                setSearchQuery(value)
+                setCurrentPage(1)
+              }}
+              placeholder="Search vehicle or champion..."
+              inputClassName="w-56"
+            />
             </div>
 
             {canUploadDoc && (

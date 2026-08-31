@@ -16,7 +16,7 @@ export function InsuranceStageBody({ onMarkCompleted }: Props) {
     <>
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="text-gray-400 font-medium block mb-1.5 uppercase tracking-wide" style={{ fontSize: "11px" }}>
+          <label className="text-gray-600 font-medium block mb-1.5 uppercase tracking-wide" style={{ fontSize: "11px" }}>
             Policy Number
           </label>
           <Input
@@ -27,7 +27,7 @@ export function InsuranceStageBody({ onMarkCompleted }: Props) {
           />
         </div>
         <div>
-          <label className="text-gray-400 font-medium block mb-1.5 uppercase tracking-wide" style={{ fontSize: "11px" }}>
+          <label className="text-gray-600 font-medium block mb-1.5 uppercase tracking-wide" style={{ fontSize: "11px" }}>
             Policy Expiry
           </label>
           <DatePickerField
@@ -40,7 +40,7 @@ export function InsuranceStageBody({ onMarkCompleted }: Props) {
       </div>
 
       <div>
-        <label className="text-gray-400 font-medium block mb-1.5 uppercase tracking-wide" style={{ fontSize: "11px" }}>
+        <label className="text-gray-600 font-medium block mb-1.5 uppercase tracking-wide" style={{ fontSize: "11px" }}>
           Insurer
         </label>
         <Input

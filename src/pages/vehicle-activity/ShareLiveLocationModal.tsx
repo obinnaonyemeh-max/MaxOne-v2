@@ -116,7 +116,7 @@ export function ShareLiveLocationModal({
         <div className="border-t border-gray-200" />
 
         <div className="flex flex-col gap-2">
-          <label className="text-gray-400 font-medium" style={{ fontSize: "13px" }}>
+          <label className="text-gray-600 font-medium" style={{ fontSize: "13px" }}>
             Link expires after
           </label>
           <Select value={expiry} onValueChange={(value) => setExpiry(value as ExpiryValue)}>

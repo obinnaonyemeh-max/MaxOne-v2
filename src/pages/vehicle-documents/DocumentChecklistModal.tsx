@@ -65,6 +65,7 @@ function ChecklistRow({
         variant="outline"
         size="icon"
         className="h-8 w-8 shrink-0"
+        aria-label="View document"
         title="View document"
       >
         <Eye className="h-4 w-4" />

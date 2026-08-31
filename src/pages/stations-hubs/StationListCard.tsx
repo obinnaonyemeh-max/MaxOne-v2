@@ -1,6 +1,7 @@
 import { ChevronDown } from "lucide-react"
 import { motion, AnimatePresence } from "motion/react"
 import { cn } from "@/lib/utils"
+import { clickableSurfaceProps } from "@/lib/clickableSurface"
 import { BatteryLevelIcon } from "@/components/max/BatteryLevelIcon"
 import {
   formatStationCollections,
@@ -67,7 +68,7 @@ export function StationListCard({
           ? "border-gray-950 shadow-sm"
           : "border-gray-200 hover:border-gray-300"
       )}
-      onClick={onClick}
+      {...clickableSurfaceProps(onClick, station.name)}
     >
       <div className="p-3">
         <div className="flex items-start gap-3 pr-6">
@@ -98,7 +99,7 @@ export function StationListCard({
               className="mt-1 truncate text-gray-500"
               style={{ fontSize: "11px", fontWeight: 500 }}
             >
-              <span style={{ color: isEmpty ? "#B5A018" : "inherit", fontWeight: 600 }}>
+              <span className={isEmpty ? "font-semibold text-status-warning-text" : "font-semibold"}>
                 {station.batteriesAvailable}
               </span>
               {` of ${station.batteriesCapacity} batteries available · ${station.city} · ${station.provider}`}

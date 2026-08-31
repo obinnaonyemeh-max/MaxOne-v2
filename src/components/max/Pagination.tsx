@@ -95,10 +95,11 @@ export function Pagination({
           variant="outline"
           size="icon"
           className="h-8 w-8 bg-gray-100"
+          aria-label="Previous page"
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
         >
-          <ChevronLeft className="h-4 w-4" />
+          <ChevronLeft className="h-4 w-4" aria-hidden />
         </Button>
 
         {pages.map((page, index) =>
@@ -132,10 +133,11 @@ export function Pagination({
           variant="outline"
           size="icon"
           className="h-8 w-8 bg-gray-100"
+          aria-label="Next page"
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
         >
-          <ChevronRight className="h-4 w-4" />
+          <ChevronRight className="h-4 w-4" aria-hidden />
         </Button>
       </div>
 

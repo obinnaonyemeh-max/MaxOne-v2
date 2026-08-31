@@ -2,6 +2,7 @@ import { useState } from "react"
 import { ChevronDown, MoreHorizontal } from "lucide-react"
 import { motion, AnimatePresence } from "motion/react"
 import { cn } from "@/lib/utils"
+import { clickableSurfaceProps } from "@/lib/clickableSurface"
 import { StatusBadge } from "@/components/max/StatusBadge"
 import {
   Popover,
@@ -98,7 +99,7 @@ export function ChargerListCard({
           : "border-gray-200 hover:border-gray-300",
         className
       )}
-      onClick={onClick}
+      {...clickableSurfaceProps(onClick, id)}
     >
       <div className="p-4">
         {/* First Row: ID, Status Badge, Menu */}
@@ -121,6 +122,8 @@ export function ChargerListCard({
               <Popover open={menuOpen} onOpenChange={setMenuOpen}>
                 <PopoverTrigger asChild>
                   <button
+                    type="button"
+                    aria-label="Charger actions"
                     onClick={(e) => {
                       e.stopPropagation()
                     }}

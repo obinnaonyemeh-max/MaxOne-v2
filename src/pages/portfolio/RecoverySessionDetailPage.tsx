@@ -83,6 +83,7 @@ export default function RecoverySessionDetailPage() {
             variant="ghost"
             size="icon"
             className="h-9 w-9"
+            aria-label="Back"
             onClick={() => navigate(backPath)}
           >
             <ArrowLeft className="h-4 w-4" />
@@ -244,7 +245,7 @@ export default function RecoverySessionDetailPage() {
                         isActive ? "bg-status-info animate-pulse" : isSuccessful ? "bg-status-success" : "bg-status-danger"
                       )}
                     />
-                    {formatElapsed(session.elapsedMinutes)} {isActive ? "elapsed" : "total"}
+                    {formatElapsed(session.elapsedMinutes)} {isActive ? "elapsed · Active" : "total"}
                   </span>
                   <Button
                     variant="secondary"

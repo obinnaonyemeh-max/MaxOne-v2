@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react"
 import { type ColumnDef } from "@tanstack/react-table"
 import { format, parse, startOfDay, endOfDay } from "date-fns"
-import { Calendar as CalendarIcon, SlidersHorizontal, Search, Wallet } from "lucide-react"
+import { Calendar as CalendarIcon, SlidersHorizontal, Wallet } from "lucide-react"
 import type { DateRange } from "react-day-picker"
 
 import { MakePaymentFlow } from "./MakePaymentFlow"
@@ -14,6 +14,7 @@ import {
   StatCard,
   StatusBadge,
   StatusTabs,
+  ExpandableSearch,
   GenericFilterPopover,
   getActiveFilterCount,
   type StatusTab,
@@ -21,7 +22,6 @@ import {
   type GenericFilterState,
 } from "@/components/max"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Calendar } from "@/components/ui/calendar"
 import {
   Popover,
@@ -507,44 +507,14 @@ export default function ReferralManagementPage() {
             </PopoverContent>
           </Popover>
 
-          {searchOpen ? (
-            <div className="flex items-center gap-1">
-              <Input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search by profile, location, status or date..."
-                className="h-9 w-72"
-                autoFocus
-                onKeyDown={(e) => {
-                  if (e.key === "Escape") {
-                    setSearchOpen(false)
-                    setSearchQuery("")
-                  }
-                }}
-              />
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-9 w-9"
-                onClick={() => {
-                  setSearchOpen(false)
-                  setSearchQuery("")
-                }}
-              >
-                ×
-              </Button>
-            </div>
-          ) : (
-            <Button
-              variant="outline"
-              size="icon"
-              className="h-9 w-9 bg-gray-100 hover:bg-gray-200"
-              onClick={() => setSearchOpen(true)}
-            >
-              <Search className="h-4 w-4 text-muted-foreground" />
-            </Button>
-          )}
+          <ExpandableSearch
+            open={searchOpen}
+            onOpenChange={setSearchOpen}
+            value={searchQuery}
+            onValueChange={setSearchQuery}
+            placeholder="Search by profile, location, status or date..."
+            inputClassName="w-72"
+          />
 
           {activeTab === "awaiting" && (
             <Button

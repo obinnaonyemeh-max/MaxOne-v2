@@ -378,6 +378,14 @@ export function LiveTrackingMap({
             <h3 className="text-gray-950" style={{ fontSize: "16px", fontWeight: 500 }}>
               {title}
             </h3>
+            {!isReplayMode && (
+              <span
+                className="rounded-full bg-gray-100 px-2 py-0.5 text-gray-700"
+                style={{ fontSize: "11px", fontWeight: 600, letterSpacing: "0.04em" }}
+              >
+                {isLive ? "LIVE" : "IDLE"}
+              </span>
+            )}
             {isPlayback && !isReplayMode && (
               <span
                 className="rounded-full bg-gray-100 px-2 py-0.5 text-gray-500"

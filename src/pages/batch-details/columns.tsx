@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { type ColumnDef } from "@tanstack/react-table"
-import { Trash2, ChevronDown, Calendar as CalendarIcon } from "lucide-react"
+import { Trash2, Pencil, ChevronDown, Calendar as CalendarIcon } from "lucide-react"
 import { format } from "date-fns"
 
 import { StatusBadge } from "@/components/max"
@@ -215,72 +215,132 @@ export const documentColumns: ColumnDef<BatchDocument>[] = [
   },
 ]
 
-export const identifierColumns: ColumnDef<VehicleIdentifier>[] = [
-  {
-    accessorKey: "chassisVin",
-    header: "Chassis (VIN)",
-    cell: ({ row }) => (
-      <span className="font-medium text-table-text-primary" style={{ fontSize: "14px" }}>
-        {row.original.chassisVin}
-      </span>
-    ),
-  },
-  {
-    accessorKey: "engineNo",
-    header: "Engine No.",
-    cell: ({ row }) => (
-      <span className="font-medium text-table-text" style={{ fontSize: "14px" }}>
-        {row.original.engineNo}
-      </span>
-    ),
-  },
-  {
-    accessorKey: "ignitionNo",
-    header: "Ignition No.",
-    cell: ({ row }) => (
-      <span className="font-medium text-table-text" style={{ fontSize: "14px" }}>
-        {row.original.ignitionNo}
-      </span>
-    ),
-  },
-  {
-    accessorKey: "batterySn",
-    header: "Battery S/N",
-    cell: ({ row }) => (
-      <span className="font-medium text-table-text" style={{ fontSize: "14px" }}>
-        {row.original.batterySn}
-      </span>
-    ),
-  },
-  {
-    accessorKey: "color",
-    header: "Color",
-    cell: ({ row }) => (
-      <span className="font-medium text-table-text" style={{ fontSize: "14px" }}>
-        {row.original.color}
-      </span>
-    ),
-  },
-  {
-    accessorKey: "receiver",
-    header: "Receiver",
-    cell: ({ row }) => (
-      <span className="font-medium text-table-text" style={{ fontSize: "14px" }}>
-        {row.original.receiver}
-      </span>
-    ),
-  },
-  {
-    id: "actions",
-    header: "",
-    cell: () => (
-      <button
-        type="button"
-        className="rounded p-1.5 text-muted-foreground hover:bg-muted hover:text-destructive transition-colors"
-        aria-label="Delete"
-      >
-        <Trash2 className="h-4 w-4" />
-      </button>
-    ),
-  },
-]
+export function getIdentifierColumns({
+  showSubBatchId = false,
+  onSubBatchClick,
+  onEdit,
+  onDelete,
+}: {
+  showSubBatchId?: boolean
+  onSubBatchClick?: (subBatchId: string) => void
+  onEdit?: (row: VehicleIdentifier) => void
+  onDelete?: (id: string) => void
+} = {}): ColumnDef<VehicleIdentifier>[] {
+  const columns: ColumnDef<VehicleIdentifier>[] = []
+
+  if (showSubBatchId) {
+    columns.push({
+      accessorKey: "subBatchId",
+      header: "Sub-Batch ID",
+      cell: ({ row }) => (
+        <button
+          type="button"
+          className="font-medium text-brand-dark underline decoration-dotted cursor-pointer hover:text-brand-dark/80"
+          style={{ fontSize: "14px" }}
+          onClick={(e) => {
+            e.stopPropagation()
+            onSubBatchClick?.(row.original.subBatchId)
+          }}
+        >
+          {row.original.subBatchId}
+        </button>
+      ),
+    })
+  }
+
+  columns.push(
+    {
+      accessorKey: "chassisVin",
+      header: "Chassis (VIN)",
+      cell: ({ row }) => (
+        <span className="font-medium text-table-text-primary" style={{ fontSize: "14px" }}>
+          {row.original.chassisVin}
+        </span>
+      ),
+    },
+    {
+      accessorKey: "engineNo",
+      header: "Engine No.",
+      cell: ({ row }) => (
+        <span className="font-medium text-table-text" style={{ fontSize: "14px" }}>
+          {row.original.engineNo}
+        </span>
+      ),
+    },
+    {
+      accessorKey: "ignitionNo",
+      header: "Ignition No.",
+      cell: ({ row }) => (
+        <span className="font-medium text-table-text" style={{ fontSize: "14px" }}>
+          {row.original.ignitionNo}
+        </span>
+      ),
+    },
+    {
+      accessorKey: "batterySn",
+      header: "Battery S/N",
+      cell: ({ row }) => (
+        <span className="font-medium text-table-text" style={{ fontSize: "14px" }}>
+          {row.original.batterySn}
+        </span>
+      ),
+    },
+    {
+      accessorKey: "color",
+      header: "Color",
+      cell: ({ row }) => (
+        <span className="font-medium text-table-text" style={{ fontSize: "14px" }}>
+          {row.original.color}
+        </span>
+      ),
+    },
+    {
+      accessorKey: "receiver",
+      header: "Receiver",
+      cell: ({ row }) => (
+        <span className="font-medium text-table-text" style={{ fontSize: "14px" }}>
+          {row.original.receiver}
+        </span>
+      ),
+    },
+  )
+
+  if (onEdit || onDelete) {
+    columns.push({
+      id: "actions",
+      header: "",
+      cell: ({ row }) => (
+        <div className="flex items-center justify-end gap-1">
+          {onEdit && (
+            <button
+              type="button"
+              className="rounded p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+              aria-label="Edit"
+              onClick={(e) => {
+                e.stopPropagation()
+                onEdit(row.original)
+              }}
+            >
+              <Pencil className="h-4 w-4" />
+            </button>
+          )}
+          {onDelete && (
+            <button
+              type="button"
+              className="rounded p-1.5 text-muted-foreground hover:bg-muted hover:text-destructive transition-colors"
+              aria-label="Delete"
+              onClick={(e) => {
+                e.stopPropagation()
+                onDelete(row.original.id)
+              }}
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+      ),
+    })
+  }
+
+  return columns
+}

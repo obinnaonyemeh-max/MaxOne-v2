@@ -1,10 +1,11 @@
 import { useMemo, useState } from "react"
 import { type ColumnDef } from "@tanstack/react-table"
-import { Search, SlidersHorizontal } from "lucide-react"
+import { SlidersHorizontal } from "lucide-react"
 import {
   BatteryLevelIcon,
   ConfirmModal,
   DataTable,
+  ExpandableSearch,
   GenericFilterPopover,
   InfoCard,
   InfoGrid,
@@ -16,7 +17,6 @@ import {
   type GenericFilterState,
 } from "@/components/max"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import {
   Popover,
   PopoverContent,
@@ -282,47 +282,17 @@ export function TransferLogTab({
             </PopoverContent>
           </Popover>
 
-          {searchOpen ? (
-            <div className="flex items-center gap-1">
-              <Input
-                type="text"
-                value={searchQuery}
-                onChange={(event) => {
-                  setSearchQuery(event.target.value)
-                  setCurrentPage(1)
-                }}
-                placeholder="Search transfer ID, station, or battery..."
-                className="h-9 w-72"
-                autoFocus
-                onKeyDown={(event) => {
-                  if (event.key === "Escape") {
-                    setSearchOpen(false)
-                    setSearchQuery("")
-                  }
-                }}
-              />
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-9 w-9"
-                onClick={() => {
-                  setSearchOpen(false)
-                  setSearchQuery("")
-                }}
-              >
-                ×
-              </Button>
-            </div>
-          ) : (
-            <Button
-              variant="outline"
-              size="icon"
-              className="h-9 w-9"
-              onClick={() => setSearchOpen(true)}
-            >
-              <Search className="h-4 w-4 text-muted-foreground" />
-            </Button>
-          )}
+          <ExpandableSearch
+            open={searchOpen}
+            onOpenChange={setSearchOpen}
+            value={searchQuery}
+            onValueChange={(value) => {
+              setSearchQuery(value)
+              setCurrentPage(1)
+            }}
+            placeholder="Search transfer ID, station, or battery..."
+            inputClassName="w-72"
+          />
         </div>
 
         <div className="overflow-x-auto">

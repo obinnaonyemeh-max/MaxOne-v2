@@ -1,11 +1,12 @@
 import { useMemo, useState } from "react"
-import { Search, SlidersHorizontal } from "lucide-react"
+import { SlidersHorizontal } from "lucide-react"
 
 import {
   TopBar,
   PageHeader,
   StatCard,
   StatusTabs,
+  ExpandableSearch,
   GenericFilterPopover,
   getActiveFilterCount,
   type StatusTab,
@@ -13,7 +14,6 @@ import {
   type GenericFilterState,
 } from "@/components/max"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import {
   Popover,
   PopoverContent,
@@ -144,9 +144,9 @@ export default function RecoveryCommandCenterPage() {
         />
       </div>
 
-      <div className="flex-1 flex overflow-hidden px-6 pb-6 gap-4">
+      <div className="flex-1 flex min-w-0 overflow-hidden px-6 pb-6 gap-4">
         {/* Left Panel - Recovery Outcomes List */}
-        <div className="w-[390px] shrink-0 border border-gray-200 rounded-lg flex flex-col bg-white overflow-hidden">
+        <div className="w-[390px] max-w-[min(390px,45vw)] min-w-0 shrink border border-gray-200 rounded-lg flex flex-col bg-white overflow-hidden">
           <div className="p-4 border-b border-gray-200">
             <div className="flex items-center justify-between mb-4">
               <div>
@@ -160,8 +160,8 @@ export default function RecoveryCommandCenterPage() {
               <div className="flex items-center gap-1">
                 <Popover>
                   <PopoverTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-9 w-9 relative">
-                      <SlidersHorizontal className="h-4 w-4 text-gray-500" />
+                    <Button variant="ghost" size="icon" className="h-9 w-9 relative" aria-label="Filter">
+                      <SlidersHorizontal className="h-4 w-4 text-gray-500" aria-hidden />
                       {activeFilterCount > 0 && (
                         <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-brand-dark text-[10px] text-white flex items-center justify-center">
                           {activeFilterCount}
@@ -178,31 +178,14 @@ export default function RecoveryCommandCenterPage() {
                   </PopoverContent>
                 </Popover>
 
-                {searchOpen ? (
-                  <Input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search..."
-                    className="h-9 w-40"
-                    autoFocus
-                    onKeyDown={(e) => {
-                      if (e.key === "Escape") {
-                        setSearchOpen(false)
-                        setSearchQuery("")
-                      }
-                    }}
-                  />
-                ) : (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-9 w-9"
-                    onClick={() => setSearchOpen(true)}
-                  >
-                    <Search className="h-4 w-4 text-gray-500" />
-                  </Button>
-                )}
+                <ExpandableSearch
+                  open={searchOpen}
+                  onOpenChange={setSearchOpen}
+                  value={searchQuery}
+                  onValueChange={setSearchQuery}
+                  placeholder="Search..."
+                  inputClassName="w-40"
+                />
               </div>
             </div>
 
@@ -248,7 +231,7 @@ export default function RecoveryCommandCenterPage() {
         </div>
 
         {/* Right Panel - Active Recoveries Map */}
-        <div className="relative z-0 flex-1 border border-gray-200 rounded-lg overflow-hidden bg-white p-2 min-h-0 isolate">
+        <div className="relative z-0 flex-1 min-w-0 border border-gray-200 rounded-lg overflow-hidden bg-white p-2 min-h-0 isolate">
           <RecoveryActiveMap
             sessions={mapSessions}
             selectedSessionId={selectedActiveId}

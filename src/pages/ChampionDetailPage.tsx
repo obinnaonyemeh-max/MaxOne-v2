@@ -18,6 +18,7 @@ import {
   AssignmentHistoryCard,
   Modal,
   ReassignChampionsModal,
+  ExpandableSearch,
   GenericFilterPopover,
   getActiveFilterCount,
   type FilterSection,
@@ -26,7 +27,7 @@ import {
 import { format } from "date-fns"
 import { AddPaymentTransactionFlow } from "@/pages/portfolio/AddPaymentTransactionFlow"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import { Phone, MessageSquare, MessageCircle, User, Plus, History, ChevronDown, SlidersHorizontal, Search, RotateCcw, Ban, UserPlus } from "lucide-react"
+import { Phone, MessageSquare, MessageCircle, User, Plus, History, ChevronDown, SlidersHorizontal, RotateCcw, Ban, UserPlus } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import {
@@ -634,7 +635,7 @@ export default function ChampionDetailPage() {
 
         <div className="px-6 pb-6 flex gap-6 items-start">
           {/* Left Column */}
-          <div className="w-[340px] shrink-0 flex flex-col gap-4">
+          <div className="w-[340px] max-w-[min(340px,40vw)] min-w-0 shrink flex flex-col gap-4">
             <ChampionInformation
               name={champion.name}
               riskLevel={champion.riskLevel}
@@ -652,6 +653,8 @@ export default function ChampionDetailPage() {
           {/* Right Column */}
           <div className="flex-1 min-w-0 self-stretch flex flex-col">
             <Tabs value={activeTab} onValueChange={handleTabChange} className="flex flex-col flex-1 min-h-0 overflow-hidden">
+              {/* Pointer-drag to scroll overflowing tabs; keyboard users use the tab triggers. */}
+              {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
               <div
                 ref={tabsScrollRef}
                 className="shrink-0 overflow-x-auto scrollbar-hide pb-1.5 cursor-grab select-none"
@@ -936,44 +939,14 @@ export default function ChampionDetailPage() {
                             </PopoverContent>
                           </Popover>
 
-                          {walletSearchOpen ? (
-                            <div className="flex items-center gap-1">
-                              <Input
-                                type="text"
-                                value={walletSearchQuery}
-                                onChange={(e) => setWalletSearchQuery(e.target.value)}
-                                placeholder="Search transactions..."
-                                className="h-9 w-56"
-                                autoFocus
-                                onKeyDown={(e) => {
-                                  if (e.key === "Escape") {
-                                    setWalletSearchOpen(false)
-                                    setWalletSearchQuery("")
-                                  }
-                                }}
-                              />
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-9 w-9"
-                                onClick={() => {
-                                  setWalletSearchOpen(false)
-                                  setWalletSearchQuery("")
-                                }}
-                              >
-                                ×
-                              </Button>
-                            </div>
-                          ) : (
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              className="h-9 w-9"
-                              onClick={() => setWalletSearchOpen(true)}
-                            >
-                              <Search className="h-4 w-4 text-muted-foreground" />
-                            </Button>
-                          )}
+                          <ExpandableSearch
+                            open={walletSearchOpen}
+                            onOpenChange={setWalletSearchOpen}
+                            value={walletSearchQuery}
+                            onValueChange={setWalletSearchQuery}
+                            placeholder="Search transactions..."
+                            inputClassName="w-56"
+                          />
                         </>
                       )}
                     </div>

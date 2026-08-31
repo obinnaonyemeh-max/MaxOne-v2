@@ -126,7 +126,7 @@ function CallRecordingRow({
     <div className="rounded-md border border-gray-200 bg-white p-3 space-y-2">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 min-w-0">
-          <Mic className="h-4 w-4 shrink-0 text-brand-primary" />
+          <Mic className="h-4 w-4 shrink-0 text-brand-dark" />
           <span className="text-sm font-medium text-sidebar-item-active truncate">
             {recording.fileName}
           </span>

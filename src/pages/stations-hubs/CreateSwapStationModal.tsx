@@ -21,12 +21,12 @@ import { StationsMap } from "./StationsMap"
 const COUNTRIES = ["Nigeria"] as const
 
 const selectTriggerClass =
-  "h-12 w-full bg-input-soft [&_svg]:text-brand-primary [&_svg]:opacity-100"
+  "h-12 w-full bg-input-soft [&_svg]:text-gray-700 [&_svg]:opacity-100"
 
 function FormField({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div className="flex flex-col gap-2">
-      <label className="font-medium text-gray-400" style={{ fontSize: "13px" }}>
+      <label className="font-medium text-gray-600" style={{ fontSize: "13px" }}>
         {label}
       </label>
       {children}
@@ -396,7 +396,7 @@ export function CreateSwapStationModal({
             label={
               <>
                 Drag and drop or{" "}
-                <span className="font-semibold text-[#B5A018]">choose file</span>{" "}
+                <span className="font-semibold text-gray-700">choose file</span>{" "}
                 to upload
               </>
             }

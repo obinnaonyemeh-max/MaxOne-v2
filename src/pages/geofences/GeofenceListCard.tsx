@@ -1,6 +1,7 @@
 import { ChevronDown } from "lucide-react"
 import { motion, AnimatePresence } from "motion/react"
 import { cn } from "@/lib/utils"
+import { clickableSurfaceProps } from "@/lib/clickableSurface"
 import { StatusBadge } from "@/components/max/StatusBadge"
 import { geofenceTypeBadge, type Geofence } from "@/data/mockGeofences"
 
@@ -23,7 +24,7 @@ export function GeofenceListCard({
 
   return (
     <div
-      onClick={onSelect}
+      {...clickableSurfaceProps(onSelect, geofence.name)}
       data-geofence-id={geofence.id}
       className={cn(
         "rounded-lg border bg-white p-3 cursor-pointer transition-all",

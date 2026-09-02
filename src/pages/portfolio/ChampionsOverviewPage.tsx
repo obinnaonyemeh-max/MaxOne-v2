@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/popover"
 import {
   mockPortfolioChampions,
+  portfolioChampionStats,
   type PortfolioChampion,
   type RetrievalStatus,
   type ContractStatus,
@@ -51,29 +52,29 @@ function formatCurrency(amount: number): string {
   return "₦" + amount.toLocaleString()
 }
 
-// Aggregate figures shown in the stat cards (portfolio-wide, independent of the table page)
+// Stat-card display config, sourced from the portfolio-wide totals in mockPortfolioChampions.ts
 const championStats = [
   {
     title: "Total Champions",
-    value: (4176).toLocaleString(),
+    value: portfolioChampionStats.total.toLocaleString(),
     subtitle: "Across all locations",
     indicatorColor: "var(--color-brand-primary)",
   },
   {
     title: "Active Champions",
-    value: (2001).toLocaleString(),
+    value: portfolioChampionStats.active.toLocaleString(),
     subtitle: "Contract status active",
     indicatorColor: "var(--color-status-success)",
   },
   {
     title: "Inactive Champions",
-    value: (1740).toLocaleString(),
+    value: portfolioChampionStats.inactive.toLocaleString(),
     subtitle: "paused, initiated, marked",
     indicatorColor: "var(--color-status-warning)",
   },
   {
     title: "Champions with Contract Complete",
-    value: (435).toLocaleString(),
+    value: portfolioChampionStats.contractComplete.toLocaleString(),
     subtitle: "Contract status closed",
     indicatorColor: "var(--color-status-info)",
   },

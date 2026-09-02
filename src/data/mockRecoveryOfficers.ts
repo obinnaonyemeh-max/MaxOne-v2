@@ -168,3 +168,23 @@ export const recoveryOfficerStats = {
   totalPairs: mockRecoveryPairs.length,
   unassignedAgents: mockRecoveryAgents.filter((a) => a.pairId === null && a.status === "Active").length,
 }
+
+// ---- Custom Assignment CSV-upload flow ----
+
+export interface CustomAssignmentErrorRow {
+  caseId: string
+  pairCode: string
+  reason: string
+}
+
+// Simulated CSV-upload validation result for the "Make Custom Assignment" bulk-assign flow
+export const mockCustomAssignmentStats = {
+  totalRows: 8,
+  validEntries: 6,
+  rowsWithErrors: 2,
+}
+
+export const mockCustomAssignmentErrorRows: CustomAssignmentErrorRow[] = [
+  { caseId: "RC-3099", pairCode: "RP-010", reason: "Pair code not found" },
+  { caseId: "RC-9001", pairCode: "RP-002", reason: "Case ID not found in Pending Recoveries" },
+]

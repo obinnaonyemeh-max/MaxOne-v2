@@ -22,6 +22,7 @@ interface DataTableProps<TData, TValue> {
   getRowAriaLabel?: (row: TData) => string
   emptyMessage?: string
   className?: string
+  getRowClassName?: (row: TData) => string
 }
 
 export function DataTable<TData, TValue>({
@@ -32,6 +33,7 @@ export function DataTable<TData, TValue>({
   getRowAriaLabel,
   emptyMessage = "No results found.",
   className,
+  getRowClassName,
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
@@ -106,7 +108,8 @@ export function DataTable<TData, TValue>({
                 data-state={row.getIsSelected() && "selected"}
                 className={cn(
                   "border-gray-100",
-                  onRowClick && "cursor-pointer"
+                  onRowClick && "cursor-pointer",
+                  getRowClassName?.(row.original)
                 )}
                 tabIndex={onRowClick ? 0 : undefined}
                 aria-label={getRowAriaLabel?.(row.original)}

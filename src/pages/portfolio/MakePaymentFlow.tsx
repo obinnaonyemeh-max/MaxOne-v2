@@ -1,14 +1,9 @@
 import { useEffect, useState } from "react"
 
 import { Modal, LoaderModal, DocUpload } from "@/components/max"
+import { mockPaymentUploadStats } from "@/data/mockReferrals"
 
 type MakePaymentStep = "upload" | "validating" | "validated" | "processing" | "processed"
-
-const initialStats = {
-  totalRows: 14,
-  validEntries: 14,
-  rowsWithErrors: 0,
-}
 
 interface MakePaymentFlowProps {
   open: boolean
@@ -18,7 +13,7 @@ interface MakePaymentFlowProps {
 export function MakePaymentFlow({ open, onClose }: MakePaymentFlowProps) {
   const [step, setStep] = useState<MakePaymentStep>("upload")
   const [file, setFile] = useState<File | null>(null)
-  const [stats] = useState(initialStats)
+  const [stats] = useState(mockPaymentUploadStats)
 
   useEffect(() => {
     if (!open) {

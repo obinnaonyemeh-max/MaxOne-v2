@@ -12,6 +12,10 @@ import { mockCountries } from "@/data/mockCountries"
 import { mockEarlyTerminationContracts, earlyTerminationStatusVariantMap } from "@/data/mockEarlyTermination"
 import { buildSettlementQuote, formatCurrency } from "./earlyTerminationCalculations"
 import { GenerateSettlementQuoteModal } from "./GenerateSettlementQuoteModal"
+import { RecoveryAnalysisTab } from "./RecoveryAnalysisTab"
+import { AmortisationTab } from "./AmortisationTab"
+import { SettlementTab } from "./SettlementTab"
+import { SummaryActionsTab } from "./SummaryActionsTab"
 
 const tabTriggerClass =
   "px-3 py-3 text-sm font-medium data-[state=active]:text-sidebar-item-active data-[state=inactive]:text-breadcrumb-root"
@@ -24,19 +28,12 @@ const tabs = [
   { value: "summary", label: "Summary & Actions" },
 ]
 
-function StubTab({ label }: { label: string }) {
-  return (
-    <div className="flex items-center justify-center rounded-lg border border-dashed border-gray-200 bg-gray-25 py-16 mx-6">
-      <p className="text-sm font-medium text-breadcrumb-root">{label} hasn't been built yet.</p>
-    </div>
-  )
-}
-
 export default function EarlyTerminationEnginePage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const activeTab = searchParams.get("tab") || "overview"
   const handleTabChange = (value: string) => setSearchParams(value === "overview" ? {} : { tab: value }, { replace: true })
 
+  const [contracts, setContracts] = useState(mockEarlyTerminationContracts)
   const [countryId, setCountryId] = useState("")
   const [customerName, setCustomerName] = useState("")
   const [contractId, setContractId] = useState("")
@@ -44,14 +41,14 @@ export default function EarlyTerminationEnginePage() {
   const [showQuoteModal, setShowQuoteModal] = useState(false)
 
   const customerOptions = useMemo(
-    () => [...new Set(mockEarlyTerminationContracts.filter((c) => c.countryId === countryId).map((c) => c.customerName))],
-    [countryId]
+    () => [...new Set(contracts.filter((c) => c.countryId === countryId).map((c) => c.customerName))],
+    [contracts, countryId]
   )
   const contractOptions = useMemo(
-    () => mockEarlyTerminationContracts.filter((c) => c.countryId === countryId && c.customerName === customerName),
-    [countryId, customerName]
+    () => contracts.filter((c) => c.countryId === countryId && c.customerName === customerName),
+    [contracts, countryId, customerName]
   )
-  const contract = useMemo(() => mockEarlyTerminationContracts.find((c) => c.id === contractId) ?? null, [contractId])
+  const contract = useMemo(() => contracts.find((c) => c.id === contractId) ?? null, [contracts, contractId])
 
   const quote = useMemo(
     () => (contract && settlementDate ? buildSettlementQuote(contract, settlementDate) : null),
@@ -66,6 +63,16 @@ export default function EarlyTerminationEnginePage() {
 
   const handleCustomerChange = (value: string) => {
     setCustomerName(value)
+    setContractId("")
+  }
+
+  const handleApprove = (id: string) => {
+    setContracts((prev) => prev.map((c) => (c.id === id ? { ...c, status: "Completed" } : c)))
+  }
+
+  const handleCancel = () => {
+    setCountryId("")
+    setCustomerName("")
     setContractId("")
   }
 
@@ -173,8 +180,7 @@ export default function EarlyTerminationEnginePage() {
                       triggerClassName="bg-input-soft"
                     />
                   </FormField>
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-medium text-breadcrumb-root">Contract Status</label>
+                  <FormField label="Contract Status">
                     <div className="h-9 flex items-center">
                       {contract ? (
                         <StatusBadge variant={earlyTerminationStatusVariantMap[contract.status]}>{contract.status}</StatusBadge>
@@ -182,7 +188,7 @@ export default function EarlyTerminationEnginePage() {
                         <span className="text-sm text-muted-foreground">—</span>
                       )}
                     </div>
-                  </div>
+                  </FormField>
                 </div>
               </div>
             </div>
@@ -198,12 +204,13 @@ export default function EarlyTerminationEnginePage() {
             ) : (
               <>
                 <div className="px-6 grid grid-cols-3 gap-3">
-                  <div className="rounded-lg border border-brand-primary bg-brand-primary/5 p-4">
-                    <p className="text-xs font-semibold uppercase tracking-wider text-breadcrumb-root">Settlement Amount</p>
-                    <p className="mt-1 font-semibold text-sidebar-item-active" style={{ fontSize: "24px" }}>
-                      {formatCurrency(quote.settlementAmount)}
-                    </p>
-                  </div>
+                  <StatCard
+                    title="Settlement Amount"
+                    value={formatCurrency(quote.settlementAmount)}
+                    subtitle="Total payout balance"
+                    indicatorColor="var(--color-brand-primary)"
+                    className="border-brand-primary bg-brand-primary/5"
+                  />
                   <StatCard
                     title="Outstanding Balance"
                     value={formatCurrency(quote.outstandingBalance)}
@@ -262,16 +269,16 @@ export default function EarlyTerminationEnginePage() {
           </TabsContent>
 
           <TabsContent value="recovery" className="mt-0">
-            <StubTab label="Recovery Analysis" />
+            <RecoveryAnalysisTab contract={contract} quote={quote} />
           </TabsContent>
           <TabsContent value="amortisation" className="mt-0">
-            <StubTab label="Amortisation" />
+            <AmortisationTab contract={contract} quote={quote} />
           </TabsContent>
           <TabsContent value="settlement" className="mt-0">
-            <StubTab label="Settlement" />
+            <SettlementTab contract={contract} quote={quote} />
           </TabsContent>
           <TabsContent value="summary" className="mt-0">
-            <StubTab label="Summary & Actions" />
+            <SummaryActionsTab contract={contract} quote={quote} onApprove={handleApprove} onCancel={handleCancel} />
           </TabsContent>
         </div>
       </Tabs>

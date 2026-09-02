@@ -62,6 +62,7 @@ import RecoveriesInSessionPage from "@/pages/portfolio/RecoveriesInSessionPage"
 import PendingCheckInsPage from "@/pages/portfolio/PendingCheckInsPage"
 import RecoveryCommandCenterPage from "@/pages/portfolio/RecoveryCommandCenterPage"
 import FinanciersPage from "@/pages/portfolio/FinanciersPage"
+import WoRecoveryPage from "@/pages/portfolio/WoRecoveryPage"
 import SubscriptionPlansListPage from "@/pages/portfolio/SubscriptionPlansListPage"
 import SubscriptionPlansPage from "@/pages/portfolio/SubscriptionPlansPage"
 import PricingBatchesListPage from "@/pages/portfolio/PricingBatchesListPage"
@@ -72,6 +73,8 @@ import PricingTemplatesListPage from "@/pages/portfolio/PricingTemplatesListPage
 import DynamicRepricingEnginePage from "@/pages/portfolio/DynamicRepricingEnginePage"
 import EarlyTerminationEnginePage from "@/pages/portfolio/EarlyTerminationEnginePage"
 import RevenueRecognitionPage from "@/pages/portfolio/RevenueRecognitionPage"
+import RetailScorecardConfigPage from "@/pages/portfolio/RetailScorecardConfigPage"
+import CreateRepricingRulePage from "@/pages/create-repricing-rule/CreateRepricingRulePage"
 import VehicleRegisterPage from "@/pages/vehicle-register/VehicleRegisterPage"
 import VehicleActivityPage from "@/pages/vehicle-activity/VehicleActivityPage"
 import VehicleTripsPage from "@/pages/vehicle-trips/VehicleTripsPage"
@@ -169,6 +172,7 @@ export default function App() {
         <Route path="/portfolio/recovery/sessions/:tab" element={<RecoveriesInSessionPage />} />
         <Route path="/portfolio/recovery/check-ins" element={<PendingCheckInsPage />} />
         <Route path="/portfolio/funding/financiers" element={<FinanciersPage />} />
+        <Route path="/portfolio/ops/write-offs" element={<WoRecoveryPage />} />
         <Route path="/portfolio/pricing-configuration/subscription-plans" element={<SubscriptionPlansListPage />} />
         <Route path="/portfolio/pricing-configuration/subscription-plans/new" element={<SubscriptionPlansPage />} />
         <Route path="/portfolio/pricing-configuration/pricing-batches" element={<PricingBatchesListPage />} />
@@ -178,8 +182,10 @@ export default function App() {
         <Route path="/portfolio/pricing-configuration/templates" element={<PricingTemplatesListPage />} />
         <Route path="/portfolio/pricing-configuration/templates/create" element={<CreatePricingTemplatePage />} />
         <Route path="/portfolio/products-pricing/repricing-engine" element={<DynamicRepricingEnginePage />} />
+        <Route path="/portfolio/products-pricing/repricing-engine/create-rule" element={<CreateRepricingRulePage />} />
         <Route path="/portfolio/products-pricing/early-termination-engine" element={<EarlyTerminationEnginePage />} />
         <Route path="/portfolio/products-pricing/revenue-recognition" element={<RevenueRecognitionPage />} />
+        <Route path="/portfolio/credit-underwriting/retail-scorecard" element={<RetailScorecardConfigPage />} />
         <Route path="/driver-experience/dashboard" element={<DriverExperienceDashboardPage />} />
         <Route path="/driver-experience/approvals" element={<ApprovalsPage />} />
         <Route path="/driver-experience/agents/portfolio" element={<AgentPortfolioPage />} />

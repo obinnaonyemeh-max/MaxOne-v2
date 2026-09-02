@@ -103,9 +103,11 @@ export default function DashboardPage() {
         <PageHeader
           title="Dashboard"
           subtitle={
-            dataScope?.city
-              ? `See real-time fleet overview for ${dataScope.city}`
-              : "See real-time fleet overview across all regions"
+            dataScope?.type === "subCity"
+              ? `See real-time fleet overview for ${dataScope.subCity}`
+              : dataScope?.city
+                ? `See real-time fleet overview for ${dataScope.city}`
+                : "See real-time fleet overview across all regions"
           }
           className="px-0"
         />

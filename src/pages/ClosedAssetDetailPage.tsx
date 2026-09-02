@@ -1,3 +1,4 @@
+import { useEffect } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 
 import {
@@ -8,12 +9,20 @@ import {
   InfoGrid,
 } from "@/components/max"
 import { StatCard } from "@/components/max/StatCard"
+import { useRoleSimulation } from "@/contexts/RoleSimulationContext"
 import { mockClosedAssets, methodVariantMap } from "@/pages/ClosedAssetsPage"
 
 export default function ClosedAssetDetailPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const { filterByCity } = useRoleSimulation()
   const record = mockClosedAssets.find((r) => r.assetId === id)
+
+  useEffect(() => {
+    if (record && !filterByCity(record.location)) {
+      navigate("/closed-assets", { replace: true })
+    }
+  }, [filterByCity, navigate, record])
 
   if (!record) {
     return (

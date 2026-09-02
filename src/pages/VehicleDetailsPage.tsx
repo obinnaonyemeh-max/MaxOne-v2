@@ -23,6 +23,7 @@ export default function VehicleDetailsPage() {
   const location = useLocation()
   const { filterByCity } = useRoleSimulation()
   const canEditVehicle = useCan("fleetRegister.editVehicle")
+  const canSeeTelematics = useCan("vehicleDetails.tab.telematics")
   const isFromAssetMovement = location.pathname.startsWith("/asset-movement")
   const registerVehicle = mockVehicles.find((v) => v.id === id)
   const vehicle = getVehicleDetails(id || "1")
@@ -125,12 +126,14 @@ export default function VehicleDetailsPage() {
                 >
                   Basic Information
                 </TabsTrigger>
-                <TabsTrigger
-                  value="telematics"
-                  className="px-4 py-3 text-sm font-medium data-[state=active]:text-sidebar-item-active data-[state=inactive]:text-breadcrumb-root"
-                >
-                  Telematics Information
-                </TabsTrigger>
+                {canSeeTelematics && (
+                  <TabsTrigger
+                    value="telematics"
+                    className="px-4 py-3 text-sm font-medium data-[state=active]:text-sidebar-item-active data-[state=inactive]:text-breadcrumb-root"
+                  >
+                    Telematics Information
+                  </TabsTrigger>
+                )}
                 <TabsTrigger
                   value="status"
                   className="px-4 py-3 text-sm font-medium data-[state=active]:text-sidebar-item-active data-[state=inactive]:text-breadcrumb-root"
@@ -193,6 +196,7 @@ export default function VehicleDetailsPage() {
               </div>
             </TabsContent>
 
+              {canSeeTelematics && (
               <TabsContent value="telematics" className="mt-0 flex-1 min-h-0 overflow-y-auto">
               <div className="bg-content-card flex flex-col gap-3 h-fit rounded-lg border border-border p-3">
                 <InfoCard title="TELEMATICS DETAILS">
@@ -209,6 +213,7 @@ export default function VehicleDetailsPage() {
                 </InfoCard>
               </div>
             </TabsContent>
+              )}
 
               <TabsContent value="status" className="mt-0 flex-1 min-h-0 overflow-y-auto">
               <div className="bg-content-card p-6 h-fit rounded-lg border border-border">

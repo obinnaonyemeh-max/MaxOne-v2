@@ -1,10 +1,13 @@
 import type { SidebarItem, SidebarSection } from "@/components/max"
-import type { CityId } from "@/data/cityScope"
+import type { CityId, LagosSubCity } from "@/data/cityScope"
 
 export type SimulationMode =
   | "full-build"
   | "global-fleet-manager"
   | "city-fleet-officer"
+  | "fleet-officer"
+  | "refurbishment-manager"
+  | "refurbishment-officer"
   | "call-centre-agent"
   | "welfare-agent"
   | "field-ops-manager"
@@ -32,6 +35,8 @@ export type PermissionKey =
   | "vehicleDocument.upload"
   | "vehicleDocument.replace"
   | "kit.reassignment"
+  | "refurbishment.column.partCost"
+  | "vehicleDetails.tab.telematics"
   | "championProfile.reassign"
   | "agentManagement.reassign"
   | "ticketManagement.create"
@@ -41,10 +46,9 @@ export type PermissionKey =
   | "ticketManagement.close"
   | "ticketManagement.addComment"
 
-export interface RoleDataScope {
-  type: "city"
-  city: CityId
-}
+export type RoleDataScope =
+  | { type: "city"; city: CityId }
+  | { type: "subCity"; city: CityId; subCity: LagosSubCity }
 
 export interface RoleDefinition {
   id: Exclude<SimulationMode, "full-build">
@@ -77,6 +81,8 @@ export const ALL_PERMISSIONS: PermissionKey[] = [
   "vehicleDocument.upload",
   "vehicleDocument.replace",
   "kit.reassignment",
+  "refurbishment.column.partCost",
+  "vehicleDetails.tab.telematics",
   "championProfile.reassign",
   "agentManagement.reassign",
   "ticketManagement.create",
@@ -110,14 +116,16 @@ export const GLOBAL_FLEET_MANAGER: RoleDefinition = {
     "asset-reassignment-kit",
   ],
   permissions: [
+    "vehicleDetails.tab.telematics",
     // Fleet Register: view columns except contract risk / collection %; no add/bulk/edit
-    // Vehicle details: no edit vehicle info
+    // Vehicle details: telematics tab; no edit vehicle info
     // Asset Movement: everything
     // Inbound batches: view only for create/identifier add/edit/csv/docs/stage move
     // Stock setup: view tabs, no add/edit
     // Activation readiness: no update / bulk upload
     // Vehicle document: no upload / replace
     // Service schedule / disposal modules: everything (no denied keys)
+    // Refurbishment: hide part cost column
     // Kit: no reassignment action
   ],
 }
@@ -135,7 +143,56 @@ export const CITY_FLEET_OFFICER: RoleDefinition = {
     "vehicleDocument.upload",
     "vehicleDocument.replace",
     "kit.reassignment",
+    "vehicleDetails.tab.telematics",
   ],
+}
+
+export const FLEET_OFFICER: RoleDefinition = {
+  id: "fleet-officer",
+  label: "Fleet Officer",
+  navItemIds: [
+    "dashboard",
+    "fleet-register",
+    "activation-readiness",
+    "vehicle-document",
+    "asset-reassignment",
+    "asset-reassignment-kit",
+  ],
+  dataScope: { type: "subCity", city: "Lagos", subCity: "Ikeja" },
+  permissions: [
+    "activationReadiness.update",
+    "activationReadiness.bulkUpload",
+    "vehicleDocument.upload",
+    "vehicleDocument.replace",
+    "kit.reassignment",
+  ],
+}
+
+const REFURBISHMENT_NAV_ITEM_IDS = [
+  "refurbishment",
+  "maintenance",
+  "service-schedule",
+  "disposal-auction",
+  "disposal-management",
+  "conversion-request",
+  "auction",
+  "scrap-management",
+  "closed-assets",
+]
+
+export const REFURBISHMENT_MANAGER: RoleDefinition = {
+  id: "refurbishment-manager",
+  label: "Refurbishment Manager",
+  navItemIds: REFURBISHMENT_NAV_ITEM_IDS,
+  permissions: ["refurbishment.column.partCost"],
+}
+
+export const REFURBISHMENT_OFFICER: RoleDefinition = {
+  id: "refurbishment-officer",
+  label: "Refurbishment Officer",
+  navItemIds: REFURBISHMENT_NAV_ITEM_IDS,
+  dataScope: { type: "city", city: "Lagos" },
+  permissions: [],
 }
 
 export const CALL_CENTRE_AGENT: RoleDefinition = {
@@ -257,12 +314,16 @@ export const OPERATIONS_MANAGER: RoleDefinition = {
   ),
 }
 
+
 export const SIMULATION_OPTIONS: {
   mode: SimulationMode
   label: string
 }[] = [
   { mode: "global-fleet-manager", label: "Global Fleet Manager" },
   { mode: "city-fleet-officer", label: "City Fleet Officer" },
+  { mode: "fleet-officer", label: "Fleet Officer" },
+  { mode: "refurbishment-manager", label: "Refurbishment Manager" },
+  { mode: "refurbishment-officer", label: "Refurbishment Officer" },
   { mode: "call-centre-agent", label: "Call Centre Agent" },
   { mode: "welfare-agent", label: "Welfare Agent" },
   { mode: "field-ops-manager", label: "Field Ops Manager" },
@@ -276,6 +337,9 @@ export const SIMULATION_OPTIONS: {
 export function getRoleDefinition(mode: SimulationMode): RoleDefinition | null {
   if (mode === "global-fleet-manager") return GLOBAL_FLEET_MANAGER
   if (mode === "city-fleet-officer") return CITY_FLEET_OFFICER
+  if (mode === "fleet-officer") return FLEET_OFFICER
+  if (mode === "refurbishment-manager") return REFURBISHMENT_MANAGER
+  if (mode === "refurbishment-officer") return REFURBISHMENT_OFFICER
   if (mode === "call-centre-agent") return CALL_CENTRE_AGENT
   if (mode === "welfare-agent") return WELFARE_AGENT
   if (mode === "field-ops-manager") return FIELD_OPS_MANAGER
@@ -407,7 +471,28 @@ export function getAllowedPathPrefixes(mode: SimulationMode): string[] | null {
   const role = getRoleDefinition(mode)
   if (!role) return null
 
-  // Explicit allowlist of path prefixes for GFM (includes detail routes under allowed modules)
+  if (mode === "fleet-officer") {
+    return [
+      "/dashboard",
+      "/fleet-register",
+      "/activation/readiness",
+      "/vehicle-document",
+      "/activation-assignment/asset-reassignment/kit",
+    ]
+  }
+
+  if (mode === "refurbishment-manager" || mode === "refurbishment-officer") {
+    return [
+      "/refurbishment",
+      "/service-schedule",
+      "/disposal-management",
+      "/conversion-request",
+      "/auction",
+      "/scrap-management",
+      "/closed-assets",
+    ]
+  }
+
   return [
     "/dashboard",
     "/fleet-register",
@@ -495,6 +580,9 @@ export function getFallbackPathForDenied(pathname: string, mode: SimulationMode)
       pathname.startsWith("/activation-assignment/asset-reassignment/kit/assign/"))
   ) {
     return "/activation-assignment/asset-reassignment/kit"
+  }
+  if (mode === "refurbishment-manager" || mode === "refurbishment-officer") {
+    return "/refurbishment"
   }
   return "/dashboard"
 }

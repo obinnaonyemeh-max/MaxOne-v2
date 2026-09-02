@@ -26,7 +26,7 @@ export const mockKitReports: KitReport[] = [
     reassigned: false,
     champion: "Opeyemi Orekoya",
     plateNumber: "KJA-119-XL",
-    location: "Lagos",
+    location: "Ikeja",
     assignmentDate: "12 Jun 2026",
   },
   {
@@ -37,7 +37,7 @@ export const mockKitReports: KitReport[] = [
     reassigned: true,
     champion: "Amina Yusuf",
     plateNumber: "OGN-115-CT",
-    location: "Lagos",
+    location: "Ikeja",
     assignmentDate: "03 Jul 2026",
   },
   {
@@ -48,7 +48,7 @@ export const mockKitReports: KitReport[] = [
     reassigned: false,
     champion: "Chidinma Eze",
     plateNumber: "ABJ-772-KD",
-    location: "Lagos",
+    location: "Ikeja",
     assignmentDate: "15 Jul 2026",
   },
   {
@@ -59,7 +59,7 @@ export const mockKitReports: KitReport[] = [
     reassigned: false,
     champion: null,
     plateNumber: null,
-    location: "Lagos",
+    location: "Ikeja",
     assignmentDate: null,
   },
   {
@@ -70,7 +70,7 @@ export const mockKitReports: KitReport[] = [
     reassigned: false,
     champion: null,
     plateNumber: null,
-    location: "Lagos",
+    location: "Ikeja",
     assignmentDate: null,
   },
   {
@@ -81,7 +81,7 @@ export const mockKitReports: KitReport[] = [
     reassigned: false,
     champion: "Emeka Obi",
     plateNumber: "LND-889-RS",
-    location: "Lagos",
+    location: "Ikeja",
     assignmentDate: "22 Jun 2026",
   },
   {

@@ -7,7 +7,7 @@ import {
   type ReactNode,
 } from "react"
 import type { SidebarSection } from "@/components/max"
-import { isInCityScope } from "@/data/cityScope"
+import { isInCityScope, resolveLagosSubCity } from "@/data/cityScope"
 import {
   widgetsForFullBuild,
   widgetsForModules,
@@ -36,6 +36,9 @@ function readStoredMode(): SimulationMode {
       stored === "full-build" ||
       stored === "global-fleet-manager" ||
       stored === "city-fleet-officer" ||
+      stored === "fleet-officer" ||
+      stored === "refurbishment-manager" ||
+      stored === "refurbishment-officer" ||
       stored === "call-centre-agent" ||
       stored === "welfare-agent" ||
       stored === "field-ops-manager" ||
@@ -132,8 +135,14 @@ export function RoleSimulationProvider({ children }: { children: ReactNode }) {
 
   const filterByCity = useCallback(
     (value: string | null | undefined) => {
-      if (!dataScope || dataScope.type !== "city") return true
-      return isInCityScope(value, dataScope.city)
+      if (!dataScope) return true
+      if (dataScope.type === "subCity") {
+        return resolveLagosSubCity(value) === dataScope.subCity
+      }
+      if (dataScope.type === "city") {
+        return isInCityScope(value, dataScope.city)
+      }
+      return true
     },
     [dataScope]
   )

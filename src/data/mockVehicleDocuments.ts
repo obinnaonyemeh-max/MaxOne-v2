@@ -59,7 +59,7 @@ export const mockVehicleDocuments: VehicleDocumentRecord[] = [
     completion: 62,
     status: "Expired",
     lastUpdated: "03 May 2026",
-    location: "Lagos, Nigeria",
+    location: "Ikeja",
     checklist: vh43Checklist,
   },
   {
@@ -70,7 +70,7 @@ export const mockVehicleDocuments: VehicleDocumentRecord[] = [
     completion: 88,
     status: "Expiring Soon",
     lastUpdated: "01 May 2026",
-    location: "Lagos, Nigeria",
+    location: "Ikeja",
     checklist: defaultChecklist,
   },
   {
@@ -81,7 +81,7 @@ export const mockVehicleDocuments: VehicleDocumentRecord[] = [
     completion: 75,
     status: "Expired",
     lastUpdated: "28 Apr 2026",
-    location: "Lagos, Nigeria",
+    location: "Ikeja",
     checklist: defaultChecklist,
   },
   {
@@ -92,7 +92,7 @@ export const mockVehicleDocuments: VehicleDocumentRecord[] = [
     completion: 100,
     status: "Expiring Soon",
     lastUpdated: "02 May 2026",
-    location: "Lagos, Nigeria",
+    location: "Ikeja",
     checklist: defaultChecklist,
   },
   {
@@ -103,7 +103,7 @@ export const mockVehicleDocuments: VehicleDocumentRecord[] = [
     completion: 100,
     status: "Expiring Soon",
     lastUpdated: "04 May 2026",
-    location: "Lagos, Nigeria",
+    location: "Ikeja",
     checklist: defaultChecklist,
   },
   {
@@ -114,7 +114,7 @@ export const mockVehicleDocuments: VehicleDocumentRecord[] = [
     completion: 100,
     status: "Complete",
     lastUpdated: "06 May 2026",
-    location: "Lagos, Nigeria",
+    location: "Ikeja",
     checklist: defaultChecklist,
   },
   {
@@ -125,7 +125,7 @@ export const mockVehicleDocuments: VehicleDocumentRecord[] = [
     completion: 100,
     status: "Complete",
     lastUpdated: "05 May 2026",
-    location: "Lagos, Nigeria",
+    location: "Ikeja",
     checklist: defaultChecklist,
   },
   {

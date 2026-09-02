@@ -26,6 +26,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 
+import { useCityScopedRecords, useRoleSimulation } from "@/contexts/RoleSimulationContext"
 import { mockAuctionEvents, type AuctionEvent } from "@/data/mockAuction"
 import { CITY_DEPOT_OPTIONS } from "@/data/cities"
 
@@ -78,6 +79,8 @@ export default function AuctionPage() {
   const [searchOpen, setSearchOpen] = useState(false)
   const [cancelTarget, setCancelTarget] = useState<AuctionEvent | null>(null)
   const activeFilterCount = getActiveFilterCount(filters)
+  const scopedEvents = useCityScopedRecords(mockAuctionEvents, "location")
+  const { dataScope } = useRoleSimulation()
 
   const handleConfirmCancel = () => {
     if (cancelTarget) {
@@ -177,14 +180,14 @@ export default function AuctionPage() {
 
   const counts = useMemo(() => {
     return {
-      active: mockAuctionEvents.filter((a) => a.status === "Active").length,
-      upcoming: mockAuctionEvents.filter((a) => a.status === "Upcoming").length,
-      closed: mockAuctionEvents.filter((a) => a.status === "Closed").length,
+      active: scopedEvents.filter((a) => a.status === "Active").length,
+      upcoming: scopedEvents.filter((a) => a.status === "Upcoming").length,
+      closed: scopedEvents.filter((a) => a.status === "Closed").length,
     }
-  }, [])
+  }, [scopedEvents])
 
   const filteredEvents = useMemo(() => {
-    let result = mockAuctionEvents
+    let result = scopedEvents
 
     if (filters.status?.length) {
       result = result.filter((a) => filters.status!.includes(a.status))
@@ -203,7 +206,7 @@ export default function AuctionPage() {
     }
 
     return result
-  }, [filters, searchQuery])
+  }, [filters, searchQuery, scopedEvents])
 
   return (
     <>
@@ -242,7 +245,7 @@ export default function AuctionPage() {
           />
           <StatCard
             title="Closed This Month"
-            value={7}
+            value={dataScope ? counts.closed : 7}
             indicatorColor="var(--color-gray-400)"
           />
         </div>

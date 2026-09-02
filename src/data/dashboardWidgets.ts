@@ -1,7 +1,7 @@
 import type { ActivationQueueItem } from "@/components/max/ActivationQueueCard"
 import type { RegionDistribution } from "@/components/max/FleetDistributionCard"
 import type { BarChartSeries } from "@/components/max/HorizontalBarChart"
-import { isInCityScope, LAGOS_SUBCITIES, resolveLagosSubCity, type CityId } from "./cityScope"
+import { isInCityScope, LAGOS_SUBCITIES, resolveLagosSubCity, type CityId, type LagosSubCity } from "./cityScope"
 import { CITIES } from "./cities"
 import { mockVehicles, type Vehicle, type VehicleStatus } from "./mockVehicles"
 import type { RoleDataScope } from "./rolePermissions"
@@ -351,7 +351,7 @@ export function widgetDisplayTitle(
   widget: DashboardWidget,
   scope: RoleDataScope | null
 ): string {
-  if (scope?.type === "city") {
+  if (scope?.type === "city" || scope?.type === "subCity") {
     if (widget.id === "chart-active-fleet-by-city") return "Active Fleet by Sub-City"
     if (widget.id === "chart-checkin-fleet-by-city") return "Check-in Fleet by Sub-City"
   }
@@ -458,7 +458,72 @@ function buildCityDashboardData(city: CityId): DashboardWidgetData {
   return { stats, fleetDistribution, barCharts }
 }
 
+function buildSubCityDashboardData(subCity: LagosSubCity): DashboardWidgetData {
+  const vehicles = mockVehicles.filter(
+    (vehicle) => resolveLagosSubCity(vehicle.location) === subCity
+  )
+  const total = vehicles.length
+  const counts: Record<string, number> = {
+    "stat-total-fleet": total,
+    "stat-exit": countByStatus(vehicles, "Exit"),
+    "stat-active": countByStatus(vehicles, "Active"),
+    "stat-inbound": countByStatus(vehicles, "Inbound"),
+    "stat-operational": countByStatus(vehicles, "Operational Fleet"),
+    "stat-3pl-checkin": countByStatus(vehicles, "3PL Check-in Fleet"),
+    "stat-yard-checkin": countByStatus(vehicles, "Yard check-in Fleet"),
+  }
+
+  const stats: Record<string, StatWidgetData> = {}
+  for (const [id, data] of Object.entries(STAT_WIDGET_DATA)) {
+    const count = counts[id] ?? 0
+    stats[id] = {
+      ...data,
+      value: count.toLocaleString(),
+      subtitle: id === "stat-total-fleet" ? `100% of ${subCity} fleet` : percentOf(count, total),
+    }
+  }
+
+  const fleetDistribution: RegionDistribution[] = [
+    { region: subCity, data: distributionForVehicles(vehicles) },
+  ]
+
+  const barCharts: Record<string, BarChartWidgetData> = {
+    "chart-active-fleet-by-city": {
+      categories: [subCity],
+      series: [
+        {
+          name: "Active",
+          data: [countByStatus(vehicles, "Active")],
+          color: COLOR_BADGE_ACTIVE,
+        },
+      ],
+    },
+    "chart-checkin-fleet-by-city": {
+      categories: [subCity],
+      series: [
+        {
+          name: "3PL Check-in Fleet",
+          data: [countByStatus(vehicles, "3PL Check-in Fleet")],
+          color: COLOR_STATUS_WARNING,
+        },
+        {
+          name: "Yard Check-in Fleet",
+          data: [countByStatus(vehicles, "Yard check-in Fleet")],
+          color: COLOR_STATUS_OUTRIGHT_SALES,
+        },
+      ],
+      showLegend: true,
+      stacked: true,
+    },
+  }
+
+  return { stats, fleetDistribution, barCharts }
+}
+
 export function getDashboardWidgetData(scope: RoleDataScope | null): DashboardWidgetData {
+  if (scope?.type === "subCity") {
+    return buildSubCityDashboardData(scope.subCity)
+  }
   if (scope?.type === "city") {
     return buildCityDashboardData(scope.city)
   }

@@ -33,7 +33,7 @@ import {
   type RequiredPart,
 } from "@/data/mockRefurbishment"
 import { CITY_HUB_OPTIONS } from "@/data/cities"
-import { useCityScopedRecords } from "@/contexts/RoleSimulationContext"
+import { useCan, useCityScopedRecords } from "@/contexts/RoleSimulationContext"
 
 const stageStats = [
   { title: "Awaiting Supply", value: 2, subtitle: "avg 6d", indicatorColor: "var(--color-status-warning)" },
@@ -203,6 +203,10 @@ const partStatusVariantMap: Record<string, "warning" | "info" | "success"> = {
   Received: "success",
 }
 
+function formatPartCost(amount: number): string {
+  return "₦" + Math.round(amount).toLocaleString()
+}
+
 const partsColumns: ColumnDef<RequiredPart>[] = [
   {
     accessorKey: "partName",
@@ -219,6 +223,15 @@ const partsColumns: ColumnDef<RequiredPart>[] = [
     cell: ({ row }) => (
       <span className="font-medium text-table-text" style={{ fontSize: "14px" }}>
         {row.original.qty}
+      </span>
+    ),
+  },
+  {
+    accessorKey: "cost",
+    header: "Cost",
+    cell: ({ row }) => (
+      <span className="font-medium text-table-text" style={{ fontSize: "14px" }}>
+        {row.original.cost != null ? formatPartCost(row.original.cost) : "—"}
       </span>
     ),
   },
@@ -256,7 +269,17 @@ export default function RefurbishmentPage() {
   const [searchOpen, setSearchOpen] = useState(false)
   const [breachFilter, setBreachFilter] = useState(false)
   const activeFilterCount = getActiveFilterCount(filters)
+  const canSeePartCost = useCan("refurbishment.column.partCost")
   const scopedRecords = useCityScopedRecords(mockRefurbishmentRecords, "location")
+  const visiblePartsColumns = useMemo(
+    () =>
+      partsColumns.filter((col) => {
+        const key = "accessorKey" in col ? col.accessorKey : undefined
+        if (key === "cost") return canSeePartCost
+        return true
+      }),
+    [canSeePartCost]
+  )
   const scopedStageStats = useMemo(
     () =>
       stageStats.map((stat) => ({
@@ -408,7 +431,7 @@ export default function RefurbishmentPage() {
         title={selectedRecord ? `Work Order – ${selectedRecord.assetId}` : ""}
         subtitle={selectedRecord ? `${selectedRecord.plateNumber} • ${selectedRecord.vehicleModel} • ${selectedRecord.manufacturer}` : ""}
         maxHeight="85vh"
-        className="max-w-lg"
+        className="max-w-xl"
         secondaryAction={{
           label: "Close",
           onClick: () => setSelectedRecord(null),
@@ -439,7 +462,7 @@ export default function RefurbishmentPage() {
             <FormSection title="Required Parts">
               <div className="rounded-lg border border-table-border pt-2">
                 <DataTable
-                  columns={partsColumns}
+                  columns={visiblePartsColumns}
                   data={requiredParts}
                   emptyMessage="No required parts."
                 />
@@ -449,7 +472,7 @@ export default function RefurbishmentPage() {
             {additionalParts.length > 0 && (
               <FormSection title="Additional Parts">
                 <div className="rounded-lg border border-table-border pt-2">
-                  <DataTable columns={partsColumns} data={additionalParts} />
+                  <DataTable columns={visiblePartsColumns} data={additionalParts} />
                 </div>
               </FormSection>
             )}

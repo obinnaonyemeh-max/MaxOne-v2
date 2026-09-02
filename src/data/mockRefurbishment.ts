@@ -32,48 +32,48 @@ export const mockRefurbishmentRecords = [
 /** Required parts — statuses are system-managed (auto-updated on receipt). */
 export const mockRefurbishmentPartsMap: Record<string, RequiredPart[]> = {
   "AST-4201": [
-    { id: "1", partName: "Battery Pack", qty: 1, status: "Ordered" },
-    { id: "2", partName: "Controller Unit", qty: 1, status: "Awaiting Supply" },
+    { id: "1", partName: "Battery Pack", qty: 1, status: "Ordered", cost: 180000 },
+    { id: "2", partName: "Controller Unit", qty: 1, status: "Awaiting Supply", cost: 45000 },
   ],
   "AST-4255": [
-    { id: "1", partName: "Front Fork", qty: 1, status: "Ordered" },
-    { id: "2", partName: "Rear Shock", qty: 1, status: "Awaiting Supply" },
+    { id: "1", partName: "Front Fork", qty: 1, status: "Ordered", cost: 32000 },
+    { id: "2", partName: "Rear Shock", qty: 1, status: "Awaiting Supply", cost: 28000 },
   ],
   "AST-4202": [
-    { id: "1", partName: "Brake Pads", qty: 2, status: "Received" },
+    { id: "1", partName: "Brake Pads", qty: 2, status: "Received", cost: 8500 },
   ],
   "AST-4210": [
-    { id: "1", partName: "Motor Assembly", qty: 1, status: "Received" },
-    { id: "2", partName: "Wiring Harness", qty: 1, status: "Received" },
+    { id: "1", partName: "Motor Assembly", qty: 1, status: "Received", cost: 95000 },
+    { id: "2", partName: "Wiring Harness", qty: 1, status: "Received", cost: 15000 },
   ],
   "AST-4215": [
-    { id: "1", partName: "Display Panel", qty: 1, status: "Received" },
+    { id: "1", partName: "Display Panel", qty: 1, status: "Received", cost: 22000 },
   ],
   "AST-4220": [
-    { id: "1", partName: "Throttle Assembly", qty: 1, status: "Received" },
-    { id: "2", partName: "Brake Lever", qty: 2, status: "Received" },
+    { id: "1", partName: "Throttle Assembly", qty: 1, status: "Received", cost: 12000 },
+    { id: "2", partName: "Brake Lever", qty: 2, status: "Received", cost: 6500 },
   ],
   "AST-4225": [
-    { id: "1", partName: "Battery Pack", qty: 1, status: "Received" },
+    { id: "1", partName: "Battery Pack", qty: 1, status: "Received", cost: 180000 },
   ],
   "AST-4230": [
-    { id: "1", partName: "Controller Unit", qty: 1, status: "Received" },
-    { id: "2", partName: "Wiring Harness", qty: 1, status: "Received" },
+    { id: "1", partName: "Controller Unit", qty: 1, status: "Received", cost: 45000 },
+    { id: "2", partName: "Wiring Harness", qty: 1, status: "Received", cost: 15000 },
   ],
 }
 
 /** Additional parts added via PKA — statuses are system-managed. */
 export const mockRefurbishmentAdditionalPartsMap: Record<string, RequiredPart[]> = {
   "AST-4210": [
-    { id: "a1", partName: "Throttle Grip", qty: 1, status: "Awaiting Supply" },
+    { id: "a1", partName: "Throttle Grip", qty: 1, status: "Awaiting Supply", cost: 4200 },
   ],
   "AST-4215": [
-    { id: "a1", partName: "Screws Kit", qty: 4, status: "Received" },
+    { id: "a1", partName: "Screws Kit", qty: 4, status: "Received", cost: 1500 },
   ],
   "AST-4220": [
-    { id: "a1", partName: "Side Mirror", qty: 2, status: "Ordered" },
+    { id: "a1", partName: "Side Mirror", qty: 2, status: "Ordered", cost: 3800 },
   ],
   "AST-4225": [
-    { id: "a1", partName: "Cable Tie Pack", qty: 1, status: "Received" },
+    { id: "a1", partName: "Cable Tie Pack", qty: 1, status: "Received", cost: 800 },
   ],
 }

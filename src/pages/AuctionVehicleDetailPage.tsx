@@ -4,6 +4,7 @@ import { type ColumnDef } from "@tanstack/react-table"
 import { TopBar, BackButton, StatusBadge, InfoCard, InfoGrid, DataTable } from "@/components/max"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { cn } from "@/lib/utils"
+import { useRoleSimulation } from "@/contexts/RoleSimulationContext"
 import { mockAuctionEvents, getAuctionVehicleDetail, type BidHistoryEntry } from "@/data/mockAuction"
 import { ConditionAssessment } from "./auction-detail/ConditionAssessment"
 
@@ -71,9 +72,16 @@ function formatAuctionDates(start?: string, end?: string): string {
 export default function AuctionVehicleDetailPage() {
   const { id, vehicleId } = useParams<{ id: string; vehicleId: string }>()
   const navigate = useNavigate()
+  const { filterByCity } = useRoleSimulation()
 
   const event = mockAuctionEvents.find((e) => e.id === id)
   const vehicle = vehicleId ? getAuctionVehicleDetail(vehicleId) : null
+
+  useEffect(() => {
+    if (vehicle && !filterByCity(vehicle.location)) {
+      navigate("/auction", { replace: true })
+    }
+  }, [filterByCity, navigate, vehicle])
 
   const [remaining, setRemaining] = useState(0)
   useEffect(() => {

@@ -47,7 +47,7 @@ flowchart TD
   ctx --> dash
 ```
 
-In role mode the App Switcher is hidden. The user stays in Fleet Ops (or whatever `navItemIds` allow). Deep links to hidden modules redirect to a fallback path (usually `/dashboard`).
+In role mode the App Switcher is hidden. The user stays in Fleet Ops (or whatever `navItemIds` allow). Deep links to hidden modules redirect to a fallback path (`/dashboard` for most roles; `/refurbishment` for Refurbishment Manager and Refurbishment Officer).
 
 ## Key files
 
@@ -79,59 +79,64 @@ Follow these on every new role and every new gated action.
 
 ## Current roles
 
-These are the templates to copy. Both Fleet Ops roles share the same `navItemIds`. Differences are permissions and data scope.
+These are the templates to copy.
 
-| | Full Build | Global Fleet Manager | City Fleet Officer |
-|---|---|---|---|
-| Picker label | Full Build | Global Fleet Manager | City Fleet Officer |
-| App Switcher | Yes | No | No |
-| Nav | All apps / modules | Fleet Ops allowlist below | Same as GFM |
-| Data | All cities | All cities | Lagos only |
-| Dashboard widgets | All catalog widgets (includes Activation Queue) | `fleet-register` + `asset-movement` | Same widgets as GFM, Lagos numbers |
-| Gated Fleet Register | All actions and columns | No Add / Bulk Update / Edit Vehicle Info; hide Contract Risk and Collection % | Same as GFM |
-| Inbound batches / stock setup | All mutations | View only | View only |
-| Activation Readiness | Update + Bulk Upload | None | Update + Bulk Upload |
-| Vehicle Document | Upload + Replace | None | Upload + Replace |
-| Kit | Reassignment | None; `/kit/assign` blocked | Reassignment allowed |
-| Refurbishment / Service / Disposal | Ungated | Ungated | Ungated |
+| | Full Build | Global Fleet Manager | City Fleet Officer | Fleet Officer | Refurbishment Manager | Refurbishment Officer |
+|---|---|---|---|---|---|---|
+| Picker label | Full Build | Global Fleet Manager | City Fleet Officer | Fleet Officer | Refurbishment Manager | Refurbishment Officer |
+| App Switcher | Yes | No | No | No | No | No |
+| Nav | All apps / modules | Fleet Ops allowlist below | Same as GFM | Dashboard, Fleet Register, Activation Readiness, Vehicle Document, Kit | Refurbishment, Service Schedule, all Disposal & Auction children except Predictive Lab | Same as RM |
+| Data | All cities | All cities | Lagos only | Ikeja only | All cities | Lagos only |
+| Dashboard | All catalog widgets | `fleet-register` + `asset-movement` | Same as GFM, Lagos numbers | `fleet-register` only, Ikeja numbers | **Hidden** (fallback `/refurbishment`) | **Hidden** (fallback `/refurbishment`) |
+| Gated Fleet Register | All actions and columns | No Add / Bulk / Edit; hide Contract Risk and Collection % | Same as GFM | Same as GFM | Module hidden | Module hidden |
+| Vehicle details Telematics | Yes | Yes | Yes | Hidden | Module hidden | Module hidden |
+| Inbound | All mutations | View only | View only | Hidden | Hidden | Hidden |
+| Refurbishment part cost | Yes | Hidden | Hidden | Hidden | **Yes** | Hidden |
+| Auction / Closed Assets | Yes | Hidden | Hidden | Hidden | **Yes** | **Yes** (Lagos) |
+| Predictive Lab | Soon item | Hidden | Hidden | Hidden | Hidden | Hidden |
+| Activation / Documents / Kit | All | View only (kit assign blocked for GFM) | Act on update/upload/kit | Same as CFO | Hidden | Hidden |
 
-Hidden for GFM and City Fleet Officer (not in `navItemIds`): Ownership Transfer, Auction, Closed Assets, Predictive Lab, Control, and every non–Fleet Ops app (Driver Growth, Driver Experience, Falcon, Portfolio).
+Hidden for GFM and City Fleet Officer (not in `navItemIds`): Ownership Transfer, Auction, Closed Assets, Predictive Lab, Control, and every non–Fleet Ops app.
 
-Activation Queue stays off for these roles because they do not have Driver Growth / `activation-dashboard`.
+Fleet Officer also hides Asset Movement, Inbound, Refurbishment, Maintenance / Service Schedule, and all Disposal & Auction.
 
-Kit assign path `/activation-assignment/asset-reassignment/kit/assign` is denied for **Global Fleet Manager only** (`getDeniedPathPrefixes`). City Fleet Officer may open it.
+Refurbishment Manager and Refurbishment Officer hide Dashboard, Fleet Register, Asset Movement, Inbound, Activation, Vehicle Document, Kit, Ownership Transfer, Predictive Lab, Control, and non–Fleet Ops apps.
+
+Kit assign path `/activation-assignment/asset-reassignment/kit/assign` is denied for **Global Fleet Manager only**. Denied paths for Refurbishment Manager and Refurbishment Officer fall back to `/refurbishment`.
 
 ## Permission catalog
 
-Full Build has every key. GFM has none. City Fleet Officer has the five marked below.
+Full Build has every key. GFM has telematics only. City Fleet Officer has the six marked below. Fleet Officer has the same five action grants as CFO, without telematics. Refurbishment Manager has part cost only. Refurbishment Officer has no gated keys (part cost hidden).
 
-| Key | Where it is used | Full Build | GFM | CFO |
-|---|---|---|---|---|
-| `fleetRegister.addVehicles` | [`VehiclesPage.tsx`](../src/pages/VehiclesPage.tsx) — Add Vehicles | Yes | — | — |
-| `fleetRegister.bulkUpdate` | [`VehiclesPage.tsx`](../src/pages/VehiclesPage.tsx) — Bulk Update | Yes | — | — |
-| `fleetRegister.editVehicle` | [`VehicleDetailsPage.tsx`](../src/pages/VehicleDetailsPage.tsx) — Edit Vehicle Info | Yes | — | — |
-| `fleetRegister.column.contractRisk` | [`VehiclesPage.tsx`](../src/pages/VehiclesPage.tsx) — column | Yes | — | — |
-| `fleetRegister.column.collectionPercent` | [`VehiclesPage.tsx`](../src/pages/VehiclesPage.tsx) — column | Yes | — | — |
-| `inbound.batches.create` | [`BatchesPage.tsx`](../src/pages/BatchesPage.tsx) | Yes | — | — |
-| `inbound.batches.addIdentifier` | [`VehicleIdsTab.tsx`](../src/pages/batch-details/VehicleIdsTab.tsx) | Yes | — | — |
-| `inbound.batches.editIdentifier` | [`VehicleIdsTab.tsx`](../src/pages/batch-details/VehicleIdsTab.tsx) | Yes | — | — |
-| `inbound.batches.uploadCsv` | [`VehicleIdsTab.tsx`](../src/pages/batch-details/VehicleIdsTab.tsx) | Yes | — | — |
-| `inbound.batches.uploadDocuments` | [`DocumentsTab.tsx`](../src/pages/batch-details/DocumentsTab.tsx) | Yes | — | — |
-| `inbound.batches.moveSubBatchStage` | [`SubBatchDetailsPage.tsx`](../src/pages/SubBatchDetailsPage.tsx) | Yes | — | — |
-| `inbound.stockSetup.add` | [`StockSetupPage.tsx`](../src/pages/StockSetupPage.tsx) | Yes | — | — |
-| `inbound.stockSetup.edit` | [`StockSetupPage.tsx`](../src/pages/StockSetupPage.tsx) | Yes | — | — |
-| `activationReadiness.update` | [`ActivationReadinessPage.tsx`](../src/pages/ActivationReadinessPage.tsx) | Yes | — | Yes |
-| `activationReadiness.bulkUpload` | [`ActivationReadinessPage.tsx`](../src/pages/ActivationReadinessPage.tsx) | Yes | — | Yes |
-| `vehicleDocument.upload` | [`VehicleDocumentsPage.tsx`](../src/pages/VehicleDocumentsPage.tsx) | Yes | — | Yes |
-| `vehicleDocument.replace` | [`VehicleDocumentsPage.tsx`](../src/pages/VehicleDocumentsPage.tsx) | Yes | — | Yes |
-| `kit.reassignment` | [`KitReportsPage.tsx`](../src/pages/KitReportsPage.tsx) | Yes | — | Yes |
-| `championProfile.reassign` | [`ChampionDetailPage.tsx`](../src/pages/ChampionDetailPage.tsx) — Reassign Champion | Yes | — | — |
-| `ticketManagement.create` | [`TicketManagementPage.tsx`](../src/pages/TicketManagementPage.tsx) — Create Ticket | Yes | — | — |
-| `ticketManagement.reassign` | [`TicketDetailSheet.tsx`](../src/components/max/TicketDetailSheet.tsx) — Reassign Ticket | Yes | — | — |
-| `ticketManagement.changeStatus` | [`TicketDetailSheet.tsx`](../src/components/max/TicketDetailSheet.tsx) — Change Status | Yes | — | — |
-| `ticketManagement.escalate` | [`TicketDetailSheet.tsx`](../src/components/max/TicketDetailSheet.tsx) — Escalate | Yes | — | — |
-| `ticketManagement.close` | [`TicketDetailSheet.tsx`](../src/components/max/TicketDetailSheet.tsx) — Close Ticket | Yes | — | — |
-| `ticketManagement.addComment` | [`TicketDetailSheet.tsx`](../src/components/max/TicketDetailSheet.tsx) — Add Comment | Yes | — | — |
+| Key | Where it is used | Full Build | GFM | CFO | FO | RM | RO |
+|---|---|---|---|---|---|---|---|
+| `fleetRegister.addVehicles` | [`VehiclesPage.tsx`](../src/pages/VehiclesPage.tsx) — Add Vehicles | Yes | — | — | — | — | — |
+| `fleetRegister.bulkUpdate` | [`VehiclesPage.tsx`](../src/pages/VehiclesPage.tsx) — Bulk Update | Yes | — | — | — | — | — |
+| `fleetRegister.editVehicle` | [`VehicleDetailsPage.tsx`](../src/pages/VehicleDetailsPage.tsx) — Edit Vehicle Info | Yes | — | — | — | — | — |
+| `fleetRegister.column.contractRisk` | [`VehiclesPage.tsx`](../src/pages/VehiclesPage.tsx) — column | Yes | — | — | — | — | — |
+| `fleetRegister.column.collectionPercent` | [`VehiclesPage.tsx`](../src/pages/VehiclesPage.tsx) — column | Yes | — | — | — | — | — |
+| `inbound.batches.create` | [`BatchesPage.tsx`](../src/pages/BatchesPage.tsx) | Yes | — | — | — | — | — |
+| `inbound.batches.addIdentifier` | [`VehicleIdsTab.tsx`](../src/pages/batch-details/VehicleIdsTab.tsx) | Yes | — | — | — | — | — |
+| `inbound.batches.editIdentifier` | [`VehicleIdsTab.tsx`](../src/pages/batch-details/VehicleIdsTab.tsx) | Yes | — | — | — | — | — |
+| `inbound.batches.uploadCsv` | [`VehicleIdsTab.tsx`](../src/pages/batch-details/VehicleIdsTab.tsx) | Yes | — | — | — | — | — |
+| `inbound.batches.uploadDocuments` | [`DocumentsTab.tsx`](../src/pages/batch-details/DocumentsTab.tsx) | Yes | — | — | — | — | — |
+| `inbound.batches.moveSubBatchStage` | [`SubBatchDetailsPage.tsx`](../src/pages/SubBatchDetailsPage.tsx) | Yes | — | — | — | — | — |
+| `inbound.stockSetup.add` | [`StockSetupPage.tsx`](../src/pages/StockSetupPage.tsx) | Yes | — | — | — | — | — |
+| `inbound.stockSetup.edit` | [`StockSetupPage.tsx`](../src/pages/StockSetupPage.tsx) | Yes | — | — | — | — | — |
+| `activationReadiness.update` | [`ActivationReadinessPage.tsx`](../src/pages/ActivationReadinessPage.tsx) | Yes | — | Yes | Yes | — | — |
+| `activationReadiness.bulkUpload` | [`ActivationReadinessPage.tsx`](../src/pages/ActivationReadinessPage.tsx) | Yes | — | Yes | Yes | — | — |
+| `vehicleDocument.upload` | [`VehicleDocumentsPage.tsx`](../src/pages/VehicleDocumentsPage.tsx) | Yes | — | Yes | Yes | — | — |
+| `vehicleDocument.replace` | [`VehicleDocumentsPage.tsx`](../src/pages/VehicleDocumentsPage.tsx) | Yes | — | Yes | Yes | — | — |
+| `kit.reassignment` | [`KitReportsPage.tsx`](../src/pages/KitReportsPage.tsx) | Yes | — | Yes | Yes | — | — |
+| `refurbishment.column.partCost` | [`RefurbishmentPage.tsx`](../src/pages/RefurbishmentPage.tsx) — work order parts Cost column | Yes | — | — | — | Yes | — |
+| `vehicleDetails.tab.telematics` | [`VehicleDetailsPage.tsx`](../src/pages/VehicleDetailsPage.tsx) — Telematics tab | Yes | Yes | Yes | — | — | — |
+| `championProfile.reassign` | [`ChampionDetailPage.tsx`](../src/pages/ChampionDetailPage.tsx) — Reassign Champion | Yes | — | — | — | — | — |
+| `ticketManagement.create` | [`TicketManagementPage.tsx`](../src/pages/TicketManagementPage.tsx) — Create Ticket | Yes | — | — | — | — | — |
+| `ticketManagement.reassign` | [`TicketDetailSheet.tsx`](../src/components/max/TicketDetailSheet.tsx) — Reassign Ticket | Yes | — | — | — | — | — |
+| `ticketManagement.changeStatus` | [`TicketDetailSheet.tsx`](../src/components/max/TicketDetailSheet.tsx) — Change Status | Yes | — | — | — | — | — |
+| `ticketManagement.escalate` | [`TicketDetailSheet.tsx`](../src/components/max/TicketDetailSheet.tsx) — Escalate | Yes | — | — | — | — | — |
+| `ticketManagement.close` | [`TicketDetailSheet.tsx`](../src/components/max/TicketDetailSheet.tsx) — Close Ticket | Yes | — | — | — | — | — |
+| `ticketManagement.addComment` | [`TicketDetailSheet.tsx`](../src/components/max/TicketDetailSheet.tsx) — Add Comment | Yes | — | — | — | — | — |
 
 Call Centre Agent receives `ticketManagement.create`, `ticketManagement.changeStatus`, `ticketManagement.close`, and `ticketManagement.addComment`. Reassign and Escalate remain hidden.
 
@@ -163,6 +168,31 @@ asset-reassignment
 asset-reassignment-kit
 ```
 
+Fleet Officer ids:
+
+```
+dashboard
+fleet-register
+activation-readiness
+vehicle-document
+asset-reassignment
+asset-reassignment-kit
+```
+
+Refurbishment Manager / Refurbishment Officer ids:
+
+```
+refurbishment
+maintenance
+service-schedule
+disposal-auction
+disposal-management
+conversion-request
+auction
+scrap-management
+closed-assets
+```
+
 Parents with no href (`inbound`, `maintenance`, `disposal-auction`, `asset-reassignment`) are containers. Include them if any child is allowed. If every child is dropped, the parent is dropped too.
 
 Driver Growth dashboard widgets use leaf id `activation-dashboard` (not in the Fleet Ops list above).
@@ -173,20 +203,22 @@ Optional on the role:
 
 ```ts
 dataScope: { type: "city", city: "Lagos" }
+// or
+dataScope: { type: "subCity", city: "Lagos", subCity: "Ikeja" }
 ```
 
-`dataScope` is `null` for Full Build and GFM. When set:
+`dataScope` is `null` for Full Build, GFM, and Refurbishment Manager. City Fleet Officer and Refurbishment Officer use Lagos. Fleet Officer uses Ikeja. When set:
 
 - `useCityScopedRecords(records, "location")` (or `"destination"` for batches) filters lists.
-- `filterByCity(value)` returns `true` when unscoped, otherwise `isInCityScope(value, city)`.
-- Dashboard stats, distribution, and bar charts are derived from Lagos-filtered `mockVehicles`.
-- Dashboard subtitle names the city.
+- `filterByCity(value)` returns `true` when unscoped; city scope uses `isInCityScope`; sub-city scope uses `resolveLagosSubCity(value) === subCity`.
+- Dashboard stats, distribution, and bar charts are derived from the scoped `mockVehicles`.
+- Dashboard subtitle names the city or sub-city.
 
 Lagos matcher tokens live in [`src/data/cityScope.ts`](../src/data/cityScope.ts). Treat a string as Lagos if it matches any of: `Lagos`, `Lagos Hub`, `Lagos, Nigeria`, `Nigeria / Lagos`, `Ikeja`, `Ikeja Yard`, `Lekki`, `Victoria Island`, `Surulere`, `Surulere Yard`, `Yaba`, `Gbagada`.
 
 Exclude Accra, Abuja, Kano, Port Harcourt, Ibadan yards (Eleyele, Bodija, Gbagba), Kenya cities, and similar.
 
-`resolveLagosSubCity` maps a location onto the four dashboard sub-cities: Ikeja, Lekki, Victoria Island, Surulere.
+`resolveLagosSubCity` maps a location onto the four dashboard sub-cities: Ikeja, Lekki, Victoria Island, Surulere. Generic `"Lagos"` does **not** match a sub-city officer — mock rows for those lists must use a neighborhood name.
 
 ### Modules that filter by city
 
@@ -200,9 +232,11 @@ Exclude Accra, Abuja, Kano, Port Harcourt, Ibadan yards (Eleyele, Bodija, Gbagba
 | Refurbishment / Service Schedule | `location` | |
 | Kit | `location` | |
 | Disposal / Conversion / Scrap | `location` | Keep a majority of mock rows in-scope so the module is not empty |
+| Auction | `location` | Events, create-auction vehicles, and detail redirects. Location dropdown limited to in-scope depots when `dataScope` is set |
+| Closed Assets | `location` | Out-of-city `/closed-assets/:id` redirects to the list |
 | Vehicle Master Data | — | **Do not filter** |
 
-Give new mock rows a location/destination the matcher understands. If a city-scoped role would otherwise see zero rows, relabel a majority of the mocks into that city.
+Give new mock rows a location/destination the matcher understands. If a city-scoped role would otherwise see zero rows, relabel a majority of the mocks into that city. For a sub-city role, relabel **all** in-scope city-level rows to that sub-city (Fleet Officer: all former Lagos activation / document / kit rows are Ikeja).
 
 ## Dashboard widgets
 
@@ -272,10 +306,14 @@ The Schedule action in the Welfare Champion detail sheet opens the shared `Modal
 
 A role that has `fleet-register` and `asset-movement` (and not `activation-dashboard`) gets the GFM dashboard: no Activation Queue; the two city charts sit in a two-column grid.
 
+Fleet Officer has only `fleet-register`, so 3PL/Yard stats and Check-in by City are omitted.
+
+Refurbishment Manager and Refurbishment Officer have no dashboard module, so the Overview Dashboard is hidden and denied paths fall back to `/refurbishment`.
+
 City-scoped data (`getDashboardWidgetData`):
 
 - Stat cards: counts and % of the scoped fleet, not the hardcoded global 32,400.
-- Fleet Distribution: sub-cities, not Global / Nigeria / Ghana / Cameroon.
+- Fleet Distribution: sub-cities, not Global / Nigeria / Ghana / Cameroon. A sub-city role gets a single chart for that sub-city.
 - Active / Check-in charts: sub-cities, not other countries. Titles become **Active Fleet by Sub-City** and **Check-in Fleet by Sub-City** via `widgetDisplayTitle`.
 
 Full Build and GFM keep the global widget numbers.
@@ -313,9 +351,9 @@ Reuse another role’s `navItemIds` when the spec says “same nav as X”.
 
 ### 3. Path allowlist
 
-`getAllowedPathPrefixes` is **hardcoded**. It is not derived from `navItemIds`. Add every list href **and** every detail route under those modules (`/fleet-register`, `/inbound/batches`, `/scrap-management`, kit, and so on).
+`getAllowedPathPrefixes` is **hardcoded** and **branches by mode**. It is not derived from `navItemIds`. GFM / City Fleet Officer share one prefix list. Fleet Officer has a shorter list (`/dashboard`, `/fleet-register`, `/activation/readiness`, `/vehicle-document`, kit). Refurbishment Manager and Refurbishment Officer share: `/refurbishment`, `/service-schedule`, `/disposal-management`, `/conversion-request`, `/auction`, `/scrap-management`, `/closed-assets`. Add every list href **and** every detail route under those modules.
 
-If an action lives under an allowed prefix but the role must not open it, add it to `getDeniedPathPrefixes` for that mode and map a sensible fallback in `getFallbackPathForDenied` (GFM kit assign → kit list is the example).
+If an action lives under an allowed prefix but the role must not open it, add it to `getDeniedPathPrefixes` for that mode and map a sensible fallback in `getFallbackPathForDenied` (GFM kit assign → kit list; Refurbishment Manager / Officer denied paths → `/refurbishment`).
 
 [`AppLayout.tsx`](../src/components/max/AppLayout.tsx) redirects any disallowed pathname.
 
@@ -352,7 +390,7 @@ const canEditVehicle = useCan("fleetRegister.editVehicle")
 Today only `CityId = "Lagos"` exists.
 
 1. Extend `CityId` and `CITY_TOKENS` in [`src/data/cityScope.ts`](../src/data/cityScope.ts). List every mock spelling (hub, yard, `Country / City`, neighborhood).
-2. If the dashboard should break that city into neighborhoods, add a resolver like `resolveLagosSubCity` and wire `getDashboardWidgetData` / `widgetDisplayTitle`.
+2. If the dashboard should break that city into neighborhoods, add a resolver like `resolveLagosSubCity` and wire `getDashboardWidgetData` / `widgetDisplayTitle`. For a single-neighborhood role, use `{ type: "subCity", city, subCity }`.
 3. Relabel mock data so a majority of rows in each filtered module match the tokens. Empty modules are a spec bug.
 4. Filter list pages with `useCityScopedRecords`. Redirect out-of-city details with `filterByCity`. Recompute tab counts and pagination from the scoped set.
 5. Do not filter Vehicle Master Data.
@@ -387,4 +425,4 @@ Switch the name card to the new role and check:
 - **Path prefixes are not derived from nav.** Updating `navItemIds` without `getAllowedPathPrefixes` leaves deep links open or blocks valid detail pages. Always edit both.
 - **No city switcher in the UI.** A City Fleet Officer is Lagos-only. Another city is a new role or a new `dataScope.city`, not a dropdown.
 - **Simulation is client-only.** Anyone can switch roles from the name card. Do not treat this as security.
-- **Ungated equals allowed.** Refurbishment, Service Schedule, and Disposal have no permission keys. Any role that can open those modules can use every control on them until you add keys.
+- **Ungated equals allowed.** Service Schedule and Disposal have no permission keys. Any role that can open those modules can use every control on them until you add keys. Refurbishment gates the work-order parts Cost column via `refurbishment.column.partCost`.

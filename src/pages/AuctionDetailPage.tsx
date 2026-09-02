@@ -33,6 +33,7 @@ import {
   defaultAllocationFilters,
   type AllocationVehicle,
 } from "@/data/mockAuction"
+import { useRoleSimulation } from "@/contexts/RoleSimulationContext"
 import { vehicleTypeLabel, cn } from "@/lib/utils"
 import { ClosedAllocationResults } from "./auction-detail/ClosedAllocationResults"
 
@@ -54,10 +55,17 @@ function formatCountdown(totalSeconds: number): string {
 export default function AuctionDetailPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const { filterByCity } = useRoleSimulation()
 
   const event = mockAuctionEvents.find((e) => e.id === id)
   const allocation = mockAuctionAllocations.find((a) => a.eventId === id)
   const closedResult = mockAuctionClosedResults.find((r) => r.eventId === id)
+
+  useEffect(() => {
+    if (event && !filterByCity(event.location)) {
+      navigate("/auction", { replace: true })
+    }
+  }, [event, filterByCity, navigate])
 
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(25)

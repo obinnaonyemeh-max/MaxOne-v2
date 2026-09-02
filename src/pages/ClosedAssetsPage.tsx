@@ -23,6 +23,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 
+import { useCityScopedRecords } from "@/contexts/RoleSimulationContext"
 import { mockClosedAssets, type ClosedAssetRecord } from "@/data/mockClosedAssets"
 import { CITY_FILTER_OPTIONS } from "@/data/cities"
 
@@ -154,12 +155,18 @@ export default function ClosedAssetsPage() {
   const [searchOpen, setSearchOpen] = useState(false)
   const navigate = useNavigate()
   const activeFilterCount = getActiveFilterCount(filters)
+  const scopedRecords = useCityScopedRecords(mockClosedAssets, "location")
 
-  const disposedCount = mockClosedAssets.filter((r) => r.disposalMethod === "Disposed").length
-  const scrappedCount = mockClosedAssets.filter((r) => r.disposalMethod === "Scrapped").length
+  const disposedCount = scopedRecords.filter((r) => r.disposalMethod === "Disposed").length
+  const scrappedCount = scopedRecords.filter((r) => r.disposalMethod === "Scrapped").length
+  const totalRecoveryValue = scopedRecords.reduce((sum, r) => {
+    const amount = Number(r.recoveryValue.replace(/[^0-9.]/g, ""))
+    return sum + (Number.isFinite(amount) ? amount : 0)
+  }, 0)
+  const recoveryValueLabel = `$${totalRecoveryValue.toLocaleString("en-US")}`
 
   const filteredRecords = useMemo(() => {
-    let result = mockClosedAssets
+    let result = scopedRecords
 
     if (filters.method?.length) {
       result = result.filter((r) => filters.method!.includes(r.disposalMethod))
@@ -178,7 +185,7 @@ export default function ClosedAssetsPage() {
     }
 
     return result
-  }, [filters, searchQuery])
+  }, [filters, searchQuery, scopedRecords])
 
   return (
     <>
@@ -195,7 +202,7 @@ export default function ClosedAssetsPage() {
         <div className="grid grid-cols-4 gap-2 shrink-0">
           <StatCard
             title="Total Closed Assets"
-            value={mockClosedAssets.length}
+            value={scopedRecords.length}
             indicatorColor="var(--color-gray-400)"
           />
           <StatCard
@@ -212,7 +219,7 @@ export default function ClosedAssetsPage() {
           />
           <StatCard
             title="Total Recovery Value"
-            value="$24,200"
+            value={recoveryValueLabel}
             indicatorColor="var(--color-badge-active-text)"
           />
         </div>

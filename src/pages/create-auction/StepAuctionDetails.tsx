@@ -8,10 +8,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { FormSection, FormField } from "@/pages/vehicles/FormControls"
-import { CITY_DEPOT_OPTIONS } from "@/data/cities"
 import type { AuctionForm } from "./types"
-
-const locationOptions = CITY_DEPOT_OPTIONS.map((option) => option.value)
 
 function startOfToday() {
   const today = new Date()
@@ -21,11 +18,17 @@ function startOfToday() {
 
 interface StepAuctionDetailsProps {
   form: AuctionForm
+  locationOptions: string[]
   onUpdateField: <K extends keyof AuctionForm>(field: K, value: AuctionForm[K]) => void
   onStartDateChange: (date: Date | undefined) => void
 }
 
-export function StepAuctionDetails({ form, onUpdateField, onStartDateChange }: StepAuctionDetailsProps) {
+export function StepAuctionDetails({
+  form,
+  locationOptions,
+  onUpdateField,
+  onStartDateChange,
+}: StepAuctionDetailsProps) {
   return (
     <div className="p-5">
       <FormSection title="Auction Details">

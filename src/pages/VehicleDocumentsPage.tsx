@@ -300,7 +300,7 @@ export default function VehicleDocumentsPage() {
         expiringSoonCount: scopedDocuments.filter((r) => r.status === "Expiring Soon").length,
         expiringVehicles: scopedDocuments.filter((r) => r.status === "Expiring Soon").length,
         totalFleet: scopedDocuments.length,
-        region: dataScope.city,
+        region: dataScope.type === "subCity" ? dataScope.subCity : dataScope.city,
       }
     : vehicleDocumentStats
 

@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom"
 
 import { cn } from "@/lib/utils"
 import { TopBar, BackButton, ConfirmModal, type GenericFilterState } from "@/components/max"
+import { useCityScopedRecords, useRoleSimulation } from "@/contexts/RoleSimulationContext"
+import { CITY_DEPOT_OPTIONS } from "@/data/cities"
 import {
   mockAuctionVehicles,
   defaultAuctionVehicleFilters,
@@ -15,10 +17,13 @@ import { StepReview } from "./StepReview"
 import { WizardFooter } from "./WizardFooter"
 import type { AuctionForm, AuctionStep } from "./types"
 
-const auctionableVehicles = mockAuctionVehicles
-
 export default function CreateAuctionPage() {
   const navigate = useNavigate()
+  const { filterByCity, dataScope } = useRoleSimulation()
+  const auctionableVehicles = useCityScopedRecords(mockAuctionVehicles, "location")
+  const locationOptions = CITY_DEPOT_OPTIONS
+    .map((option) => option.value)
+    .filter((loc) => !dataScope || filterByCity(loc))
   const [currentStep, setCurrentStep] = useState<AuctionStep>(1)
   const [form, setForm] = useState<AuctionForm>({
     title: "",
@@ -175,6 +180,7 @@ export default function CreateAuctionPage() {
             {currentStep === 1 && (
               <StepAuctionDetails
                 form={form}
+                locationOptions={locationOptions}
                 onUpdateField={updateField}
                 onStartDateChange={handleStartDateChange}
               />

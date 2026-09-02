@@ -21,6 +21,7 @@ interface DataTableProps<TData, TValue> {
   onRowClick?: (row: TData) => void
   emptyMessage?: string
   className?: string
+  getRowClassName?: (row: TData) => string
 }
 
 export function DataTable<TData, TValue>({
@@ -30,6 +31,7 @@ export function DataTable<TData, TValue>({
   onRowClick,
   emptyMessage = "No results found.",
   className,
+  getRowClassName,
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
@@ -104,7 +106,8 @@ export function DataTable<TData, TValue>({
                 data-state={row.getIsSelected() && "selected"}
                 className={cn(
                   "border-gray-100",
-                  onRowClick && "cursor-pointer"
+                  onRowClick && "cursor-pointer",
+                  getRowClassName?.(row.original)
                 )}
                 onClick={() => onRowClick?.(row.original)}
               >

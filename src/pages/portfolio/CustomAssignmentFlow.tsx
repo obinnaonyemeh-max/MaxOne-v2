@@ -1,20 +1,13 @@
 import { useEffect, useState } from "react"
 
 import { Modal, LoaderModal, DocUpload } from "@/components/max"
-import { type RecoveryPair } from "@/data/mockRecoveryOfficers"
+import {
+  type RecoveryPair,
+  mockCustomAssignmentStats as stats,
+  mockCustomAssignmentErrorRows as errorRows,
+} from "@/data/mockRecoveryOfficers"
 
 type CustomAssignmentStep = "upload" | "validating" | "validated"
-
-const stats = {
-  totalRows: 8,
-  validEntries: 6,
-  rowsWithErrors: 2,
-}
-
-const errorRows = [
-  { caseId: "RC-3099", pairCode: "RP-010", reason: "Pair code not found" },
-  { caseId: "RC-9001", pairCode: "RP-002", reason: "Case ID not found in Pending Recoveries" },
-]
 
 interface CustomAssignmentFlowProps {
   open: boolean

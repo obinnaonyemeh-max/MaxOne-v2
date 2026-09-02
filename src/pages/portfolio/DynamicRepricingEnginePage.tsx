@@ -1,8 +1,9 @@
 import { useState } from "react"
-import { useSearchParams } from "react-router-dom"
-import { Calendar, Plus, Play, Upload, Download } from "lucide-react"
+import { useNavigate, useSearchParams } from "react-router-dom"
+import { Calendar, Plus, Play } from "lucide-react"
+import { toast } from "sonner"
 
-import { TopBar, StatusBadge, StatCard, DataTable, InfoGrid, Modal } from "@/components/max"
+import { TopBar, StatusBadge, StatCard, DataTable, InfoGrid, Modal, Banner } from "@/components/max"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import {
@@ -11,11 +12,17 @@ import {
   mockRepricingMetrics,
   mockAutomationConfig,
   repricingRuleStatusVariantMap,
+  type RepricingRule,
   type RepricingSession,
 } from "@/data/mockRepricingEngine"
 import { repricingSessionColumns } from "./repricingSessionColumns"
+import { RepricingRulesTable } from "./RepricingRulesTable"
+import { EvRepricingTab } from "./EvRepricingTab"
+import { IceRepricingTab } from "./IceRepricingTab"
+import { RepricingSessionsTab } from "./RepricingSessionsTab"
+import { ExceptionQueueTab } from "./ExceptionQueueTab"
+import { AuditTrailTab } from "./AuditTrailTab"
 import { RunRepricingModal } from "./RunRepricingModal"
-import { UploadIceContractsModal } from "./UploadIceContractsModal"
 
 const tabTriggerClass =
   "px-3 py-3 text-sm font-medium data-[state=active]:text-sidebar-item-active data-[state=inactive]:text-breadcrumb-root"
@@ -30,23 +37,34 @@ const tabs = [
   { value: "audit", label: "Audit Trail" },
 ]
 
-function StubTab({ label }: { label: string }) {
-  return (
-    <div className="flex items-center justify-center rounded-lg border border-dashed border-gray-200 bg-gray-25 py-16 mx-6">
-      <p className="text-sm font-medium text-breadcrumb-root">{label} hasn't been built yet.</p>
-    </div>
-  )
-}
-
 export default function DynamicRepricingEnginePage() {
+  const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const activeTab = searchParams.get("tab") || "dashboard"
   const handleTabChange = (value: string) => setSearchParams(value === "dashboard" ? {} : { tab: value }, { replace: true })
 
   const [sessions, setSessions] = useState<RepricingSession[]>(mockRepricingSessions)
+  const [rules, setRules] = useState<RepricingRule[]>(mockRepricingRules)
+  const [viewRule, setViewRule] = useState<RepricingRule | null>(null)
   const [showRunModal, setShowRunModal] = useState(false)
-  const [showUploadModal, setShowUploadModal] = useState(false)
   const [showScheduleModal, setShowScheduleModal] = useState(false)
+
+  const handleDuplicateRule = (rule: RepricingRule) => {
+    const duplicate: RepricingRule = {
+      ...rule,
+      id: crypto.randomUUID(),
+      name: `${rule.name} (Copy)`,
+      version: "v1",
+      status: "Draft",
+    }
+    setRules((prev) => [duplicate, ...prev])
+    toast.success("Rule duplicated", { description: `${duplicate.name} created as a draft.` })
+  }
+
+  const handleDeactivateRule = (rule: RepricingRule) => {
+    setRules((prev) => prev.map((r) => (r.id === rule.id ? { ...r, status: "Inactive" } : r)))
+    toast.success("Rule deactivated", { description: `${rule.name} is now inactive.` })
+  }
 
   const handleRunComplete = () => {
     const now = new Date()
@@ -55,8 +73,10 @@ export default function DynamicRepricingEnginePage() {
     const newSession: RepricingSession = {
       id: `RPS-MANUAL-${now.getTime().toString().slice(-6)}`,
       sessionType: "Manual",
+      trigger: "Manual run",
       startTime: timestamp,
       endTime: timestamp,
+      duration: "1m 12s",
       found: mockRepricingMetrics.awaitingRepricing,
       repriced: mockRepricingMetrics.awaitingRepricing,
       exceptions: 0,
@@ -86,7 +106,11 @@ export default function DynamicRepricingEnginePage() {
             <Calendar className="h-4 w-4" />
             Schedule
           </Button>
-          <Button variant="outline" className="h-10 gap-2" onClick={() => handleTabChange("rules")}>
+          <Button
+            variant="outline"
+            className="h-10 gap-2"
+            onClick={() => navigate("/portfolio/products-pricing/repricing-engine/create-rule")}
+          >
             <Plus className="h-4 w-4" />
             Create Rule
           </Button>
@@ -96,6 +120,21 @@ export default function DynamicRepricingEnginePage() {
           </Button>
         </div>
       </div>
+
+      {mockRepricingMetrics.exceptionQueue > 0 && (
+        <div className="px-6 mb-4">
+          <Banner
+            variant="warning"
+            title={`${mockRepricingMetrics.exceptionQueue} contract exception(s) flagged behind active repricing rules`}
+            description="These contracts breached a constraint during repricing and were routed to the Exception Queue for review."
+            action={
+              <Button variant="outline" size="sm" onClick={() => handleTabChange("exceptions")}>
+                View Exception Queue
+              </Button>
+            }
+          />
+        </div>
+      )}
 
       <Tabs value={activeTab} onValueChange={handleTabChange} className="flex-1 min-h-0 flex flex-col">
         <TabsList className="mx-6 mb-2 w-fit gap-4 bg-transparent p-0 border-b border-gray-200 rounded-none justify-start">
@@ -148,11 +187,11 @@ export default function DynamicRepricingEnginePage() {
               />
             </div>
 
-            <div className="px-6 grid grid-cols-3 gap-4">
+            <div className="px-6 grid grid-cols-2 gap-4">
               <div className="rounded-lg border border-gray-200 bg-white p-5 flex flex-col gap-3">
                 <span className="text-xs font-semibold uppercase tracking-wider text-breadcrumb-root">Active Rules</span>
                 <div className="flex flex-col divide-y divide-gray-100">
-                  {mockRepricingRules.map((rule) => (
+                  {rules.slice(0, 4).map((rule) => (
                     <div key={rule.id} className="flex items-start justify-between gap-2 py-2.5">
                       <div className="flex items-start gap-2">
                         <StatusBadge variant={rule.vehicleType === "EV" ? "info" : "warning"} size="sm">
@@ -161,7 +200,7 @@ export default function DynamicRepricingEnginePage() {
                         <div>
                           <p className="font-medium text-sidebar-item-active text-sm">{rule.name}</p>
                           <p className="text-xs text-breadcrumb-root">
-                            {rule.country} &middot; {rule.version} &middot; Effective {rule.effectiveDate}
+                            {rule.vehicleModel} &middot; {rule.country} &middot; {rule.version} &middot; Effective {rule.effectiveDate}
                           </p>
                         </div>
                       </div>
@@ -194,33 +233,6 @@ export default function DynamicRepricingEnginePage() {
                   ]}
                 />
               </div>
-
-              <div className="rounded-lg border border-gray-200 bg-white p-5 flex flex-col gap-3">
-                <span className="text-xs font-semibold uppercase tracking-wider text-breadcrumb-root">Quick Actions</span>
-                <div className="flex flex-col gap-2">
-                  <Button
-                    className="h-10 gap-2 justify-start bg-brand-dark text-white hover:bg-brand-dark/90"
-                    onClick={() => setShowRunModal(true)}
-                  >
-                    <Play className="h-4 w-4" />
-                    Run Repricing Now
-                  </Button>
-                  <Button variant="outline" className="h-10 gap-2 justify-start" onClick={() => handleTabChange("rules")}>
-                    <Plus className="h-4 w-4" />
-                    Create New Rule
-                  </Button>
-                  <Button variant="outline" className="h-10 gap-2 justify-start" onClick={() => setShowUploadModal(true)}>
-                    <Upload className="h-4 w-4" />
-                    Upload ICE Contracts
-                  </Button>
-                  <Button variant="outline" className="h-10 gap-2 justify-start" asChild>
-                    <a href="#">
-                      <Download className="h-4 w-4" />
-                      Download ICE Template
-                    </a>
-                  </Button>
-                </div>
-              </div>
             </div>
 
             <div className="px-6">
@@ -240,28 +252,34 @@ export default function DynamicRepricingEnginePage() {
           </TabsContent>
 
           <TabsContent value="rules" className="mt-0">
-            <StubTab label="Repricing Rules" />
+            <div className="px-6">
+              <RepricingRulesTable
+                rules={rules}
+                onView={setViewRule}
+                onDuplicate={handleDuplicateRule}
+                onDeactivate={handleDeactivateRule}
+              />
+            </div>
           </TabsContent>
           <TabsContent value="ev" className="mt-0">
-            <StubTab label="EV Repricing" />
+            <EvRepricingTab />
           </TabsContent>
           <TabsContent value="ice" className="mt-0">
-            <StubTab label="ICE Repricing" />
+            <IceRepricingTab />
           </TabsContent>
           <TabsContent value="sessions" className="mt-0">
-            <StubTab label="Repricing Sessions" />
+            <RepricingSessionsTab sessions={sessions} />
           </TabsContent>
           <TabsContent value="exceptions" className="mt-0">
-            <StubTab label="Exception Queue" />
+            <ExceptionQueueTab />
           </TabsContent>
           <TabsContent value="audit" className="mt-0">
-            <StubTab label="Audit Trail" />
+            <AuditTrailTab />
           </TabsContent>
         </div>
       </Tabs>
 
       <RunRepricingModal open={showRunModal} onClose={() => setShowRunModal(false)} onComplete={handleRunComplete} />
-      <UploadIceContractsModal open={showUploadModal} onClose={() => setShowUploadModal(false)} onComplete={() => {}} />
 
       <Modal
         open={showScheduleModal}
@@ -280,6 +298,28 @@ export default function DynamicRepricingEnginePage() {
             { label: "On constraint breach", value: mockAutomationConfig.onConstraintBreach },
           ]}
         />
+      </Modal>
+
+      <Modal
+        open={viewRule !== null}
+        onOpenChange={(open) => !open && setViewRule(null)}
+        title={viewRule?.name}
+        subtitle="Repricing rule details"
+        secondaryAction={{ label: "Close", onClick: () => setViewRule(null) }}
+      >
+        {viewRule && (
+          <InfoGrid
+            columns={2}
+            items={[
+              { label: "Vehicle Type", value: viewRule.vehicleType },
+              { label: "Vehicle Model", value: viewRule.vehicleModel },
+              { label: "Country", value: viewRule.country },
+              { label: "Version", value: viewRule.version },
+              { label: "Effective Date", value: viewRule.effectiveDate },
+              { label: "Status", value: viewRule.status },
+            ]}
+          />
+        )}
       </Modal>
     </>
   )

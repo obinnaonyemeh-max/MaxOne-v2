@@ -112,3 +112,21 @@ export const mockCompletedPayouts: CompletedPayout[] = Array.from({ length: 14 }
   amount: 5000,
   dateReferred: `${String(2 + (i % 26)).padStart(2, "0")} ${awaitingMonths[i % awaitingMonths.length]} 2026`,
 }))
+
+// ---- Stat cards & upload flows ----
+
+// Headline figures for the referral overview stat-card row — portfolio-wide
+// totals, independent of whichever tab/table filter is active.
+export const referralStats = {
+  totalReferrals: 1428,
+  totalConverted: 340,
+  conversionRate: "23.8%",
+  totalBonusesPaid: 1_700_000,
+}
+
+// Simulated CSV-upload validation result for the "Make Payment" bulk-pay flow
+export const mockPaymentUploadStats = {
+  totalRows: 14,
+  validEntries: 14,
+  rowsWithErrors: 0,
+}

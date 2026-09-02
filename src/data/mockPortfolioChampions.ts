@@ -77,3 +77,12 @@ const extraChampions: PortfolioChampion[] = Array.from({ length: 36 }, (_, i) =>
 })
 
 export const mockPortfolioChampions: PortfolioChampion[] = [...seedChampions, ...extraChampions]
+
+// Headline figures for the stat-card row — portfolio-wide totals, independent
+// of whichever page/table filter is active (not derived from the 48-row sample above).
+export const portfolioChampionStats = {
+  total: 4176,
+  active: 2001,
+  inactive: 1740,
+  contractComplete: 435,
+}

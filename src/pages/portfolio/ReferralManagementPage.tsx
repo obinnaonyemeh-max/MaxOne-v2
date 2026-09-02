@@ -32,6 +32,7 @@ import {
   mockReferrals,
   mockAwaitingPayments,
   mockCompletedPayouts,
+  referralStats as referralStatsData,
   type Referral,
   type AwaitingPayment,
   type CompletedPayout,
@@ -49,28 +50,29 @@ function formatCurrency(amount: number): string {
   return "₦" + amount.toLocaleString()
 }
 
+// Stat-card display config, sourced from the portfolio-wide totals in mockReferrals.ts
 const referralStats = [
   {
     title: "Total Referrals",
-    value: (1428).toLocaleString(),
+    value: referralStatsData.totalReferrals.toLocaleString(),
     subtitle: "All referral records",
     indicatorColor: "var(--color-brand-primary)",
   },
   {
     title: "Total Referrals Converted",
-    value: (340).toLocaleString(),
+    value: referralStatsData.totalConverted.toLocaleString(),
     subtitle: "Onboarded as Champions",
     indicatorColor: "var(--color-status-success)",
   },
   {
     title: "Conversion Rate",
-    value: "23.8%",
+    value: referralStatsData.conversionRate,
     subtitle: "Prospects → Champions",
     indicatorColor: "var(--color-status-info)",
   },
   {
     title: "Total Bonuses Paid",
-    value: "₦1,700,000",
+    value: formatCurrency(referralStatsData.totalBonusesPaid),
     subtitle: "Rewards disbursed",
     indicatorColor: "var(--color-status-warning)",
   },

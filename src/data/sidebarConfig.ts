@@ -517,22 +517,6 @@ export const portfolioSidebarSections: SidebarSection[] = [
     ],
   },
   {
-    id: "portfolio-credit-underwriting",
-    label: "Credit & Underwriting",
-    items: [
-      {
-        id: "portfolio-retail-scorecard-config",
-        label: "Retail Scorecard Configuration",
-        icon: "/images/config_menu.svg",
-      },
-      {
-        id: "portfolio-enterprise-scorecard-config",
-        label: "Enterprise Scorecard Configuration",
-        icon: "/images/config_menu.svg",
-      },
-    ],
-  },
-  {
     id: "portfolio-collections",
     label: "Collections",
     items: [
@@ -597,17 +581,6 @@ export const portfolioSidebarSections: SidebarSection[] = [
     ],
   },
   {
-    id: "portfolio-insurance-management",
-    label: "Insurance Management",
-    items: [
-      {
-        id: "portfolio-insurance-overview",
-        label: "Insurance Overview",
-        icon: "/images/compliance_menu.svg",
-      },
-    ],
-  },
-  {
     id: "portfolio-funding",
     label: "Funding",
     items: [
@@ -625,8 +598,41 @@ export const portfolioSidebarSections: SidebarSection[] = [
     items: [
       {
         id: "portfolio-write-offs",
-        label: "Write-offs",
+        label: "WO Recovery",
         icon: "/images/early_termination_menu.svg",
+        href: "/portfolio/ops/write-offs",
+      },
+    ],
+  },
+  {
+    id: "portfolio-credit-underwriting",
+    label: "Credit & Underwriting",
+    items: [
+      {
+        id: "portfolio-retail-scorecard-config",
+        label: "Retail Scorecard Configuration",
+        icon: "/images/config_menu.svg",
+        href: "/portfolio/credit-underwriting/retail-scorecard",
+      },
+      {
+        id: "portfolio-enterprise-scorecard-config",
+        label: "Enterprise Scorecard Configuration",
+        icon: "/images/config_menu.svg",
+        badge: "Soon",
+        badgeVariant: "coming-soon",
+      },
+    ],
+  },
+  {
+    id: "portfolio-insurance-management",
+    label: "Insurance Management",
+    items: [
+      {
+        id: "portfolio-insurance-overview",
+        label: "Insurance Overview",
+        icon: "/images/compliance_menu.svg",
+        badge: "Soon",
+        badgeVariant: "coming-soon",
       },
     ],
   },

@@ -26,37 +26,57 @@ import {
   agentStatusVariantMap,
   type AgentPortfolioRecord,
 } from "@/data/mockAgentPortfolio"
+import { useRoleSimulation } from "@/contexts/RoleSimulationContext"
+import {
+  geographyLabel,
+  geographyLevelForScope,
+  type DriverExperienceGeographyLevel,
+} from "@/data/driverExperienceGeography"
 
 const COLOR_STATUS_SUCCESS = "var(--color-success)"
 const COLOR_STATUS_WARNING = "var(--color-warning)"
 const COLOR_GRAY_500 = "var(--color-gray-500)"
 
-const filterSections: FilterSection[] = [
-  {
-    id: "location",
-    title: "Location",
-    defaultExpanded: true,
-    options: [...new Set(mockAgentPortfolioRecords.map((a) => a.state))]
-      .sort()
-      .map((state) => ({ value: state, label: state })),
-  },
-  {
-    id: "status",
-    title: "Status",
-    options: [
-      { value: "Active",   label: "Active",   color: COLOR_STATUS_SUCCESS },
-      { value: "On Leave", label: "On Leave", color: COLOR_STATUS_WARNING },
-      { value: "Inactive", label: "Inactive", color: COLOR_GRAY_500 },
-    ],
-  },
-]
+function buildFilterSections(
+  records: AgentPortfolioRecord[],
+  geographyLevel: DriverExperienceGeographyLevel
+): FilterSection[] {
+  const geographyId = geographyLevel === "subcity" ? "subcity" : "city"
+  const geographyOptions = [
+    ...new Set(records.map((record) => record[geographyId])),
+  ].sort()
+
+  return [
+    {
+      id: geographyId,
+      title: geographyLabel(geographyLevel),
+      defaultExpanded: true,
+      options: geographyOptions.map((value) => ({ value, label: value })),
+    },
+    {
+      id: "status",
+      title: "Status",
+      options: [
+        { value: "Active", label: "Active", color: COLOR_STATUS_SUCCESS },
+        { value: "On Leave", label: "On Leave", color: COLOR_STATUS_WARNING },
+        { value: "Inactive", label: "Inactive", color: COLOR_GRAY_500 },
+      ],
+    },
+  ]
+}
 
 const defaultFilters: GenericFilterState = {
-  location: [],
+  city: [],
+  subcity: [],
   status: [],
 }
 
-const columns: ColumnDef<AgentPortfolioRecord>[] = [
+function buildColumns(
+  geographyLevel: DriverExperienceGeographyLevel
+): ColumnDef<AgentPortfolioRecord>[] {
+  const geographyId = geographyLevel === "subcity" ? "subcity" : "city"
+
+  return [
   {
     accessorKey: "agent",
     header: "Agent",
@@ -72,11 +92,11 @@ const columns: ColumnDef<AgentPortfolioRecord>[] = [
     ),
   },
   {
-    accessorKey: "state",
-    header: "Location",
+    accessorKey: geographyId,
+    header: geographyLabel(geographyLevel),
     cell: ({ row }) => (
       <span className="font-medium text-table-text" style={{ fontSize: "14px" }}>
-        {row.original.state}
+        {row.original[geographyId]}
       </span>
     ),
   },
@@ -125,32 +145,57 @@ const columns: ColumnDef<AgentPortfolioRecord>[] = [
       </StatusBadge>
     ),
   },
-]
+  ]
+}
 
 export default function AgentPortfolioPage() {
   const navigate = useNavigate()
+  const { dataScope, filterByCity } = useRoleSimulation()
   const [searchQuery, setSearchQuery] = useState("")
   const [searchOpen, setSearchOpen] = useState(false)
   const [filters, setFilters] = useState<GenericFilterState>(defaultFilters)
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(25)
-  const activeFilterCount = getActiveFilterCount(filters)
+  const geographyLevel = geographyLevelForScope(dataScope)
+  const geographyFilterId = geographyLevel === "subcity" ? "subcity" : "city"
+  const scopedRecords = useMemo(
+    () => mockAgentPortfolioRecords.filter((record) => filterByCity(record.city)),
+    [filterByCity]
+  )
+  const filterSections = useMemo(
+    () => buildFilterSections(scopedRecords, geographyLevel),
+    [geographyLevel, scopedRecords]
+  )
+  const activeFilters = useMemo<GenericFilterState>(
+    () => ({
+      [geographyFilterId]: filters[geographyFilterId] ?? [],
+      status: filters.status ?? [],
+    }),
+    [filters, geographyFilterId]
+  )
+  const activeFilterCount = getActiveFilterCount(activeFilters)
+  const columns = useMemo(() => buildColumns(geographyLevel), [geographyLevel])
 
   const filteredRecords = useMemo(() =>
-    mockAgentPortfolioRecords.filter((record) => {
-      if (filters.location.length > 0 && !filters.location.includes(record.state)) return false
-      if (filters.status.length > 0 && !filters.status.includes(record.status)) return false
+    scopedRecords.filter((record) => {
+      const selectedGeographies = activeFilters[geographyFilterId]
+      if (
+        selectedGeographies.length > 0 &&
+        !selectedGeographies.includes(record[geographyFilterId])
+      ) return false
+      if (activeFilters.status.length > 0 && !activeFilters.status.includes(record.status)) return false
       if (searchQuery) {
         const q = searchQuery.toLowerCase()
         if (
           !record.agent.toLowerCase().includes(q) &&
-          !record.state.toLowerCase().includes(q) &&
+          !record.city.toLowerCase().includes(q) &&
+          !record.subcity.toLowerCase().includes(q) &&
           !record.department.toLowerCase().includes(q)
         ) return false
       }
       return true
     }),
-    [filters, searchQuery]
+    [activeFilters, geographyFilterId, scopedRecords, searchQuery]
   )
 
   const pagedRecords = useMemo(
@@ -162,14 +207,13 @@ export default function AgentPortfolioPage() {
     <>
       <TopBar
         breadcrumbs={[
-          { label: "Driver Experience" },
           { label: "Agent Management" },
-          { label: "Agent Portfolio" },
+          { label: "Agents Portfolio" },
         ]}
       />
       <div className="flex-1 overflow-auto px-6 pb-6">
         <PageHeader
-          title="Agent Portfolio"
+          title="Agents Portfolio"
           subtitle="Manage champion-to-agent allocations and portfolios"
           className="px-0"
         />
@@ -191,8 +235,11 @@ export default function AgentPortfolioPage() {
               <PopoverContent className="w-auto p-2" align="start">
                 <GenericFilterPopover
                   sections={filterSections}
-                  filters={filters}
-                  onFiltersChange={setFilters}
+                  filters={activeFilters}
+                  onFiltersChange={(nextFilters) => {
+                    setFilters(nextFilters)
+                    setCurrentPage(1)
+                  }}
                 />
               </PopoverContent>
             </Popover>
@@ -203,7 +250,7 @@ export default function AgentPortfolioPage() {
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search agent, location or department..."
+                  placeholder="Search agent, city, subcity or department..."
                   className="h-9 w-56"
                   autoFocus
                   onKeyDown={(e) => {

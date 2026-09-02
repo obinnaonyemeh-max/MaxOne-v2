@@ -1,5 +1,7 @@
-import { useState, useMemo, useEffect, useCallback } from "react"
+import { useState, useMemo, useCallback } from "react"
 import { type ColumnDef } from "@tanstack/react-table"
+import { format } from "date-fns"
+import { toast } from "sonner"
 import { SlidersHorizontal, FileEdit, X } from "lucide-react"
 import {
   TopBar,
@@ -12,13 +14,14 @@ import {
   GenericFilterPopover,
   getActiveFilterCount,
   WelfareDetailSheet,
+  Modal,
+  DatePickerField,
   type WelfareChampion,
   type FilterSection,
   type GenericFilterState,
 } from "@/components/max"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
-import { CITY_FILTER_OPTIONS } from "@/data/cities"
 import { Switch } from "@/components/ui/switch"
 import {
   Select,
@@ -41,6 +44,13 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import { useRoleSimulation } from "@/contexts/RoleSimulationContext"
+import { championsForSimulationMode } from "@/data/driverExperienceAssignmentScope"
+import {
+  geographyLabel,
+  geographyLevelForScope,
+  type DriverExperienceGeographyLevel,
+} from "@/data/driverExperienceGeography"
 
 // ── Types ──
 
@@ -67,13 +77,14 @@ const championStateVariantMap: Record<ChampionState, BadgeVariant> = {
 
 // ── Mock data ──
 
-const mockWelfareRecords: WelfareChampion[] = [
+export const mockWelfareRecords: WelfareChampion[] = [
   {
     id: "1",
     name: "Adewale Ogunleye",
     championId: "CHP-001",
     avatarUrl: "/images/champvatar.png",
     location: "Lagos",
+    subcity: "Ikeja",
     vehicle: "4 Wheelers",
     welfareStatus: "Healthy",
     championState: "Active",
@@ -88,6 +99,7 @@ const mockWelfareRecords: WelfareChampion[] = [
     championId: "CHP-002",
     avatarUrl: "/images/champvatar.png",
     location: "Lagos",
+    subcity: "Lekki",
     vehicle: "4 Wheelers",
     welfareStatus: "Needs Attention",
     championState: "Active",
@@ -102,6 +114,7 @@ const mockWelfareRecords: WelfareChampion[] = [
     championId: "CHP-003",
     avatarUrl: "/images/champvatar.png",
     location: "Abeokuta",
+    subcity: "Ibara",
     vehicle: "4 Wheelers",
     welfareStatus: "At Risk",
     championState: "Active",
@@ -116,6 +129,7 @@ const mockWelfareRecords: WelfareChampion[] = [
     championId: "CHP-004",
     avatarUrl: "/images/champvatar.png",
     location: "Osogbo",
+    subcity: "Oke Fia",
     vehicle: "3 Wheelers",
     welfareStatus: "Critical",
     championState: "Suspended",
@@ -135,6 +149,7 @@ const mockWelfareRecords: WelfareChampion[] = [
     championId: "CHP-005",
     avatarUrl: "/images/champvatar.png",
     location: "Lagos",
+    subcity: "Victoria Island",
     vehicle: "4 Wheelers",
     welfareStatus: "Healthy",
     championState: "Active",
@@ -149,6 +164,7 @@ const mockWelfareRecords: WelfareChampion[] = [
     championId: "CHP-006",
     avatarUrl: "/images/champvatar.png",
     location: "Ibadan",
+    subcity: "Challenge",
     vehicle: "2 Wheelers",
     welfareStatus: "Needs Attention",
     championState: "On Leave",
@@ -163,6 +179,7 @@ const mockWelfareRecords: WelfareChampion[] = [
     championId: "CHP-007",
     avatarUrl: "/images/champvatar.png",
     location: "Sango Ota",
+    subcity: "Ota Central",
     vehicle: "3 Wheelers",
     welfareStatus: "At Risk",
     championState: "Inactive",
@@ -182,6 +199,7 @@ const mockWelfareRecords: WelfareChampion[] = [
     championId: "CHP-008",
     avatarUrl: "/images/champvatar.png",
     location: "Lagos",
+    subcity: "Yaba",
     vehicle: "4 Wheelers",
     welfareStatus: "Healthy",
     championState: "Active",
@@ -196,6 +214,7 @@ const mockWelfareRecords: WelfareChampion[] = [
     championId: "CHP-009",
     avatarUrl: "/images/champvatar.png",
     location: "Abeokuta",
+    subcity: "Oke-Ilewo",
     vehicle: "2 Wheelers",
     welfareStatus: "Critical",
     championState: "Active",
@@ -210,6 +229,7 @@ const mockWelfareRecords: WelfareChampion[] = [
     championId: "CHP-010",
     avatarUrl: "/images/champvatar.png",
     location: "Lagos",
+    subcity: "Ajah",
     vehicle: "4 Wheelers",
     welfareStatus: "Healthy",
     championState: "Active",
@@ -228,57 +248,51 @@ const COLOR_AMBER = "var(--color-status-warning)"
 const COLOR_RED = "var(--color-badge-inactive-text)"
 const COLOR_PURPLE = "#8b5cf6"
 
-// ── Summary stats ──
-
-const totalAssigned = mockWelfareRecords.length
-const contactedToday = mockWelfareRecords.filter(
-  (r) => r.lastContact === "9 Jun 2026"
-).length
-const followUpsDue = mockWelfareRecords.filter((r) => {
-  const d = new Date(r.nextFollowUp)
-  return d <= new Date("2026-06-09")
-}).length
-const atRiskCount = mockWelfareRecords.filter(
-  (r) => r.welfareStatus === "At Risk" || r.welfareStatus === "Critical"
-).length
-const overdueCheckIns = mockWelfareRecords.filter((r) => {
-  const d = new Date(r.nextFollowUp)
-  return d < new Date("2026-06-09")
-}).length
-
-const summaryStats = [
-  { title: "Total Assigned Champions", value: String(totalAssigned), indicatorColor: COLOR_BLUE },
-  { title: "Champions Contacted Today", value: String(contactedToday), indicatorColor: COLOR_GREEN },
-  { title: "Follow-ups Due", value: String(followUpsDue), indicatorColor: COLOR_AMBER },
-  { title: "At-Risk Champions", value: String(atRiskCount), indicatorColor: COLOR_RED },
-  { title: "Overdue Check-Ins", value: String(overdueCheckIns), indicatorColor: COLOR_PURPLE },
-]
-
 // ── Follow-up queue buckets ──
 
-const TODAY = new Date("2026-06-09")
+export const WELFARE_REFERENCE_DATE = new Date("2026-06-09")
 
 function classifyFollowUp(dateStr: string): "overdue" | "today" | "upcoming" {
   const d = new Date(dateStr)
-  if (d.toDateString() === TODAY.toDateString()) return "today"
-  if (d < TODAY) return "overdue"
+  if (d.toDateString() === WELFARE_REFERENCE_DATE.toDateString()) return "today"
+  if (d < WELFARE_REFERENCE_DATE) return "overdue"
   return "upcoming"
 }
 
-const overdueQueue = mockWelfareRecords.filter(
-  (r) => classifyFollowUp(r.nextFollowUp) === "overdue"
-)
-const todayQueue = mockWelfareRecords.filter(
-  (r) => classifyFollowUp(r.nextFollowUp) === "today"
-)
-const upcomingQueue = mockWelfareRecords.filter(
-  (r) => classifyFollowUp(r.nextFollowUp) === "upcoming"
-)
+function buildSummaryStats(records: WelfareChampion[]) {
+  const totalAssigned = records.length
+  const contactedToday = records.filter(
+    (record) => record.lastContact === "9 Jun 2026"
+  ).length
+  const followUpsDue = records.filter(
+    (record) => new Date(record.nextFollowUp) <= WELFARE_REFERENCE_DATE
+  ).length
+  const atRiskCount = records.filter(
+    (record) =>
+      record.welfareStatus === "At Risk" || record.welfareStatus === "Critical"
+  ).length
+  const overdueCheckIns = records.filter(
+    (record) => new Date(record.nextFollowUp) < WELFARE_REFERENCE_DATE
+  ).length
+
+  return [
+    { title: "Total Assigned Champions", value: String(totalAssigned), indicatorColor: COLOR_BLUE },
+    { title: "Champions Contacted Today", value: String(contactedToday), indicatorColor: COLOR_GREEN },
+    { title: "Follow-ups Due", value: String(followUpsDue), indicatorColor: COLOR_AMBER },
+    { title: "At-Risk Champions", value: String(atRiskCount), indicatorColor: COLOR_RED },
+    { title: "Overdue Check-Ins", value: String(overdueCheckIns), indicatorColor: COLOR_PURPLE },
+  ]
+}
 
 // ── Table columns ──
 
-function getColumns(onLogNote: (champion: WelfareChampion) => void): ColumnDef<WelfareChampion>[] {
-  return [
+function getColumns(
+  onLogNote: (champion: WelfareChampion) => void,
+  readOnly: boolean,
+  geographyLevel: DriverExperienceGeographyLevel
+): ColumnDef<WelfareChampion>[] {
+  const usesSubcity = geographyLevel === "subcity"
+  const columns: ColumnDef<WelfareChampion>[] = [
     {
       accessorKey: "name",
       header: "Champion",
@@ -301,11 +315,11 @@ function getColumns(onLogNote: (champion: WelfareChampion) => void): ColumnDef<W
       ),
     },
     {
-      accessorKey: "location",
-      header: "Location",
+      accessorKey: usesSubcity ? "subcity" : "location",
+      header: geographyLabel(geographyLevel),
       cell: ({ row }) => (
         <span className="text-table-text" style={{ fontSize: "13px" }}>
-          {row.original.location}
+          {usesSubcity ? row.original.subcity : row.original.location}
         </span>
       ),
     },
@@ -404,64 +418,83 @@ function getColumns(onLogNote: (champion: WelfareChampion) => void): ColumnDef<W
       ),
     },
   ]
+
+  return readOnly
+    ? columns.filter((column) => column.id !== "actions")
+    : columns
 }
 
 // ── Filter sections ──
 
-const welfareFilterSections: FilterSection[] = [
-  {
-    id: "location",
-    title: "Location",
-    defaultExpanded: true,
-    options: CITY_FILTER_OPTIONS,
-  },
-  {
-    id: "vehicle",
-    title: "Vehicle Type",
-    options: [
-      { value: "2 Wheelers", label: "2 Wheelers" },
-      { value: "3 Wheelers", label: "3 Wheelers" },
-      { value: "4 Wheelers", label: "4 Wheelers" },
-    ],
-  },
-  {
-    id: "welfareStatus",
-    title: "Welfare Status",
-    options: [
-      { value: "Healthy", label: "Healthy", color: "var(--color-badge-active-text)" },
-      { value: "Needs Attention", label: "Needs Attention", color: "var(--color-status-warning)" },
-      { value: "At Risk", label: "At Risk", color: "var(--color-badge-inactive-text)" },
-      { value: "Critical", label: "Critical", color: "var(--color-status-info)" },
-    ],
-  },
-  {
-    id: "championState",
-    title: "Champion State",
-    options: [
-      { value: "Active", label: "Active", color: "var(--color-badge-active-text)" },
-      { value: "Inactive", label: "Inactive" },
-      { value: "On Leave", label: "On Leave", color: "var(--color-status-warning)" },
-      { value: "Suspended", label: "Suspended", color: "var(--color-badge-inactive-text)" },
-    ],
-  },
-  {
-    id: "nextFollowUp",
-    title: "Next Follow-up",
-    options: [
-      { value: "overdue", label: "Overdue", color: "var(--color-badge-inactive-text)" },
-      { value: "today", label: "Due Today", color: "var(--color-status-warning)" },
-      { value: "upcoming", label: "Upcoming", color: "var(--color-badge-active-text)" },
-    ],
-  },
-  {
-    id: "escalationSource",
-    title: "Escalation Source",
-    options: [
-      { value: "Transfer Rejected", label: "Transfer Rejected", color: "var(--color-badge-inactive-text)" },
-      { value: "None", label: "None" },
-    ],
-  },
-]
+function buildWelfareFilterSections(
+  records: WelfareChampion[],
+  geographyLevel: DriverExperienceGeographyLevel
+): FilterSection[] {
+  const usesSubcity = geographyLevel === "subcity"
+  const geographyId = usesSubcity ? "subcity" : "location"
+  const geographyOptions = [
+    ...new Set(
+      records.map((record) =>
+        usesSubcity ? record.subcity : record.location
+      )
+    ),
+  ].sort()
+
+  return [
+    {
+      id: geographyId,
+      title: geographyLabel(geographyLevel),
+      defaultExpanded: true,
+      options: geographyOptions.map((value) => ({ value, label: value })),
+    },
+    {
+      id: "vehicle",
+      title: "Vehicle Type",
+      options: [
+        { value: "2 Wheelers", label: "2 Wheelers" },
+        { value: "3 Wheelers", label: "3 Wheelers" },
+        { value: "4 Wheelers", label: "4 Wheelers" },
+      ],
+    },
+    {
+      id: "welfareStatus",
+      title: "Welfare Status",
+      options: [
+        { value: "Healthy", label: "Healthy", color: "var(--color-badge-active-text)" },
+        { value: "Needs Attention", label: "Needs Attention", color: "var(--color-status-warning)" },
+        { value: "At Risk", label: "At Risk", color: "var(--color-badge-inactive-text)" },
+        { value: "Critical", label: "Critical", color: "var(--color-status-info)" },
+      ],
+    },
+    {
+      id: "championState",
+      title: "Champion State",
+      options: [
+        { value: "Active", label: "Active", color: "var(--color-badge-active-text)" },
+        { value: "Inactive", label: "Inactive" },
+        { value: "On Leave", label: "On Leave", color: "var(--color-status-warning)" },
+        { value: "Suspended", label: "Suspended", color: "var(--color-badge-inactive-text)" },
+      ],
+    },
+    {
+      id: "nextFollowUp",
+      title: "Next Follow-up",
+      options: [
+        { value: "overdue", label: "Overdue", color: "var(--color-badge-inactive-text)" },
+        { value: "today", label: "Due Today", color: "var(--color-status-warning)" },
+        { value: "upcoming", label: "Upcoming", color: "var(--color-badge-active-text)" },
+      ],
+    },
+    {
+      id: "escalationSource",
+      title: "Escalation Source",
+      options: [
+        { value: "Transfer Rejected", label: "Transfer Rejected", color: "var(--color-badge-inactive-text)" },
+        { value: "None", label: "None" },
+      ],
+    },
+  ]
+}
 
 // ── Log Note form ──
 
@@ -493,12 +526,14 @@ function FollowUpColumn({
   items,
   onCardClick,
   onLogNote,
+  readOnly = false,
 }: {
   title: string
   accent: string
   items: WelfareChampion[]
   onCardClick: (champion: WelfareChampion) => void
   onLogNote: (champion: WelfareChampion) => void
+  readOnly?: boolean
 }) {
   return (
     <div className="flex flex-col rounded-lg border border-gray-200 bg-gray-25 overflow-hidden">
@@ -567,7 +602,8 @@ function FollowUpColumn({
                   Due: {item.nextFollowUp}
                 </span>
               </div>
-              <button
+              {!readOnly && (
+                <button
                 type="button"
                 className="shrink-0 font-medium cursor-pointer hover:opacity-80 transition-opacity"
                 style={{
@@ -585,7 +621,8 @@ function FollowUpColumn({
                 }}
               >
                 Log Note
-              </button>
+                </button>
+              )}
             </div>
           ))
         )}
@@ -597,6 +634,13 @@ function FollowUpColumn({
 // ── Page component ──
 
 export default function WelfarePage() {
+  const { mode, dataScope } = useRoleSimulation()
+  const isReadOnly =
+    mode === "executive" || mode === "dxp-product-manager"
+  const hidesSummaryAndQueue = mode === "dxp-product-manager"
+  const [welfareRecords, setWelfareRecords] = useState<WelfareChampion[]>(
+    () => mockWelfareRecords
+  )
   const [period, setPeriod] = useState("30")
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
@@ -604,33 +648,68 @@ export default function WelfarePage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [searchOpen, setSearchOpen] = useState(false)
   const [selectedChampion, setSelectedChampion] = useState<WelfareChampion | null>(null)
+  const [scheduleChampion, setScheduleChampion] = useState<WelfareChampion | null>(null)
+  const [followUpDate, setFollowUpDate] = useState<Date | undefined>()
   const [logNoteChampion, setLogNoteChampion] = useState<WelfareChampion | null>(null)
   const [logNoteForm, setLogNoteForm] = useState<LogNoteForm>(emptyLogNoteForm)
 
-  const activeFilterCount = getActiveFilterCount(filters)
-
-  useEffect(() => {
-    setCurrentPage(1)
-  }, [searchQuery])
+  const geographyLevel = geographyLevelForScope(dataScope)
+  const geographyFilterId = geographyLevel === "subcity" ? "subcity" : "location"
+  const scopedWelfareRecords = useMemo(
+    () => championsForSimulationMode(welfareRecords, mode),
+    [mode, welfareRecords]
+  )
+  const welfareFilterSections = useMemo(
+    () => buildWelfareFilterSections(scopedWelfareRecords, geographyLevel),
+    [geographyLevel, scopedWelfareRecords]
+  )
+  const activeFilters = useMemo<GenericFilterState>(
+    () => Object.fromEntries(
+      welfareFilterSections.map((section) => [
+        section.id,
+        filters[section.id] ?? [],
+      ])
+    ),
+    [filters, welfareFilterSections]
+  )
+  const activeFilterCount = getActiveFilterCount(activeFilters)
+  const summaryStats = useMemo(
+    () => buildSummaryStats(scopedWelfareRecords),
+    [scopedWelfareRecords]
+  )
+  const overdueQueue = useMemo(
+    () => scopedWelfareRecords.filter((record) => classifyFollowUp(record.nextFollowUp) === "overdue"),
+    [scopedWelfareRecords]
+  )
+  const todayQueue = useMemo(
+    () => scopedWelfareRecords.filter((record) => classifyFollowUp(record.nextFollowUp) === "today"),
+    [scopedWelfareRecords]
+  )
+  const upcomingQueue = useMemo(
+    () => scopedWelfareRecords.filter((record) => classifyFollowUp(record.nextFollowUp) === "upcoming"),
+    [scopedWelfareRecords]
+  )
 
   const filteredData = useMemo(() => {
-    let data = mockWelfareRecords.filter((record) => {
-      const locations = filters.location || []
-      if (locations.length > 0 && !locations.includes(record.location)) return false
+    let data = scopedWelfareRecords.filter((record) => {
+      const geographies = activeFilters[geographyFilterId] || []
+      const recordGeography =
+        geographyLevel === "subcity" ? record.subcity : record.location
+      if (geographies.length > 0 && !geographies.includes(recordGeography)) return false
 
-      const vehicles = filters.vehicle || []
+      const vehicles = activeFilters.vehicle || []
       if (vehicles.length > 0 && !vehicles.includes(record.vehicle)) return false
 
-      const statuses = filters.welfareStatus || []
+      const statuses = activeFilters.welfareStatus || []
       if (statuses.length > 0 && !statuses.includes(record.welfareStatus)) return false
 
-      const states = filters.championState || []
+      const states = activeFilters.championState || []
       if (states.length > 0 && !states.includes(record.championState)) return false
 
-      const followUpBuckets = filters.nextFollowUp || []
+      const followUpBuckets = activeFilters.nextFollowUp || []
       if (followUpBuckets.length > 0 && !followUpBuckets.includes(classifyFollowUp(record.nextFollowUp))) return false
 
-      const escalationSources = filters.escalationSource || []
+      const escalationSources = activeFilters.escalationSource || []
       if (escalationSources.length > 0) {
         const hasRejection = !!record.transferRejection
         const matchesTransferRejected = escalationSources.includes("Transfer Rejected") && hasRejection
@@ -651,7 +730,7 @@ export default function WelfarePage() {
     }
 
     return data
-  }, [filters, searchQuery])
+  }, [activeFilters, geographyFilterId, geographyLevel, scopedWelfareRecords, searchQuery])
 
   const paginatedData = useMemo(() => {
     const start = (currentPage - 1) * pageSize
@@ -668,11 +747,46 @@ export default function WelfarePage() {
     setLogNoteForm(emptyLogNoteForm)
   }, [])
 
+  const openScheduleFollowUp = useCallback((champion: WelfareChampion) => {
+    setScheduleChampion(champion)
+    setFollowUpDate(undefined)
+  }, [])
+
+  const closeScheduleFollowUp = useCallback(() => {
+    setScheduleChampion(null)
+    setFollowUpDate(undefined)
+  }, [])
+
+  const handleScheduleFollowUp = useCallback(() => {
+    if (!scheduleChampion || !followUpDate) return
+
+    const nextFollowUp = format(followUpDate, "d MMM yyyy")
+    setWelfareRecords((records) =>
+      records.map((record) =>
+        record.id === scheduleChampion.id
+          ? { ...record, nextFollowUp }
+          : record
+      )
+    )
+    setSelectedChampion((champion) =>
+      champion?.id === scheduleChampion.id
+        ? { ...champion, nextFollowUp }
+        : champion
+    )
+    toast.success("Follow-up scheduled", {
+      description: `${scheduleChampion.name} has been added to the follow-up queue for ${nextFollowUp}.`,
+    })
+    closeScheduleFollowUp()
+  }, [closeScheduleFollowUp, followUpDate, scheduleChampion])
+
   const handleLogInteraction = useCallback(() => {
     closeLogNote()
   }, [closeLogNote])
 
-  const columns = useMemo(() => getColumns(openLogNote), [openLogNote])
+  const columns = useMemo(
+    () => getColumns(openLogNote, isReadOnly, geographyLevel),
+    [geographyLevel, isReadOnly, openLogNote]
+  )
 
   return (
     <>
@@ -701,50 +815,57 @@ export default function WelfarePage() {
           </Select>
         </div>
 
-        {/* Stat Cards */}
-        <div className="grid grid-cols-5 gap-2">
-          {summaryStats.map((stat) => (
-            <StatCard
-              key={stat.title}
-              title={stat.title}
-              value={stat.value}
-              indicatorColor={stat.indicatorColor}
-            />
-          ))}
-        </div>
+        {!hidesSummaryAndQueue && (
+          <>
+            {/* Stat Cards */}
+            <div className="grid grid-cols-5 gap-2">
+              {summaryStats.map((stat) => (
+                <StatCard
+                  key={stat.title}
+                  title={stat.title}
+                  value={stat.value}
+                  indicatorColor={stat.indicatorColor}
+                />
+              ))}
+            </div>
 
-        {/* Follow-up Queue */}
-        <div className="mt-6">
-          <h3
-            className="text-gray-950 mb-3"
-            style={{ fontSize: "16px", fontWeight: 500 }}
-          >
-            Follow-up Queue
-          </h3>
-          <div className="grid grid-cols-3 gap-3">
-            <FollowUpColumn
-              title="Overdue"
-              accent={COLOR_RED}
-              items={overdueQueue}
-              onCardClick={setSelectedChampion}
-              onLogNote={openLogNote}
-            />
-            <FollowUpColumn
-              title="Due Today"
-              accent={COLOR_AMBER}
-              items={todayQueue}
-              onCardClick={setSelectedChampion}
-              onLogNote={openLogNote}
-            />
-            <FollowUpColumn
-              title="Upcoming"
-              accent={COLOR_GREEN}
-              items={upcomingQueue}
-              onCardClick={setSelectedChampion}
-              onLogNote={openLogNote}
-            />
-          </div>
-        </div>
+            {/* Follow-up Queue */}
+            <div className="mt-6">
+              <h3
+                className="text-gray-950 mb-3"
+                style={{ fontSize: "16px", fontWeight: 500 }}
+              >
+                Follow-up Queue
+              </h3>
+              <div className="grid grid-cols-3 gap-3">
+                <FollowUpColumn
+                  title="Overdue"
+                  accent={COLOR_RED}
+                  items={overdueQueue}
+                  onCardClick={setSelectedChampion}
+                  onLogNote={openLogNote}
+                  readOnly={isReadOnly}
+                />
+                <FollowUpColumn
+                  title="Due Today"
+                  accent={COLOR_AMBER}
+                  items={todayQueue}
+                  onCardClick={setSelectedChampion}
+                  onLogNote={openLogNote}
+                  readOnly={isReadOnly}
+                />
+                <FollowUpColumn
+                  title="Upcoming"
+                  accent={COLOR_GREEN}
+                  items={upcomingQueue}
+                  onCardClick={setSelectedChampion}
+                  onLogNote={openLogNote}
+                  readOnly={isReadOnly}
+                />
+              </div>
+            </div>
+          </>
+        )}
 
         {/* Champions Directory Table */}
         <div className="mt-6 flex flex-col">
@@ -775,8 +896,11 @@ export default function WelfarePage() {
                   <PopoverContent className="w-auto p-2" align="start">
                     <GenericFilterPopover
                       sections={welfareFilterSections}
-                      filters={filters}
-                      onFiltersChange={setFilters}
+                      filters={activeFilters}
+                      onFiltersChange={(nextFilters) => {
+                        setFilters(nextFilters)
+                        setCurrentPage(1)
+                      }}
                     />
                   </PopoverContent>
                 </Popover>
@@ -785,7 +909,10 @@ export default function WelfarePage() {
                   open={searchOpen}
                   onOpenChange={setSearchOpen}
                   value={searchQuery}
-                  onValueChange={setSearchQuery}
+                  onValueChange={(query) => {
+                    setSearchQuery(query)
+                    setCurrentPage(1)
+                  }}
                   placeholder="Search by name or ID..."
                 />
               </div>
@@ -817,12 +944,51 @@ export default function WelfarePage() {
         champion={selectedChampion}
         isOpen={selectedChampion !== null}
         onClose={() => setSelectedChampion(null)}
-        onLogNote={openLogNote}
+        onLogNote={isReadOnly ? undefined : openLogNote}
+        onScheduleFollowUp={isReadOnly ? undefined : openScheduleFollowUp}
+        readOnly={isReadOnly}
       />
+
+      <Modal
+        open={!isReadOnly && scheduleChampion !== null}
+        onOpenChange={(open) => { if (!open) closeScheduleFollowUp() }}
+        title="Schedule Follow Up"
+        subtitle={
+          scheduleChampion
+            ? `${scheduleChampion.name} · ${scheduleChampion.championId}`
+            : undefined
+        }
+        className="max-w-md"
+        secondaryAction={{
+          label: "Cancel",
+          onClick: closeScheduleFollowUp,
+        }}
+        primaryAction={{
+          label: "Schedule Follow Up",
+          onClick: handleScheduleFollowUp,
+          disabled: !followUpDate,
+        }}
+      >
+        <div className="space-y-2">
+          <p className="text-sm font-medium text-sidebar-item-active">
+            Follow-up date
+          </p>
+          <DatePickerField
+            value={followUpDate}
+            onChange={setFollowUpDate}
+            placeholder="Select a day"
+            triggerClassName="h-12 bg-input-soft"
+            disabled={{ before: WELFARE_REFERENCE_DATE }}
+          />
+          <p className="text-xs text-breadcrumb-root">
+            The Champion will appear in the matching follow-up queue after scheduling.
+          </p>
+        </div>
+      </Modal>
 
       {/* Log Note Modal */}
       <Dialog
-        open={logNoteChampion !== null}
+        open={!isReadOnly && logNoteChampion !== null}
         onOpenChange={(open) => { if (!open) closeLogNote() }}
       >
         <DialogContent className="max-w-lg p-0">

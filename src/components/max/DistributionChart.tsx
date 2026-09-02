@@ -11,12 +11,14 @@ export interface DistributionDataItem {
 interface DistributionChartProps {
   title: string
   data: DistributionDataItem[]
+  legendTitle?: string
   className?: string
 }
 
 export function DistributionChart({
   title,
   data,
+  legendTitle = "Legend",
   className,
 }: DistributionChartProps) {
   const [activeIndex, setActiveIndex] = useState<number | null>(null)
@@ -115,7 +117,7 @@ export function DistributionChart({
             className="text-gray-600 mb-2"
             style={{ fontSize: "13px", fontWeight: 500 }}
           >
-            Legend
+            {legendTitle}
           </p>
           <div className="space-y-1.5">
             {data.map((item) => (

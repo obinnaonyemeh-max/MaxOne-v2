@@ -34,6 +34,7 @@ import {
   type AgentChampionRecord,
   type ChampionState,
 } from "@/data/mockAgentPortfolio"
+import { useCan, useRoleSimulation } from "@/contexts/RoleSimulationContext"
 
 const COLOR_GRAY_500 = "var(--color-gray-500)"
 const COLOR_STATUS_SUCCESS = "var(--color-success)"
@@ -52,7 +53,7 @@ const stateColors: Record<ChampionState, string> = {
 const filterSections: FilterSection[] = [
   {
     id: "state",
-    title: "State",
+    title: "Champion Status",
     defaultExpanded: true,
     options: championStates.map((state) => ({
       value: state,
@@ -71,6 +72,7 @@ interface ChampionColumnsOptions {
   allSelected: boolean
   onToggle: (id: string) => void
   onToggleAll: () => void
+  selectable: boolean
 }
 
 function getChampionColumns({
@@ -78,8 +80,9 @@ function getChampionColumns({
   allSelected,
   onToggle,
   onToggleAll,
+  selectable,
 }: ChampionColumnsOptions): ColumnDef<AgentChampionRecord>[] {
-  return [
+  const columns: ColumnDef<AgentChampionRecord>[] = [
     {
       id: "select",
       header: () => (
@@ -134,7 +137,7 @@ function getChampionColumns({
     },
     {
       accessorKey: "state",
-      header: "State",
+      header: "Champion Status",
       cell: ({ row }) => (
         <StatusBadge variant={championStateVariantMap[row.original.state]} withDot>
           {row.original.state}
@@ -142,11 +145,17 @@ function getChampionColumns({
       ),
     },
   ]
+
+  return selectable
+    ? columns
+    : columns.filter((column) => column.id !== "select")
 }
 
 export default function AgentDetailPage() {
   const { agentId } = useParams<{ agentId: string }>()
   const navigate = useNavigate()
+  const { filterByCity } = useRoleSimulation()
+  const canReassignAgentPortfolio = useCan("agentManagement.reassign")
 
   const [filters, setFilters] = useState<GenericFilterState>(defaultFilters)
   const [searchQuery, setSearchQuery] = useState("")
@@ -161,7 +170,10 @@ export default function AgentDetailPage() {
   const [reassignments, setReassignments] = useState<Record<string, string>>({})
   const { message: toast, variant: toastVariant, showToast } = useToast()
 
-  const agent = agentId ? getAgentById(agentId) : undefined
+  const selectedAgent = agentId ? getAgentById(agentId) : undefined
+  const agent = selectedAgent && filterByCity(selectedAgent.city)
+    ? selectedAgent
+    : undefined
   const champions = useMemo(
     () =>
       agentId
@@ -242,9 +254,10 @@ export default function AgentDetailPage() {
       allSelected,
       onToggle: toggleChampion,
       onToggleAll: toggleAll,
+      selectable: canReassignAgentPortfolio,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [selectedIds, allSelected, pagedChampions]
+    [selectedIds, allSelected, pagedChampions, canReassignAgentPortfolio]
   )
 
   if (!agent) {
@@ -252,9 +265,8 @@ export default function AgentDetailPage() {
       <>
         <TopBar
           breadcrumbs={[
-            { label: "Driver Experience" },
             { label: "Agent Management" },
-            { label: "Agent Portfolio", href: "/driver-experience/agents/portfolio" },
+            { label: "Agents Portfolio", href: "/driver-experience/agents/portfolio" },
             { label: "Not found" },
           ]}
         />
@@ -281,9 +293,8 @@ export default function AgentDetailPage() {
     <>
       <TopBar
         breadcrumbs={[
-          { label: "Driver Experience" },
           { label: "Agent Management" },
-          { label: "Agent Portfolio", href: "/driver-experience/agents/portfolio" },
+          { label: "Agents Portfolio", href: "/driver-experience/agents/portfolio" },
           { label: agent.agent },
         ]}
       />
@@ -381,7 +392,7 @@ export default function AgentDetailPage() {
               </Button>
             )}
 
-            {selectedIds.length > 0 && (
+            {canReassignAgentPortfolio && selectedIds.length > 0 && (
               <div className="ml-auto flex items-center gap-3 pr-1">
                 <span className="text-sm text-muted-foreground">
                   {selectedIds.length} selected
@@ -416,7 +427,7 @@ export default function AgentDetailPage() {
       </div>
 
       <ReassignChampionsModal
-        open={reassignOpen}
+        open={canReassignAgentPortfolio && reassignOpen}
         onOpenChange={setReassignOpen}
         championCount={selectedIds.length}
         fromLabel={agent.agent}

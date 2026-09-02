@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react"
+import { useState, useRef, useCallback, useEffect } from "react"
 import { useParams, useNavigate, useLocation, useSearchParams } from "react-router-dom"
 import { type ColumnDef } from "@tanstack/react-table"
 
@@ -14,6 +14,7 @@ import {
   DataTable,
   StatusBadge,
   StatusTimeline,
+  type TimelineEntryData,
   MaxIDCard,
   AssignmentHistoryCard,
   Modal,
@@ -52,7 +53,9 @@ import {
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input"
+import { useCan, useRoleSimulation } from "@/contexts/RoleSimulationContext"
 import { mockAgentPortfolioRecords } from "@/data/mockAgentPortfolio"
+import { isChampionAssignedForSimulationMode } from "@/data/driverExperienceAssignmentScope"
 import { getChampionDetails, type WalletTransaction, type WelfareNote, type ChampionDetails } from "@/data/mockChampionDetails"
 import {
   type TicketRecord,
@@ -64,6 +67,107 @@ import { movementLogColumns } from "@/pages/asset-movement/columns"
 
 const tabTriggerClass =
   "px-3 py-3 text-sm font-medium data-[state=active]:text-sidebar-item-active data-[state=inactive]:text-breadcrumb-root"
+
+const CALL_CENTRE_AGENT_CHAMPION_TABS = new Set([
+  "biodata",
+  "contracts",
+  "guarantors",
+  "tickets",
+  "hmo",
+])
+
+const WELFARE_AGENT_CHAMPION_TABS = new Set([
+  "biodata",
+  "contracts",
+  "asset",
+  "wallet",
+  "fieldops",
+  "guarantors",
+  "tickets",
+  "welfare",
+  "hmo",
+  "timeoff",
+])
+
+const FIELD_OPS_MANAGER_CHAMPION_TABS = new Set([
+  "biodata",
+  "contracts",
+  "asset",
+  "fieldops",
+  "guarantors",
+  "tickets",
+  "hmo",
+])
+
+const OPERATIONS_MANAGER_CHAMPION_TABS = new Set([
+  "biodata",
+  "contracts",
+  "asset",
+  "fieldops",
+  "tickets",
+  "welfare",
+  "hmo",
+])
+
+const FIELD_OPS_MAINTENANCE_STAGES: Array<{
+  status: string
+  statusVariant: TimelineEntryData["statusVariant"]
+  description: string
+  actorAction: string
+  completedRange: string
+}> = [
+  {
+    status: "Awaiting Supply",
+    statusVariant: "warning",
+    description: "Maintenance event {eventId} is waiting for the required brake pads and battery diagnostic kit.",
+    actorAction: "Supply request raised by",
+    completedRange: "1 Sep, 8:00 am – 1:00 pm",
+  },
+  {
+    status: "In Progress",
+    statusVariant: "info",
+    description: "Maintenance event {eventId} started on {vehicle}; brake pads are being replaced and the battery is being diagnosed.",
+    actorAction: "Maintenance started by",
+    completedRange: "1 Sep, 1:00 pm – 6:00 pm",
+  },
+  {
+    status: "Quality Check",
+    statusVariant: "warning",
+    description: "Maintenance event {eventId} for {vehicle} is undergoing a quality and safety inspection.",
+    actorAction: "Quality check handled by",
+    completedRange: "1 Sep, 6:00 pm – 11:00 pm",
+  },
+  {
+    status: "Telematics Revalidation",
+    statusVariant: "info",
+    description: "The telematics unit on {vehicle} is being revalidated for maintenance event {eventId}.",
+    actorAction: "Telematics check handled by",
+    completedRange: "1 Sep, 11:00 pm – 2 Sep, 4:00 am",
+  },
+  {
+    status: "Revalidation",
+    statusVariant: "info",
+    description: "Final operational checks for maintenance event {eventId} are being completed before {vehicle} returns to service.",
+    actorAction: "Revalidation handled by",
+    completedRange: "2 Sep, 4:00 am – 9:00 am",
+  },
+  {
+    status: "Completed",
+    statusVariant: "success",
+    description: "Maintenance event {eventId} for {vehicle} is complete: brake pads replaced and battery diagnostic passed.",
+    actorAction: "Completed by",
+    completedRange: "2 Sep, 9:00 am – 2:00 pm",
+  },
+]
+
+const COMPLETED_MAINTENANCE_STAGE_RANGES = [
+  "17 Aug, 5:00 am – 10:00 am",
+  "17 Aug, 10:00 am – 3:00 pm",
+  "17 Aug, 3:00 pm – 8:00 pm",
+  "17 Aug, 8:00 pm – 18 Aug, 1:00 am",
+  "18 Aug, 1:00 am – 6:00 am",
+  "18 Aug, 6:00 am – 11:00 am",
+]
 
 const statusVariantMap: Record<WalletTransaction["status"], "success" | "warning" | "danger"> = {
   Successful: "success",
@@ -436,9 +540,36 @@ export default function ChampionDetailPage() {
   const navigate = useNavigate()
   const location = useLocation()
   const [searchParams, setSearchParams] = useSearchParams()
+  const { mode } = useRoleSimulation()
+  const canReassignChampion = useCan("championProfile.reassign")
+  const canCreateTimeOff =
+    mode !== "executive" &&
+    mode !== "dxp-product-manager" &&
+    mode !== "operations-manager"
+  const canViewOtherInfo =
+    mode === "welfare-agent" ||
+    mode === "welfare-manager" ||
+    mode === "dxp-product-manager"
   const champion = getChampionDetails(id || "1")
+  const roleTabAllowlist =
+    mode === "call-centre-agent"
+      ? CALL_CENTRE_AGENT_CHAMPION_TABS
+      : mode === "welfare-agent"
+        ? WELFARE_AGENT_CHAMPION_TABS
+        : mode === "field-ops-manager"
+          ? FIELD_OPS_MANAGER_CHAMPION_TABS
+          : mode === "operations-manager"
+            ? OPERATIONS_MANAGER_CHAMPION_TABS
+          : null
+  const canViewProfileTab = (tab: string) =>
+    roleTabAllowlist === null || roleTabAllowlist.has(tab)
+  const isAssignedChampion = isChampionAssignedForSimulationMode(
+    id || "1",
+    mode,
+    champion.location
+  )
 
-  // The same detail page is reachable from Driver Experience (Champion 360) and
+  // The same detail page is reachable from Driver Experience (Champion Overview) and
   // from the Portfolio > Champions > Champion Overview list. Adapt breadcrumb/back
   // so the user stays in the app they came from.
   const inPortfolio = location.pathname.startsWith("/portfolio")
@@ -450,16 +581,42 @@ export default function ChampionDetailPage() {
         { label: "Champion Overview", href: "/portfolio/champions/overview" },
         { label: champion.name },
       ]
-    : [
+      : [
         { label: "Driver Experience" },
-        { label: "Champion 360", href: "/champion-360" },
+        { label: "Champion Overview", href: "/champion-360" },
         { label: champion.name },
       ]
 
-  const activeTab = searchParams.get("tab") || "biodata"
+  const requestedTab = searchParams.get("tab") || "biodata"
+  const activeTab = canViewProfileTab(requestedTab) ? requestedTab : "biodata"
+  const [fieldOpsStageIndex, setFieldOpsStageIndex] = useState(0)
+  const [selectedMaintenance, setSelectedMaintenance] = useState<"current" | "completed">("current")
   const handleTabChange = (value: string) => {
     setSearchParams({ tab: value }, { replace: true })
   }
+
+  useEffect(() => {
+    if (roleTabAllowlist !== null && requestedTab !== activeTab) {
+      setSearchParams({ tab: activeTab }, { replace: true })
+    }
+  }, [activeTab, requestedTab, roleTabAllowlist, setSearchParams])
+
+  useEffect(() => {
+    if (
+      activeTab !== "fieldops" ||
+      fieldOpsStageIndex >= FIELD_OPS_MAINTENANCE_STAGES.length - 1
+    ) {
+      return
+    }
+
+    const timer = window.setTimeout(() => {
+      setFieldOpsStageIndex((current) =>
+        Math.min(current + 1, FIELD_OPS_MAINTENANCE_STAGES.length - 1)
+      )
+    }, 5000)
+
+    return () => window.clearTimeout(timer)
+  }, [activeTab, fieldOpsStageIndex])
 
   const [reassignOpen, setReassignOpen] = useState(false)
 
@@ -573,6 +730,12 @@ export default function ChampionDetailPage() {
     el.scrollLeft = dragState.current.scrollLeft - (x - dragState.current.startX)
   }, [])
 
+  useEffect(() => {
+    if (!inPortfolio && !isAssignedChampion) {
+      navigate("/champion-360", { replace: true })
+    }
+  }, [inPortfolio, isAssignedChampion, navigate])
+
   const vehicleOverviewDetails = [
     { label: "Asset type", value: champion.vehicle.assetType },
     { label: "Vehicle Manufacturer", value: champion.vehicle.manufacturer },
@@ -584,6 +747,65 @@ export default function ChampionDetailPage() {
     },
     { label: "Last Vehicle Activity", value: champion.vehicle.lastPingedOn },
   ]
+
+  const simulatedMaintenanceEntries: TimelineEntryData[] =
+    FIELD_OPS_MAINTENANCE_STAGES.slice(0, fieldOpsStageIndex + 1).map((stage, index) => {
+      const isCurrentStage = index === fieldOpsStageIndex
+      const isCompleted = fieldOpsStageIndex === FIELD_OPS_MAINTENANCE_STAGES.length - 1
+
+      return {
+        id: `field-ops-maintenance-${index}`,
+        date: "Sep 2026",
+        status: stage.status,
+        statusVariant: stage.statusVariant,
+        description: {
+          template: stage.description,
+          highlights: {
+            eventId: "FO-0972",
+            vehicle: champion.contracts.vehicleAssigned,
+          },
+        },
+        actor: {
+          action: stage.actorAction,
+          name: "Field Operations Team",
+        },
+        duration:
+          isCurrentStage && !isCompleted
+            ? { range: "1 Sep – Current", total: "Ongoing" }
+            : { range: stage.completedRange, total: "5 hrs" },
+      }
+    })
+    .reverse()
+
+  const completedMaintenanceEntries: TimelineEntryData[] =
+    FIELD_OPS_MAINTENANCE_STAGES.map((stage, index) => ({
+      id: `field-ops-maintenance-completed-${index}`,
+      date: "Aug 2026",
+      status: stage.status,
+      statusVariant: stage.statusVariant,
+      description: {
+        template: stage.description,
+        highlights: {
+          eventId: "FO-0841",
+          vehicle: champion.contracts.vehicleAssigned,
+        },
+      },
+      actor: {
+        action: stage.actorAction,
+        name: "Field Operations Team",
+      },
+      duration: {
+        range: COMPLETED_MAINTENANCE_STAGE_RANGES[index],
+        total: "5 hrs",
+      },
+    })).reverse()
+
+  const fieldOpsTimelineEntries =
+    selectedMaintenance === "current"
+      ? simulatedMaintenanceEntries
+      : completedMaintenanceEntries
+
+  if (!inPortfolio && !isAssignedChampion) return null
 
   return (
     <>
@@ -620,7 +842,7 @@ export default function ChampionDetailPage() {
                   <span className="text-sm">{championBlocked ? "Champion Blacklisted" : "Blacklist Champion"}</span>
                 </Button>
               )}
-              {!inPortfolio && (
+              {!inPortfolio && canReassignChampion && (
                 <Button
                   className="h-10 gap-2 bg-brand-dark text-white hover:bg-brand-dark/90 pl-3 pr-4"
                   onClick={() => setReassignOpen(true)}
@@ -664,16 +886,16 @@ export default function ChampionDetailPage() {
                 onMouseMove={onMouseMove}
               >
                 <TabsList variant="line" className="pb-0 gap-0 w-max">
-                  <TabsTrigger value="biodata" className={tabTriggerClass}>Biodata</TabsTrigger>
-                  <TabsTrigger value="contracts" className={tabTriggerClass}>Contracts</TabsTrigger>
-                  <TabsTrigger value="asset" className={tabTriggerClass}>Asset</TabsTrigger>
-                  <TabsTrigger value="wallet" className={tabTriggerClass}>Wallet</TabsTrigger>
-                  {!inPortfolio && <TabsTrigger value="fieldops" className={tabTriggerClass}>FieldOps History</TabsTrigger>}
-                  <TabsTrigger value="guarantors" className={tabTriggerClass}>Guarantors</TabsTrigger>
-                  {!inPortfolio && <TabsTrigger value="tickets" className={tabTriggerClass}>Tickets</TabsTrigger>}
-                  {!inPortfolio && <TabsTrigger value="welfare" className={tabTriggerClass}>Welfare Notes</TabsTrigger>}
-                  {!inPortfolio && <TabsTrigger value="hmo" className={tabTriggerClass}>HMO Details</TabsTrigger>}
-                  {!inPortfolio && <TabsTrigger value="timeoff" className={tabTriggerClass}>Time-Off</TabsTrigger>}
+                  {canViewProfileTab("biodata") && <TabsTrigger value="biodata" className={tabTriggerClass}>Biodata</TabsTrigger>}
+                  {canViewProfileTab("contracts") && <TabsTrigger value="contracts" className={tabTriggerClass}>Contracts</TabsTrigger>}
+                  {canViewProfileTab("asset") && <TabsTrigger value="asset" className={tabTriggerClass}>Asset</TabsTrigger>}
+                  {canViewProfileTab("wallet") && <TabsTrigger value="wallet" className={tabTriggerClass}>Wallet</TabsTrigger>}
+                  {!inPortfolio && canViewProfileTab("fieldops") && <TabsTrigger value="fieldops" className={tabTriggerClass}>FieldOps History</TabsTrigger>}
+                  {canViewProfileTab("guarantors") && <TabsTrigger value="guarantors" className={tabTriggerClass}>Guarantors</TabsTrigger>}
+                  {!inPortfolio && canViewProfileTab("tickets") && <TabsTrigger value="tickets" className={tabTriggerClass}>Tickets</TabsTrigger>}
+                  {!inPortfolio && canViewProfileTab("welfare") && <TabsTrigger value="welfare" className={tabTriggerClass}>Welfare Notes</TabsTrigger>}
+                  {!inPortfolio && canViewProfileTab("hmo") && <TabsTrigger value="hmo" className={tabTriggerClass}>HMO Details</TabsTrigger>}
+                  {!inPortfolio && canViewProfileTab("timeoff") && <TabsTrigger value="timeoff" className={tabTriggerClass}>Time-Off</TabsTrigger>}
                   {inPortfolio && <TabsTrigger value="penalty-fees" className={tabTriggerClass}>Penalty fee logs</TabsTrigger>}
                   {inPortfolio && <TabsTrigger value="amortization" className={tabTriggerClass}>Amortization schedule</TabsTrigger>}
 
@@ -694,38 +916,41 @@ export default function ChampionDetailPage() {
                       showDividers
                       items={[
                         { label: "Full Name", value: champion.biodata.fullName },
-                        { label: "Date of Birth", value: champion.biodata.dateOfBirth },
+                        { label: "Age", value: champion.biodata.age },
                         { label: "Gender", value: champion.biodata.gender },
                         { label: "Marital Status", value: champion.biodata.maritalStatus },
-                        { label: "Blood Group", value: champion.biodata.bloodGroup },
-                        { label: "Genotype", value: champion.biodata.genotype },
                       ]}
                     />
                   </InfoCard>
 
-                  <InfoCard title="ORIGIN & ADDRESS">
+                  <InfoCard title="ADDRESS">
                     <InfoGrid
                       columns={4}
                       showDividers
                       items={[
                         { label: "State of Origin", value: champion.biodata.stateOfOrigin },
                         { label: "LGA", value: champion.biodata.lga },
-                        { label: "Address", value: champion.biodata.address },
+                        { label: "Residential Address", value: champion.biodata.address },
                         { label: "Email", value: champion.biodata.email },
                       ]}
                     />
                   </InfoCard>
 
-                  <InfoCard title="NEXT OF KIN">
-                    <InfoGrid
-                      columns={4}
-                      showDividers
-                      items={[
-                        { label: "Next of Kin", value: champion.biodata.nextOfKin },
-                        { label: "Next of Kin Phone", value: champion.biodata.nextOfKinPhone },
-                      ]}
-                    />
-                  </InfoCard>
+                  {canViewOtherInfo && (
+                    <InfoCard title="OTHER INFO">
+                      <InfoGrid
+                        columns={4}
+                        showDividers
+                        items={[
+                          { label: "Blood Group", value: champion.biodata.bloodGroup },
+                          { label: "Genotype", value: champion.biodata.genotype },
+                          { label: "Champion Date of Birth", value: champion.biodata.dateOfBirth },
+                          { label: "Next of Kin", value: champion.biodata.nextOfKin },
+                          { label: "Next of Kin Phone", value: champion.biodata.nextOfKinPhone },
+                        ]}
+                      />
+                    </InfoCard>
+                  )}
                 </div>
               </TabsContent>
 
@@ -884,6 +1109,44 @@ export default function ChampionDetailPage() {
                       />
                     </div>
                   )}
+                </div>
+              </TabsContent>
+
+              {/* FieldOps History Tab */}
+              <TabsContent value="fieldops" className="mt-0 flex-1 min-h-0 overflow-y-auto">
+                <div className="rounded-lg border border-border bg-content-card overflow-hidden">
+                  <div className="flex items-center justify-between gap-4 border-b border-border px-5 py-4">
+                    <h3 className="text-sm font-semibold text-sidebar-item-active">
+                      Maintenance History
+                    </h3>
+                    <Select
+                      value={selectedMaintenance}
+                      onValueChange={(value) =>
+                        setSelectedMaintenance(value as "current" | "completed")
+                      }
+                    >
+                      <SelectTrigger
+                        className="h-9 w-[280px] bg-input-soft"
+                        aria-label="Select maintenance event"
+                      >
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="current">
+                          FO-0972 · Sep 2026 · Ongoing
+                        </SelectItem>
+                        <SelectItem value="completed">
+                          FO-0841 · Aug 2026 · Completed
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="p-5">
+                    <StatusTimeline
+                      entries={fieldOpsTimelineEntries}
+                      dateColumnClassName="w-24"
+                    />
+                  </div>
                 </div>
               </TabsContent>
 
@@ -1151,18 +1414,20 @@ export default function ChampionDetailPage() {
                         <History className="h-3.5 w-3.5" />
                         See Leave History
                       </Button>
-                      <Button
-                        size="sm"
-                        disabled={champion.timeOff.currentStatus === "on-leave"}
-                        onClick={() => {
-                          const emergencyOnly = champion.timeOff.leavesAvailable === 0
-                          setTimeOffForm({ type: emergencyOnly ? "Emergency" : "", startDate: "", endDate: "", reason: "" })
-                          setShowCreateTimeOff(true)
-                        }}
-                      >
-                        <Plus className="h-3.5 w-3.5" />
-                        Create Time Off
-                      </Button>
+                      {canCreateTimeOff && (
+                        <Button
+                          size="sm"
+                          disabled={champion.timeOff.currentStatus === "on-leave"}
+                          onClick={() => {
+                            const emergencyOnly = champion.timeOff.leavesAvailable === 0
+                            setTimeOffForm({ type: emergencyOnly ? "Emergency" : "", startDate: "", endDate: "", reason: "" })
+                            setShowCreateTimeOff(true)
+                          }}
+                        >
+                          <Plus className="h-3.5 w-3.5" />
+                          Create Time Off
+                        </Button>
+                      )}
                     </div>
                   </div>
 
@@ -1252,7 +1517,7 @@ export default function ChampionDetailPage() {
       </div>
 
       {/* Create Time Off Modal */}
-      <Dialog open={showCreateTimeOff} onOpenChange={setShowCreateTimeOff}>
+      <Dialog open={canCreateTimeOff && showCreateTimeOff} onOpenChange={setShowCreateTimeOff}>
         <DialogContent className="max-w-sm p-0">
           <DialogHeader className="px-6 pt-6 pb-4 border-b border-gray-100">
             <DialogTitle>Create Time Off</DialogTitle>
@@ -1382,6 +1647,7 @@ export default function ChampionDetailPage() {
         open={reassignOpen}
         onOpenChange={setReassignOpen}
         championCount={1}
+        selectionMode="single"
         onConfirm={(agentIds, reason) => {
           if (agentIds.length === 0 || !reason) return
           const target = mockAgentPortfolioRecords.find((a) => a.id === agentIds[0])

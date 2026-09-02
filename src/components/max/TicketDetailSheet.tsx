@@ -45,6 +45,7 @@ import {
   type LucideIcon,
 } from "lucide-react"
 import { toast } from "sonner"
+import { useCan } from "@/contexts/RoleSimulationContext"
 import type { TicketDetail } from "@/data/mockTicketDetail"
 import {
   statusVariantMap,
@@ -187,6 +188,11 @@ type SectionKey = typeof sectionKeys[number]
 const changeableStatuses = ["Open", "In Progress", "Pending Feedback"] as const
 
 export function TicketDetailSheet({ ticket, isOpen, onClose }: TicketDetailSheetProps) {
+  const canReassignTicket = useCan("ticketManagement.reassign")
+  const canChangeTicketStatus = useCan("ticketManagement.changeStatus")
+  const canEscalateTicket = useCan("ticketManagement.escalate")
+  const canCloseTicket = useCan("ticketManagement.close")
+  const canAddComment = useCan("ticketManagement.addComment")
   const [showCommentInput, setShowCommentInput] = useState(false)
   const [commentText, setCommentText] = useState("")
   const [localComments, setLocalComments] = useState<
@@ -385,7 +391,7 @@ export function TicketDetailSheet({ ticket, isOpen, onClose }: TicketDetailSheet
                     <p className="text-xs text-breadcrumb-root font-medium">
                       Comments{allComments.length > 0 && ` (${allComments.length})`}
                     </p>
-                    {!showCommentInput && (
+                    {canAddComment && !showCommentInput && (
                       <button
                         type="button"
                         onClick={() => setShowCommentInput(true)}
@@ -420,7 +426,7 @@ export function TicketDetailSheet({ ticket, isOpen, onClose }: TicketDetailSheet
                     </div>
                   )}
 
-                  {showCommentInput && (
+                  {canAddComment && showCommentInput && (
                     <div className="space-y-2">
                       <Textarea
                         value={commentText}
@@ -666,45 +672,53 @@ export function TicketDetailSheet({ ticket, isOpen, onClose }: TicketDetailSheet
 
         {/* Sticky Footer */}
         <SheetFooter>
-          <Button
-            variant="outline"
-            className="h-10 px-4"
-            onClick={() => {
-              setReassignAgent("")
-              setReassignReason("")
-              setShowReassign(true)
-            }}
-          >
-            Reassign Ticket
-          </Button>
-          <Button
-            variant="outline"
-            className="h-10 px-4"
-            onClick={() => {
-              setNewStatus("")
-              setShowChangeStatus(true)
-            }}
-          >
-            Change Status
-          </Button>
-          <Button
-            variant="outline"
-            className="h-10 px-4 border-status-warning text-status-warning hover:bg-status-warning/10"
-            onClick={() => {
-              setEscalateOfficer("")
-              setEscalateReason("")
-              setShowEscalate(true)
-            }}
-          >
-            Escalate
-          </Button>
-          <Button
-            variant="destructive"
-            className="h-10 px-4"
-            onClick={() => setShowCloseTicket(true)}
-          >
-            Close Ticket
-          </Button>
+          {canReassignTicket && (
+            <Button
+              variant="outline"
+              className="h-10 px-4"
+              onClick={() => {
+                setReassignAgent("")
+                setReassignReason("")
+                setShowReassign(true)
+              }}
+            >
+              Reassign Ticket
+            </Button>
+          )}
+          {canChangeTicketStatus && (
+            <Button
+              variant="outline"
+              className="h-10 px-4"
+              onClick={() => {
+                setNewStatus("")
+                setShowChangeStatus(true)
+              }}
+            >
+              Change Status
+            </Button>
+          )}
+          {canEscalateTicket && (
+            <Button
+              variant="outline"
+              className="h-10 px-4 border-status-warning text-status-warning hover:bg-status-warning/10"
+              onClick={() => {
+                setEscalateOfficer("")
+                setEscalateReason("")
+                setShowEscalate(true)
+              }}
+            >
+              Escalate
+            </Button>
+          )}
+          {canCloseTicket && (
+            <Button
+              variant="destructive"
+              className="h-10 px-4"
+              onClick={() => setShowCloseTicket(true)}
+            >
+              Close Ticket
+            </Button>
+          )}
         </SheetFooter>
       </SheetContent>
 

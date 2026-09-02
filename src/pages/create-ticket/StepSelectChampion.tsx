@@ -3,6 +3,8 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { ChampionInformation } from "@/components/max/ChampionInformation"
 import { mockChampionDetails, type ChampionDetails } from "@/data/mockChampionDetails"
+import { championsForSimulationMode } from "@/data/driverExperienceAssignmentScope"
+import { useRoleSimulation } from "@/contexts/RoleSimulationContext"
 
 interface StepSelectChampionProps {
   searchQuery: string
@@ -19,7 +21,11 @@ export function StepSelectChampion({
   onSelectChampion,
   onClearChampion,
 }: StepSelectChampionProps) {
-  const champions = Object.values(mockChampionDetails)
+  const { mode } = useRoleSimulation()
+  const champions = championsForSimulationMode(
+    Object.values(mockChampionDetails),
+    mode
+  )
 
   const filteredChampions = searchQuery.trim()
     ? champions.filter((c) => {

@@ -65,6 +65,8 @@ export interface ReassignChampionsModalProps {
   excludeAgentId?: string
   /** Where the champions sit today. Drives suggestions and the warning banner. */
   fromLocation?: string
+  /** Profile reassignment targets one agent; bulk agent flows may target several. */
+  selectionMode?: "single" | "multiple"
   onConfirm: (agentIds: string[], reason: string) => void
 }
 
@@ -75,6 +77,7 @@ export function ReassignChampionsModal({
   fromLabel,
   excludeAgentId,
   fromLocation,
+  selectionMode = "multiple",
   onConfirm,
 }: ReassignChampionsModalProps) {
   const [targetAgentIds, setTargetAgentIds] = useState<string[]>([])
@@ -129,10 +132,15 @@ export function ReassignChampionsModal({
     selectAllPool.length > 0 &&
     selectAllPool.every((agent) => targetAgentIds.includes(agent.id))
 
+  const isSingleSelection = selectionMode === "single"
+
   const toggleAgent = (id: string) =>
-    setTargetAgentIds((prev) =>
-      prev.includes(id) ? prev.filter((value) => value !== id) : [...prev, id]
-    )
+    setTargetAgentIds((prev) => {
+      if (isSingleSelection) {
+        return prev.includes(id) ? [] : [id]
+      }
+      return prev.includes(id) ? prev.filter((value) => value !== id) : [...prev, id]
+    })
 
   const toggleAll = () =>
     setTargetAgentIds((prev) => {
@@ -194,7 +202,7 @@ export function ReassignChampionsModal({
     <Modal
       open={open}
       onOpenChange={handleOpenChange}
-      title="Reassign champions"
+      title={isSingleSelection ? "Reassign champion" : "Reassign champions"}
       subtitle={
         fromLabel
           ? `Move ${championCount} champion${plural} from ${fromLabel} to another agent`
@@ -266,13 +274,15 @@ export function ReassignChampionsModal({
                 <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                   Suggested in {fromLocation}
                 </p>
-                <button
-                  type="button"
-                  onClick={toggleAll}
-                  className="text-sm font-medium text-status-info hover:underline"
-                >
-                  {allSelected ? "Clear all" : "Select all"}
-                </button>
+                {!isSingleSelection && (
+                  <button
+                    type="button"
+                    onClick={toggleAll}
+                    className="text-sm font-medium text-status-info hover:underline"
+                  >
+                    {allSelected ? "Clear all" : "Select all"}
+                  </button>
+                )}
               </div>
               {suggested.map(renderAgent)}
             </div>
@@ -283,7 +293,7 @@ export function ReassignChampionsModal({
               <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 List of agents A&ndash;Z
               </p>
-              {suggested.length === 0 && rest.length > 0 && (
+              {!isSingleSelection && suggested.length === 0 && rest.length > 0 && (
                 <button
                   type="button"
                   onClick={toggleAll}
@@ -338,7 +348,11 @@ export function ReassignChampionsModal({
         </div>
 
         <p className="text-xs text-muted-foreground">
-          {targetAgentIds.length} of {available.length} selected
+          {isSingleSelection
+            ? targetAgentIds.length === 1
+              ? "1 agent selected"
+              : "Select one agent"
+            : `${targetAgentIds.length} of ${available.length} selected`}
         </p>
       </div>
     </Modal>

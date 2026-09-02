@@ -25,6 +25,7 @@ export interface WelfareChampion {
   championId: string
   avatarUrl: string
   location: string
+  subcity: string
   vehicle: string
   welfareStatus: WelfareStatus
   championState: ChampionState
@@ -44,6 +45,8 @@ interface WelfareDetailSheetProps {
   isOpen: boolean
   onClose: () => void
   onLogNote?: (champion: WelfareChampion) => void
+  onScheduleFollowUp?: (champion: WelfareChampion) => void
+  readOnly?: boolean
 }
 
 // ── Variant maps ──
@@ -271,7 +274,14 @@ const defaultTimeline: TimelineEntryData[] = [
 
 // ── Component ──
 
-export function WelfareDetailSheet({ champion, isOpen, onClose, onLogNote }: WelfareDetailSheetProps) {
+export function WelfareDetailSheet({
+  champion,
+  isOpen,
+  onClose,
+  onLogNote,
+  onScheduleFollowUp,
+  readOnly = false,
+}: WelfareDetailSheetProps) {
   if (!champion) return null
 
   const riskFlags: string[] = []
@@ -382,14 +392,18 @@ export function WelfareDetailSheet({ champion, isOpen, onClose, onLogNote }: Wel
         </div>
 
         {/* Footer CTAs */}
-        <SheetFooter>
+        {!readOnly && <SheetFooter>
           <Button
             className="h-10 px-4 gap-2 bg-brand-dark text-white hover:bg-brand-dark/90"
           >
             <Phone className="h-4 w-4" />
             Call Champion
           </Button>
-          <Button variant="outline" className="h-10 px-4 gap-2">
+          <Button
+            variant="outline"
+            className="h-10 px-4 gap-2"
+            onClick={() => onScheduleFollowUp?.(champion)}
+          >
             <CalendarClock className="h-4 w-4" />
             Schedule
           </Button>
@@ -401,7 +415,7 @@ export function WelfareDetailSheet({ champion, isOpen, onClose, onLogNote }: Wel
             <FileEdit className="h-4 w-4" />
             Log Note
           </Button>
-        </SheetFooter>
+        </SheetFooter>}
       </SheetContent>
     </Sheet>
   )

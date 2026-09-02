@@ -125,6 +125,15 @@ Full Build has every key. GFM has none. City Fleet Officer has the five marked b
 | `vehicleDocument.upload` | [`VehicleDocumentsPage.tsx`](../src/pages/VehicleDocumentsPage.tsx) | Yes | — | Yes |
 | `vehicleDocument.replace` | [`VehicleDocumentsPage.tsx`](../src/pages/VehicleDocumentsPage.tsx) | Yes | — | Yes |
 | `kit.reassignment` | [`KitReportsPage.tsx`](../src/pages/KitReportsPage.tsx) | Yes | — | Yes |
+| `championProfile.reassign` | [`ChampionDetailPage.tsx`](../src/pages/ChampionDetailPage.tsx) — Reassign Champion | Yes | — | — |
+| `ticketManagement.create` | [`TicketManagementPage.tsx`](../src/pages/TicketManagementPage.tsx) — Create Ticket | Yes | — | — |
+| `ticketManagement.reassign` | [`TicketDetailSheet.tsx`](../src/components/max/TicketDetailSheet.tsx) — Reassign Ticket | Yes | — | — |
+| `ticketManagement.changeStatus` | [`TicketDetailSheet.tsx`](../src/components/max/TicketDetailSheet.tsx) — Change Status | Yes | — | — |
+| `ticketManagement.escalate` | [`TicketDetailSheet.tsx`](../src/components/max/TicketDetailSheet.tsx) — Escalate | Yes | — | — |
+| `ticketManagement.close` | [`TicketDetailSheet.tsx`](../src/components/max/TicketDetailSheet.tsx) — Close Ticket | Yes | — | — |
+| `ticketManagement.addComment` | [`TicketDetailSheet.tsx`](../src/components/max/TicketDetailSheet.tsx) — Add Comment | Yes | — | — |
+
+Call Centre Agent receives `ticketManagement.create`, `ticketManagement.changeStatus`, `ticketManagement.close`, and `ticketManagement.addComment`. Reassign and Escalate remain hidden.
 
 When you add a key, add it to the `PermissionKey` union **and** `ALL_PERMISSIONS`. Then grant it only on the roles that should have it.
 
@@ -204,6 +213,62 @@ Widgets are published by **leaf module id** in `MODULE_WIDGETS`:
 | `fleet-register` | Total Fleet, Exit, Active, Inbound, Operational Fleet, Fleet Distribution, Active Fleet by City |
 | `asset-movement` | 3PL Check-in, Yard Check-in, Check-in Fleet by City |
 | `activation-dashboard` | Activation Queue |
+| `champion-360` | Total Champions, Active Champions, Inactive Champions, Champions by City |
+| `ticket-management` | Open Tickets, SLA Breached, Resolved Tickets, Ticket Status Breakdown, Tickets by Category |
+
+Driver Experience widgets use `DRIVER_EXPERIENCE_MODULE_WIDGETS` in the same file. Call Centre Agent receives the combined widget sets for `champion-360` and `ticket-management`; unrelated Driver Experience widgets stay hidden.
+
+Driver Experience role data is scoped in [`src/data/driverExperienceAssignmentScope.ts`](../src/data/driverExperienceAssignmentScope.ts). Call Centre Agent Fatima Bello is globally assigned and sees every Champion and ticket in the system. Welfare Agent Chidi Okafor sees only Champions and tickets both assigned to her and located in Lagos. Field Ops Manager and Welfare Manager see every Champion and ticket in Lagos regardless of assignment. Champion lists, Champion details, ticket lists, ticket creation, welfare records, and dashboard metrics must use the centralized scope helpers rather than reading the global mocks directly.
+
+Driver Experience tables expose one geographic level at a time. In Champion Overview, Ticket Management, the Welfare Champions Directory, Agents Portfolio, and Agent Assignment History, global roles and Full Build show a City column and City filter; city-scoped roles show a Subcity column and Subcity filter populated only from their scoped records. Do not show both geographic filters or use the generic “Location” label on these tables. On an Agent Portfolio detail, the Champion Status field is a lifecycle status and must not be labeled as a geographic State.
+
+Across every Driver Experience dashboard mode, Ticket Status Breakdown and Tickets by Category must render side by side in the same two-column row. Do not separate or stack these two charts.
+
+Champions by City and Ticket Aging (SLA) by Agent must render side by side whenever the role can see Ticket Aging. For roles where Ticket Aging is hidden, Champions by City remains full-width. Call Centre Agent is globally scoped and uses Champions by City. Welfare Agent uses Champions by Subcity for its assigned Lagos portfolio.
+
+Reopen Rate by Ticket Category is Full Build-only and must not appear in any simulated role. Full Build renders every available Driver Experience dashboard widget, including both Champions by City and Champions by Subcity; Champions by City remains paired with Ticket Aging.
+
+Welfare Agent dashboard shows exactly: Total Champions, Active Champions, Inactive Champions, Open Tickets, SLA Breached, Resolved Tickets, Ticket Status Breakdown, Tickets by Category, Welfare Follow-Ups Overdue, Welfare Cases, and Champions by Subcity. No other dashboard widgets are visible in this mode.
+
+Welfare Agent uses the Driver Experience sidebar source with `overview-dashboard`, `champion-360`, `ticket-management`, and `welfare`. Its fallback route is `/driver-experience/dashboard`.
+
+Field Ops Manager uses the Driver Experience sidebar source with only `overview-dashboard`, `champion-360`, and `ticket-management`. Its fallback route is `/driver-experience/dashboard`.
+
+In Ticket Management, Field Ops Manager can Reassign Ticket, Change Status, Escalate, Close Ticket, and Add Comment. Create Ticket is hidden, and direct access to `/ticket-management/create` redirects to `/ticket-management`.
+
+Field Ops Manager dashboard shows exactly: Total Champions, Active Champions, Inactive Champions, Open Tickets, SLA Breached, Resolved Tickets, Ticket Status Breakdown, Tickets by Category, Ticket Aging (SLA) by Agent, and Champions by Subcity. Champions by Subcity and Ticket Aging remain on the same row. These reuse existing widgets; no new dashboard widget is created.
+
+Welfare Manager mirrors Full Build across Driver Experience: Dashboard, Champion Overview, Ticket Management, Welfare, Approvals, Agent Portfolio, and Assignment History, with every action permission granted. Drivers Safety Performance and `/driver-safety-score` are excluded. Its data is scoped to Lagos, and the dashboard uses Champions by Subcity. The Welfare Manager dashboard otherwise mirrors Full Build while omitting Avg Safety Score, High Risk Drivers, Driver Risk Distribution, and the Full Build-only Reopen Rate by Ticket Category.
+
+Executive uses the Driver Experience dashboard and can view Champion Overview, Ticket Management, Welfare, and Approvals. All operational actions are unavailable. Agent Management and Drivers Safety Performance are hidden, their routes are denied, and the Executive fallback route is `/driver-experience/dashboard`.
+
+Executive dashboard includes the False Resolution Rate summary card and False Resolution Rate by Resolver. The resolution widgets reuse the Full Build data and presentation. Agent Distribution and Agent Workload are excluded with Agent Management.
+
+On Champion Overview, Executive can view every Champion profile tab except role-restricted information such as Other Info. The profile is read-only: Reassign Champion and Create Time Off are unavailable.
+
+The Champion Biodata Other Info section—Blood Group, Genotype, Champion Date of Birth, Next of Kin, and Next of Kin Phone—is visible only to Welfare Agent, Welfare Manager, and DXP Product Manager. It is hidden for every other simulation mode, including Full Build.
+
+DXP Product Manager has the complete Driver Experience surface except Drivers Safety Performance. Dashboard, Champion Overview, Ticket Management, Welfare, Approvals, and Agent Management are visible, including Agents Portfolio and Assignment History. Safety-related dashboard cards and charts are excluded. Ticket Management retains all actions, while Approvals is view-only with Approve and Reject unavailable. The pending-approvals banner is hidden from Champion Overview. Every Champion profile tab is visible, but Reassign Champion and Create Time Off are unavailable. Agents Portfolio is view-only for reassignment: selection checkboxes and the Reassign action are hidden. On Welfare, the summary cards and Follow-up Queue are hidden; the Champions Directory remains viewable, while Call Champion, Schedule, and Log Note are unavailable.
+
+Operations Manager can access Dashboard, Champion Overview, Ticket Management, and Agent Management, including Agents Portfolio and Assignment History. Approvals, Welfare, and Drivers Safety Performance are hidden and their routes are denied. On a Champion profile, Wallet, Guarantors, and the entire Time-Off section are hidden; Leave History, Create Time Off, and Reassign Champion are unavailable. The role retains full Ticket Management and Agent Management actions.
+
+Operations Manager dashboard includes the existing Ticket Aging (SLA) by Agent widget paired with Champions by City, plus the False Resolution Rate summary card and False Resolution Rate by Resolver widget.
+
+Agent Management publishes exactly two dashboard widgets for roles with Agent Management access and Full Build: Agent Distribution, a donut chart counting agents by operational city; and Agent Workload, a stacked horizontal bar chart showing the top eight agents by assigned Champions with Active, At Risk, Delinquent, and Inactive segments. Agent Distribution must always use each agent's explicit city value rather than state. Agent Workload has one View All action in its top-right corner linking to `/driver-experience/agents/portfolio`.
+
+On Champion details, Field Ops Manager has read-only access to Biodata, Contracts, Asset (including Assignment History and Movement Log), FieldOps History, Guarantors, Tickets, and HMO Details. Wallet, Welfare Notes, and Time-Off are hidden. The role cannot reassign a Champion or perform other Champion actions.
+
+FieldOps History reuses the Fleet Registry status-timeline presentation and provides a maintenance-event dropdown so only one Maintenance record is visible at a time. August event `FO-0841` displays its complete finished breakdown from Awaiting Supply through Completed, with a time range and `5 hrs` for every stage. September event `FO-0972` advances every five seconds through the same stages. Its current stage shows `Current (Ongoing)`; its completed stages show their time range and `5 hrs`.
+
+In Ticket Management, Welfare Agent can Create Ticket, Change Status, Escalate, Close Ticket, and Add Comment. Reassign Ticket remains hidden because `ticketManagement.reassign` is not granted.
+
+On Champion details, Welfare Agent can view Biodata, Contracts, Asset (including Assignment History and Movement Log), Wallet, FieldOps History, Guarantors, Tickets, Welfare Notes, HMO Details, and Time-Off (including Leave History and Create Time Off). Reassign Champion remains hidden because `championProfile.reassign` is not granted.
+
+Champion Profile reassignment uses `ReassignChampionsModal` in single-selection mode: exactly one target agent may be selected and bulk controls such as Select All are hidden. Agent Management keeps the modal's multiple-selection mode for bulk Champion reassignment. This applies anywhere Champion Profile reassignment is permitted, including Full Build and Welfare Manager.
+
+Within the Welfare section, Welfare Agent sees and can use everything available to Full Build. The records remain scoped to Champions assigned to that Welfare Agent.
+
+The Schedule action in the Welfare Champion detail sheet opens the shared `Modal` with the shared `DatePickerField`. Confirming a date updates that Champion's `nextFollowUp` in page state and immediately moves the Champion into the matching Overdue, Due Today, or Upcoming follow-up queue.
 
 A role that has `fleet-register` and `asset-movement` (and not `activation-dashboard`) gets the GFM dashboard: no Activation Queue; the two city charts sit in a two-column grid.
 

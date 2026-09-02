@@ -17,12 +17,19 @@ import {
   Banner,
 } from "@/components/max"
 import { Button } from "@/components/ui/button"
+import { useRoleSimulation } from "@/contexts/RoleSimulationContext"
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { mockMarkedTransfers } from "@/data/mockMarkedTransfers"
+import { championsForSimulationMode } from "@/data/driverExperienceAssignmentScope"
+import {
+  geographyLabel,
+  geographyLevelForScope,
+  type DriverExperienceGeographyLevel,
+} from "@/data/driverExperienceGeography"
 
 interface Champion {
   id: string
@@ -520,122 +527,180 @@ const mockChampions: Champion[] = [
   },
 ]
 
-const totalChampions = mockChampions.length
-const activeChampionCount = mockChampions.filter((c) => {
-  const lastActive = new Date(c.lastActiveDate)
-  const sevenDaysAgo = new Date("2026-05-24")
-  return lastActive > sevenDaysAgo
-}).length
-const inactiveChampionCount = totalChampions - activeChampionCount
+function buildChampionStats(champions: Champion[], totalSubtitle: string) {
+  const total = champions.length
+  const active = champions.filter((champion) => {
+    const lastActive = new Date(champion.lastActiveDate)
+    const sevenDaysAgo = new Date("2026-05-24")
+    return lastActive > sevenDaysAgo
+  }).length
+  const inactive = total - active
+  const percent = (count: number) =>
+    total === 0 ? 0 : Math.round((count / total) * 100)
 
-const championStats = [
-  {
-    title: "Total Champions",
-    value: totalChampions,
-    subtitle: "Across all locations",
-    trend: { value: 2.5, direction: "up" as const },
-    indicatorColor: "var(--color-brand-primary)",
-  },
-  {
-    title: "Active Champions",
-    value: activeChampionCount,
-    subtitle: `${Math.round((activeChampionCount / totalChampions) * 100)}% of champions`,
-    trend: { value: 4.2, direction: "up" as const },
-    indicatorColor: "var(--color-status-success)",
-  },
-  {
-    title: "Inactive Champions",
-    value: inactiveChampionCount,
-    subtitle: `${Math.round((inactiveChampionCount / totalChampions) * 100)}% of champions`,
-    trend: { value: 1.8, direction: "down" as const },
-    indicatorColor: "var(--color-status-danger)",
-  },
-]
+  return [
+    {
+      title: "Total Champions",
+      value: total,
+      subtitle: totalSubtitle,
+      trend: { value: 2.5, direction: "up" as const },
+      indicatorColor: "var(--color-brand-primary)",
+    },
+    {
+      title: "Active Champions",
+      value: active,
+      subtitle: `${percent(active)}% of champions`,
+      trend: { value: 4.2, direction: "up" as const },
+      indicatorColor: "var(--color-status-success)",
+    },
+    {
+      title: "Inactive Champions",
+      value: inactive,
+      subtitle: `${percent(inactive)}% of champions`,
+      trend: { value: 1.8, direction: "down" as const },
+      indicatorColor: "var(--color-status-danger)",
+    },
+  ]
+}
 
-const uniqueLocations = [...new Set(mockChampions.map((c) => c.location))].sort()
-const uniqueStates = [...new Set(mockChampions.map((c) => c.state))].sort()
+function buildFilterSections(
+  champions: Champion[],
+  geographyLevel: DriverExperienceGeographyLevel
+): FilterSection[] {
+  const usesSubcity = geographyLevel === "subcity"
+  const id = usesSubcity ? "location" : "state"
+  const values = [
+    ...new Set(
+      champions.map((champion) =>
+        usesSubcity ? champion.location : champion.state
+      )
+    ),
+  ].sort()
 
-const filterSections: FilterSection[] = [
-  {
-    id: "location",
-    title: "Location",
-    defaultExpanded: true,
-    options: uniqueLocations.map((loc) => ({ value: loc, label: loc })),
-  },
-  {
-    id: "state",
-    title: "State",
-    options: uniqueStates.map((st) => ({ value: st, label: st })),
-  },
-]
+  return [
+    {
+      id,
+      title: geographyLabel(geographyLevel),
+      defaultExpanded: true,
+      options: values.map((value) => ({ value, label: value })),
+    },
+  ]
+}
 
 const defaultFilters: GenericFilterState = {
   location: [],
   state: [],
 }
 
-const columns: ColumnDef<Champion>[] = [
-  {
-    accessorKey: "name",
-    header: "Champion",
-    cell: ({ row }) => (
-      <div className="flex items-center gap-3">
-        <img
-          src={row.original.avatarUrl}
-          alt={row.original.name}
-          className="h-8 w-8 rounded-full object-cover shrink-0"
-        />
-        <div>
-          <p className="font-medium text-table-text-primary text-sm">{row.original.name}</p>
-          <p className="text-xs text-muted-foreground">{row.original.championId}</p>
+function buildColumns(
+  geographyLevel: DriverExperienceGeographyLevel
+): ColumnDef<Champion>[] {
+  const usesSubcity = geographyLevel === "subcity"
+
+  return [
+    {
+      accessorKey: "name",
+      header: "Champion",
+      cell: ({ row }) => (
+        <div className="flex items-center gap-3">
+          <img
+            src={row.original.avatarUrl}
+            alt={row.original.name}
+            className="h-8 w-8 rounded-full object-cover shrink-0"
+          />
+          <div>
+            <p className="font-medium text-table-text-primary text-sm">{row.original.name}</p>
+            <p className="text-xs text-muted-foreground">{row.original.championId}</p>
+          </div>
         </div>
-      </div>
-    ),
-  },
-  {
-    accessorKey: "contactNumber",
-    header: "Contact Number",
-    cell: ({ row }) => (
-      <span className="font-medium text-table-text text-sm">{row.original.contactNumber}</span>
-    ),
-  },
-  {
-    accessorKey: "location",
-    header: "Location",
-    cell: ({ row }) => (
-      <span className="font-medium text-table-text text-sm">{row.original.location}</span>
-    ),
-  },
-  {
-    accessorKey: "plateNumber",
-    header: "Plate Number",
-    cell: ({ row }) => (
-      <span className="font-medium text-table-text text-sm">{row.original.plateNumber}</span>
-    ),
-  },
-  {
-    accessorKey: "lastActiveDate",
-    header: "Last Active Date",
-    cell: ({ row }) => (
-      <span className="font-medium text-table-text text-sm">{row.original.lastActiveDate}</span>
-    ),
-  },
-]
+      ),
+    },
+    {
+      accessorKey: "contactNumber",
+      header: "Contact Number",
+      cell: ({ row }) => (
+        <span className="font-medium text-table-text text-sm">{row.original.contactNumber}</span>
+      ),
+    },
+    {
+      accessorKey: usesSubcity ? "location" : "state",
+      header: geographyLabel(geographyLevel),
+      cell: ({ row }) => (
+        <span className="font-medium text-table-text text-sm">
+          {usesSubcity ? row.original.location : row.original.state}
+        </span>
+      ),
+    },
+    {
+      accessorKey: "plateNumber",
+      header: "Plate Number",
+      cell: ({ row }) => (
+        <span className="font-medium text-table-text text-sm">{row.original.plateNumber}</span>
+      ),
+    },
+    {
+      accessorKey: "lastActiveDate",
+      header: "Last Active Date",
+      cell: ({ row }) => (
+        <span className="font-medium text-table-text text-sm">{row.original.lastActiveDate}</span>
+      ),
+    },
+  ]
+}
 
 export default function Champion360Page() {
   const navigate = useNavigate()
+  const { isFullBuild, mode, dataScope } = useRoleSimulation()
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(25)
   const [filters, setFilters] = useState<GenericFilterState>(defaultFilters)
   const [searchQuery, setSearchQuery] = useState("")
   const [searchOpen, setSearchOpen] = useState(false)
-  const activeFilterCount = getActiveFilterCount(filters)
+  const geographyLevel = geographyLevelForScope(dataScope)
+  const geographyFilterId = geographyLevel === "subcity" ? "location" : "state"
+  const activeFilters = useMemo<GenericFilterState>(
+    () => ({ [geographyFilterId]: filters[geographyFilterId] ?? [] }),
+    [filters, geographyFilterId]
+  )
+  const activeFilterCount = getActiveFilterCount(activeFilters)
+  const scopedChampions = useMemo(
+    () => championsForSimulationMode(mockChampions, mode),
+    [mode]
+  )
+  const championStats = useMemo(
+    () => buildChampionStats(
+      scopedChampions,
+      mode === "welfare-agent"
+        ? `Assigned to you in ${dataScope?.city ?? "your city"}`
+        : dataScope?.type === "city"
+          ? `Across ${dataScope.city}`
+          : "Across all cities"
+    ),
+    [dataScope, mode, scopedChampions]
+  )
+  const filterSections = useMemo(
+    () => buildFilterSections(scopedChampions, geographyLevel),
+    [geographyLevel, scopedChampions]
+  )
+  const columns = useMemo(() => buildColumns(geographyLevel), [geographyLevel])
+  const handleFiltersChange = (nextFilters: GenericFilterState) => {
+    setFilters(nextFilters)
+    setCurrentPage(1)
+  }
+  const handleSearchQueryChange = (query: string) => {
+    setSearchQuery(query)
+    setCurrentPage(1)
+  }
 
   const filteredChampions = useMemo(() => {
-    setCurrentPage(1)
-    return mockChampions.filter((champion) => {
-      if (filters.location.length > 0 && !filters.location.includes(champion.location)) return false
-      if (filters.state.length > 0 && !filters.state.includes(champion.state)) return false
+    return scopedChampions.filter((champion) => {
+      const selectedGeographies = activeFilters[geographyFilterId]
+      const championGeography =
+        geographyLevel === "subcity" ? champion.location : champion.state
+      if (
+        selectedGeographies.length > 0 &&
+        !selectedGeographies.includes(championGeography)
+      ) return false
       if (searchQuery) {
         const q = searchQuery.toLowerCase()
         if (
@@ -647,7 +712,7 @@ export default function Champion360Page() {
       }
       return true
     })
-  }, [filters, searchQuery])
+  }, [activeFilters, geographyFilterId, geographyLevel, scopedChampions, searchQuery])
 
   const paginatedChampions = useMemo(() => {
     const start = (currentPage - 1) * pageSize
@@ -659,28 +724,30 @@ export default function Champion360Page() {
       <TopBar
         breadcrumbs={[
           { label: "Driver Experience" },
-          { label: "Champion 360" },
+          { label: "Champion Overview" },
         ]}
       />
       <PageHeader
-        title="Champion 360"
+        title="Champion Overview"
         subtitle="Comprehensive view of driver champion profiles and performance"
         className="shrink-0"
       />
 
-      <div className="px-6 mb-4">
-        <Banner
-          variant="info"
-          icon={<ArrowLeftRight className="h-5 w-5 text-status-info" />}
-          title={`${mockMarkedTransfers.filter((r) => r.status === "Pending").length} pending approval(s) require your attention`}
-          description="Review and process pending ownership transfers and time-off requests."
-          action={
-            <Button size="sm" onClick={() => navigate("/driver-experience/approvals")}>
-              View Approvals
-            </Button>
-          }
-        />
-      </div>
+      {(isFullBuild || mode === "welfare-manager") && (
+        <div className="px-6 mb-4">
+          <Banner
+            variant="info"
+            icon={<ArrowLeftRight className="h-5 w-5 text-status-info" />}
+            title={`${mockMarkedTransfers.filter((r) => r.status === "Pending").length} pending approval(s) require your attention`}
+            description="Review and process pending ownership transfers and time-off requests."
+            action={
+              <Button size="sm" onClick={() => navigate("/driver-experience/approvals")}>
+                View Approvals
+              </Button>
+            }
+          />
+        </div>
+      )}
 
       <div className="flex-1 overflow-y-auto">
       <div className="px-6 grid grid-cols-3 gap-2 shrink-0 mb-4">
@@ -714,8 +781,8 @@ export default function Champion360Page() {
               <PopoverContent className="w-auto p-2" align="start">
                 <GenericFilterPopover
                   sections={filterSections}
-                  filters={filters}
-                  onFiltersChange={setFilters}
+                  filters={activeFilters}
+                  onFiltersChange={handleFiltersChange}
                 />
               </PopoverContent>
             </Popover>
@@ -724,7 +791,7 @@ export default function Champion360Page() {
               open={searchOpen}
               onOpenChange={setSearchOpen}
               value={searchQuery}
-              onValueChange={setSearchQuery}
+              onValueChange={handleSearchQueryChange}
               placeholder="Search name, ID, phone, or plate..."
               inputClassName="w-56"
             />
@@ -746,7 +813,10 @@ export default function Champion360Page() {
             totalItems={filteredChampions.length}
             pageSize={pageSize}
             onPageChange={setCurrentPage}
-            onPageSizeChange={setPageSize}
+            onPageSizeChange={(nextPageSize) => {
+              setPageSize(nextPageSize)
+              setCurrentPage(1)
+            }}
             itemLabel="champions"
           />
         </div>

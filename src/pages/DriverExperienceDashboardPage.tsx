@@ -1,3 +1,4 @@
+import { useMemo } from "react"
 import { useNavigate } from "react-router-dom"
 import {
   TopBar,
@@ -7,6 +8,7 @@ import { StatCard } from "@/components/max/StatCard"
 import { DistributionChart } from "@/components/max/DistributionChart"
 import { HorizontalBarChart, type BarChartSeries } from "@/components/max/HorizontalBarChart"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import {
   Table,
   TableHeader,
@@ -21,12 +23,29 @@ import { mockDriverRiskRecords } from "@/data/mockDriverSafety"
 import { mockMarkedTransfers } from "@/data/mockMarkedTransfers"
 import { mockTimeOffApprovals } from "@/data/mockTimeOffApprovals"
 import { mockChampionDetails } from "@/data/mockChampionDetails"
+import { mockAgentPortfolioRecords } from "@/data/mockAgentPortfolio"
+import { CITIES } from "@/data/cities"
+import { LAGOS_SUBCITIES, resolveLagosSubCity } from "@/data/cityScope"
 import {
   ticketPerformanceMetrics,
   resolverPerformance,
   categoryPerformance,
   maxResolverFalseRate,
 } from "@/data/mockTicketPerformance"
+import {
+  driverExperienceWidgetIdsForModules,
+  type DriverExperienceWidgetId,
+} from "@/data/dashboardWidgets"
+import { getRoleDefinition } from "@/data/rolePermissions"
+import { useRoleSimulation } from "@/contexts/RoleSimulationContext"
+import {
+  championsForSimulationMode,
+  ticketsForSimulationMode,
+} from "@/data/driverExperienceAssignmentScope"
+import {
+  mockWelfareRecords,
+  WELFARE_REFERENCE_DATE,
+} from "@/pages/WelfarePage"
 
 // --- Color tokens ---
 const COLOR_BRAND_PRIMARY = "var(--color-brand-primary)"
@@ -92,19 +111,6 @@ const mockChampions: Champion[] = [
 
 // --- Derived metrics ---
 
-// Row 1
-const totalChampions = mockChampions.length
-
-const activeChampionCount = mockChampions.filter((c) => {
-  const lastActive = new Date(c.lastActiveDate)
-  const sevenDaysAgo = new Date("2026-05-24")
-  return lastActive > sevenDaysAgo
-}).length
-
-const openTickets = mockTicketRecords.filter((t) => t.status !== "Closed").length
-
-const slaBreached = mockTicketRecords.filter((t) => t.sla === "Breached").length
-
 // Row 2
 const avgSafetyScore = Math.round(
   mockDriverRiskRecords.reduce((sum, r) => sum + r.safetyScore, 0) /
@@ -125,22 +131,6 @@ const welfareFollowUps = Object.values(mockChampionDetails).reduce(
   0
 )
 
-// --- Ticket Status Breakdown (donut) ---
-const ticketStatusCounts = mockTicketRecords.reduce<Record<string, number>>(
-  (acc, t) => {
-    acc[t.status] = (acc[t.status] || 0) + 1
-    return acc
-  },
-  {}
-)
-
-const ticketStatusData = [
-  { label: "Open", value: ticketStatusCounts["Open"] || 0, color: COLOR_STATUS_WARNING },
-  { label: "In Progress", value: ticketStatusCounts["In Progress"] || 0, color: COLOR_STATUS_INFO },
-  { label: "Pending Feedback", value: ticketStatusCounts["Pending Feedback"] || 0, color: COLOR_BADGE_ACTIVE },
-  { label: "Closed", value: ticketStatusCounts["Closed"] || 0, color: COLOR_STATUS_SUCCESS },
-]
-
 // --- Driver Risk Distribution (donut) ---
 const riskLevelCounts = mockDriverRiskRecords.reduce<Record<string, number>>(
   (acc, r) => {
@@ -157,50 +147,269 @@ const riskDistributionData = [
   { label: "Critical", value: riskLevelCounts["Critical"] || 0, color: COLOR_STATUS_CLOSED },
 ]
 
-// --- Tickets by Category (bar chart) ---
-const ticketCategoryCounts = mockTicketRecords.reduce<Record<string, number>>(
-  (acc, t) => {
-    acc[t.category] = (acc[t.category] || 0) + 1
-    return acc
-  },
-  {}
-)
+// --- Ticket Aging by Agent and SLA (stacked bar chart) ---
+function buildTicketAgingData(tickets: typeof mockTicketRecords) {
+  const agingByAgent = Array.from(
+    new Set(tickets.map((ticket) => ticket.assignedAgent))
+  )
+    .map((agent) => {
+      const assignedTickets = tickets.filter(
+        (ticket) => ticket.assignedAgent === agent
+      )
+      const atRisk = assignedTickets.filter((ticket) => ticket.sla === "At Risk").length
+      const breached = assignedTickets.filter((ticket) => ticket.sla === "Breached").length
+      return { agent, atRisk, breached, agingTotal: atRisk + breached }
+    })
+    .filter((agent) => agent.agingTotal > 0)
+    .sort(
+      (left, right) =>
+        right.agingTotal - left.agingTotal || right.breached - left.breached
+    )
 
-const ticketCategories = Object.keys(ticketCategoryCounts).sort(
-  (a, b) => ticketCategoryCounts[b] - ticketCategoryCounts[a]
-)
+  return {
+    agents: agingByAgent.map((agent) => agent.agent),
+    series: [
+      {
+        name: "At Risk",
+        data: agingByAgent.map((agent) => agent.atRisk),
+        color: COLOR_STATUS_WARNING,
+      },
+      {
+        name: "Breached",
+        data: agingByAgent.map((agent) => agent.breached),
+        color: COLOR_DANGER,
+      },
+    ] satisfies BarChartSeries[],
+  }
+}
 
-const ticketCategorySeries: BarChartSeries[] = [
-  {
-    name: "Tickets",
-    data: ticketCategories.map((cat) => ticketCategoryCounts[cat]),
-    color: COLOR_STATUS_INFO,
-  },
+const agentDistributionColors = [
+  COLOR_BRAND_PRIMARY,
+  COLOR_STATUS_SUCCESS,
+  COLOR_STATUS_INFO,
+  COLOR_STATUS_WARNING,
+  COLOR_STATUS_CLOSED,
 ]
 
-// --- Champions by Location (bar chart) ---
-const locationCounts = mockChampions.reduce<Record<string, number>>(
-  (acc, c) => {
-    acc[c.location] = (acc[c.location] || 0) + 1
-    return acc
-  },
-  {}
-)
+function buildAgentDashboardData(agents: typeof mockAgentPortfolioRecords) {
+  const cityCounts = agents.reduce<Record<string, number>>((counts, agent) => {
+    counts[agent.city] = (counts[agent.city] || 0) + 1
+    return counts
+  }, {})
+  const distribution = Object.entries(cityCounts)
+    .sort(([, leftCount], [, rightCount]) => rightCount - leftCount)
+    .map(([city, count], index) => ({
+      label: city,
+      value: count,
+      color: agentDistributionColors[index % agentDistributionColors.length],
+    }))
 
-const championLocations = Object.keys(locationCounts).sort(
-  (a, b) => locationCounts[b] - locationCounts[a]
-)
+  const topAgents = [...agents]
+    .sort((left, right) => right.total - left.total)
+    .slice(0, 8)
 
-const championLocationSeries: BarChartSeries[] = [
-  {
-    name: "Champions",
-    data: championLocations.map((loc) => locationCounts[loc]),
-    color: COLOR_BRAND_PRIMARY,
-  },
-]
+  return {
+    distribution,
+    workloadCategories: topAgents.map((agent) => agent.agent),
+    workloadSeries: [
+      {
+        name: "Active",
+        data: topAgents.map((agent) => agent.active),
+        color: COLOR_STATUS_SUCCESS,
+      },
+      {
+        name: "At Risk",
+        data: topAgents.map((agent) => agent.atRisk),
+        color: COLOR_STATUS_WARNING,
+      },
+      {
+        name: "Delinquent",
+        data: topAgents.map((agent) => agent.delinquent),
+        color: COLOR_STATUS_DANGER,
+      },
+      {
+        name: "Inactive",
+        data: topAgents.map((agent) => agent.inactive),
+        color: COLOR_GRAY_500,
+      },
+    ] satisfies BarChartSeries[],
+  }
+}
+
+function buildScopedDashboardData(
+  champions: Champion[],
+  tickets: typeof mockTicketRecords
+) {
+  const totalChampions = champions.length
+  const activeChampionCount = champions.filter((champion) => {
+    const lastActive = new Date(champion.lastActiveDate)
+    const sevenDaysAgo = new Date("2026-05-24")
+    return lastActive > sevenDaysAgo
+  }).length
+  const inactiveChampionCount = totalChampions - activeChampionCount
+  const openTickets = tickets.filter((ticket) => ticket.status !== "Closed").length
+  const slaBreached = tickets.filter((ticket) => ticket.sla === "Breached").length
+  const resolvedTickets = tickets.filter((ticket) => ticket.status === "Closed").length
+
+  const ticketStatusCounts = tickets.reduce<Record<string, number>>((counts, ticket) => {
+    counts[ticket.status] = (counts[ticket.status] || 0) + 1
+    return counts
+  }, {})
+  const ticketStatusData = [
+    { label: "Open", value: ticketStatusCounts["Open"] || 0, color: COLOR_STATUS_WARNING },
+    { label: "In Progress", value: ticketStatusCounts["In Progress"] || 0, color: COLOR_STATUS_INFO },
+    { label: "Pending Feedback", value: ticketStatusCounts["Pending Feedback"] || 0, color: COLOR_BADGE_ACTIVE },
+    { label: "Closed", value: ticketStatusCounts["Closed"] || 0, color: COLOR_STATUS_SUCCESS },
+  ]
+
+  const ticketCategoryCounts = tickets.reduce<Record<string, number>>((counts, ticket) => {
+    counts[ticket.category] = (counts[ticket.category] || 0) + 1
+    return counts
+  }, {})
+  const ticketCategories = Object.keys(ticketCategoryCounts).sort(
+    (left, right) => ticketCategoryCounts[right] - ticketCategoryCounts[left]
+  )
+  const ticketCategorySeries: BarChartSeries[] = [
+    {
+      name: "Tickets",
+      data: ticketCategories.map((category) => ticketCategoryCounts[category]),
+      color: COLOR_STATUS_INFO,
+    },
+  ]
+
+  const cityCounts = champions.reduce<Record<string, number>>((counts, champion) => {
+    counts[champion.state] = (counts[champion.state] || 0) + 1
+    return counts
+  }, {})
+  const classifiedCities = CITIES.filter((city) => cityCounts[city] > 0)
+  const additionalCities = Object.keys(cityCounts).filter(
+    (city) => !CITIES.includes(city as (typeof CITIES)[number])
+  )
+  const championCities = [...classifiedCities, ...additionalCities].sort(
+    (left, right) => cityCounts[right] - cityCounts[left]
+  )
+  const championCitySeries: BarChartSeries[] = [
+    {
+      name: "Champions",
+      data: championCities.map((city) => cityCounts[city]),
+      color: COLOR_BRAND_PRIMARY,
+    },
+  ]
+
+  const subcityCounts = champions.reduce<Record<string, number>>((counts, champion) => {
+    const subcity = resolveLagosSubCity(champion.location)
+    if (subcity) counts[subcity] = (counts[subcity] || 0) + 1
+    return counts
+  }, {})
+  const championSubcities = LAGOS_SUBCITIES.filter(
+    (subcity) => subcityCounts[subcity] > 0
+  ).sort((left, right) => subcityCounts[right] - subcityCounts[left])
+  const championSubcitySeries: BarChartSeries[] = [
+    {
+      name: "Champions",
+      data: championSubcities.map((subcity) => subcityCounts[subcity]),
+      color: COLOR_BRAND_PRIMARY,
+    },
+  ]
+
+  return {
+    totalChampions,
+    activeChampionCount,
+    inactiveChampionCount,
+    openTickets,
+    slaBreached,
+    resolvedTickets,
+    ticketStatusData,
+    ticketCategories,
+    ticketCategorySeries,
+    championCities,
+    championCitySeries,
+    championSubcities,
+    championSubcitySeries,
+  }
+}
 
 export default function DriverExperienceDashboardPage() {
   const navigate = useNavigate()
+  const { isFullBuild, mode, filterByCity } = useRoleSimulation()
+  const hasFullDriverExperienceAccess =
+    isFullBuild ||
+    mode === "welfare-manager" ||
+    mode === "dxp-product-manager"
+  const showsSafetyDashboard = isFullBuild
+  const role = getRoleDefinition(mode)
+  const scopedChampions = useMemo(
+    () => championsForSimulationMode(mockChampions, mode),
+    [mode]
+  )
+  const scopedTickets = useMemo(
+    () => ticketsForSimulationMode(mockTicketRecords, mode),
+    [mode]
+  )
+  const ticketAgingData = useMemo(
+    () => buildTicketAgingData(scopedTickets),
+    [scopedTickets]
+  )
+  const scopedAgents = useMemo(
+    () => mockAgentPortfolioRecords.filter((agent) => filterByCity(agent.city)),
+    [filterByCity]
+  )
+  const agentDashboardData = useMemo(
+    () => buildAgentDashboardData(scopedAgents),
+    [scopedAgents]
+  )
+  const scopedWelfareRecords = useMemo(
+    () => championsForSimulationMode(mockWelfareRecords, mode),
+    [mode]
+  )
+  const welfareFollowUpsOverdue = useMemo(
+    () => scopedWelfareRecords.filter(
+      (record) => new Date(record.nextFollowUp) < WELFARE_REFERENCE_DATE
+    ).length,
+    [scopedWelfareRecords]
+  )
+  const welfareCases = useMemo(
+    () => scopedWelfareRecords.filter((record) => record.issuesLogged > 0).length,
+    [scopedWelfareRecords]
+  )
+  const dashboardData = useMemo(
+    () => buildScopedDashboardData(scopedChampions, scopedTickets),
+    [scopedChampions, scopedTickets]
+  )
+  const visibleWidgetIds = driverExperienceWidgetIdsForModules(
+    role?.navItemIds ?? []
+  )
+  if (mode === "field-ops-manager" || mode === "operations-manager") {
+    visibleWidgetIds.add("chart-ticket-aging-sla")
+  }
+  if (mode === "welfare-agent") {
+    visibleWidgetIds.delete("chart-champions-by-location")
+    visibleWidgetIds.add("chart-champions-by-subcity")
+  }
+  if (mode === "field-ops-manager") {
+    visibleWidgetIds.delete("chart-champions-by-location")
+    visibleWidgetIds.add("chart-champions-by-subcity")
+  }
+  if (mode === "welfare-manager") {
+    visibleWidgetIds.delete("chart-champions-by-location")
+    visibleWidgetIds.add("chart-champions-by-subcity")
+  }
+  if (mode === "executive" || mode === "operations-manager") {
+    visibleWidgetIds.add("stat-false-resolution-rate")
+    visibleWidgetIds.add("chart-false-resolution-rate-by-resolver")
+  }
+  const showsWidget = (widgetId: DriverExperienceWidgetId) => {
+    if (isFullBuild) return true
+    if (
+      mode === "welfare-manager" &&
+      widgetId === "chart-champions-by-location"
+    ) {
+      return visibleWidgetIds.has(widgetId)
+    }
+    return widgetId === "chart-champions-by-subcity"
+      ? visibleWidgetIds.has(widgetId)
+      : hasFullDriverExperienceAccess || visibleWidgetIds.has(widgetId)
+  }
 
   return (
     <>
@@ -214,122 +423,288 @@ export default function DriverExperienceDashboardPage() {
       <div className="flex-1 overflow-auto px-6 pb-6">
         <PageHeader
           title="Dashboard"
-          subtitle="Overview of driver experience metrics across all modules"
+          subtitle={
+            mode === "call-centre-agent"
+              ? "Global overview of all champions and tickets"
+              : mode === "welfare-agent"
+                ? "Overview of champions and tickets assigned to you in Lagos"
+              : mode === "field-ops-manager"
+                ? "Overview of all champions and tickets across Lagos"
+              : mode === "welfare-manager"
+                ? "Overview of all driver experience activity across Lagos"
+              : "Overview of driver experience metrics across all modules"
+          }
           className="px-0"
         />
 
         {/* Row 1 — Stat Cards */}
-        <div className="grid grid-cols-4 gap-2">
-          <StatCard
-            title="Total Champions"
-            value={totalChampions}
-            indicatorColor={COLOR_BRAND_PRIMARY}
-            onClick={() => navigate("/champion-360")}
-          />
-          <StatCard
-            title="Active Champions"
-            value={activeChampionCount}
-            indicatorColor={COLOR_BADGE_ACTIVE}
-            onClick={() => navigate("/champion-360")}
-          />
-          <StatCard
-            title="Open Tickets"
-            value={openTickets}
-            indicatorColor={COLOR_STATUS_WARNING}
-            onClick={() => navigate("/ticket-management")}
-          />
-          <StatCard
-            title="SLA Breached"
-            value={slaBreached}
-            indicatorColor={COLOR_DANGER}
-            onClick={() => navigate("/ticket-management")}
-          />
+        <div
+          className={`grid gap-2 ${
+            isFullBuild
+              ? "grid-cols-12 [&>*]:col-span-3 [&>*:nth-last-child(-n+3)]:col-span-4"
+              : mode === "welfare-manager" || mode === "dxp-product-manager"
+                ? "grid-cols-5"
+              : mode === "executive"
+                ? "grid-cols-4"
+              : mode === "welfare-agent"
+                ? "grid-cols-12 [&>*]:col-span-3"
+                : "grid-cols-12 [&>*]:col-span-4"
+          }`}
+        >
+          {showsWidget("stat-total-champions") && (
+            <StatCard
+              title="Total Champions"
+              value={dashboardData.totalChampions}
+              indicatorColor={COLOR_BRAND_PRIMARY}
+              onClick={() => navigate("/champion-360")}
+            />
+          )}
+          {showsWidget("stat-active-champions") && (
+            <StatCard
+              title="Active Champions"
+              value={dashboardData.activeChampionCount}
+              indicatorColor={COLOR_BADGE_ACTIVE}
+              onClick={() => navigate("/champion-360")}
+            />
+          )}
+          {showsWidget("stat-inactive-champions") && (
+            <StatCard
+              title="Inactive Champions"
+              value={dashboardData.inactiveChampionCount}
+              indicatorColor={COLOR_GRAY_500}
+              onClick={() => navigate("/champion-360")}
+            />
+          )}
+          {showsWidget("stat-open-tickets") && (
+            <StatCard
+              title="Open Tickets"
+              value={dashboardData.openTickets}
+              indicatorColor={COLOR_STATUS_WARNING}
+              onClick={() => navigate("/ticket-management")}
+            />
+          )}
+          {showsWidget("stat-sla-breached") && (
+            <StatCard
+              title="SLA Breached"
+              value={dashboardData.slaBreached}
+              indicatorColor={COLOR_DANGER}
+              onClick={() => navigate("/ticket-management")}
+            />
+          )}
+          {!hasFullDriverExperienceAccess && showsWidget("stat-resolved-tickets") && (
+            <StatCard
+              title="Resolved Tickets"
+              value={dashboardData.resolvedTickets}
+              indicatorColor={COLOR_STATUS_SUCCESS}
+              onClick={() => navigate("/ticket-management")}
+            />
+          )}
+          {!hasFullDriverExperienceAccess && showsWidget("stat-welfare-follow-ups-overdue") && (
+            <StatCard
+              title="Welfare Follow-Ups Overdue"
+              value={welfareFollowUpsOverdue}
+              indicatorColor={COLOR_STATUS_WARNING}
+              onClick={() => navigate("/welfare")}
+            />
+          )}
+          {!hasFullDriverExperienceAccess && showsWidget("stat-welfare-cases") && (
+            <StatCard
+              title="Welfare Cases"
+              value={welfareCases}
+              indicatorColor={COLOR_STATUS_INFO}
+              onClick={() => navigate("/welfare")}
+            />
+          )}
+          {hasFullDriverExperienceAccess && (
+            <>
+            {showsSafetyDashboard && (
+              <>
+                <StatCard
+                  title="Avg Safety Score"
+                  value={avgSafetyScore}
+                  indicatorColor={COLOR_STATUS_SUCCESS}
+                  onClick={() => navigate("/driver-safety-score")}
+                />
+                <StatCard
+                  title="High Risk Drivers"
+                  value={highRiskDrivers}
+                  indicatorColor={COLOR_DANGER}
+                  onClick={() => navigate("/driver-safety-score")}
+                />
+              </>
+            )}
+            <StatCard
+              title="Pending Approvals"
+              value={pendingApprovals}
+              indicatorColor={COLOR_STATUS_INFO}
+              onClick={() => navigate("/driver-experience/approvals")}
+            />
+            <StatCard
+              title="Welfare Follow-ups"
+              value={welfareFollowUps}
+              indicatorColor={COLOR_GRAY_500}
+              onClick={() => navigate("/welfare")}
+            />
+            <StatCard
+              title="Welfare Follow-Ups Overdue"
+              value={welfareFollowUpsOverdue}
+              indicatorColor={COLOR_STATUS_WARNING}
+              onClick={() => navigate("/welfare")}
+            />
+            <StatCard
+              title="Welfare Cases"
+              value={welfareCases}
+              indicatorColor={COLOR_STATUS_INFO}
+              onClick={() => navigate("/welfare")}
+            />
+            </>
+          )}
+          {hasFullDriverExperienceAccess && (
+            <>
+            <StatCard
+              title="Total Tickets"
+              value={ticketPerformanceMetrics.total.toLocaleString()}
+              indicatorColor={COLOR_BRAND_PRIMARY}
+              onClick={() => navigate("/ticket-management")}
+            />
+            <StatCard
+              title="Resolved Tickets"
+              value={ticketPerformanceMetrics.resolved.toLocaleString()}
+              subtitle={`${((ticketPerformanceMetrics.resolved / ticketPerformanceMetrics.total) * 100).toFixed(1)}% of total`}
+              indicatorColor={COLOR_STATUS_SUCCESS}
+            />
+            <StatCard
+              title="Reopened"
+              value={ticketPerformanceMetrics.reopened.toLocaleString()}
+              subtitle={`${((ticketPerformanceMetrics.reopened / ticketPerformanceMetrics.total) * 100).toFixed(1)}% of total`}
+              indicatorColor={COLOR_STATUS_WARNING}
+            />
+            </>
+          )}
+          {showsWidget("stat-false-resolution-rate") && (
+            <StatCard
+              title="False Resolution Rate"
+              value={`${ticketPerformanceMetrics.falseResolutionRate.toFixed(1)}%`}
+              subtitle="Reopened / Resolved"
+              indicatorColor={COLOR_STATUS_DANGER}
+            />
+          )}
         </div>
 
-        {/* Row 2 — Stat Cards */}
-        <div className="grid grid-cols-4 gap-2 mt-2">
-          <StatCard
-            title="Avg Safety Score"
-            value={avgSafetyScore}
-            indicatorColor={COLOR_STATUS_SUCCESS}
-            onClick={() => navigate("/driver-safety-score")}
-          />
-          <StatCard
-            title="High Risk Drivers"
-            value={highRiskDrivers}
-            indicatorColor={COLOR_DANGER}
-            onClick={() => navigate("/driver-safety-score")}
-          />
-          <StatCard
-            title="Pending Approvals"
-            value={pendingApprovals}
-            indicatorColor={COLOR_STATUS_INFO}
-            onClick={() => navigate("/driver-experience/approvals")}
-          />
-          <StatCard
-            title="Welfare Follow-ups"
-            value={welfareFollowUps}
-            indicatorColor={COLOR_GRAY_500}
-            onClick={() => navigate("/welfare")}
-          />
-        </div>
+        {/* Ticket charts always stay side by side. */}
+        {(showsWidget("chart-ticket-status-breakdown") ||
+          showsWidget("chart-tickets-by-category")) && (
+          <div className="grid grid-cols-2 gap-2 mt-6">
+            {showsWidget("chart-ticket-status-breakdown") && (
+              <DistributionChart
+                title="Ticket Status Breakdown"
+                data={dashboardData.ticketStatusData}
+              />
+            )}
+            {showsWidget("chart-tickets-by-category") && (
+              <HorizontalBarChart
+                title="Tickets by Category"
+                categories={dashboardData.ticketCategories}
+                series={dashboardData.ticketCategorySeries}
+              />
+            )}
+          </div>
+        )}
 
-        {/* Row 3 — Donut Charts */}
-        <div className="grid grid-cols-2 gap-2 mt-6">
-          <DistributionChart
-            title="Ticket Status Breakdown"
-            data={ticketStatusData}
-          />
-          <DistributionChart
-            title="Driver Risk Distribution"
-            data={riskDistributionData}
-          />
-        </div>
+        {showsSafetyDashboard && (
+          <div className="mt-6">
+            <DistributionChart
+              title="Driver Risk Distribution"
+              data={riskDistributionData}
+            />
+          </div>
+        )}
 
-        {/* Row 4 — Bar Charts */}
-        <div className="grid grid-cols-2 gap-2 mt-6">
-          <HorizontalBarChart
-            title="Tickets by Category"
-            categories={ticketCategories}
-            series={ticketCategorySeries}
-          />
-          <HorizontalBarChart
-            title="Champions by Location"
-            categories={championLocations}
-            series={championLocationSeries}
-          />
-        </div>
+        {/* The role's primary geography widget stays beside Ticket Aging. */}
+        {(showsWidget("chart-champions-by-location") ||
+          (!isFullBuild && showsWidget("chart-champions-by-subcity")) ||
+          showsWidget("chart-ticket-aging-sla")) && (
+          <div
+            className={`grid gap-2 mt-6 ${
+              showsWidget("chart-ticket-aging-sla") &&
+              (showsWidget("chart-champions-by-location") ||
+                (!isFullBuild && showsWidget("chart-champions-by-subcity")))
+                ? "grid-cols-2"
+                : "grid-cols-1"
+            }`}
+          >
+            {showsWidget("chart-champions-by-location") && (
+              <HorizontalBarChart
+                title="Champions by City"
+                categories={dashboardData.championCities}
+                series={dashboardData.championCitySeries}
+              />
+            )}
+            {!isFullBuild && showsWidget("chart-champions-by-subcity") && (
+              <HorizontalBarChart
+                title="Champions by Subcity"
+                categories={[...dashboardData.championSubcities]}
+                series={dashboardData.championSubcitySeries}
+              />
+            )}
+            {showsWidget("chart-ticket-aging-sla") && (
+              <HorizontalBarChart
+              title="Ticket Aging (SLA) by Agent"
+              categories={ticketAgingData.agents}
+              series={ticketAgingData.series}
+                showLegend
+                stacked
+              />
+            )}
+          </div>
+        )}
 
-        {/* Row 5 — Ticket resolution quality (moved from the Performance page) */}
-        <div className="grid grid-cols-4 gap-2 mt-6">
-          <StatCard
-            title="Total Tickets"
-            value={ticketPerformanceMetrics.total.toLocaleString()}
-            indicatorColor={COLOR_BRAND_PRIMARY}
-            onClick={() => navigate("/ticket-management")}
-          />
-          <StatCard
-            title="Resolved"
-            value={ticketPerformanceMetrics.resolved.toLocaleString()}
-            subtitle={`${((ticketPerformanceMetrics.resolved / ticketPerformanceMetrics.total) * 100).toFixed(1)}% of total`}
-            indicatorColor={COLOR_STATUS_SUCCESS}
-          />
-          <StatCard
-            title="Reopened"
-            value={ticketPerformanceMetrics.reopened.toLocaleString()}
-            subtitle={`${((ticketPerformanceMetrics.reopened / ticketPerformanceMetrics.total) * 100).toFixed(1)}% of total`}
-            indicatorColor={COLOR_STATUS_WARNING}
-          />
-          <StatCard
-            title="False Resolution Rate"
-            value={`${ticketPerformanceMetrics.falseResolutionRate.toFixed(1)}%`}
-            subtitle="Reopened / Resolved"
-            indicatorColor={COLOR_STATUS_DANGER}
-          />
-        </div>
+        {isFullBuild && showsWidget("chart-champions-by-subcity") && (
+          <div className="mt-6">
+            <HorizontalBarChart
+              title="Champions by Subcity"
+              categories={[...dashboardData.championSubcities]}
+              series={dashboardData.championSubcitySeries}
+            />
+          </div>
+        )}
+
+        {(showsWidget("chart-agent-distribution") ||
+          showsWidget("chart-agent-workload")) && (
+          <div className="grid grid-cols-2 gap-2 mt-6">
+            {showsWidget("chart-agent-distribution") && (
+              <DistributionChart
+                title="Agent Distribution"
+                data={agentDashboardData.distribution}
+                legendTitle="City"
+              />
+            )}
+            {showsWidget("chart-agent-workload") && (
+              <HorizontalBarChart
+                title="Agent Workload"
+                categories={agentDashboardData.workloadCategories}
+                series={agentDashboardData.workloadSeries}
+                showLegend
+                stacked
+                yAxisWidth={120}
+                action={
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-8 px-3"
+                    onClick={() => navigate("/driver-experience/agents/portfolio")}
+                  >
+                    View All
+                  </Button>
+                }
+              />
+            )}
+          </div>
+        )}
 
         {/* Row 6 — False Resolution Rate by Resolver */}
-        <div className="mt-6 rounded-lg border border-gray-200 bg-gray-25">
+        {showsWidget("chart-false-resolution-rate-by-resolver") && (
+          <div className="mt-6 rounded-lg border border-gray-200 bg-gray-25">
           <div className="px-4 py-3 border-b border-gray-200">
             <h3 className="text-[13px] font-medium text-gray-600">
               False Resolution Rate by Resolver
@@ -369,10 +744,12 @@ export default function DriverExperienceDashboardPage() {
               </div>
             ))}
           </div>
-        </div>
+          </div>
+        )}
 
         {/* Row 7 — Reopen Rate by Ticket Category */}
-        <div className="mt-6 rounded-lg border border-gray-200 bg-gray-25">
+        {isFullBuild && (
+          <div className="mt-6 rounded-lg border border-gray-200 bg-gray-25">
           <div className="px-4 py-3 border-b border-gray-200">
             <h3 className="text-[13px] font-medium text-gray-600">
               Reopen Rate by Ticket Category
@@ -432,7 +809,8 @@ export default function DriverExperienceDashboardPage() {
               ))}
             </TableBody>
           </Table>
-        </div>
+          </div>
+        )}
       </div>
     </>
   )

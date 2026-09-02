@@ -22,7 +22,10 @@ import {
   type RoleDataScope,
   type SimulationMode,
 } from "@/data/rolePermissions"
-import { sidebarSections } from "@/data/sidebarConfig"
+import {
+  driverExperienceSidebarSections,
+  sidebarSections,
+} from "@/data/sidebarConfig"
 
 const STORAGE_KEY = "maxone.simulationMode"
 
@@ -32,7 +35,14 @@ function readStoredMode(): SimulationMode {
     if (
       stored === "full-build" ||
       stored === "global-fleet-manager" ||
-      stored === "city-fleet-officer"
+      stored === "city-fleet-officer" ||
+      stored === "call-centre-agent" ||
+      stored === "welfare-agent" ||
+      stored === "field-ops-manager" ||
+      stored === "welfare-manager" ||
+      stored === "executive" ||
+      stored === "dxp-product-manager" ||
+      stored === "operations-manager"
     ) {
       return stored
     }
@@ -95,7 +105,17 @@ export function RoleSimulationProvider({ children }: { children: ReactNode }) {
     if (mode === "full-build") return sidebarSections
     const role = getRoleDefinition(mode)
     if (!role) return sidebarSections
-    return filterSidebarSections(sidebarSections, role.navItemIds)
+    const sourceSections =
+      mode === "call-centre-agent" ||
+      mode === "welfare-agent" ||
+      mode === "field-ops-manager" ||
+      mode === "welfare-manager" ||
+      mode === "executive" ||
+      mode === "dxp-product-manager" ||
+      mode === "operations-manager"
+        ? driverExperienceSidebarSections
+        : sidebarSections
+    return filterSidebarSections(sourceSections, role.navItemIds)
   }, [mode])
 
   const dashboardWidgets = useMemo(() => {

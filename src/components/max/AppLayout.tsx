@@ -12,6 +12,7 @@ import {
   sidebarUser,
 } from "@/data/sidebarConfig"
 import { mockVehicles } from "@/data/mockVehicles"
+import { SIMULATED_DRIVER_EXPERIENCE_AGENTS } from "@/data/driverExperienceAssignmentScope"
 import { useRoleSimulation } from "@/contexts/RoleSimulationContext"
 import {
   getFallbackPathForDenied,
@@ -112,6 +113,12 @@ export function AppLayout({ children }: AppLayoutProps) {
 
   const displayUser = {
     ...sidebarUser,
+    name:
+      mode === "call-centre-agent"
+        ? SIMULATED_DRIVER_EXPERIENCE_AGENTS["call-centre-agent"].name
+        : mode === "welfare-agent"
+          ? SIMULATED_DRIVER_EXPERIENCE_AGENTS["welfare-agent"].name
+          : sidebarUser.name,
     role: roleLabel,
   }
 

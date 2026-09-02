@@ -28,33 +28,61 @@ import {
   changedByOptions,
   type AssignmentHistoryRecord,
 } from "@/data/mockAssignmentHistory"
+import { useRoleSimulation } from "@/contexts/RoleSimulationContext"
+import {
+  geographyLabel,
+  geographyLevelForScope,
+  type DriverExperienceGeographyLevel,
+} from "@/data/driverExperienceGeography"
 
-const filterSections: FilterSection[] = [
-  {
-    id: "changeType",
-    title: "Change Type",
-    defaultExpanded: true,
-    options: assignmentChangeTypes.map((value) => ({ value, label: value })),
-  },
-  {
-    id: "reason",
-    title: "Reason",
-    options: reassignmentReasons.map((value) => ({ value, label: value })),
-  },
-  {
-    id: "changedBy",
-    title: "Changed By",
-    options: changedByOptions.map((value) => ({ value, label: value })),
-  },
-]
+function buildFilterSections(
+  records: AssignmentHistoryRecord[],
+  geographyLevel: DriverExperienceGeographyLevel
+): FilterSection[] {
+  const geographyId = geographyLevel === "subcity" ? "subcity" : "city"
+  const geographyOptions = [
+    ...new Set(records.map((record) => record[geographyId])),
+  ].sort()
+
+  return [
+    {
+      id: geographyId,
+      title: geographyLabel(geographyLevel),
+      defaultExpanded: true,
+      options: geographyOptions.map((value) => ({ value, label: value })),
+    },
+    {
+      id: "changeType",
+      title: "Change Type",
+      options: assignmentChangeTypes.map((value) => ({ value, label: value })),
+    },
+    {
+      id: "reason",
+      title: "Reason",
+      options: reassignmentReasons.map((value) => ({ value, label: value })),
+    },
+    {
+      id: "changedBy",
+      title: "Changed By",
+      options: changedByOptions.map((value) => ({ value, label: value })),
+    },
+  ]
+}
 
 const defaultFilters: GenericFilterState = {
+  city: [],
+  subcity: [],
   changeType: [],
   reason: [],
   changedBy: [],
 }
 
-const columns: ColumnDef<AssignmentHistoryRecord>[] = [
+function buildColumns(
+  geographyLevel: DriverExperienceGeographyLevel
+): ColumnDef<AssignmentHistoryRecord>[] {
+  const geographyId = geographyLevel === "subcity" ? "subcity" : "city"
+
+  return [
   {
     accessorKey: "champion",
     header: "Champion",
@@ -77,6 +105,15 @@ const columns: ColumnDef<AssignmentHistoryRecord>[] = [
     header: "New Agent",
     cell: ({ row }) => (
       <span className="font-medium text-table-text text-sm">{row.original.newAgent}</span>
+    ),
+  },
+  {
+    accessorKey: geographyId,
+    header: geographyLabel(geographyLevel),
+    cell: ({ row }) => (
+      <span className="font-medium text-table-text text-sm">
+        {row.original[geographyId]}
+      </span>
     ),
   },
   {
@@ -109,33 +146,62 @@ const columns: ColumnDef<AssignmentHistoryRecord>[] = [
       <span className="font-medium text-table-text text-sm">{row.original.dateTime}</span>
     ),
   },
-]
+  ]
+}
 
 export default function AssignmentHistoryPage() {
+  const { dataScope, filterByCity } = useRoleSimulation()
   const [searchQuery, setSearchQuery] = useState("")
   const [searchOpen, setSearchOpen] = useState(false)
   const [filters, setFilters] = useState<GenericFilterState>(defaultFilters)
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(25)
-  const activeFilterCount = getActiveFilterCount(filters)
+  const geographyLevel = geographyLevelForScope(dataScope)
+  const geographyFilterId = geographyLevel === "subcity" ? "subcity" : "city"
+  const scopedRecords = useMemo(
+    () => mockAssignmentHistory.filter((record) => filterByCity(record.city)),
+    [filterByCity]
+  )
+  const filterSections = useMemo(
+    () => buildFilterSections(scopedRecords, geographyLevel),
+    [geographyLevel, scopedRecords]
+  )
+  const activeFilters = useMemo<GenericFilterState>(
+    () => ({
+      [geographyFilterId]: filters[geographyFilterId] ?? [],
+      changeType: filters.changeType ?? [],
+      reason: filters.reason ?? [],
+      changedBy: filters.changedBy ?? [],
+    }),
+    [filters, geographyFilterId]
+  )
+  const activeFilterCount = getActiveFilterCount(activeFilters)
+  const columns = useMemo(() => buildColumns(geographyLevel), [geographyLevel])
 
   const filteredRecords = useMemo(() =>
-    mockAssignmentHistory.filter((record) => {
-      if (filters.changeType.length > 0 && !filters.changeType.includes(record.changeType)) return false
-      if (filters.reason.length > 0 && !filters.reason.includes(record.reason)) return false
-      if (filters.changedBy.length > 0 && !filters.changedBy.includes(record.changedBy)) return false
+    scopedRecords.filter((record) => {
+      const selectedGeographies = activeFilters[geographyFilterId]
+      if (
+        selectedGeographies.length > 0 &&
+        !selectedGeographies.includes(record[geographyFilterId])
+      ) return false
+      if (activeFilters.changeType.length > 0 && !activeFilters.changeType.includes(record.changeType)) return false
+      if (activeFilters.reason.length > 0 && !activeFilters.reason.includes(record.reason)) return false
+      if (activeFilters.changedBy.length > 0 && !activeFilters.changedBy.includes(record.changedBy)) return false
       if (searchQuery) {
         const q = searchQuery.toLowerCase()
         if (
           !record.champion.toLowerCase().includes(q) &&
           !record.championId.toLowerCase().includes(q) &&
           !record.previousAgent.toLowerCase().includes(q) &&
-          !record.newAgent.toLowerCase().includes(q)
+          !record.newAgent.toLowerCase().includes(q) &&
+          !record.city.toLowerCase().includes(q) &&
+          !record.subcity.toLowerCase().includes(q)
         ) return false
       }
       return true
     }),
-    [filters, searchQuery]
+    [activeFilters, geographyFilterId, scopedRecords, searchQuery]
   )
 
   const pagedRecords = useMemo(
@@ -147,7 +213,6 @@ export default function AssignmentHistoryPage() {
     <>
       <TopBar
         breadcrumbs={[
-          { label: "Driver Experience" },
           { label: "Agent Management" },
           { label: "Assignment History" },
         ]}
@@ -176,7 +241,7 @@ export default function AssignmentHistoryPage() {
               <PopoverContent className="w-auto p-2" align="start">
                 <GenericFilterPopover
                   sections={filterSections}
-                  filters={filters}
+                  filters={activeFilters}
                   onFiltersChange={(next) => {
                     setFilters(next)
                     setCurrentPage(1)

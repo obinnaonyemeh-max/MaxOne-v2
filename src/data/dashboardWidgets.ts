@@ -157,6 +157,63 @@ export const MODULE_WIDGETS: Record<string, string[]> = {
   "activation-dashboard": ["chart-activation-queue"],
 }
 
+export type DriverExperienceWidgetId =
+  | "stat-total-champions"
+  | "stat-active-champions"
+  | "stat-inactive-champions"
+  | "stat-open-tickets"
+  | "stat-sla-breached"
+  | "stat-resolved-tickets"
+  | "stat-welfare-follow-ups-overdue"
+  | "stat-welfare-cases"
+  | "stat-false-resolution-rate"
+  | "chart-ticket-status-breakdown"
+  | "chart-tickets-by-category"
+  | "chart-ticket-aging-sla"
+  | "chart-champions-by-location"
+  | "chart-champions-by-subcity"
+  | "chart-agent-distribution"
+  | "chart-agent-workload"
+  | "chart-false-resolution-rate-by-resolver"
+
+/** Driver Experience leaf module id → dashboard widgets owned by that module. */
+export const DRIVER_EXPERIENCE_MODULE_WIDGETS: Record<
+  string,
+  DriverExperienceWidgetId[]
+> = {
+  "champion-360": [
+    "stat-total-champions",
+    "stat-active-champions",
+    "stat-inactive-champions",
+    "chart-champions-by-location",
+  ],
+  "ticket-management": [
+    "stat-open-tickets",
+    "stat-sla-breached",
+    "stat-resolved-tickets",
+    "chart-ticket-status-breakdown",
+    "chart-tickets-by-category",
+  ],
+  welfare: [
+    "stat-welfare-follow-ups-overdue",
+    "stat-welfare-cases",
+  ],
+  "agents-management": [
+    "chart-agent-distribution",
+    "chart-agent-workload",
+  ],
+}
+
+export function driverExperienceWidgetIdsForModules(
+  navItemIds: string[]
+): Set<DriverExperienceWidgetId> {
+  return new Set(
+    navItemIds.flatMap(
+      (moduleId) => DRIVER_EXPERIENCE_MODULE_WIDGETS[moduleId] ?? []
+    )
+  )
+}
+
 export function widgetsForModules(navItemIds: string[]): DashboardWidget[] {
   const ids = new Set(
     navItemIds.flatMap((moduleId) => MODULE_WIDGETS[moduleId] ?? [])

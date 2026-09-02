@@ -276,15 +276,21 @@ export const driverExperienceSidebarSections: SidebarSection[] = [
     ],
   },
   {
-    id: "driver-experience",
-    label: "Driver Experience",
+    id: "driver-experience-champions",
+    label: "Champions",
     items: [
       {
         id: "champion-360",
-        label: "Champion 360",
+        label: "Champion Overview",
         icon: "/images/agent_menu.svg",
         href: "/champion-360",
       },
+    ],
+  },
+  {
+    id: "driver-experience",
+    label: "Driver Experience",
+    items: [
       {
         id: "ticket-management",
         label: "Ticket Management",
@@ -309,22 +315,23 @@ export const driverExperienceSidebarSections: SidebarSection[] = [
         icon: "/images/memo_circle_check_menu.svg",
         href: "/driver-experience/approvals",
       },
+    ],
+  },
+  {
+    id: "agent-management",
+    label: "Agent Management",
+    items: [
       {
-        id: "agents-management",
-        label: "Agent Management",
+        id: "agent-portfolio",
+        label: "Agents Portfolio",
         icon: "/images/agent_menu.svg",
-        children: [
-          {
-            id: "agent-portfolio",
-            label: "Agent Portfolio",
-            href: "/driver-experience/agents/portfolio",
-          },
-          {
-            id: "agent-assignment-history",
-            label: "Assignment History",
-            href: "/driver-experience/agents/assignment-history",
-          },
-        ],
+        href: "/driver-experience/agents/portfolio",
+      },
+      {
+        id: "agent-assignment-history",
+        label: "Assignment History",
+        icon: "/images/asset_movement_menu.svg",
+        href: "/driver-experience/agents/assignment-history",
       },
     ],
   },

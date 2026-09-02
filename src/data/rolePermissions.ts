@@ -1,7 +1,17 @@
 import type { SidebarItem, SidebarSection } from "@/components/max"
 import type { CityId } from "@/data/cityScope"
 
-export type SimulationMode = "full-build" | "global-fleet-manager" | "city-fleet-officer"
+export type SimulationMode =
+  | "full-build"
+  | "global-fleet-manager"
+  | "city-fleet-officer"
+  | "call-centre-agent"
+  | "welfare-agent"
+  | "field-ops-manager"
+  | "welfare-manager"
+  | "executive"
+  | "dxp-product-manager"
+  | "operations-manager"
 
 export type PermissionKey =
   | "fleetRegister.addVehicles"
@@ -22,6 +32,14 @@ export type PermissionKey =
   | "vehicleDocument.upload"
   | "vehicleDocument.replace"
   | "kit.reassignment"
+  | "championProfile.reassign"
+  | "agentManagement.reassign"
+  | "ticketManagement.create"
+  | "ticketManagement.reassign"
+  | "ticketManagement.changeStatus"
+  | "ticketManagement.escalate"
+  | "ticketManagement.close"
+  | "ticketManagement.addComment"
 
 export interface RoleDataScope {
   type: "city"
@@ -59,6 +77,14 @@ export const ALL_PERMISSIONS: PermissionKey[] = [
   "vehicleDocument.upload",
   "vehicleDocument.replace",
   "kit.reassignment",
+  "championProfile.reassign",
+  "agentManagement.reassign",
+  "ticketManagement.create",
+  "ticketManagement.reassign",
+  "ticketManagement.changeStatus",
+  "ticketManagement.escalate",
+  "ticketManagement.close",
+  "ticketManagement.addComment",
 ]
 
 export const GLOBAL_FLEET_MANAGER: RoleDefinition = {
@@ -112,18 +138,151 @@ export const CITY_FLEET_OFFICER: RoleDefinition = {
   ],
 }
 
+export const CALL_CENTRE_AGENT: RoleDefinition = {
+  id: "call-centre-agent",
+  label: "Call Centre Agent",
+  navItemIds: [
+    "overview-dashboard",
+    "champion-360",
+    "ticket-management",
+  ],
+  permissions: [
+    "ticketManagement.create",
+    "ticketManagement.changeStatus",
+    "ticketManagement.close",
+    "ticketManagement.addComment",
+  ],
+}
+
+export const WELFARE_AGENT: RoleDefinition = {
+  id: "welfare-agent",
+  label: "Welfare Agent",
+  navItemIds: [
+    "overview-dashboard",
+    "champion-360",
+    "ticket-management",
+    "welfare",
+  ],
+  permissions: [
+    "ticketManagement.create",
+    "ticketManagement.changeStatus",
+    "ticketManagement.escalate",
+    "ticketManagement.close",
+    "ticketManagement.addComment",
+  ],
+  dataScope: { type: "city", city: "Lagos" },
+}
+
+export const FIELD_OPS_MANAGER: RoleDefinition = {
+  id: "field-ops-manager",
+  label: "Field Ops Manager",
+  navItemIds: [
+    "overview-dashboard",
+    "champion-360",
+    "ticket-management",
+  ],
+  permissions: [
+    "ticketManagement.reassign",
+    "ticketManagement.changeStatus",
+    "ticketManagement.escalate",
+    "ticketManagement.close",
+    "ticketManagement.addComment",
+  ],
+  dataScope: { type: "city", city: "Lagos" },
+}
+
+export const WELFARE_MANAGER: RoleDefinition = {
+  id: "welfare-manager",
+  label: "Welfare Manager",
+  navItemIds: [
+    "overview-dashboard",
+    "champion-360",
+    "ticket-management",
+    "welfare",
+    "approvals",
+    "agents-management",
+    "agent-portfolio",
+    "agent-assignment-history",
+  ],
+  permissions: ALL_PERMISSIONS,
+  dataScope: { type: "city", city: "Lagos" },
+}
+
+export const EXECUTIVE: RoleDefinition = {
+  id: "executive",
+  label: "Executive",
+  navItemIds: [
+    "overview-dashboard",
+    "champion-360",
+    "ticket-management",
+    "welfare",
+    "approvals",
+  ],
+  permissions: [],
+}
+
+export const DXP_PRODUCT_MANAGER: RoleDefinition = {
+  id: "dxp-product-manager",
+  label: "DXP Product Manager",
+  navItemIds: [
+    "overview-dashboard",
+    "champion-360",
+    "ticket-management",
+    "welfare",
+    "approvals",
+    "agents-management",
+    "agent-portfolio",
+    "agent-assignment-history",
+  ],
+  permissions: ALL_PERMISSIONS.filter(
+    (permission) =>
+      permission !== "championProfile.reassign" &&
+      permission !== "agentManagement.reassign"
+  ),
+}
+
+export const OPERATIONS_MANAGER: RoleDefinition = {
+  id: "operations-manager",
+  label: "Operations Manager",
+  navItemIds: [
+    "overview-dashboard",
+    "champion-360",
+    "ticket-management",
+    "agents-management",
+    "agent-portfolio",
+    "agent-assignment-history",
+  ],
+  permissions: ALL_PERMISSIONS.filter(
+    (permission) => permission !== "championProfile.reassign"
+  ),
+}
+
 export const SIMULATION_OPTIONS: {
   mode: SimulationMode
   label: string
 }[] = [
   { mode: "global-fleet-manager", label: "Global Fleet Manager" },
   { mode: "city-fleet-officer", label: "City Fleet Officer" },
+  { mode: "call-centre-agent", label: "Call Centre Agent" },
+  { mode: "welfare-agent", label: "Welfare Agent" },
+  { mode: "field-ops-manager", label: "Field Ops Manager" },
+  { mode: "welfare-manager", label: "Welfare Manager" },
+  { mode: "executive", label: "Executive" },
+  { mode: "dxp-product-manager", label: "DXP Product Manager" },
+  { mode: "operations-manager", label: "Operations Manager" },
   { mode: "full-build", label: "Full Build" },
 ]
 
 export function getRoleDefinition(mode: SimulationMode): RoleDefinition | null {
   if (mode === "global-fleet-manager") return GLOBAL_FLEET_MANAGER
   if (mode === "city-fleet-officer") return CITY_FLEET_OFFICER
+  if (mode === "call-centre-agent") return CALL_CENTRE_AGENT
+  if (mode === "welfare-agent") return WELFARE_AGENT
+  if (mode === "field-ops-manager") return FIELD_OPS_MANAGER
+  if (mode === "welfare-manager") return WELFARE_MANAGER
+  if (mode === "executive") return EXECUTIVE
+  if (mode === "dxp-product-manager") return DXP_PRODUCT_MANAGER
+  if (mode === "operations-manager") return OPERATIONS_MANAGER
   return null
 }
 
@@ -179,6 +338,72 @@ export function filterSidebarSections(
 export function getAllowedPathPrefixes(mode: SimulationMode): string[] | null {
   if (mode === "full-build") return null
 
+  if (mode === "call-centre-agent") {
+    return [
+      "/driver-experience/dashboard",
+      "/champion-360",
+      "/ticket-management",
+    ]
+  }
+
+  if (mode === "welfare-agent") {
+    return [
+      "/driver-experience/dashboard",
+      "/champion-360",
+      "/ticket-management",
+      "/welfare",
+    ]
+  }
+
+  if (mode === "field-ops-manager") {
+    return [
+      "/driver-experience/dashboard",
+      "/champion-360",
+      "/ticket-management",
+    ]
+  }
+
+  if (mode === "welfare-manager") {
+    return [
+      "/driver-experience/dashboard",
+      "/champion-360",
+      "/ticket-management",
+      "/welfare",
+      "/driver-experience/approvals",
+      "/driver-experience/agents",
+    ]
+  }
+
+  if (mode === "executive") {
+    return [
+      "/driver-experience/dashboard",
+      "/champion-360",
+      "/ticket-management",
+      "/welfare",
+      "/driver-experience/approvals",
+    ]
+  }
+
+  if (mode === "dxp-product-manager") {
+    return [
+      "/driver-experience/dashboard",
+      "/champion-360",
+      "/ticket-management",
+      "/welfare",
+      "/driver-experience/approvals",
+      "/driver-experience/agents",
+    ]
+  }
+
+  if (mode === "operations-manager") {
+    return [
+      "/driver-experience/dashboard",
+      "/champion-360",
+      "/ticket-management",
+      "/driver-experience/agents",
+    ]
+  }
+
   const role = getRoleDefinition(mode)
   if (!role) return null
 
@@ -204,6 +429,15 @@ export function getAllowedPathPrefixes(mode: SimulationMode): string[] | null {
 /** Paths that are denied even when under an allowed prefix (action-level route blocks). */
 export function getDeniedPathPrefixes(mode: SimulationMode): string[] {
   if (mode === "full-build") return []
+  if (mode === "executive") {
+    return ["/ticket-management/create"]
+  }
+  if (mode === "field-ops-manager") {
+    return ["/ticket-management/create"]
+  }
+  if (mode === "welfare-manager") {
+    return ["/driver-safety-score"]
+  }
   if (mode === "global-fleet-manager") {
     return ["/activation-assignment/asset-reassignment/kit/assign"]
   }
@@ -228,6 +462,33 @@ export function isPathAllowedForMode(pathname: string, mode: SimulationMode): bo
 }
 
 export function getFallbackPathForDenied(pathname: string, mode: SimulationMode): string {
+  if (mode === "welfare-agent") {
+    return "/driver-experience/dashboard"
+  }
+  if (mode === "call-centre-agent") {
+    return "/driver-experience/dashboard"
+  }
+  if (mode === "field-ops-manager") {
+    if (
+      pathname === "/ticket-management/create" ||
+      pathname.startsWith("/ticket-management/create/")
+    ) {
+      return "/ticket-management"
+    }
+    return "/driver-experience/dashboard"
+  }
+  if (mode === "welfare-manager") {
+    return "/driver-experience/dashboard"
+  }
+  if (mode === "executive") {
+    return "/driver-experience/dashboard"
+  }
+  if (mode === "dxp-product-manager") {
+    return "/driver-experience/dashboard"
+  }
+  if (mode === "operations-manager") {
+    return "/driver-experience/dashboard"
+  }
   if (
     mode === "global-fleet-manager" &&
     (pathname === "/activation-assignment/asset-reassignment/kit/assign" ||

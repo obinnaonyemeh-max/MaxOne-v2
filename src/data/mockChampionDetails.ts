@@ -92,6 +92,7 @@ export interface ChampionDetails {
 
   biodata: {
     fullName: string
+    age: string
     dateOfBirth: string
     gender: string
     maritalStatus: string
@@ -356,6 +357,7 @@ export const mockChampionDetails: Record<string, ChampionDetails> = {
     },
     biodata: {
       fullName: "Adewale Ogunleye",
+      age: "36 years",
       dateOfBirth: "12 Jun 1990",
       gender: "Male",
       maritalStatus: "Married",
@@ -405,11 +407,11 @@ export const mockChampionDetails: Record<string, ChampionDetails> = {
       ],
     },
     tickets: [
-      { id: "ct1", ticketId: "TKT-2026-00201", affectedChampion: "Adewale Ogunleye", category: "Vehicle Breakdown",  location: "Lagos – Ikeja",  assignedAgent: "Fatima Bello",  ticketCreator: "System",           priority: "High",   status: "Open",             sla: "Breached",    dateCreated: "27 May 2026" },
-      { id: "ct2", ticketId: "TKT-2026-00202", affectedChampion: "Adewale Ogunleye", category: "Payment Dispute",    location: "Lagos – Ikeja",  assignedAgent: "Chidi Okafor",  ticketCreator: "Adewale Ogunleye", priority: "Medium", status: "In Progress",      sla: "Within SLA",  dateCreated: "25 May 2026" },
-      { id: "ct3", ticketId: "TKT-2026-00203", affectedChampion: "Adewale Ogunleye", category: "App Issue",          location: "Lagos – Ikeja",  assignedAgent: "Ngozi Eze",     ticketCreator: "Adewale Ogunleye", priority: "Low",    status: "Closed",           sla: "Within SLA",  dateCreated: "20 May 2026" },
-      { id: "ct4", ticketId: "TKT-2026-00204", affectedChampion: "Adewale Ogunleye", category: "Insurance Claim",    location: "Lagos – Ikeja",  assignedAgent: "Tunde Bakare",  ticketCreator: "System",           priority: "High",   status: "Pending Feedback", sla: "At Risk",     dateCreated: "22 May 2026" },
-      { id: "ct5", ticketId: "TKT-2026-00205", affectedChampion: "Adewale Ogunleye", category: "Accident Report",    location: "Lagos – Ikeja",  assignedAgent: "Fatima Bello",  ticketCreator: "Adewale Ogunleye", priority: "Medium", status: "Open",             sla: "Within SLA",  dateCreated: "28 May 2026" },
+      { id: "ct1", ticketId: "TKT-2026-00201", affectedChampion: "Adewale Ogunleye", category: "Vehicle Breakdown", location: "Lagos – Ikeja", city: "Lagos", subcity: "Ikeja", assignedAgent: "Fatima Bello", ticketCreator: "System", priority: "High", status: "Open", sla: "Breached", dateCreated: "27 May 2026" },
+      { id: "ct2", ticketId: "TKT-2026-00202", affectedChampion: "Adewale Ogunleye", category: "Payment Dispute", location: "Lagos – Ikeja", city: "Lagos", subcity: "Ikeja", assignedAgent: "Chidi Okafor", ticketCreator: "Adewale Ogunleye", priority: "Medium", status: "In Progress", sla: "Within SLA", dateCreated: "25 May 2026" },
+      { id: "ct3", ticketId: "TKT-2026-00203", affectedChampion: "Adewale Ogunleye", category: "App Issue", location: "Lagos – Ikeja", city: "Lagos", subcity: "Ikeja", assignedAgent: "Ngozi Eze", ticketCreator: "Adewale Ogunleye", priority: "Low", status: "Closed", sla: "Within SLA", dateCreated: "20 May 2026" },
+      { id: "ct4", ticketId: "TKT-2026-00204", affectedChampion: "Adewale Ogunleye", category: "Insurance Claim", location: "Lagos – Ikeja", city: "Lagos", subcity: "Ikeja", assignedAgent: "Tunde Bakare", ticketCreator: "System", priority: "High", status: "Pending Feedback", sla: "At Risk", dateCreated: "22 May 2026" },
+      { id: "ct5", ticketId: "TKT-2026-00205", affectedChampion: "Adewale Ogunleye", category: "Accident Report", location: "Lagos – Ikeja", city: "Lagos", subcity: "Ikeja", assignedAgent: "Fatima Bello", ticketCreator: "Adewale Ogunleye", priority: "Medium", status: "Open", sla: "Within SLA", dateCreated: "28 May 2026" },
     ],
     fieldOps: [
       {
@@ -709,6 +711,7 @@ export const mockChampionDetails: Record<string, ChampionDetails> = {
     },
     biodata: {
       fullName: "Chinedu Okafor",
+      age: "38 years",
       dateOfBirth: "5 Jan 1988",
       gender: "Male",
       maritalStatus: "Single",
@@ -755,10 +758,10 @@ export const mockChampionDetails: Record<string, ChampionDetails> = {
       ],
     },
     tickets: [
-      { id: "ct6", ticketId: "TKT-2026-00301", affectedChampion: "Chinedu Okafor", category: "Payment Dispute",    location: "Lagos – Lekki",  assignedAgent: "Chidi Okafor",  ticketCreator: "Chinedu Okafor", priority: "Medium", status: "Open",        sla: "Within SLA",  dateCreated: "29 May 2026" },
-      { id: "ct7", ticketId: "TKT-2026-00302", affectedChampion: "Chinedu Okafor", category: "App Issue",          location: "Lagos – Lekki",  assignedAgent: "Ngozi Eze",     ticketCreator: "Chinedu Okafor", priority: "Low",    status: "Closed",      sla: "Within SLA",  dateCreated: "18 May 2026" },
-      { id: "ct8", ticketId: "TKT-2026-00303", affectedChampion: "Chinedu Okafor", category: "Vehicle Breakdown",  location: "Lagos – Lekki",  assignedAgent: "Fatima Bello",  ticketCreator: "System",         priority: "High",   status: "In Progress", sla: "At Risk",     dateCreated: "26 May 2026" },
-      { id: "ct9", ticketId: "TKT-2026-00304", affectedChampion: "Chinedu Okafor", category: "Insurance Claim",    location: "Lagos – Lekki",  assignedAgent: "Tunde Bakare",  ticketCreator: "System",         priority: "High",   status: "Closed",      sla: "Breached",    dateCreated: "15 May 2026" },
+      { id: "ct6", ticketId: "TKT-2026-00301", affectedChampion: "Chinedu Okafor", category: "Payment Dispute", location: "Lagos – Lekki", city: "Lagos", subcity: "Lekki", assignedAgent: "Chidi Okafor", ticketCreator: "Chinedu Okafor", priority: "Medium", status: "Open", sla: "Within SLA", dateCreated: "29 May 2026" },
+      { id: "ct7", ticketId: "TKT-2026-00302", affectedChampion: "Chinedu Okafor", category: "App Issue", location: "Lagos – Lekki", city: "Lagos", subcity: "Lekki", assignedAgent: "Ngozi Eze", ticketCreator: "Chinedu Okafor", priority: "Low", status: "Closed", sla: "Within SLA", dateCreated: "18 May 2026" },
+      { id: "ct8", ticketId: "TKT-2026-00303", affectedChampion: "Chinedu Okafor", category: "Vehicle Breakdown", location: "Lagos – Lekki", city: "Lagos", subcity: "Lekki", assignedAgent: "Fatima Bello", ticketCreator: "System", priority: "High", status: "In Progress", sla: "At Risk", dateCreated: "26 May 2026" },
+      { id: "ct9", ticketId: "TKT-2026-00304", affectedChampion: "Chinedu Okafor", category: "Insurance Claim", location: "Lagos – Lekki", city: "Lagos", subcity: "Lekki", assignedAgent: "Tunde Bakare", ticketCreator: "System", priority: "High", status: "Closed", sla: "Breached", dateCreated: "15 May 2026" },
     ],
     fieldOps: [
       {

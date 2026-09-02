@@ -26,6 +26,8 @@ export interface AssignmentHistoryRecord {
   /** "—" when the champion had no agent before this change. */
   previousAgent: string
   newAgent: string
+  city: string
+  subcity: string
   changeType: AssignmentChangeType
   reason: string
   changedBy: ChangedBy
@@ -93,6 +95,8 @@ function buildHistory(): AssignmentHistoryRecord[] {
       championId: champion.championId,
       previousAgent,
       newAgent: newAgent.agent,
+      city: newAgent.city,
+      subcity: newAgent.subcity,
       changeType,
       reason: reassignmentReasons[Math.floor(seededRandom(seed + 11) * reassignmentReasons.length)],
       changedBy,

@@ -33,9 +33,10 @@ interface TransferRequestSheetProps {
   isOpen: boolean
   onClose: () => void
   onStatusChange?: (id: string, status: MarkedTransferRecord["status"], rejectionReason?: string) => void
+  readOnly?: boolean
 }
 
-export function TransferRequestSheet({ transfer, isOpen, onClose, onStatusChange }: TransferRequestSheetProps) {
+export function TransferRequestSheet({ transfer, isOpen, onClose, onStatusChange, readOnly = false }: TransferRequestSheetProps) {
   const [showApprove, setShowApprove] = useState(false)
   const [showReject, setShowReject] = useState(false)
   const [showContractPreview, setShowContractPreview] = useState(false)
@@ -167,7 +168,7 @@ export function TransferRequestSheet({ transfer, isOpen, onClose, onStatusChange
         </div>
 
         {/* Footer — only show actions for Pending status */}
-        {isPending && (
+        {isPending && !readOnly && (
           <>
             <div className="px-6 py-3 border-t border-gray-100">
               <label className="flex items-start gap-3 cursor-pointer">

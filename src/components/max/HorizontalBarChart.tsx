@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react"
+import { useState, useCallback, type ReactNode } from "react"
 import {
   BarChart,
   Bar,
@@ -25,6 +25,8 @@ interface HorizontalBarChartProps {
   showLegend?: boolean
   stacked?: boolean
   className?: string
+  action?: ReactNode
+  yAxisWidth?: number
 }
 
 export function HorizontalBarChart({
@@ -34,6 +36,8 @@ export function HorizontalBarChart({
   showLegend = false,
   stacked = false,
   className,
+  action,
+  yAxisWidth = 70,
 }: HorizontalBarChartProps) {
   const [activeIndex, setActiveIndex] = useState<number | null>(null)
 
@@ -60,13 +64,14 @@ export function HorizontalBarChart({
         className
       )}
     >
-      <div className="px-5 pt-5 pb-2">
+      <div className="flex items-center justify-between gap-3 px-5 pt-5 pb-2">
         <h3
           className="text-gray-950"
           style={{ fontSize: "16px", fontWeight: 500 }}
         >
           {title}
         </h3>
+        {action}
       </div>
 
       <div className="px-3 pb-4">
@@ -92,7 +97,7 @@ export function HorizontalBarChart({
               tick={{ fill: "var(--color-gray-600)", fontSize: 12, fontWeight: 500 }}
               axisLine={false}
               tickLine={false}
-              width={70}
+              width={yAxisWidth}
             />
             <Tooltip
               cursor={false}

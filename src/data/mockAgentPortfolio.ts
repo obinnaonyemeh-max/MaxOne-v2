@@ -16,6 +16,10 @@ export interface AgentPortfolioRecord {
   department: AgentDepartment
   /** Nigerian state the agent covers. */
   state: string
+  /** Operational city used by Agent Distribution. */
+  city: string
+  /** Operational area within the agent's city. */
+  subcity: string
   /** Champions in good standing — state "Performing". */
   active: number
   /** States "Watchlist" and "Early Arrears". */
@@ -43,18 +47,18 @@ export interface AgentChampionRecord {
 // Champion counts per agent. `total` is derived below so the breakdown always
 // adds up rather than drifting from the columns beside it.
 const agentBooks: Omit<AgentPortfolioRecord, "total">[] = [
-  { id: "1",  agent: "Fatima Bello",    department: "Welfare",    state: "Lagos",  active: 24, atRisk: 5, delinquent: 3, inactive: 2, status: "Active" },
-  { id: "2",  agent: "Chidi Okafor",    department: "Welfare",    state: "Lagos",  active: 18, atRisk: 7, delinquent: 4, inactive: 1, status: "Active" },
-  { id: "3",  agent: "Ngozi Eze",       department: "Operations", state: "Abuja",  active: 27, atRisk: 3, delinquent: 1, inactive: 3, status: "Active" },
-  { id: "4",  agent: "Tunde Bakare",    department: "Welfare",    state: "Oyo",    active: 15, atRisk: 6, delinquent: 5, inactive: 2, status: "Active" },
-  { id: "5",  agent: "Amara Nwachukwu", department: "Welfare",    state: "Lagos",  active: 22, atRisk: 4, delinquent: 2, inactive: 1, status: "Active" },
-  { id: "6",  agent: "Bashir Lawal",    department: "Operations", state: "Kano",   active: 13, atRisk: 8, delinquent: 6, inactive: 2, status: "Active" },
-  { id: "7",  agent: "Chinelo Umeh",    department: "Welfare",    state: "Rivers", active: 26, atRisk: 2, delinquent: 1, inactive: 1, status: "Active" },
-  { id: "8",  agent: "Damilola Ajayi",  department: "Operations", state: "Abuja",  active: 12, atRisk: 5, delinquent: 3, inactive: 4, status: "On Leave" },
-  { id: "9",  agent: "Efe Oghenekaro",  department: "Welfare",    state: "Enugu",  active: 20, atRisk: 4, delinquent: 3, inactive: 2, status: "Active" },
-  { id: "10", agent: "Halima Sani",     department: "Operations", state: "Kano",   active: 17, atRisk: 6, delinquent: 4, inactive: 1, status: "Active" },
-  { id: "11", agent: "Ifeanyi Obiora",  department: "Welfare",    state: "Lagos",  active: 9,  atRisk: 3, delinquent: 2, inactive: 2, status: "On Leave" },
-  { id: "12", agent: "Kunle Adebayo",   department: "Operations", state: "Oyo",    active: 0,  atRisk: 0, delinquent: 0, inactive: 5, status: "Inactive" },
+  { id: "1",  agent: "Fatima Bello",    department: "Welfare",    state: "Lagos",  city: "Lagos",         subcity: "Ikeja",               active: 24, atRisk: 5, delinquent: 3, inactive: 2, status: "Active" },
+  { id: "2",  agent: "Chidi Okafor",    department: "Welfare",    state: "Lagos",  city: "Lagos",         subcity: "Lekki",               active: 18, atRisk: 7, delinquent: 4, inactive: 1, status: "Active" },
+  { id: "3",  agent: "Ngozi Eze",       department: "Operations", state: "Abuja",  city: "Abuja",         subcity: "Wuse",                active: 27, atRisk: 3, delinquent: 1, inactive: 3, status: "Active" },
+  { id: "4",  agent: "Tunde Bakare",    department: "Welfare",    state: "Oyo",    city: "Ibadan",        subcity: "Ring Road",           active: 15, atRisk: 6, delinquent: 5, inactive: 2, status: "Active" },
+  { id: "5",  agent: "Amara Nwachukwu", department: "Welfare",    state: "Lagos",  city: "Lagos",         subcity: "Victoria Island",     active: 22, atRisk: 4, delinquent: 2, inactive: 1, status: "Active" },
+  { id: "6",  agent: "Bashir Lawal",    department: "Operations", state: "Kano",   city: "Kano",          subcity: "Sabon Gari",          active: 13, atRisk: 8, delinquent: 6, inactive: 2, status: "Active" },
+  { id: "7",  agent: "Chinelo Umeh",    department: "Welfare",    state: "Rivers", city: "Port Harcourt", subcity: "D-Line",              active: 26, atRisk: 2, delinquent: 1, inactive: 1, status: "Active" },
+  { id: "8",  agent: "Damilola Ajayi",  department: "Operations", state: "Abuja",  city: "Abuja",         subcity: "Garki",               active: 12, atRisk: 5, delinquent: 3, inactive: 4, status: "On Leave" },
+  { id: "9",  agent: "Efe Oghenekaro",  department: "Welfare",    state: "Enugu",  city: "Enugu",         subcity: "Independence Layout", active: 20, atRisk: 4, delinquent: 3, inactive: 2, status: "Active" },
+  { id: "10", agent: "Halima Sani",     department: "Operations", state: "Kano",   city: "Kano",          subcity: "Tarauni",             active: 17, atRisk: 6, delinquent: 4, inactive: 1, status: "Active" },
+  { id: "11", agent: "Ifeanyi Obiora",  department: "Welfare",    state: "Lagos",  city: "Lagos",         subcity: "Yaba",                active: 9,  atRisk: 3, delinquent: 2, inactive: 2, status: "On Leave" },
+  { id: "12", agent: "Kunle Adebayo",   department: "Operations", state: "Oyo",    city: "Ibadan",        subcity: "Challenge",           active: 0,  atRisk: 0, delinquent: 0, inactive: 5, status: "Inactive" },
 ]
 
 export const mockAgentPortfolioRecords: AgentPortfolioRecord[] = agentBooks.map((book) => ({

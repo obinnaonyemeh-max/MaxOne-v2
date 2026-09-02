@@ -33,6 +33,7 @@ import {
   leaveTypeVariantMap,
   type TimeOffApprovalRecord,
 } from "@/data/mockTimeOffApprovals"
+import { useRoleSimulation } from "@/contexts/RoleSimulationContext"
 
 // ── Transfer columns ──
 
@@ -193,6 +194,9 @@ const timeOffFilterSections: FilterSection[] = [
 // ── Page ──
 
 export default function ApprovalsPage() {
+  const { mode } = useRoleSimulation()
+  const isReadOnly =
+    mode === "executive" || mode === "dxp-product-manager"
   // Transfer state
   const [transferData, setTransferData] = useState(mockMarkedTransfers)
   const [transferPage, setTransferPage] = useState(1)
@@ -480,6 +484,7 @@ export default function ApprovalsPage() {
         isOpen={selectedTransfer !== null}
         onClose={() => setSelectedTransfer(null)}
         onStatusChange={handleTransferStatusChange}
+        readOnly={isReadOnly}
       />
     </>
   )

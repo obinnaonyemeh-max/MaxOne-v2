@@ -40,23 +40,32 @@ export function FalconDashboardSlideshow({ onClose }: FalconDashboardSlideshowPr
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[100] bg-content-card"
+      className="fixed inset-0 z-[100] flex min-h-0 flex-col bg-content-card"
       role="dialog"
       aria-modal="true"
-      aria-label="Falcon metrics slideshow"
+      aria-label={`Falcon metrics slideshow: ${screen.label}`}
     >
-      <div className="h-full min-h-0 overflow-hidden p-4 pt-5 pb-16">
+      <header className="flex shrink-0 items-center justify-between gap-4 px-4 pt-4 pb-3">
+        <h1
+          className="flex items-end gap-1 font-semibold text-sidebar-item-active"
+          style={{ fontSize: "22px" }}
+        >
+          {screen.label}
+          <span className="mb-2 h-1.5 w-1.5 rounded-full bg-brand-primary" />
+        </h1>
+        <button
+          type="button"
+          onClick={onClose}
+          className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-700 shadow-md transition-colors hover:bg-gray-50 hover:text-gray-950"
+          aria-label="Exit slideshow"
+        >
+          <X className="h-4 w-4" />
+        </button>
+      </header>
+
+      <div className="min-h-0 flex-1 overflow-hidden px-4 pb-16">
         <FalconDashboardBody moduleId={screen.id} />
       </div>
-
-      <button
-        type="button"
-        onClick={onClose}
-        className="absolute top-4 right-4 z-[110] inline-flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-700 shadow-md transition-colors hover:bg-gray-50 hover:text-gray-950"
-        aria-label="Exit slideshow"
-      >
-        <X className="h-4 w-4" />
-      </button>
 
       <div className="pointer-events-none absolute inset-x-0 bottom-4 z-[110] flex justify-center">
         <div className="pointer-events-auto inline-flex items-center overflow-hidden rounded-full bg-gray-900 text-white shadow-lg">

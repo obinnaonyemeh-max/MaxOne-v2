@@ -27,6 +27,10 @@ interface HorizontalBarChartProps {
   className?: string
   action?: ReactNode
   yAxisWidth?: number
+  summaryLabel?: string
+  summaryValue?: string | number
+  chartHeight?: number
+  fill?: boolean
 }
 
 export function HorizontalBarChart({
@@ -38,6 +42,10 @@ export function HorizontalBarChart({
   className,
   action,
   yAxisWidth = 70,
+  summaryLabel,
+  summaryValue,
+  chartHeight = 250,
+  fill = false,
 }: HorizontalBarChartProps) {
   const [activeIndex, setActiveIndex] = useState<number | null>(null)
 
@@ -61,10 +69,11 @@ export function HorizontalBarChart({
     <div
       className={cn(
         "bg-gray-25 border border-gray-200 rounded-lg",
+        fill && "flex h-full min-h-0 flex-col",
         className
       )}
     >
-      <div className="flex items-center justify-between gap-3 px-5 pt-5 pb-2">
+      <div className="flex shrink-0 items-center justify-between gap-3 px-5 pt-5 pb-2">
         <h3
           className="text-gray-950"
           style={{ fontSize: "16px", fontWeight: 500 }}
@@ -74,8 +83,21 @@ export function HorizontalBarChart({
         {action}
       </div>
 
-      <div className="px-3 pb-4">
-        <ResponsiveContainer width="100%" height={250}>
+      {summaryLabel && (
+        <div className="px-5 pb-2">
+          <p className="text-[12px] font-medium text-gray-500">{summaryLabel}</p>
+          {summaryValue !== undefined && (
+            <p className="mt-0.5 text-[24px] font-semibold text-gray-950">
+              {typeof summaryValue === "number"
+                ? summaryValue.toLocaleString()
+                : summaryValue}
+            </p>
+          )}
+        </div>
+      )}
+
+      <div className={cn("px-3 pb-4", fill && "min-h-0 flex-1")}>
+        <ResponsiveContainer width="100%" height={fill ? "100%" : chartHeight}>
           <BarChart
             data={chartData}
             layout="vertical"

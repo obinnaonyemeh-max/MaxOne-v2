@@ -23,6 +23,16 @@ export { ConfirmModal, type ConfirmModalProps, type ConfirmModalAction, type Con
 export { TagInput, type TagInputProps } from "./TagInput"
 export { BackButton } from "./BackButton"
 export { StatCard } from "./StatCard"
+export { SegmentedStatCard, type SegmentedStatCardItem, type SegmentedStatCardProps } from "./SegmentedStatCard"
+export { TimeSeriesStatCard, type TimeSeriesStatCardProps, type TimeSeriesStatPoint } from "./TimeSeriesStatCard"
+export { PeriodSegmentedControl } from "./PeriodSegmentedControl"
+export {
+  usePeriodFilter,
+  getPeriodBounds,
+  getPeriodScale,
+  type Period,
+  type PeriodFilterState,
+} from "./periodFilter"
 export { Banner, type BannerProps } from "./Banner"
 export { LoaderModal, type LoaderModalProps } from "./LoaderModal"
 export { DocDropZone, type DocDropZoneProps } from "./DocDropZone"

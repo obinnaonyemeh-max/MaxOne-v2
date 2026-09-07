@@ -37,7 +37,7 @@ import WelfarePage from "@/pages/WelfarePage"
 import AgentPortfolioPage from "@/pages/AgentPortfolioPage"
 import AgentDetailPage from "@/pages/AgentDetailPage"
 import AssignmentHistoryPage from "@/pages/AssignmentHistoryPage"
-import BatteriesDashboardPage from "@/pages/BatteriesDashboardPage"
+import FalconDashboardPage from "@/pages/FalconDashboardPage"
 import BatteryRegisterPage from "@/pages/battery-register/BatteryRegisterPage"
 import BatteryDetailsPage from "@/pages/battery-register/BatteryDetailsPage"
 import ChargerRegisterPage from "@/pages/charger-register/ChargerRegisterPage"
@@ -132,7 +132,8 @@ export default function App() {
         <Route path="/ticket-management/create" element={<CreateTicketPage />} />
         <Route path="/driver-safety-score" element={<DriverSafetyScorePage />} />
         <Route path="/welfare" element={<WelfarePage />} />
-        <Route path="/falcon/batteries/dashboard" element={<BatteriesDashboardPage />} />
+        <Route path="/falcon/dashboard" element={<FalconDashboardPage />} />
+        <Route path="/falcon/batteries/dashboard" element={<Navigate to="/falcon/dashboard" replace />} />
         <Route path="/falcon/batteries/register" element={<BatteryRegisterPage />} />
         <Route path="/falcon/batteries/:id" element={<BatteryDetailsPage />} />
         <Route path="/falcon/ev-chargers" element={<ChargerRegisterPage />} />

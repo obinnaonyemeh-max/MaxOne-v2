@@ -13,6 +13,7 @@ import {
   getActiveFilterCount,
   ConfirmModal,
   StatusBadge,
+  StatCard,
   type FilterSection,
   type GenericFilterState,
 } from "@/components/max"
@@ -27,6 +28,7 @@ import {
   ENFORCEMENT_ACTION_VARIANTS,
   getActiveEnforcements,
   reverseEnforcement,
+  type EnforcementActionType,
   type EnforcementRecord,
 } from "@/data/mockEnforcement"
 import { getVehicleActivity } from "@/data/mockVehicleActivity"
@@ -36,6 +38,16 @@ import { ReverseEnforcementModal } from "./ReverseEnforcementModal"
 const COLOR_STATUS_WARNING = "var(--color-warning)"
 const COLOR_STATUS_DANGER = "var(--color-danger)"
 const COLOR_STATUS_INFO = "var(--color-info)"
+
+const ENFORCEMENT_TYPE_CARDS: Array<{
+  action: EnforcementActionType
+  title: string
+  indicatorColor: string
+}> = [
+  { action: "swap-block", title: "Swap Block", indicatorColor: COLOR_STATUS_INFO },
+  { action: "vehicle-lock", title: "Vehicle Lock", indicatorColor: COLOR_STATUS_WARNING },
+  { action: "battery-lock", title: "Battery Lock", indicatorColor: COLOR_STATUS_DANGER },
+]
 
 const filterSections: FilterSection[] = [
   {
@@ -184,6 +196,18 @@ export default function EnforcementPage() {
   const [historyVehicleId, setHistoryVehicleId] = useState<string | null>(null)
   const activeFilterCount = getActiveFilterCount(filters)
 
+  const typeCounts = useMemo(() => {
+    const counts: Record<EnforcementActionType, number> = {
+      "swap-block": 0,
+      "vehicle-lock": 0,
+      "battery-lock": 0,
+    }
+    for (const record of records) {
+      counts[record.action] += 1
+    }
+    return counts
+  }, [records])
+
   const filteredRecords = useMemo(
     () =>
       records.filter((record) => {
@@ -238,6 +262,28 @@ export default function EnforcementPage() {
         subtitle="Review active enforcement actions and reverse them when the issue is resolved."
         className="shrink-0"
       />
+
+      <div className="shrink-0 grid grid-cols-3 gap-2 px-6">
+        {ENFORCEMENT_TYPE_CARDS.map((card) => {
+          const isSelected = filters.action.includes(card.action)
+          return (
+            <StatCard
+              key={card.action}
+              title={card.title}
+              value={typeCounts[card.action].toLocaleString()}
+              indicatorColor={card.indicatorColor}
+              className={isSelected ? "border-gray-950" : undefined}
+              onClick={() => {
+                setFilters((current) => ({
+                  ...current,
+                  action: isSelected ? [] : [card.action],
+                }))
+                setCurrentPage(1)
+              }}
+            />
+          )
+        })}
+      </div>
 
       <div className="flex-1 flex flex-col min-h-0 px-6 pt-4">
         <div className="flex-1 flex flex-col min-h-0 rounded-t-[14px] rounded-b-[4px] border border-table-border">

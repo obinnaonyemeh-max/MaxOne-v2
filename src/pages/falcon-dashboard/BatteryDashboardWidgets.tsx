@@ -10,24 +10,20 @@ import {
   ResponsiveContainer,
 } from "recharts"
 import {
-  TopBar,
-  PageHeader,
+  PeriodSegmentedControl,
   StatCard,
+  TimeSeriesStatCard,
+  getPeriodScale,
+  usePeriodFilter,
 } from "@/components/max"
 import { BatteryMap } from "@/components/max/BatteryMap"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import {
   batteryStats,
   sohDistributionData,
   batteryStateData,
   batteryLocations,
   batteryAlerts,
+  batterySocTrend,
 } from "@/data/mockBatteryData"
 
 const COLOR_SUCCESS = "var(--color-success)"
@@ -100,8 +96,42 @@ function DarkTooltipContent({
   )
 }
 
-export default function BatteriesDashboardPage() {
-  const [period, setPeriod] = useState("6")
+interface BatteryDashboardWidgetsProps {
+  showStats?: boolean
+  showCharts?: boolean
+  showSoc?: boolean
+  showMap?: boolean
+  statsOnly?: boolean
+  fill?: boolean
+  showPeriodFilter?: boolean
+}
+
+export function BatteryDashboardWidgets({
+  showStats = true,
+  showCharts = true,
+  showSoc = true,
+  showMap = true,
+  statsOnly = false,
+  fill = false,
+  showPeriodFilter = true,
+}: BatteryDashboardWidgetsProps) {
+  const {
+    period,
+    setPeriod,
+    customStartDate,
+    setCustomStartDate,
+    customEndDate,
+    setCustomEndDate,
+    customOpen,
+    setCustomOpen,
+    applyCustomRange,
+  } = usePeriodFilter()
+  const periodScale = getPeriodScale(period, customStartDate, customEndDate)
+  const scaledSohData = sohDistributionData.map((item) => ({
+    ...item,
+    count: Math.round(item.count * periodScale),
+  }))
+  const scaledBatteryTotal = Math.round(batteryStats.activeBatteries * periodScale)
   const [hoveredSOHIndex, setHoveredSOHIndex] = useState<number | null>(null)
   const [hoveredStateIndex, setHoveredStateIndex] = useState<number | null>(null)
 
@@ -121,39 +151,29 @@ export default function BatteriesDashboardPage() {
     setHoveredStateIndex(null)
   }, [])
 
-  return (
-    <>
-      <TopBar
-        breadcrumbs={[
-          { label: "Falcon" },
-          { label: "Batteries" },
-          { label: "Dashboard" },
-        ]}
-      />
-
-      <div className="flex-1 overflow-auto px-6 pb-6">
-        <PageHeader
-          title="Batteries Dashboard"
-          subtitle="Monitor battery health, status, and alerts across your fleet"
-          className="px-0"
+  const statsCards = (
+    <div className={fill ? "grid shrink-0 grid-cols-6 gap-2" : "grid grid-cols-6 gap-2"}>
+      {stats.map((stat) => (
+        <StatCard
+          key={stat.title}
+          title={stat.title}
+          value={stat.value}
+          indicatorColor={stat.indicatorColor}
         />
+      ))}
+    </div>
+  )
 
-        {/* Stat Cards */}
-        <div className="grid grid-cols-6 gap-2">
-          {stats.map((stat) => (
-            <StatCard
-              key={stat.title}
-              title={stat.title}
-              value={stat.value}
-              indicatorColor={stat.indicatorColor}
-            />
-          ))}
-        </div>
+  if (statsOnly) return statsCards
 
-        {/* Charts Row */}
-        <div className="grid grid-cols-2 gap-4 mt-6">
+  return (
+    <div className={fill ? "flex h-full min-h-0 flex-col gap-2" : undefined}>
+        {showStats && statsCards}
+
+        {showCharts && (
+        <div className={fill ? "grid min-h-0 flex-1 grid-cols-2 gap-2" : `grid grid-cols-2 gap-4 ${showStats ? "mt-6" : ""}`}>
           {/* Average State of Health Distribution */}
-          <div className="bg-gray-25 border border-gray-200 rounded-lg">
+          <div className={fill ? "flex h-full min-h-0 flex-col bg-gray-25 border border-gray-200 rounded-lg" : "bg-gray-25 border border-gray-200 rounded-lg"}>
             <div className="flex items-center justify-between px-5 pt-5 pb-2">
               <h3
                 className="text-gray-950"
@@ -161,17 +181,20 @@ export default function BatteriesDashboardPage() {
               >
                 Average State of Health Distribution
               </h3>
-              <Select value={period} onValueChange={setPeriod}>
-                <SelectTrigger className="w-[140px] h-8">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="1">Last month</SelectItem>
-                  <SelectItem value="3">Last 3 months</SelectItem>
-                  <SelectItem value="6">Last 6 months</SelectItem>
-                  <SelectItem value="12">Last 12 months</SelectItem>
-                </SelectContent>
-              </Select>
+              {showPeriodFilter && (
+              <PeriodSegmentedControl
+                period={period}
+                onPeriodChange={setPeriod}
+                customStartDate={customStartDate}
+                customEndDate={customEndDate}
+                onCustomStartDateChange={setCustomStartDate}
+                onCustomEndDateChange={setCustomEndDate}
+                customOpen={customOpen}
+                onCustomOpenChange={setCustomOpen}
+                onApplyCustomRange={applyCustomRange}
+                maxDate={new Date()}
+              />
+              )}
             </div>
             <div className="px-5 pb-2">
               <span
@@ -184,13 +207,13 @@ export default function BatteriesDashboardPage() {
                 className="text-gray-950"
                 style={{ fontSize: "24px", fontWeight: 600 }}
               >
-                {batteryStats.activeBatteries.toLocaleString()}
+                {scaledBatteryTotal.toLocaleString()}
               </p>
             </div>
-            <div className="px-3 pb-4">
-              <ResponsiveContainer width="100%" height={280}>
+            <div className={fill ? "min-h-0 flex-1 px-3 pb-4" : "px-3 pb-4"}>
+              <ResponsiveContainer width="100%" height={fill ? "100%" : 280}>
                 <BarChart
-                  data={sohDistributionData}
+                  data={scaledSohData}
                   margin={{ top: 10, right: 20, left: 10, bottom: 5 }}
                 >
                   <CartesianGrid
@@ -220,7 +243,7 @@ export default function BatteriesDashboardPage() {
                     onMouseEnter={onSOHBarEnter}
                     onMouseLeave={onSOHBarLeave}
                   >
-                    {sohDistributionData.map((entry, index) => (
+                    {scaledSohData.map((entry, index) => (
                       <Cell
                         key={entry.range}
                         fill={entry.color}
@@ -239,7 +262,7 @@ export default function BatteriesDashboardPage() {
           </div>
 
           {/* Battery State Distribution */}
-          <div className="bg-gray-25 border border-gray-200 rounded-lg">
+          <div className={fill ? "flex h-full min-h-0 flex-col bg-gray-25 border border-gray-200 rounded-lg" : "bg-gray-25 border border-gray-200 rounded-lg"}>
             <div className="px-5 pt-5 pb-2">
               <h3
                 className="text-gray-950"
@@ -262,8 +285,8 @@ export default function BatteriesDashboardPage() {
                 {batteryStats.activeBatteries.toLocaleString()}
               </p>
             </div>
-            <div className="px-3 pb-4">
-              <ResponsiveContainer width="100%" height={280}>
+            <div className={fill ? "min-h-0 flex-1 px-3 pb-4" : "px-3 pb-4"}>
+              <ResponsiveContainer width="100%" height={fill ? "100%" : 280}>
                 <BarChart
                   data={batteryStateData}
                   margin={{ top: 10, right: 20, left: 10, bottom: 5 }}
@@ -313,16 +336,36 @@ export default function BatteriesDashboardPage() {
             </div>
           </div>
         </div>
+        )}
 
-        {/* Battery Map */}
+        {showSoc && (
+        <div className={fill ? "min-h-0 flex-1" : "mt-6"}>
+          <TimeSeriesStatCard
+            title="Average Battery State of Charge Distribution"
+            valueLabel="Average State of Charge"
+            data={batterySocTrend}
+            primaryTooltipLabel="Average SOC"
+            lineColor={COLOR_INFO}
+            valueColorClassName="text-gray-950"
+            valueAggregation="average"
+            formatValue={(value) => `${value.toFixed(1)}%`}
+            chartHeight={280}
+            fill={fill}
+            showPeriodFilter={showPeriodFilter}
+          />
+        </div>
+        )}
+
+        {showMap && (
         <BatteryMap
           locations={batteryLocations}
           alerts={batteryAlerts}
           avgSOH={batteryStats.avgSOH}
           activeBatteries={batteryStats.activeBatteries}
-          className="mt-6"
+          className={fill ? "min-h-0 flex-1" : "mt-6"}
+          fill={fill}
         />
-      </div>
-    </>
+        )}
+    </div>
   )
 }

@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react"
+import { useState, useCallback, type ReactNode } from "react"
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts"
 import { cn } from "@/lib/utils"
 
@@ -13,6 +13,10 @@ interface DistributionChartProps {
   data: DistributionDataItem[]
   legendTitle?: string
   className?: string
+  action?: ReactNode
+  summaryValue?: string | number
+  centerContent?: boolean
+  compact?: boolean
 }
 
 export function DistributionChart({
@@ -20,6 +24,10 @@ export function DistributionChart({
   data,
   legendTitle = "Legend",
   className,
+  action,
+  summaryValue,
+  centerContent = false,
+  compact = false,
 }: DistributionChartProps) {
   const [activeIndex, setActiveIndex] = useState<number | null>(null)
 
@@ -35,27 +43,50 @@ export function DistributionChart({
     <div
       className={cn(
         "bg-white border border-gray-200 rounded-lg p-4",
+        compact && "flex h-full min-h-0 flex-col overflow-hidden p-3",
         className
       )}
     >
-      <h4
-        className="text-gray-950 mb-4"
-        style={{ fontSize: "16px", fontWeight: 500 }}
-      >
-        {title}
-      </h4>
+      <div className={cn("mb-4 flex items-center justify-between gap-3", compact && "mb-2 shrink-0")}>
+        <h4
+          className="text-gray-950"
+          style={{ fontSize: compact ? "14px" : "16px", fontWeight: 500 }}
+        >
+          {title}
+        </h4>
+        {action}
+      </div>
 
-      <div className="flex items-center" style={{ gap: "100px" }}>
-        <div className="shrink-0" style={{ width: "185px", height: "185px" }}>
+      {summaryValue !== undefined && (
+        <p className="mb-3 text-[24px] font-medium text-gray-950">
+          {typeof summaryValue === "number" ? summaryValue.toLocaleString() : summaryValue}
+        </p>
+      )}
+
+      <div
+        className={cn(
+          "flex w-full items-center",
+          centerContent && "justify-center",
+          compact && "min-h-0 flex-1"
+        )}
+        style={{ gap: compact ? "16px" : "100px" }}
+      >
+        <div
+          className="shrink-0"
+          style={{
+            width: compact ? "108px" : "185px",
+            height: compact ? "108px" : "185px",
+          }}
+        >
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
                 data={data}
                 cx="50%"
                 cy="50%"
-                innerRadius={45}
-                outerRadius={75}
-                cornerRadius={8}
+                innerRadius={compact ? 26 : 45}
+                outerRadius={compact ? 44 : 75}
+                cornerRadius={compact ? 6 : 8}
                 paddingAngle={4}
                 dataKey="value"
                 nameKey="label"
@@ -112,14 +143,14 @@ export function DistributionChart({
           </ResponsiveContainer>
         </div>
 
-        <div className="flex-1">
+        <div className={cn("flex-1", compact && "min-w-0")}>
           <p
             className="text-gray-600 mb-2"
-            style={{ fontSize: "13px", fontWeight: 500 }}
+            style={{ fontSize: compact ? "11px" : "13px", fontWeight: 500 }}
           >
             {legendTitle}
           </p>
-          <div className="space-y-1.5">
+          <div className={cn("space-y-1.5", compact && "space-y-1")}>
             {data.map((item) => (
               <div key={item.label} className="flex items-center gap-2">
                 <span

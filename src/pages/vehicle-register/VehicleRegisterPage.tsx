@@ -156,12 +156,12 @@ export default function VehicleRegisterPage() {
       <TopBar
         breadcrumbs={[
           { label: "Falcon" },
-          { label: "Vehicle Register" },
+          { label: "Vehicle Tracking" },
         ]}
       />
 
       <PageHeader
-        title="Vehicle Register"
+        title="Vehicle Tracking"
         subtitle="View and track all vehicles in your fleet with real-time status and location."
         className="shrink-0"
       />

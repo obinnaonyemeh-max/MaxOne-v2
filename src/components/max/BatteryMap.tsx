@@ -20,6 +20,7 @@ interface BatteryMapProps {
   avgSOH: number
   activeBatteries: number
   className?: string
+  fill?: boolean
 }
 
 export function BatteryMap({
@@ -28,6 +29,7 @@ export function BatteryMap({
   avgSOH,
   activeBatteries,
   className,
+  fill = false,
 }: BatteryMapProps) {
   const [currentAlertIndex, setCurrentAlertIndex] = useState(0)
 
@@ -47,10 +49,14 @@ export function BatteryMap({
     <div
       className={cn(
         "bg-gray-25 border border-gray-200 rounded-lg overflow-hidden p-2",
+        fill && "flex h-full min-h-0 flex-col",
         className
       )}
     >
-      <div className="relative rounded-lg overflow-hidden" style={{ height: "400px" }}>
+      <div
+        className={cn("relative overflow-hidden rounded-lg", fill && "min-h-0 flex-1")}
+        style={fill ? undefined : { height: "400px" }}
+      >
         {/* Left Stats Panel with Frosted Glass Effect */}
         <div
           className="absolute left-4 top-4 z-[1000] rounded-lg p-4"

@@ -105,3 +105,18 @@ export const batteryAlerts: BatteryAlert[] = [
     severity: "L1",
   },
 ]
+
+const BATTERY_SOC_END_DATE_MS = Date.parse("2026-09-02T12:00:00+01:00")
+const BATTERY_SOC_DAYS = 184
+
+export const batterySocTrend = Array.from(
+  { length: BATTERY_SOC_DAYS },
+  (_, index) => ({
+    date: new Date(
+      BATTERY_SOC_END_DATE_MS - (BATTERY_SOC_DAYS - index - 1) * 24 * 60 * 60 * 1000
+    ).toISOString(),
+    value: Math.round(
+      (74 + Math.sin(index / 13) * 4 + Math.sin(index / 29) * 2.5 + (index % 7) * 0.25) * 10
+    ) / 10,
+  })
+)

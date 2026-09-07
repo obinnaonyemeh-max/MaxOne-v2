@@ -47,7 +47,7 @@ export default function VehicleActivityPage() {
         <TopBar
           breadcrumbs={[
             { label: "Falcon" },
-            { label: "Vehicle Register", href: "/falcon/vehicle-register" },
+            { label: "Vehicle Tracking", href: "/falcon/vehicle-register" },
             { label: "Not Found" },
           ]}
         />
@@ -99,7 +99,7 @@ export default function VehicleActivityPage() {
       <TopBar
         breadcrumbs={[
           { label: "Falcon" },
-          { label: "Vehicle Register", href: "/falcon/vehicle-register" },
+          { label: "Vehicle Tracking", href: "/falcon/vehicle-register" },
           { label: vehicle.plateNumber },
         ]}
       />

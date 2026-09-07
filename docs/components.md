@@ -20,11 +20,13 @@ This document catalogs all reusable components in the MaxOne design system. Thes
   - [StatusBadge](#statusbadge)
   - [Pagination](#pagination)
   - [StatCard](#statcard)
+  - [SegmentedStatCard](#segmentedstatcard)
   - [TimelineEntry](#timelineentry)
   - [StatusTimeline](#statustimeline)
 - [Chart Components](#chart-components)
   - [DistributionChart](#distributionchart)
   - [HorizontalBarChart](#horizontalbarchart)
+  - [TimeSeriesStatCard](#timeseriesstatcard)
 - [Form/Filter Components](#formfilter-components)
   - [FilterBar](#filterbar)
   - [FilterPopover](#filterpopover)
@@ -113,10 +115,12 @@ src/components/
     ├── StatusBadge.tsx
     ├── Pagination.tsx
     ├── StatCard.tsx
+    ├── SegmentedStatCard.tsx
     ├── TimelineEntry.tsx
     ├── StatusTimeline.tsx
     ├── DistributionChart.tsx
     ├── HorizontalBarChart.tsx
+    ├── TimeSeriesStatCard.tsx
     ├── InfoCard.tsx
     ├── InfoGrid.tsx
     ├── ChampionInformation.tsx
@@ -175,10 +179,12 @@ import {
   StatusBadge,
   Pagination,
   StatCard,
+  SegmentedStatCard,
   TimelineEntry,
   StatusTimeline,
   DistributionChart,
   HorizontalBarChart,
+  TimeSeriesStatCard,
   InfoCard,
   InfoGrid,
   ChampionInformation,
@@ -722,12 +728,15 @@ import { StatCard } from "@/components/max"
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `title` | `string` | required | Metric label |
-| `value` | `string \| number` | required | Primary value (28px) |
+| `value` | `string \| number` | required | Primary value (24px) |
+| `valueSuffix` | `string` | - | Smaller muted unit rendered after the primary value |
 | `subtitle` | `string` | - | Secondary caption |
+| `subtitleIndicatorColor` | `string` | - | CSS color for an optional dot before the subtitle |
 | `trend` | `{ value: number; direction: "up" \| "down" }` | - | Trend percent and arrow |
 | `indicatorColor` | `string` | required | CSS color for the 8px header dot |
 | `onClick` | `() => void` | - | Makes the card a clickable surface |
 | `className` | `string` | - | Additional classes |
+| `contentClassName` | `string` | - | Additional classes for spacing or distributing the card content |
 
 #### Usage
 
@@ -745,6 +754,57 @@ import { StatCard } from "@/components/max"
 
 - Surface: `bg-gray-25`, `border-gray-200`, hover darkens to `border-gray-950`
 - Up trend uses `text-status-success-text`; down uses `text-status-danger`
+
+---
+
+### SegmentedStatCard
+
+Dashboard metric tile that pairs a primary value with a proportional segmented bar and labeled quantities. Use it when a total needs a compact category breakdown.
+
+#### Import
+
+```tsx
+import { SegmentedStatCard, type SegmentedStatCardItem } from "@/components/max"
+```
+
+#### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `title` | `string` | required | Metric label |
+| `value` | `string \| number` | required | Primary value; numbers receive locale formatting |
+| `items` | `SegmentedStatCardItem[]` | required | Labeled quantities used by the bar and legend |
+| `className` | `string` | - | Additional classes, including page-specific width constraints |
+
+#### SegmentedStatCardItem
+
+```tsx
+interface SegmentedStatCardItem {
+  label: string
+  value: number
+  color: string
+}
+```
+
+#### Usage
+
+```tsx
+<SegmentedStatCard
+  title="Total Fleet"
+  value={400_000}
+  items={[
+    { label: "ICE", value: 320_000, color: "var(--color-status-info)" },
+    { label: "EVs", value: 80_000, color: "var(--color-success)" },
+  ]}
+/>
+```
+
+#### Styling Notes
+
+- Surface follows `StatCard`: `bg-gray-25`, `border-gray-200`, and `rounded-lg`; its parent grid or container controls its width.
+- A dotted divider separates the primary value from the proportional bar.
+- Segment and legend-dot colors come from each item's `color` value.
+- Negative item values render as zero; an all-zero breakdown renders a neutral bar.
 
 ---
 
@@ -853,6 +913,9 @@ import { DistributionChart, type DistributionDataItem } from "@/components/max"
 | `title` | `string` | required | Chart heading |
 | `data` | `DistributionDataItem[]` | required | Slices (`label`, `value`, `color`) |
 | `className` | `string` | - | Additional classes |
+| `action` | `ReactNode` | - | Optional header action, such as a summary badge |
+| `summaryValue` | `string \| number` | - | Optional value displayed below the heading |
+| `centerContent` | `boolean` | `false` | Center the donut and legend content |
 
 #### Usage
 
@@ -893,6 +956,11 @@ import { HorizontalBarChart, type BarChartSeries } from "@/components/max"
 | `showLegend` | `boolean` | `false` | Show Recharts legend |
 | `stacked` | `boolean` | `false` | Stack series on a shared `stackId` |
 | `className` | `string` | - | Additional classes |
+| `action` | `ReactNode` | - | Optional header action, such as a period selector |
+| `yAxisWidth` | `number` | `70` | Width reserved for category labels |
+| `summaryLabel` | `string` | - | Optional summary label above the chart |
+| `summaryValue` | `string \| number` | - | Optional summary value; numbers receive locale formatting |
+| `chartHeight` | `number` | `250` | Chart height in pixels |
 
 #### BarChartSeries
 
@@ -920,6 +988,65 @@ interface BarChartSeries {
 
 - Chart height 250px; Y-axis width 70
 - Bar size: 16px stacked, 12px grouped; last stack segment has rounded right corners
+
+---
+
+### TimeSeriesStatCard
+
+Full-width line-chart metric card with rolling-period and custom date filters. Hover tooltips can display both the plotted value and an optional secondary metric such as revenue.
+
+#### Import
+
+```tsx
+import { TimeSeriesStatCard, type TimeSeriesStatPoint } from "@/components/max"
+```
+
+#### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `title` | `string` | required | Card heading |
+| `valueLabel` | `string` | required | Label above the filtered aggregate |
+| `data` | `TimeSeriesStatPoint[]` | required | ISO-dated primary and optional secondary values |
+| `primaryTooltipLabel` | `string` | required | Label for the plotted value in the hover tooltip |
+| `secondaryTooltipLabel` | `string` | - | Label for `secondaryValue` in the tooltip |
+| `lineColor` | `string` | `var(--color-success)` | Line and active-point color |
+| `valueColorClassName` | `string` | `text-success` | Aggregate value color class |
+| `formatValue` | `(value: number) => string` | locale formatting | Formats aggregate and primary tooltip values |
+| `formatSecondaryValue` | `(value: number) => string` | locale formatting | Formats secondary tooltip values |
+| `valueAggregation` | `"sum" \| "average"` | `"sum"` | Aggregation used for the headline value |
+| `chartHeight` | `number` | `280` | Chart height in pixels |
+
+#### TimeSeriesStatPoint
+
+```tsx
+interface TimeSeriesStatPoint {
+  date: string
+  value: number
+  secondaryValue?: number
+}
+```
+
+#### Usage
+
+```tsx
+<TimeSeriesStatCard
+  title="Total Swaps Done"
+  valueLabel="Total Swaps"
+  data={swapDashboardTrend}
+  primaryTooltipLabel="Swaps"
+  secondaryTooltipLabel="Revenue"
+  formatSecondaryValue={(value) => `NGN ${value.toLocaleString()}`}
+/>
+```
+
+#### Behavior
+
+- Presets filter the series to 30 days, two months, or six months.
+- Custom opens start and end date calendars and applies the selected range.
+- The primary value is recalculated from the filtered points.
+- Every daily point in the selected period is plotted; the X-axis automatically thins labels to remain readable.
+- Hover displays the exact date, primary value, and optional secondary value.
 
 ---
 
@@ -2085,6 +2212,7 @@ import { FleetDistributionCard, type RegionDistribution } from "@/components/max
 | `title` | `string` | `"Fleet Distribution"` | Card heading |
 | `regions` | `RegionDistribution[]` | required | Region name + slice data |
 | `className` | `string` | - | Additional classes |
+| `action` | `ReactNode` | - | Optional header action, such as a summary badge |
 
 #### RegionDistribution
 

@@ -356,7 +356,7 @@ export const falconSidebarSections: SidebarSection[] = [
     items: [
       {
         id: "vehicle-register",
-        label: "Vehicle Register",
+        label: "Vehicle Tracking",
         icon: "/images/fleet_menu.svg",
         href: "/falcon/vehicle-register",
       },
@@ -397,10 +397,7 @@ export const falconSidebarSections: SidebarSection[] = [
         id: "batteries",
         label: "Batteries",
         icon: "/images/asset_health_menu.svg",
-        children: [
-          { id: "batteries-dashboard", label: "Dashboard", href: "/falcon/batteries/dashboard" },
-          { id: "battery-register", label: "Battery Register", href: "/falcon/batteries/register" },
-        ],
+        href: "/falcon/batteries/register",
       },
       {
         id: "ev-chargers",

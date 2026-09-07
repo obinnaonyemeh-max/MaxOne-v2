@@ -49,7 +49,7 @@ export function PeriodSegmentedControl({
       : "Custom"
 
   return (
-    <div className={cn("flex items-center gap-1 rounded-md bg-gray-100 p-0.5", className)}>
+    <div className={cn("flex min-w-0 flex-wrap items-center gap-1 rounded-md bg-gray-100 p-0.5", className)}>
       {PERIODS.map((option) => (
         <button
           key={option.value}
@@ -82,7 +82,7 @@ export function PeriodSegmentedControl({
         </PopoverTrigger>
         <PopoverContent className="w-auto p-4" align="end">
           <p className="mb-3 text-sm font-medium text-gray-950">Select Date Range</p>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <DateField
               label="Start Date"
               value={customStartDate}

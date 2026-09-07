@@ -30,7 +30,7 @@ export function SegmentedStatCard({
   return (
     <section
       className={cn(
-        "w-full rounded-lg border border-gray-200 bg-gray-25 px-4 py-4",
+        "min-w-0 w-full rounded-lg border border-gray-200 bg-gray-25 px-4 py-4",
         className
       )}
       aria-label={title}

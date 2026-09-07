@@ -147,7 +147,7 @@ export function TimeSeriesStatCard({
   return (
     <section
       className={cn(
-        "w-full rounded-lg border border-gray-200 bg-gray-25 p-5",
+        "min-w-0 w-full rounded-lg border border-gray-200 bg-gray-25 p-5",
         fill && "flex h-full min-h-0 flex-col",
         className
       )}

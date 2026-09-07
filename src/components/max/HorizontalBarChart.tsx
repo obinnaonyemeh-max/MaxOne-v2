@@ -73,7 +73,7 @@ export function HorizontalBarChart({
         className
       )}
     >
-      <div className="flex shrink-0 items-center justify-between gap-3 px-5 pt-5 pb-2">
+      <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 px-5 pt-5 pb-2">
         <h3
           className="text-gray-950"
           style={{ fontSize: "16px", fontWeight: 500 }}

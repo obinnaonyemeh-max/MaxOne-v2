@@ -215,7 +215,13 @@ function BatteryAlertSummaryChart({ className }: { className?: string }) {
 
 function StatGrid({ children, count }: { children: ReactNode; count: number }) {
   const columns =
-    count >= 4 ? "grid-cols-4" : count === 3 ? "grid-cols-3" : count === 2 ? "grid-cols-2" : "grid-cols-1"
+    count >= 4
+      ? "grid-cols-1 sm:grid-cols-2 xl:grid-cols-4"
+      : count === 3
+        ? "grid-cols-1 sm:grid-cols-2 xl:grid-cols-3"
+        : count === 2
+          ? "grid-cols-1 md:grid-cols-2"
+          : "grid-cols-1"
   return <div className={`mb-6 grid ${columns} gap-2`}>{children}</div>
 }
 
@@ -241,7 +247,7 @@ function PageLayout() {
         <div
           className={`mb-6 grid gap-2 ${
             hasWidget("ice-ev-activity") && hasWidget("trips-distribution")
-              ? "grid-cols-2"
+              ? "grid-cols-1 lg:grid-cols-2"
               : "grid-cols-1"
           }`}
         >
@@ -266,7 +272,7 @@ function PageLayout() {
         <div
           className={`mb-6 grid gap-2 ${
             hasWidget("distance-travelled") && hasWidget("battery-alert-summary")
-              ? "grid-cols-2"
+              ? "grid-cols-1 lg:grid-cols-2"
               : "grid-cols-1"
           }`}
         >

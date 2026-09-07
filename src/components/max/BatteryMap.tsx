@@ -59,9 +59,8 @@ export function BatteryMap({
       >
         {/* Left Stats Panel with Frosted Glass Effect */}
         <div
-          className="absolute left-4 top-4 z-[1000] rounded-lg p-4"
+          className="absolute left-2 right-2 top-4 z-[1000] max-w-full rounded-lg p-4 sm:left-4 sm:right-auto sm:max-w-[240px]"
           style={{
-            minWidth: "240px",
             background: "rgba(255, 255, 255, 0.55)",
             backdropFilter: "blur(8px)",
             WebkitBackdropFilter: "blur(8px)",

@@ -120,8 +120,8 @@ export default function TransferDetailPage() {
       />
 
       <div className="flex-1 overflow-y-auto">
-        <div className="px-6 py-6">
-          <div className="flex items-start justify-between">
+        <div className="px-4 py-4 md:px-6 md:py-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <div className="flex items-center gap-2">
                 <BackButton onClick={() => navigate("/transfer/all")} />
@@ -147,8 +147,8 @@ export default function TransferDetailPage() {
           </div>
         </div>
 
-        <div className="px-6 pb-6 flex gap-6 items-start">
-          <div className="w-[340px] max-w-[min(340px,40vw)] min-w-0 shrink flex flex-col gap-4">
+        <div className="px-4 pb-6 md:px-6 flex flex-col gap-6 items-stretch lg:flex-row lg:items-start">
+          <div className="w-full min-w-0 shrink flex flex-col gap-4 lg:w-[340px] lg:max-w-[min(340px,40vw)]">
             <VehicleOverviewCard
               status={displayStatus}
               statusVariant={displayStatusVariant}

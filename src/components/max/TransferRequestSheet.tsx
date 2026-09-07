@@ -82,7 +82,7 @@ export function TransferRequestSheet({ transfer, isOpen, onClose, onStatusChange
 
   return (
     <Sheet open={isOpen} onOpenChange={(open) => { if (!open) onClose() }}>
-      <SheetContent size="lg" className="flex flex-col h-full max-w-[40vw]">
+      <SheetContent size="lg" className="flex flex-col h-full">
         <SheetHeader>
           <div className="flex items-center gap-3 pr-8">
             <SheetTitle className="text-sidebar-item-active">{transfer.championName}</SheetTitle>

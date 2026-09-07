@@ -15,7 +15,7 @@ export function PageHeader({
   action,
 }: PageHeaderProps) {
   return (
-    <header className={cn("px-6 py-6", className)}>
+    <header className={cn("px-4 py-4 md:px-6 md:py-6", className)}>
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="flex items-end gap-1 font-semibold text-sidebar-item-active" style={{ fontSize: "22px" }}>

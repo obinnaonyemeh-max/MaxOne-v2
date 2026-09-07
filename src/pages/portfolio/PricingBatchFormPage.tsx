@@ -195,11 +195,11 @@ function PricingBatchForm({ editId }: PricingBatchFormProps) {
           </div>
         </div>
 
-        <div className="px-6 pb-6 grid grid-cols-3 gap-6 items-start">
-          <div className="col-span-2 flex flex-col gap-6">
+        <div className="px-4 md:px-6 pb-6 grid grid-cols-1 gap-6 items-start lg:grid-cols-3">
+          <div className="col-span-1 flex flex-col gap-6 lg:col-span-2">
             <div className="rounded-lg border border-gray-200 bg-white p-5">
               <FormSection title="Target Country & Pricing Template">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <FormField label="Target Country *">
                     <Select value={countryId} onValueChange={setCountryId}>
                       <SelectTrigger className="h-9 w-full bg-input-soft">
@@ -234,7 +234,7 @@ function PricingBatchForm({ editId }: PricingBatchFormProps) {
 
             <div className="rounded-lg border border-gray-200 bg-white p-5">
               <FormSection title="Vehicle & Financier Details">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <FormField label="Asset Class *">
                     <Select value={assetClassId} onValueChange={handleAssetClassChange}>
                       <SelectTrigger className="h-9 w-full bg-input-soft">

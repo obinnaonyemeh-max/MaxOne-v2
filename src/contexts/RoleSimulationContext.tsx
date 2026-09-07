@@ -39,6 +39,8 @@ function readStoredMode(): SimulationMode {
       stored === "fleet-officer" ||
       stored === "refurbishment-manager" ||
       stored === "refurbishment-officer" ||
+      stored === "inventory-manager" ||
+      stored === "inventory-officer" ||
       stored === "call-centre-agent" ||
       stored === "welfare-agent" ||
       stored === "field-ops-manager" ||

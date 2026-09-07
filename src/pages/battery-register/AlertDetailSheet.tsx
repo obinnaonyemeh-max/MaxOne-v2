@@ -141,7 +141,7 @@ export function AlertDetailSheet({ alert, isOpen, onClose }: AlertDetailSheetPro
 
   return (
     <Sheet open={isOpen} onOpenChange={(open) => { if (!open) onClose() }}>
-      <SheetContent size="lg" className="flex flex-col h-full max-w-[40vw]">
+      <SheetContent size="lg" className="flex flex-col h-full">
         {/* Sticky Header */}
         <SheetHeader>
           <div className="flex items-center gap-3 pr-8">

@@ -14,7 +14,7 @@ export function Step7RepricedIncomeStatement({ values }: Step7Props) {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard title="Total Customer Contract Value" value={formatCurrency(statement.totalCustomerContractValue)} indicatorColor="var(--color-brand-primary)" />
         <StatCard title="Daily Remittance" value={formatCurrency(statement.dailyRemittance)} indicatorColor="var(--color-status-info)" />
         <StatCard title="Feasible Tenor" value={`${statement.feasibleTenorMonths} mo`} indicatorColor="var(--color-status-info)" />

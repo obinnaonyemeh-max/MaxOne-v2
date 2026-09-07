@@ -18,19 +18,15 @@ import {
   TableCell,
 } from "@/components/ui/table"
 
-import { mockTicketRecords } from "@/data/mockTicketRecords"
+import { useTicketRecords } from "@/data/ticketStore"
 import { mockDriverRiskRecords } from "@/data/mockDriverSafety"
-import { mockMarkedTransfers } from "@/data/mockMarkedTransfers"
-import { mockTimeOffApprovals } from "@/data/mockTimeOffApprovals"
-import { mockChampionDetails } from "@/data/mockChampionDetails"
-import { mockAgentPortfolioRecords } from "@/data/mockAgentPortfolio"
 import { CITIES } from "@/data/cities"
 import { LAGOS_SUBCITIES, resolveLagosSubCity } from "@/data/cityScope"
 import {
-  ticketPerformanceMetrics,
-  resolverPerformance,
-  categoryPerformance,
-  maxResolverFalseRate,
+  buildTicketPerformanceMetrics,
+  buildResolverPerformance,
+  buildCategoryPerformance,
+  maxResolverFalseRate as maxFalseRateFromResolvers,
 } from "@/data/mockTicketPerformance"
 import {
   driverExperienceWidgetIdsForModules,
@@ -42,10 +38,14 @@ import {
   championsForSimulationMode,
   ticketsForSimulationMode,
 } from "@/data/driverExperienceAssignmentScope"
-import {
-  mockWelfareRecords,
-  WELFARE_REFERENCE_DATE,
-} from "@/pages/WelfarePage"
+import { WELFARE_REFERENCE_DATE } from "@/data/mockWelfare"
+import { useChampions } from "@/data/championStore"
+import { useWelfareRecords } from "@/data/welfareStore"
+import { useTransferApprovals, useTimeOffApprovals } from "@/data/approvalStore"
+import { useAgentPortfolioRecords } from "@/data/agentPortfolioStore"
+import type { AgentPortfolioRecord } from "@/data/mockAgentPortfolio"
+import type { Champion } from "@/data/mockChampions"
+import type { TicketRecord } from "@/data/mockTicketRecords"
 
 // --- Color tokens ---
 const COLOR_BRAND_PRIMARY = "var(--color-brand-primary)"
@@ -57,57 +57,6 @@ const COLOR_STATUS_CLOSED = "var(--color-status-closed)"
 const COLOR_DANGER = "var(--color-danger)"
 const COLOR_GRAY_500 = "var(--color-gray-500)"
 const COLOR_STATUS_DANGER = "var(--color-status-danger)"
-
-// --- Champion data (mirrors Champion360Page inline mockChampions) ---
-interface Champion {
-  id: string
-  location: string
-  state: string
-  lastActiveDate: string
-}
-
-const mockChampions: Champion[] = [
-  { id: "1",  location: "Ikeja",           state: "Lagos",          lastActiveDate: "28 May 2026" },
-  { id: "2",  location: "Lekki",           state: "Lagos",          lastActiveDate: "30 May 2026" },
-  { id: "3",  location: "Surulere",        state: "Lagos",          lastActiveDate: "25 May 2026" },
-  { id: "4",  location: "Yaba",            state: "Lagos",          lastActiveDate: "20 May 2026" },
-  { id: "5",  location: "Victoria Island", state: "Lagos",          lastActiveDate: "31 May 2026" },
-  { id: "6",  location: "Ajah",            state: "Lagos",          lastActiveDate: "27 May 2026" },
-  { id: "7",  location: "Ikorodu",         state: "Lagos",          lastActiveDate: "15 May 2026" },
-  { id: "8",  location: "Ikeja",           state: "Lagos",          lastActiveDate: "29 May 2026" },
-  { id: "9",  location: "Oshodi",          state: "Lagos",          lastActiveDate: "22 May 2026" },
-  { id: "10", location: "Agege",           state: "Lagos",          lastActiveDate: "18 May 2026" },
-  { id: "11", location: "Lekki",           state: "Lagos",          lastActiveDate: "30 May 2026" },
-  { id: "12", location: "Surulere",        state: "Lagos",          lastActiveDate: "26 May 2026" },
-  { id: "13", location: "Ikeja",           state: "Lagos",          lastActiveDate: "31 May 2026" },
-  { id: "14", location: "Wuse",            state: "Abuja",          lastActiveDate: "29 May 2026" },
-  { id: "15", location: "Garki",           state: "Abuja",          lastActiveDate: "30 May 2026" },
-  { id: "16", location: "Yaba",            state: "Lagos",          lastActiveDate: "24 May 2026" },
-  { id: "17", location: "Sabon Gari",      state: "Kano",           lastActiveDate: "20 May 2026" },
-  { id: "18", location: "Lekki",           state: "Lagos",          lastActiveDate: "31 May 2026" },
-  { id: "19", location: "Ring Road",       state: "Ibadan",         lastActiveDate: "27 May 2026" },
-  { id: "20", location: "Agege",           state: "Lagos",          lastActiveDate: "28 May 2026" },
-  { id: "21", location: "Victoria Island", state: "Lagos",          lastActiveDate: "15 May 2026" },
-  { id: "22", location: "Wuse",            state: "Abuja",          lastActiveDate: "26 May 2026" },
-  { id: "23", location: "Oshodi",          state: "Lagos",          lastActiveDate: "30 May 2026" },
-  { id: "24", location: "Surulere",        state: "Lagos",          lastActiveDate: "23 May 2026" },
-  { id: "25", location: "D-Line",          state: "Port Harcourt",  lastActiveDate: "19 May 2026" },
-  { id: "26", location: "Ikorodu",         state: "Lagos",          lastActiveDate: "31 May 2026" },
-  { id: "27", location: "Ajah",            state: "Lagos",          lastActiveDate: "21 May 2026" },
-  { id: "28", location: "Sabon Gari",      state: "Kano",           lastActiveDate: "29 May 2026" },
-  { id: "29", location: "Ikeja",           state: "Lagos",          lastActiveDate: "25 May 2026" },
-  { id: "30", location: "Ring Road",       state: "Ibadan",         lastActiveDate: "28 May 2026" },
-  { id: "31", location: "Lekki",           state: "Lagos",          lastActiveDate: "17 May 2026" },
-  { id: "32", location: "Garki",           state: "Abuja",          lastActiveDate: "30 May 2026" },
-  { id: "33", location: "Yaba",            state: "Lagos",          lastActiveDate: "22 May 2026" },
-  { id: "34", location: "D-Line",          state: "Port Harcourt",  lastActiveDate: "27 May 2026" },
-  { id: "35", location: "Victoria Island", state: "Lagos",          lastActiveDate: "26 May 2026" },
-  { id: "36", location: "Oshodi",          state: "Lagos",          lastActiveDate: "31 May 2026" },
-  { id: "37", location: "Agege",           state: "Lagos",          lastActiveDate: "16 May 2026" },
-  { id: "38", location: "Wuse",            state: "Abuja",          lastActiveDate: "29 May 2026" },
-  { id: "39", location: "Ikorodu",         state: "Lagos",          lastActiveDate: "24 May 2026" },
-  { id: "40", location: "Ajah",            state: "Lagos",          lastActiveDate: "30 May 2026" },
-]
 
 // --- Derived metrics ---
 
@@ -121,15 +70,6 @@ const highRiskDrivers = mockDriverRiskRecords.filter(
   (r) => r.riskLevel === "High" || r.riskLevel === "Critical"
 ).length
 
-const pendingApprovals =
-  mockMarkedTransfers.filter((t) => t.status === "Pending").length +
-  mockTimeOffApprovals.filter((t) => t.status === "Pending").length
-
-const welfareFollowUps = Object.values(mockChampionDetails).reduce(
-  (count, champion) =>
-    count + champion.welfareNotes.filter((n) => n.followUpRequired).length,
-  0
-)
 
 // --- Driver Risk Distribution (donut) ---
 const riskLevelCounts = mockDriverRiskRecords.reduce<Record<string, number>>(
@@ -148,7 +88,7 @@ const riskDistributionData = [
 ]
 
 // --- Ticket Aging by Agent and SLA (stacked bar chart) ---
-function buildTicketAgingData(tickets: typeof mockTicketRecords) {
+function buildTicketAgingData(tickets: TicketRecord[]) {
   const agingByAgent = Array.from(
     new Set(tickets.map((ticket) => ticket.assignedAgent))
   )
@@ -191,7 +131,7 @@ const agentDistributionColors = [
   COLOR_STATUS_CLOSED,
 ]
 
-function buildAgentDashboardData(agents: typeof mockAgentPortfolioRecords) {
+function buildAgentDashboardData(agents: AgentPortfolioRecord[]) {
   const cityCounts = agents.reduce<Record<string, number>>((counts, agent) => {
     counts[agent.city] = (counts[agent.city] || 0) + 1
     return counts
@@ -238,7 +178,7 @@ function buildAgentDashboardData(agents: typeof mockAgentPortfolioRecords) {
 
 function buildScopedDashboardData(
   champions: Champion[],
-  tickets: typeof mockTicketRecords
+  tickets: TicketRecord[]
 ) {
   const totalChampions = champions.length
   const activeChampionCount = champions.filter((champion) => {
@@ -278,7 +218,7 @@ function buildScopedDashboardData(
   ]
 
   const cityCounts = champions.reduce<Record<string, number>>((counts, champion) => {
-    counts[champion.state] = (counts[champion.state] || 0) + 1
+    counts[champion.city] = (counts[champion.city] || 0) + 1
     return counts
   }, {})
   const classifiedCities = CITIES.filter((city) => cityCounts[city] > 0)
@@ -297,7 +237,7 @@ function buildScopedDashboardData(
   ]
 
   const subcityCounts = champions.reduce<Record<string, number>>((counts, champion) => {
-    const subcity = resolveLagosSubCity(champion.location)
+    const subcity = resolveLagosSubCity(champion.subcity)
     if (subcity) counts[subcity] = (counts[subcity] || 0) + 1
     return counts
   }, {})
@@ -338,29 +278,35 @@ export default function DriverExperienceDashboardPage() {
     mode === "dxp-product-manager"
   const showsSafetyDashboard = isFullBuild
   const role = getRoleDefinition(mode)
+  const champions = useChampions()
+  const ticketRecords = useTicketRecords()
+  const welfareRecords = useWelfareRecords()
+  const transfers = useTransferApprovals()
+  const timeOffs = useTimeOffApprovals()
+  const agents = useAgentPortfolioRecords()
   const scopedChampions = useMemo(
-    () => championsForSimulationMode(mockChampions, mode),
-    [mode]
+    () => championsForSimulationMode(champions, mode),
+    [champions, mode]
   )
   const scopedTickets = useMemo(
-    () => ticketsForSimulationMode(mockTicketRecords, mode),
-    [mode]
+    () => ticketsForSimulationMode(ticketRecords, mode),
+    [mode, ticketRecords]
   )
   const ticketAgingData = useMemo(
     () => buildTicketAgingData(scopedTickets),
     [scopedTickets]
   )
   const scopedAgents = useMemo(
-    () => mockAgentPortfolioRecords.filter((agent) => filterByCity(agent.city)),
-    [filterByCity]
+    () => agents.filter((agent) => filterByCity(agent.city)),
+    [agents, filterByCity]
   )
   const agentDashboardData = useMemo(
     () => buildAgentDashboardData(scopedAgents),
     [scopedAgents]
   )
   const scopedWelfareRecords = useMemo(
-    () => championsForSimulationMode(mockWelfareRecords, mode),
-    [mode]
+    () => championsForSimulationMode(welfareRecords, mode),
+    [mode, welfareRecords]
   )
   const welfareFollowUpsOverdue = useMemo(
     () => scopedWelfareRecords.filter(
@@ -376,6 +322,30 @@ export default function DriverExperienceDashboardPage() {
     () => buildScopedDashboardData(scopedChampions, scopedTickets),
     [scopedChampions, scopedTickets]
   )
+  const pendingApprovals = useMemo(
+    () =>
+      transfers.filter((record) => record.status === "Pending" && filterByCity(record.city)).length +
+      timeOffs.filter((record) => record.status === "Pending" && filterByCity(record.city)).length,
+    [filterByCity, timeOffs, transfers]
+  )
+  const welfareFollowUps = useMemo(
+    () =>
+      scopedWelfareRecords.filter((record) => record.issuesLogged > 0).length,
+    [scopedWelfareRecords]
+  )
+  const ticketPerformanceMetrics = useMemo(
+    () => buildTicketPerformanceMetrics(scopedTickets),
+    [scopedTickets]
+  )
+  const resolverPerformance = useMemo(
+    () => buildResolverPerformance(scopedTickets),
+    [scopedTickets]
+  )
+  const categoryPerformance = useMemo(
+    () => buildCategoryPerformance(scopedTickets),
+    [scopedTickets]
+  )
+  const maxResolverFalseRate = maxFalseRateFromResolvers(resolverPerformance)
   const visibleWidgetIds = driverExperienceWidgetIdsForModules(
     role?.navItemIds ?? []
   )
@@ -420,7 +390,7 @@ export default function DriverExperienceDashboardPage() {
         ]}
       />
 
-      <div className="flex-1 overflow-auto px-6 pb-6">
+      <div className="flex-1 overflow-auto px-4 pb-6 md:px-6">
         <PageHeader
           title="Dashboard"
           subtitle={
@@ -438,19 +408,7 @@ export default function DriverExperienceDashboardPage() {
         />
 
         {/* Row 1 — Stat Cards */}
-        <div
-          className={`grid gap-2 ${
-            isFullBuild
-              ? "grid-cols-12 [&>*]:col-span-3 [&>*:nth-last-child(-n+3)]:col-span-4"
-              : mode === "welfare-manager" || mode === "dxp-product-manager"
-                ? "grid-cols-5"
-              : mode === "executive"
-                ? "grid-cols-4"
-              : mode === "welfare-agent"
-                ? "grid-cols-12 [&>*]:col-span-3"
-                : "grid-cols-12 [&>*]:col-span-4"
-          }`}
-        >
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-4">
           {showsWidget("stat-total-champions") && (
             <StatCard
               title="Total Champions"
@@ -570,13 +528,13 @@ export default function DriverExperienceDashboardPage() {
             <StatCard
               title="Resolved Tickets"
               value={ticketPerformanceMetrics.resolved.toLocaleString()}
-              subtitle={`${((ticketPerformanceMetrics.resolved / ticketPerformanceMetrics.total) * 100).toFixed(1)}% of total`}
+              subtitle={`${ticketPerformanceMetrics.total === 0 ? "0" : ((ticketPerformanceMetrics.resolved / ticketPerformanceMetrics.total) * 100).toFixed(1)}% of total`}
               indicatorColor={COLOR_STATUS_SUCCESS}
             />
             <StatCard
               title="Reopened"
               value={ticketPerformanceMetrics.reopened.toLocaleString()}
-              subtitle={`${((ticketPerformanceMetrics.reopened / ticketPerformanceMetrics.total) * 100).toFixed(1)}% of total`}
+              subtitle={`${ticketPerformanceMetrics.total === 0 ? "0" : ((ticketPerformanceMetrics.reopened / ticketPerformanceMetrics.total) * 100).toFixed(1)}% of total`}
               indicatorColor={COLOR_STATUS_WARNING}
             />
             </>
@@ -594,7 +552,7 @@ export default function DriverExperienceDashboardPage() {
         {/* Ticket charts always stay side by side. */}
         {(showsWidget("chart-ticket-status-breakdown") ||
           showsWidget("chart-tickets-by-category")) && (
-          <div className="grid grid-cols-2 gap-2 mt-6">
+          <div className="grid grid-cols-1 gap-2 mt-6 lg:grid-cols-2">
             {showsWidget("chart-ticket-status-breakdown") && (
               <DistributionChart
                 title="Ticket Status Breakdown"
@@ -629,7 +587,7 @@ export default function DriverExperienceDashboardPage() {
               showsWidget("chart-ticket-aging-sla") &&
               (showsWidget("chart-champions-by-location") ||
                 (!isFullBuild && showsWidget("chart-champions-by-subcity")))
-                ? "grid-cols-2"
+                ? "grid-cols-1 lg:grid-cols-2"
                 : "grid-cols-1"
             }`}
           >
@@ -671,7 +629,7 @@ export default function DriverExperienceDashboardPage() {
 
         {(showsWidget("chart-agent-distribution") ||
           showsWidget("chart-agent-workload")) && (
-          <div className="grid grid-cols-2 gap-2 mt-6">
+          <div className="grid grid-cols-1 gap-2 mt-6 lg:grid-cols-2">
             {showsWidget("chart-agent-distribution") && (
               <DistributionChart
                 title="Agent Distribution"

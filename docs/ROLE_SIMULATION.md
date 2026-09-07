@@ -47,7 +47,7 @@ flowchart TD
   ctx --> dash
 ```
 
-In role mode the App Switcher is hidden. The user stays in Fleet Ops (or whatever `navItemIds` allow). Deep links to hidden modules redirect to a fallback path (`/dashboard` for most roles; `/refurbishment` for Refurbishment Manager and Refurbishment Officer).
+In role mode the App Switcher is hidden. The user stays in Fleet Ops (or whatever `navItemIds` allow). Deep links to hidden modules redirect to a fallback path (`/dashboard` for most roles; `/refurbishment` for Refurbishment Manager and Refurbishment Officer; `/inventory/list` for Inventory Manager and Inventory Officer).
 
 ## Key files
 
@@ -81,62 +81,68 @@ Follow these on every new role and every new gated action.
 
 These are the templates to copy.
 
-| | Full Build | Global Fleet Manager | City Fleet Officer | Fleet Officer | Refurbishment Manager | Refurbishment Officer |
-|---|---|---|---|---|---|---|
-| Picker label | Full Build | Global Fleet Manager | City Fleet Officer | Fleet Officer | Refurbishment Manager | Refurbishment Officer |
-| App Switcher | Yes | No | No | No | No | No |
-| Nav | All apps / modules | Fleet Ops allowlist below | Same as GFM | Dashboard, Fleet Register, Activation Readiness, Vehicle Document, Kit | Refurbishment, Service Schedule, all Disposal & Auction children except Predictive Lab | Same as RM |
-| Data | All cities | All cities | Lagos only | Ikeja only | All cities | Lagos only |
-| Dashboard | All catalog widgets | `fleet-register` + `asset-movement` | Same as GFM, Lagos numbers | `fleet-register` only, Ikeja numbers | **Hidden** (fallback `/refurbishment`) | **Hidden** (fallback `/refurbishment`) |
-| Gated Fleet Register | All actions and columns | No Add / Bulk / Edit; hide Contract Risk and Collection % | Same as GFM | Same as GFM | Module hidden | Module hidden |
-| Vehicle details Telematics | Yes | Yes | Yes | Hidden | Module hidden | Module hidden |
-| Inbound | All mutations | View only | View only | Hidden | Hidden | Hidden |
-| Refurbishment part cost | Yes | Hidden | Hidden | Hidden | **Yes** | Hidden |
-| Auction / Closed Assets | Yes | Hidden | Hidden | Hidden | **Yes** | **Yes** (Lagos) |
-| Predictive Lab | Soon item | Hidden | Hidden | Hidden | Hidden | Hidden |
-| Activation / Documents / Kit | All | View only (kit assign blocked for GFM) | Act on update/upload/kit | Same as CFO | Hidden | Hidden |
+| | Full Build | Global Fleet Manager | City Fleet Officer | Fleet Officer | Refurbishment Manager | Refurbishment Officer | Inventory Manager | Inventory Officer |
+|---|---|---|---|---|---|---|---|---|
+| Picker label | Full Build | Global Fleet Manager | City Fleet Officer | Fleet Officer | Refurbishment Manager | Refurbishment Officer | Inventory Manager | Inventory Officer |
+| App Switcher | Yes | No | No | No | No | No | No | No |
+| Nav | All apps / modules | Fleet Ops allowlist below | Same as GFM | Dashboard, Fleet Register, Activation Readiness, Vehicle Document, Kit | Refurbishment, Deactivated Vehicles, Assessment List, Service Schedule, all Disposal & Auction children except Predictive Lab | Same as RM | Inventory List, Movement History, Approvals | Same as IM |
+| Data | All cities | All cities | Lagos only | Ikeja only | All cities | Lagos only | All cities | Lagos only |
+| Dashboard | All catalog widgets | `fleet-register` + `asset-movement` | Same as GFM, Lagos numbers | `fleet-register` only, Ikeja numbers | **Hidden** (fallback `/refurbishment`) | **Hidden** (fallback `/refurbishment`) | **Hidden** (fallback `/inventory/list`) | **Hidden** (fallback `/inventory/list`) |
+| Gated Fleet Register | All actions and columns | No Add / Bulk / Edit; hide Contract Risk and Collection % | Same as GFM | Same as GFM | Module hidden | Module hidden | Module hidden | Module hidden |
+| Vehicle details Telematics | Yes | Yes | Yes | Hidden | Module hidden | Module hidden | Module hidden | Module hidden |
+| Inbound | All mutations | View only | View only | Hidden | Hidden | Hidden | Hidden | Hidden |
+| Refurbishment part cost | Yes | Hidden | Hidden | Hidden | **Yes** | Hidden | Module hidden | Module hidden |
+| Auction / Closed Assets | Yes | Hidden | Hidden | Hidden | **Yes** | **Yes** (Lagos) | Hidden | Hidden |
+| Predictive Lab | Soon item | Hidden | Hidden | Hidden | Hidden | Hidden | Hidden | Hidden |
+| Activation / Documents / Kit | All | View only (kit assign blocked for GFM) | Act on update/upload/kit | Same as CFO | Hidden | Hidden | Hidden | Hidden |
 
-Hidden for GFM and City Fleet Officer (not in `navItemIds`): Ownership Transfer, Auction, Closed Assets, Predictive Lab, Control, and every non–Fleet Ops app.
+Hidden for GFM and City Fleet Officer (not in `navItemIds`): Ownership Transfer, Auction, Closed Assets, Predictive Lab, Control, Inventory, and every non–Fleet Ops app. Deactivated Vehicles and Assessment List are visible to GFM and City Fleet Officer.
 
 Fleet Officer also hides Asset Movement, Inbound, Refurbishment, Maintenance / Service Schedule, and all Disposal & Auction.
 
-Refurbishment Manager and Refurbishment Officer hide Dashboard, Fleet Register, Asset Movement, Inbound, Activation, Vehicle Document, Kit, Ownership Transfer, Predictive Lab, Control, and non–Fleet Ops apps.
+Refurbishment Manager and Refurbishment Officer hide Dashboard, Fleet Register, Asset Movement, Inbound, Activation, Vehicle Document, Kit, Ownership Transfer, Inventory, Predictive Lab, Control, and non–Fleet Ops apps.
+
+Inventory Manager sees only Inventory (List, Movement History, Approvals) across all cities. Edit cost price and Accept/Reject are granted. Denied paths fall back to `/inventory/list`.
+
+Inventory Officer has the same nav, Lagos-only lists, Cost Price visible but not editable, and Approvals view-only (no Accept/Reject). Add Parts, Bulk Add Quantities, and adjust +/− stay available. Denied paths fall back to `/inventory/list`.
 
 Kit assign path `/activation-assignment/asset-reassignment/kit/assign` is denied for **Global Fleet Manager only**. Denied paths for Refurbishment Manager and Refurbishment Officer fall back to `/refurbishment`.
 
 ## Permission catalog
 
-Full Build has every key. GFM has telematics only. City Fleet Officer has the six marked below. Fleet Officer has the same five action grants as CFO, without telematics. Refurbishment Manager has part cost only. Refurbishment Officer has no gated keys (part cost hidden).
+Full Build has every key. GFM has telematics only. City Fleet Officer has the six marked below. Fleet Officer has the same five action grants as CFO, without telematics. Refurbishment Manager has part cost only. Refurbishment Officer has no gated keys (part cost hidden). Inventory Manager has `inventory.editCostPrice` and `inventory.approvals.decide`. Inventory Officer has no gated keys (edit price and Accept/Reject hidden).
 
-| Key | Where it is used | Full Build | GFM | CFO | FO | RM | RO |
-|---|---|---|---|---|---|---|---|
-| `fleetRegister.addVehicles` | [`VehiclesPage.tsx`](../src/pages/VehiclesPage.tsx) — Add Vehicles | Yes | — | — | — | — | — |
-| `fleetRegister.bulkUpdate` | [`VehiclesPage.tsx`](../src/pages/VehiclesPage.tsx) — Bulk Update | Yes | — | — | — | — | — |
-| `fleetRegister.editVehicle` | [`VehicleDetailsPage.tsx`](../src/pages/VehicleDetailsPage.tsx) — Edit Vehicle Info | Yes | — | — | — | — | — |
-| `fleetRegister.column.contractRisk` | [`VehiclesPage.tsx`](../src/pages/VehiclesPage.tsx) — column | Yes | — | — | — | — | — |
-| `fleetRegister.column.collectionPercent` | [`VehiclesPage.tsx`](../src/pages/VehiclesPage.tsx) — column | Yes | — | — | — | — | — |
-| `inbound.batches.create` | [`BatchesPage.tsx`](../src/pages/BatchesPage.tsx) | Yes | — | — | — | — | — |
-| `inbound.batches.addIdentifier` | [`VehicleIdsTab.tsx`](../src/pages/batch-details/VehicleIdsTab.tsx) | Yes | — | — | — | — | — |
-| `inbound.batches.editIdentifier` | [`VehicleIdsTab.tsx`](../src/pages/batch-details/VehicleIdsTab.tsx) | Yes | — | — | — | — | — |
-| `inbound.batches.uploadCsv` | [`VehicleIdsTab.tsx`](../src/pages/batch-details/VehicleIdsTab.tsx) | Yes | — | — | — | — | — |
-| `inbound.batches.uploadDocuments` | [`DocumentsTab.tsx`](../src/pages/batch-details/DocumentsTab.tsx) | Yes | — | — | — | — | — |
-| `inbound.batches.moveSubBatchStage` | [`SubBatchDetailsPage.tsx`](../src/pages/SubBatchDetailsPage.tsx) | Yes | — | — | — | — | — |
-| `inbound.stockSetup.add` | [`StockSetupPage.tsx`](../src/pages/StockSetupPage.tsx) | Yes | — | — | — | — | — |
-| `inbound.stockSetup.edit` | [`StockSetupPage.tsx`](../src/pages/StockSetupPage.tsx) | Yes | — | — | — | — | — |
-| `activationReadiness.update` | [`ActivationReadinessPage.tsx`](../src/pages/ActivationReadinessPage.tsx) | Yes | — | Yes | Yes | — | — |
-| `activationReadiness.bulkUpload` | [`ActivationReadinessPage.tsx`](../src/pages/ActivationReadinessPage.tsx) | Yes | — | Yes | Yes | — | — |
-| `vehicleDocument.upload` | [`VehicleDocumentsPage.tsx`](../src/pages/VehicleDocumentsPage.tsx) | Yes | — | Yes | Yes | — | — |
-| `vehicleDocument.replace` | [`VehicleDocumentsPage.tsx`](../src/pages/VehicleDocumentsPage.tsx) | Yes | — | Yes | Yes | — | — |
-| `kit.reassignment` | [`KitReportsPage.tsx`](../src/pages/KitReportsPage.tsx) | Yes | — | Yes | Yes | — | — |
-| `refurbishment.column.partCost` | [`RefurbishmentPage.tsx`](../src/pages/RefurbishmentPage.tsx) — work order parts Cost column | Yes | — | — | — | Yes | — |
-| `vehicleDetails.tab.telematics` | [`VehicleDetailsPage.tsx`](../src/pages/VehicleDetailsPage.tsx) — Telematics tab | Yes | Yes | Yes | — | — | — |
-| `championProfile.reassign` | [`ChampionDetailPage.tsx`](../src/pages/ChampionDetailPage.tsx) — Reassign Champion | Yes | — | — | — | — | — |
-| `ticketManagement.create` | [`TicketManagementPage.tsx`](../src/pages/TicketManagementPage.tsx) — Create Ticket | Yes | — | — | — | — | — |
-| `ticketManagement.reassign` | [`TicketDetailSheet.tsx`](../src/components/max/TicketDetailSheet.tsx) — Reassign Ticket | Yes | — | — | — | — | — |
-| `ticketManagement.changeStatus` | [`TicketDetailSheet.tsx`](../src/components/max/TicketDetailSheet.tsx) — Change Status | Yes | — | — | — | — | — |
-| `ticketManagement.escalate` | [`TicketDetailSheet.tsx`](../src/components/max/TicketDetailSheet.tsx) — Escalate | Yes | — | — | — | — | — |
-| `ticketManagement.close` | [`TicketDetailSheet.tsx`](../src/components/max/TicketDetailSheet.tsx) — Close Ticket | Yes | — | — | — | — | — |
-| `ticketManagement.addComment` | [`TicketDetailSheet.tsx`](../src/components/max/TicketDetailSheet.tsx) — Add Comment | Yes | — | — | — | — | — |
+| Key | Where it is used | Full Build | GFM | CFO | FO | RM | RO | IM | IO |
+|---|---|---|---|---|---|---|---|---|---|
+| `fleetRegister.addVehicles` | [`VehiclesPage.tsx`](../src/pages/VehiclesPage.tsx) — Add Vehicles | Yes | — | — | — | — | — | — | — |
+| `fleetRegister.bulkUpdate` | [`VehiclesPage.tsx`](../src/pages/VehiclesPage.tsx) — Bulk Update | Yes | — | — | — | — | — | — | — |
+| `fleetRegister.editVehicle` | [`VehicleDetailsPage.tsx`](../src/pages/VehicleDetailsPage.tsx) — Edit Vehicle Info | Yes | — | — | — | — | — | — | — |
+| `fleetRegister.column.contractRisk` | [`VehiclesPage.tsx`](../src/pages/VehiclesPage.tsx) — column | Yes | — | — | — | — | — | — | — |
+| `fleetRegister.column.collectionPercent` | [`VehiclesPage.tsx`](../src/pages/VehiclesPage.tsx) — column | Yes | — | — | — | — | — | — | — |
+| `inbound.batches.create` | [`BatchesPage.tsx`](../src/pages/BatchesPage.tsx) | Yes | — | — | — | — | — | — | — |
+| `inbound.batches.addIdentifier` | [`VehicleIdsTab.tsx`](../src/pages/batch-details/VehicleIdsTab.tsx) | Yes | — | — | — | — | — | — | — |
+| `inbound.batches.editIdentifier` | [`VehicleIdsTab.tsx`](../src/pages/batch-details/VehicleIdsTab.tsx) | Yes | — | — | — | — | — | — | — |
+| `inbound.batches.uploadCsv` | [`VehicleIdsTab.tsx`](../src/pages/batch-details/VehicleIdsTab.tsx) | Yes | — | — | — | — | — | — | — |
+| `inbound.batches.uploadDocuments` | [`DocumentsTab.tsx`](../src/pages/batch-details/DocumentsTab.tsx) | Yes | — | — | — | — | — | — | — |
+| `inbound.batches.moveSubBatchStage` | [`SubBatchDetailsPage.tsx`](../src/pages/SubBatchDetailsPage.tsx) | Yes | — | — | — | — | — | — | — |
+| `inbound.stockSetup.add` | [`StockSetupPage.tsx`](../src/pages/StockSetupPage.tsx) | Yes | — | — | — | — | — | — | — |
+| `inbound.stockSetup.edit` | [`StockSetupPage.tsx`](../src/pages/StockSetupPage.tsx) | Yes | — | — | — | — | — | — | — |
+| `activationReadiness.update` | [`ActivationReadinessPage.tsx`](../src/pages/ActivationReadinessPage.tsx) | Yes | — | Yes | Yes | — | — | — | — |
+| `activationReadiness.bulkUpload` | [`ActivationReadinessPage.tsx`](../src/pages/ActivationReadinessPage.tsx) | Yes | — | Yes | Yes | — | — | — | — |
+| `vehicleDocument.upload` | [`VehicleDocumentsPage.tsx`](../src/pages/VehicleDocumentsPage.tsx) | Yes | — | Yes | Yes | — | — | — | — |
+| `vehicleDocument.replace` | [`VehicleDocumentsPage.tsx`](../src/pages/VehicleDocumentsPage.tsx) | Yes | — | Yes | Yes | — | — | — | — |
+| `kit.reassignment` | [`KitReportsPage.tsx`](../src/pages/KitReportsPage.tsx) | Yes | — | Yes | Yes | — | — | — | — |
+| `refurbishment.column.partCost` | [`RefurbishmentPage.tsx`](../src/pages/RefurbishmentPage.tsx) — work order parts Cost column | Yes | — | — | — | Yes | — | — | — |
+| `vehicleDetails.tab.telematics` | [`VehicleDetailsPage.tsx`](../src/pages/VehicleDetailsPage.tsx) — Telematics tab | Yes | Yes | Yes | — | — | — | — | — |
+| `championProfile.reassign` | [`ChampionDetailPage.tsx`](../src/pages/ChampionDetailPage.tsx) — Reassign Champion | Yes | — | — | — | — | — | — | — |
+| `ticketManagement.create` | [`TicketManagementPage.tsx`](../src/pages/TicketManagementPage.tsx) — Create Ticket | Yes | — | — | — | — | — | — | — |
+| `ticketManagement.reassign` | [`TicketDetailSheet.tsx`](../src/components/max/TicketDetailSheet.tsx) — Reassign Ticket | Yes | — | — | — | — | — | — | — |
+| `ticketManagement.changeStatus` | [`TicketDetailSheet.tsx`](../src/components/max/TicketDetailSheet.tsx) — Change Status | Yes | — | — | — | — | — | — | — |
+| `ticketManagement.escalate` | [`TicketDetailSheet.tsx`](../src/components/max/TicketDetailSheet.tsx) — Escalate | Yes | — | — | — | — | — | — | — |
+| `ticketManagement.close` | [`TicketDetailSheet.tsx`](../src/components/max/TicketDetailSheet.tsx) — Close Ticket | Yes | — | — | — | — | — | — | — |
+| `ticketManagement.addComment` | [`TicketDetailSheet.tsx`](../src/components/max/TicketDetailSheet.tsx) — Add Comment | Yes | — | — | — | — | — | — | — |
+| `inventory.editCostPrice` | [`InventoryListPage.tsx`](../src/pages/InventoryListPage.tsx) — Edit cost price pencil | Yes | — | — | — | — | — | Yes | — |
+| `inventory.approvals.decide` | [`InventoryApprovalsPage.tsx`](../src/pages/InventoryApprovalsPage.tsx) — Accept / Reject | Yes | — | — | — | — | — | Yes | — |
 
 Call Centre Agent receives `ticketManagement.create`, `ticketManagement.changeStatus`, `ticketManagement.close`, and `ticketManagement.addComment`. Reassign and Escalate remain hidden.
 
@@ -157,6 +163,8 @@ inbound-batches
 inbound-stock-setup
 activation-readiness
 vehicle-document
+deactivated-vehicles
+assessment-list
 refurbishment
 maintenance
 service-schedule
@@ -183,6 +191,8 @@ Refurbishment Manager / Refurbishment Officer ids:
 
 ```
 refurbishment
+deactivated-vehicles
+assessment-list
 maintenance
 service-schedule
 disposal-auction
@@ -193,7 +203,16 @@ scrap-management
 closed-assets
 ```
 
-Parents with no href (`inbound`, `maintenance`, `disposal-auction`, `asset-reassignment`) are containers. Include them if any child is allowed. If every child is dropped, the parent is dropped too.
+Inventory Manager / Inventory Officer ids:
+
+```
+inventory
+inventory-list
+inventory-movement-history
+inventory-approvals
+```
+
+Parents with no href (`inbound`, `inventory`, `maintenance`, `disposal-auction`, `asset-reassignment`) are containers. Include them if any child is allowed. If every child is dropped, the parent is dropped too.
 
 Driver Growth dashboard widgets use leaf id `activation-dashboard` (not in the Fleet Ops list above).
 
@@ -207,7 +226,7 @@ dataScope: { type: "city", city: "Lagos" }
 dataScope: { type: "subCity", city: "Lagos", subCity: "Ikeja" }
 ```
 
-`dataScope` is `null` for Full Build, GFM, and Refurbishment Manager. City Fleet Officer and Refurbishment Officer use Lagos. Fleet Officer uses Ikeja. When set:
+`dataScope` is `null` for Full Build, GFM, Refurbishment Manager, and Inventory Manager. City Fleet Officer, Refurbishment Officer, and Inventory Officer use Lagos. Fleet Officer uses Ikeja. When set:
 
 - `useCityScopedRecords(records, "location")` (or `"destination"` for batches) filters lists.
 - `filterByCity(value)` returns `true` when unscoped; city scope uses `isInCityScope`; sub-city scope uses `resolveLagosSubCity(value) === subCity`.
@@ -230,6 +249,9 @@ Exclude Accra, Abuja, Kano, Port Harcourt, Ibadan yards (Eleyele, Bodija, Gbagba
 | Activation Readiness | `location` | |
 | Vehicle Documents | `location` | Stats use the scoped set when `dataScope` is set |
 | Refurbishment / Service Schedule | `location` | |
+| Deactivated Vehicles | `location` | Visible to Full Build, GFM, City Fleet Officer, Refurbishment Manager, and Refurbishment Officer. Assign QA is ungated. Osogbo Hub rows have no QA staff so the empty-assignment path is visible in Full Build / GFM / Refurbishment Manager |
+| Assessment List | `location` | Visible to Full Build, GFM, City Fleet Officer, Refurbishment Manager, and Refurbishment Officer. Work order is view-only. Assigned vehicles move here from Deactivated Vehicles |
+| Inventory List / Movement History / Approvals | `location` | Visible to Full Build and Inventory Manager (unscoped) and Inventory Officer (Lagos). Available quantity = on-hand minus awaiting pickup. Awaiting pickup is display-only. Add Parts, Bulk Add Quantities, and adjust +/− stay ungated. Edit cost price and Accept/Reject require `inventory.editCostPrice` / `inventory.approvals.decide` (Full Build and Inventory Manager). Add Part location dropdown is limited to in-scope hubs when `dataScope` is set |
 | Kit | `location` | |
 | Disposal / Conversion / Scrap | `location` | Keep a majority of mock rows in-scope so the module is not empty |
 | Auction | `location` | Events, create-auction vehicles, and detail redirects. Location dropdown limited to in-scope depots when `dataScope` is set |
@@ -252,7 +274,7 @@ Widgets are published by **leaf module id** in `MODULE_WIDGETS`:
 
 Driver Experience widgets use `DRIVER_EXPERIENCE_MODULE_WIDGETS` in the same file. Call Centre Agent receives the combined widget sets for `champion-360` and `ticket-management`; unrelated Driver Experience widgets stay hidden.
 
-Driver Experience role data is scoped in [`src/data/driverExperienceAssignmentScope.ts`](../src/data/driverExperienceAssignmentScope.ts). Call Centre Agent Fatima Bello is globally assigned and sees every Champion and ticket in the system. Welfare Agent Chidi Okafor sees only Champions and tickets both assigned to her and located in Lagos. Field Ops Manager and Welfare Manager see every Champion and ticket in Lagos regardless of assignment. Champion lists, Champion details, ticket lists, ticket creation, welfare records, and dashboard metrics must use the centralized scope helpers rather than reading the global mocks directly.
+Driver Experience role data is scoped in [`src/data/driverExperienceAssignmentScope.ts`](../src/data/driverExperienceAssignmentScope.ts). Call Centre Agent Fatima Bello is globally assigned and sees every Champion and ticket in the system. Welfare Agent Chidi Okafor sees only Champions and tickets both assigned to her and located in Lagos. Field Ops Manager and Welfare Manager see every Champion and ticket in Lagos regardless of assignment. Champion lists, Champion details, ticket lists, ticket creation, welfare records, Approvals (ownership transfers and time-off), and dashboard metrics must use the centralized scope helpers and live store snapshots rather than reading the global seed arrays directly. Ticket-performance widgets (totals, false-resolution rate, resolver and category charts) are computed from the scoped ticket snapshot. The Champion Overview pending-approvals banner counts scoped pending transfers and time-off, not the unfiltered seed.
 
 Driver Experience tables expose one geographic level at a time. In Champion Overview, Ticket Management, the Welfare Champions Directory, Agents Portfolio, and Agent Assignment History, global roles and Full Build show a City column and City filter; city-scoped roles show a Subcity column and Subcity filter populated only from their scoped records. Do not show both geographic filters or use the generic “Location” label on these tables. On an Agent Portfolio detail, the Champion Status field is a lifecycle status and must not be labeled as a geographic State.
 
@@ -308,7 +330,7 @@ A role that has `fleet-register` and `asset-movement` (and not `activation-dashb
 
 Fleet Officer has only `fleet-register`, so 3PL/Yard stats and Check-in by City are omitted.
 
-Refurbishment Manager and Refurbishment Officer have no dashboard module, so the Overview Dashboard is hidden and denied paths fall back to `/refurbishment`.
+Refurbishment Manager and Refurbishment Officer have no dashboard module, so the Overview Dashboard is hidden and denied paths fall back to `/refurbishment`. Inventory Manager and Inventory Officer have no dashboard module; denied paths fall back to `/inventory/list`.
 
 City-scoped data (`getDashboardWidgetData`):
 
@@ -351,9 +373,9 @@ Reuse another role’s `navItemIds` when the spec says “same nav as X”.
 
 ### 3. Path allowlist
 
-`getAllowedPathPrefixes` is **hardcoded** and **branches by mode**. It is not derived from `navItemIds`. GFM / City Fleet Officer share one prefix list. Fleet Officer has a shorter list (`/dashboard`, `/fleet-register`, `/activation/readiness`, `/vehicle-document`, kit). Refurbishment Manager and Refurbishment Officer share: `/refurbishment`, `/service-schedule`, `/disposal-management`, `/conversion-request`, `/auction`, `/scrap-management`, `/closed-assets`. Add every list href **and** every detail route under those modules.
+`getAllowedPathPrefixes` is **hardcoded** and **branches by mode**. It is not derived from `navItemIds`. GFM / City Fleet Officer share one prefix list (includes `/deactivated-vehicles` and `/assessment-list`). Fleet Officer has a shorter list (`/dashboard`, `/fleet-register`, `/activation/readiness`, `/vehicle-document`, kit). Refurbishment Manager and Refurbishment Officer share: `/refurbishment`, `/deactivated-vehicles`, `/assessment-list`, `/service-schedule`, `/disposal-management`, `/conversion-request`, `/auction`, `/scrap-management`, `/closed-assets`. Inventory Manager and Inventory Officer: `/inventory`. Add every list href **and** every detail route under those modules.
 
-If an action lives under an allowed prefix but the role must not open it, add it to `getDeniedPathPrefixes` for that mode and map a sensible fallback in `getFallbackPathForDenied` (GFM kit assign → kit list; Refurbishment Manager / Officer denied paths → `/refurbishment`).
+If an action lives under an allowed prefix but the role must not open it, add it to `getDeniedPathPrefixes` for that mode and map a sensible fallback in `getFallbackPathForDenied` (GFM kit assign → kit list; Refurbishment Manager / Officer denied paths → `/refurbishment`; Inventory Manager / Officer → `/inventory/list`).
 
 [`AppLayout.tsx`](../src/components/max/AppLayout.tsx) redirects any disallowed pathname.
 
@@ -425,4 +447,4 @@ Switch the name card to the new role and check:
 - **Path prefixes are not derived from nav.** Updating `navItemIds` without `getAllowedPathPrefixes` leaves deep links open or blocks valid detail pages. Always edit both.
 - **No city switcher in the UI.** A City Fleet Officer is Lagos-only. Another city is a new role or a new `dataScope.city`, not a dropdown.
 - **Simulation is client-only.** Anyone can switch roles from the name card. Do not treat this as security.
-- **Ungated equals allowed.** Service Schedule and Disposal have no permission keys. Any role that can open those modules can use every control on them until you add keys. Refurbishment gates the work-order parts Cost column via `refurbishment.column.partCost`.
+- **Ungated equals allowed.** Service Schedule, Disposal, Deactivated Vehicles, and Assessment List have no permission keys. Any role that can open those modules can use every control on them until you add keys. Inventory is visible to Full Build, Inventory Manager, and Inventory Officer. Inventory gates edit cost price via `inventory.editCostPrice` and Accept/Reject via `inventory.approvals.decide`. Refurbishment gates the work-order parts Cost column via `refurbishment.column.partCost`.

@@ -19,6 +19,17 @@ const ASSIGNED_CHAMPION_IDS: Partial<Record<SimulationMode, Set<string>>> = {
   ]),
 }
 
+function isRecordInCity<
+  T extends { city?: string; state?: string; location?: string; subcity?: string }
+>(record: T, city: "Lagos"): boolean {
+  return (
+    isInCityScope(record.city, city) ||
+    isInCityScope(record.state, city) ||
+    isInCityScope(record.location, city) ||
+    isInCityScope(record.subcity, city)
+  )
+}
+
 export function isChampionAssignedForSimulationMode(
   championId: string,
   mode: SimulationMode,
@@ -42,7 +53,7 @@ export function isChampionAssignedForSimulationMode(
 }
 
 export function championsForSimulationMode<
-  T extends { id: string; state?: string; location?: string }
+  T extends { id: string; city?: string; state?: string; location?: string; subcity?: string }
 >(
   champions: readonly T[],
   mode: SimulationMode
@@ -51,22 +62,14 @@ export function championsForSimulationMode<
     return [...champions]
   }
   if (mode === "field-ops-manager" || mode === "welfare-manager") {
-    return champions.filter(
-      (champion) =>
-        isInCityScope(champion.state, "Lagos") ||
-        isInCityScope(champion.location, "Lagos")
-    )
+    return champions.filter((champion) => isRecordInCity(champion, "Lagos"))
   }
   const assignedIds = ASSIGNED_CHAMPION_IDS[mode]
   if (!assignedIds) return [...champions]
   return champions.filter((champion) => {
     if (!assignedIds.has(champion.id)) return false
     if (mode !== "welfare-agent") return true
-    const city = SIMULATED_DRIVER_EXPERIENCE_AGENTS[mode].city
-    return (
-      isInCityScope(champion.state, city) ||
-      isInCityScope(champion.location, city)
-    )
+    return isRecordInCity(champion, SIMULATED_DRIVER_EXPERIENCE_AGENTS[mode].city)
   })
 }
 

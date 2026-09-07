@@ -195,7 +195,7 @@ export function ContractDetailSheet({ contract, isOpen, onClose, onUpdate }: Con
 
   return (
     <Sheet open={isOpen} onOpenChange={(open) => { if (!open) onClose() }}>
-      <SheetContent size="lg" className="flex flex-col h-full max-w-[40vw]">
+      <SheetContent size="lg" className="flex flex-col h-full">
         <SheetHeader>
           <div className="flex flex-wrap items-center gap-2 pr-8">
             <SheetTitle className="text-sidebar-item-active">{contract.championName}</SheetTitle>

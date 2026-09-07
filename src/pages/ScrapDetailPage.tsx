@@ -52,7 +52,7 @@ export default function ScrapDetailPage() {
       </header>
 
       <div className="px-6 flex flex-col flex-1 min-h-0 overflow-y-auto pb-8">
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-3">
           <StatCard title="Salvaged Parts Value" value="$0" indicatorColor="var(--color-gray-400)" />
           <StatCard title="Reusable Parts" value="0" indicatorColor="var(--color-gray-400)" />
           <StatCard title="Added to Inventory" value="0" indicatorColor="var(--color-gray-400)" />

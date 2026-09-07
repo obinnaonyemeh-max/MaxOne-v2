@@ -1,3 +1,5 @@
+import { mockChampions } from "./mockChampions"
+
 export type AgentDepartment = "Welfare" | "Operations"
 
 export type AgentStatus = "Active" | "On Leave" | "Inactive"
@@ -127,15 +129,18 @@ function seededRandom(seed: number) {
   return x - Math.floor(x)
 }
 
+function agentsForCity(city: string): AgentPortfolioRecord[] {
+  const matches = mockAgentPortfolioRecords.filter((agent) => agent.city === city)
+  return matches.length > 0 ? matches : mockAgentPortfolioRecords
+}
+
 function buildChampions(): AgentChampionRecord[] {
   const champions: AgentChampionRecord[] = []
-  let serial = 1
+  const remainingSlots = new Map<string, ChampionState[]>()
 
   for (const agent of mockAgentPortfolioRecords) {
-    // At-risk champions are split across the two at-risk states.
     const watchlist = Math.ceil(agent.atRisk / 2)
     const earlyArrears = agent.atRisk - watchlist
-
     const states: ChampionState[] = [
       ...Array<ChampionState>(agent.active).fill("Performing"),
       ...Array<ChampionState>(watchlist).fill("Watchlist"),
@@ -143,15 +148,42 @@ function buildChampions(): AgentChampionRecord[] {
       ...Array<ChampionState>(agent.delinquent).fill("Default"),
       ...Array<ChampionState>(agent.inactive).fill("Inactive"),
     ]
-
-    // Interleave so the table isn't grouped by state out of the box. Sorting on a
-    // per-position key (not the value) keeps the comparator consistent.
     const shuffled = states
-      .map((state, position) => ({ state, key: seededRandom(serial * 97 + position) }))
-      .sort((a, b) => a.key - b.key)
+      .map((state, position) => ({ state, key: seededRandom(Number(agent.id) * 97 + position) }))
+      .sort((left, right) => left.key - right.key)
       .map((entry) => entry.state)
+    remainingSlots.set(agent.id, shuffled)
+  }
 
-    shuffled.forEach((state, index) => {
+  const cityCursor = new Map<string, number>()
+  function takeSlot(agentId: string): ChampionState {
+    const slots = remainingSlots.get(agentId) ?? []
+    const state = slots.shift() ?? "Performing"
+    remainingSlots.set(agentId, slots)
+    return state
+  }
+
+  for (const champion of mockChampions) {
+    const agents = agentsForCity(champion.city)
+    const cursor = cityCursor.get(champion.city) ?? 0
+    const agent = agents[cursor % agents.length]
+    cityCursor.set(champion.city, cursor + 1)
+    champions.push({
+      id: champion.id,
+      agentId: agent.id,
+      name: champion.name,
+      championId: champion.championId,
+      avatarUrl: champion.avatarUrl,
+      phone: champion.contactNumber,
+      plate: champion.plateNumber,
+      state: takeSlot(agent.id),
+    })
+  }
+
+  let serial = mockChampions.length + 1
+  for (const agent of mockAgentPortfolioRecords) {
+    const leftover = remainingSlots.get(agent.id) ?? []
+    leftover.forEach((state, index) => {
       const seed = serial * 31 + index
       const first = FIRST_NAMES[Math.floor(seededRandom(seed) * FIRST_NAMES.length)]
       const last = LAST_NAMES[Math.floor(seededRandom(seed + 7) * LAST_NAMES.length)]

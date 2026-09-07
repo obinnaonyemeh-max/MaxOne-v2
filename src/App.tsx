@@ -11,6 +11,11 @@ import InboundPage from "@/pages/InboundPage"
 import BatchDetailsPage from "@/pages/BatchDetailsPage"
 import SubBatchDetailsPage from "@/pages/SubBatchDetailsPage"
 import RefurbishmentPage from "@/pages/RefurbishmentPage"
+import DeactivatedVehiclesPage from "@/pages/DeactivatedVehiclesPage"
+import AssessmentListPage from "@/pages/AssessmentListPage"
+import InventoryListPage from "@/pages/InventoryListPage"
+import InventoryMovementHistoryPage from "@/pages/InventoryMovementHistoryPage"
+import InventoryApprovalsPage from "@/pages/InventoryApprovalsPage"
 import ServiceSchedulePage from "@/pages/ServiceSchedulePage"
 import DisposalManagementPage from "@/pages/DisposalManagementPage"
 import AuctionPage from "@/pages/AuctionPage"
@@ -109,6 +114,12 @@ export default function App() {
         <Route path="/inbound/batches/:id" element={<BatchDetailsPage />} />
         <Route path="/inbound/batches/:batchId/sub-batches/:subBatchId" element={<SubBatchDetailsPage />} />
         <Route path="/refurbishment" element={<RefurbishmentPage />} />
+        <Route path="/deactivated-vehicles" element={<DeactivatedVehiclesPage />} />
+        <Route path="/assessment-list" element={<AssessmentListPage />} />
+        <Route path="/inventory" element={<Navigate to="/inventory/list" replace />} />
+        <Route path="/inventory/list" element={<InventoryListPage />} />
+        <Route path="/inventory/movement-history" element={<InventoryMovementHistoryPage />} />
+        <Route path="/inventory/approvals" element={<InventoryApprovalsPage />} />
         <Route path="/service-schedule" element={<ServiceSchedulePage />} />
         <Route path="/disposal-management" element={<DisposalManagementPage />} />
         <Route path="/auction" element={<AuctionPage />} />

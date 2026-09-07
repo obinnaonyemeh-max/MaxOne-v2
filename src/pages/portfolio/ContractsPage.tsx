@@ -64,7 +64,7 @@ export default function ContractsPage() {
         className="shrink-0"
       />
 
-      <div className="px-6 grid grid-cols-5 gap-2 shrink-0 mb-4">
+      <div className="px-4 md:px-6 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-5 shrink-0 mb-4">
         <StatCard
           title="All Contracts"
           value={stats.all.toLocaleString()}

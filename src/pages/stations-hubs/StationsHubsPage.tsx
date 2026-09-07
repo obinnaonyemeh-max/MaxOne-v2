@@ -131,8 +131,8 @@ export default function StationsHubsPage() {
         className="shrink-0"
       />
 
-      <div className="flex flex-1 flex-col overflow-hidden px-6 pb-6">
-        <div className="mb-4 flex shrink-0 items-center justify-between gap-4">
+      <div className="flex flex-1 flex-col overflow-hidden px-4 pb-6 md:px-6">
+        <div className="mb-4 flex shrink-0 flex-wrap items-center justify-between gap-4">
           <p className="text-gray-500" style={{ fontSize: "13px", fontWeight: 500 }}>
             {filteredStations.length.toLocaleString()} Total Swap Stations
             {activeFilterCount > 0 && (
@@ -219,8 +219,16 @@ export default function StationsHubsPage() {
             )}
           </div>
         ) : (
-          <div className="flex min-h-0 flex-1 gap-4 overflow-hidden">
-            <div className="flex w-[390px] max-w-[min(390px,45vw)] min-w-0 shrink flex-col overflow-hidden rounded-lg border border-gray-200 bg-white">
+          <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden lg:flex-row">
+            <div className="relative z-0 min-h-[240px] min-w-0 flex-1 isolate overflow-hidden rounded-lg border border-gray-200 bg-white p-2 order-1 lg:order-2">
+              <StationsMap
+                stations={filteredStations}
+                selectedStationId={selectedStationId}
+                onSelectStation={setSelectedStationId}
+                className="h-full w-full overflow-hidden rounded-lg"
+              />
+            </div>
+            <div className="flex h-[40vh] max-h-[320px] w-full min-w-0 shrink flex-col overflow-hidden rounded-lg border border-gray-200 bg-white order-2 lg:order-1 lg:h-auto lg:max-h-none lg:w-[390px] lg:max-w-[min(390px,45vw)]">
               <div className="border-b border-gray-100 px-4 py-2">
                 <span className="text-gray-500" style={{ fontSize: "12px" }}>
                   Showing {filteredStations.length.toLocaleString()} stations
@@ -252,15 +260,6 @@ export default function StationsHubsPage() {
                   ))
                 )}
               </div>
-            </div>
-
-            <div className="relative z-0 min-h-0 min-w-0 flex-1 isolate overflow-hidden rounded-lg border border-gray-200 bg-white p-2">
-              <StationsMap
-                stations={filteredStations}
-                selectedStationId={selectedStationId}
-                onSelectStation={setSelectedStationId}
-                className="h-full w-full overflow-hidden rounded-lg"
-              />
             </div>
           </div>
         )}

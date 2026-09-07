@@ -471,6 +471,7 @@ export function buildTicketDetailFromRecord(record: {
   category: string
   dateCreated: string
   affectedChampion: string
+  championId?: string
   location: string
   assignedAgent: string
   ticketCreator: string
@@ -490,7 +491,7 @@ export function buildTicketDetailFromRecord(record: {
       ticketCreator: record.ticketCreator,
     },
     callRecordings: [],
-    champion: { name: record.affectedChampion, id: "CHP-00000" },
+    champion: { name: record.affectedChampion, id: record.championId ?? "CHP-00000" },
     agent: { name: record.assignedAgent, department: "General Support" },
     vehicle: { ...defaultDetail.vehicle },
     contract: { ...defaultDetail.contract },

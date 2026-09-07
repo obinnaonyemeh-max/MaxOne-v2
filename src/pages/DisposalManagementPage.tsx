@@ -300,7 +300,7 @@ export default function DisposalManagementPage() {
           />
         </button>
 
-        <div className="grid grid-cols-5 gap-2 shrink-0">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-5 shrink-0">
           <StatCard
             title="Total in Disposal"
             value={scopedRecords.length}

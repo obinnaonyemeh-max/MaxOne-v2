@@ -114,15 +114,15 @@ export function Modal({
             {/* Actions Divider */}
             <div className="shrink-0 mx-6 border-t border-gray-200" />
 
-            <div className="shrink-0 flex items-center justify-between gap-3 px-6 py-6">
+            <div className="shrink-0 flex flex-col-reverse gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-6">
               <div>{leftAction}</div>
-              <div className="flex items-center gap-3">
+              <div className="flex w-full flex-col-reverse gap-3 sm:w-auto sm:flex-row sm:items-center">
                 {secondaryAction && (
                   <Button
                     variant="outline"
                     onClick={secondaryAction.onClick}
                     disabled={secondaryAction.disabled}
-                    className={cn("h-10 px-4", secondaryAction.className)}
+                    className={cn("h-10 w-full px-4 sm:w-auto", secondaryAction.className)}
                   >
                     {secondaryAction.label}
                   </Button>
@@ -132,7 +132,7 @@ export function Modal({
                     onClick={primaryAction.onClick}
                     disabled={primaryAction.disabled}
                     className={cn(
-                      "h-10 bg-brand-dark text-white hover:bg-brand-dark/90",
+                      "h-10 w-full bg-brand-dark text-white hover:bg-brand-dark/90 sm:w-auto",
                       primaryAction.icon ? "gap-2 pl-3 pr-[14px]" : "px-4",
                       primaryAction.className
                     )}

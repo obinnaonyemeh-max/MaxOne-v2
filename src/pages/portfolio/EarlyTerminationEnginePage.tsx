@@ -120,7 +120,7 @@ export default function EarlyTerminationEnginePage() {
           <TabsContent value="overview" className="flex flex-col gap-4 mt-0">
             <div className="px-6">
               <div className="rounded-lg border border-gray-200 bg-white p-5">
-                <div className="grid grid-cols-6 gap-4 items-end">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 items-end">
                   <FormField label="Country">
                     <Select value={countryId} onValueChange={handleCountryChange}>
                       <SelectTrigger className="h-9 w-full bg-input-soft">
@@ -203,7 +203,7 @@ export default function EarlyTerminationEnginePage() {
               </div>
             ) : (
               <>
-                <div className="px-6 grid grid-cols-3 gap-3">
+                <div className="px-4 md:px-6 grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-3">
                   <StatCard
                     title="Settlement Amount"
                     value={formatCurrency(quote.settlementAmount)}
@@ -225,7 +225,7 @@ export default function EarlyTerminationEnginePage() {
                   />
                 </div>
 
-                <div className="px-6 grid grid-cols-2 gap-4">
+                <div className="px-4 md:px-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
                   <div className="rounded-lg border border-gray-200 bg-white p-5 flex flex-col gap-3">
                     <span className="text-xs font-semibold uppercase tracking-wider text-breadcrumb-root">Contract Summary</span>
                     <InfoGrid

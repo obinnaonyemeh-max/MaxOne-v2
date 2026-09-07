@@ -56,7 +56,8 @@ import { Input } from "@/components/ui/input"
 import { useCan, useRoleSimulation } from "@/contexts/RoleSimulationContext"
 import { mockAgentPortfolioRecords } from "@/data/mockAgentPortfolio"
 import { isChampionAssignedForSimulationMode } from "@/data/driverExperienceAssignmentScope"
-import { getChampionDetails, type WalletTransaction, type WelfareNote, type ChampionDetails } from "@/data/mockChampionDetails"
+import { createTimeOff, useChampionDetails } from "@/data/championStore"
+import type { WalletTransaction, WelfareNote, ChampionDetails } from "@/data/mockChampionDetails"
 import {
   type TicketRecord,
   statusVariantMap as ticketStatusVariantMap,
@@ -550,7 +551,7 @@ export default function ChampionDetailPage() {
     mode === "welfare-agent" ||
     mode === "welfare-manager" ||
     mode === "dxp-product-manager"
-  const champion = getChampionDetails(id || "1")
+  const champion = useChampionDetails(id)
   const roleTabAllowlist =
     mode === "call-centre-agent"
       ? CALL_CENTRE_AGENT_CHAMPION_TABS
@@ -564,9 +565,9 @@ export default function ChampionDetailPage() {
   const canViewProfileTab = (tab: string) =>
     roleTabAllowlist === null || roleTabAllowlist.has(tab)
   const isAssignedChampion = isChampionAssignedForSimulationMode(
-    id || "1",
+    id || "",
     mode,
-    champion.location
+    champion?.city ?? champion?.location
   )
 
   // The same detail page is reachable from Driver Experience (Champion Overview) and
@@ -579,12 +580,12 @@ export default function ChampionDetailPage() {
         { label: "Portfolio" },
         { label: "Champions" },
         { label: "Champion Overview", href: "/portfolio/champions/overview" },
-        { label: champion.name },
+        { label: champion?.name ?? "Champion" },
       ]
       : [
         { label: "Driver Experience" },
         { label: "Champion Overview", href: "/champion-360" },
-        { label: champion.name },
+        { label: champion?.name ?? "Champion" },
       ]
 
   const requestedTab = searchParams.get("tab") || "biodata"
@@ -627,13 +628,14 @@ export default function ChampionDetailPage() {
   const [blockedGuarantors, setBlockedGuarantors] = useState<Set<number>>(new Set())
 
   const handleBlockChampion = () => {
+    if (!champion) return
     setChampionBlocked(true)
     setShowBlockChampion(false)
     toast.success(`${champion.name} has been blacklisted`)
   }
 
   const handleBlockGuarantor = () => {
-    if (guarantorToBlock === null) return
+    if (!champion || guarantorToBlock === null) return
     const guarantor = champion.guarantors[guarantorToBlock]
     setBlockedGuarantors((prev) => new Set(prev).add(guarantorToBlock))
     setGuarantorToBlock(null)
@@ -649,7 +651,9 @@ export default function ChampionDetailPage() {
   const [showMovementLog, setShowMovementLog] = useState(false)
 
   // Wallet transactions: local list (so new ones can be added) + type filter
-  const [walletTransactions, setWalletTransactions] = useState<WalletTransaction[]>(champion.wallet.transactions)
+  const [walletTransactions, setWalletTransactions] = useState<WalletTransaction[]>(
+    champion?.wallet.transactions ?? []
+  )
   const [walletFilters, setWalletFilters] = useState<GenericFilterState>({ transactionType: [] })
   const [showAddTransaction, setShowAddTransaction] = useState(false)
   const [walletSearchOpen, setWalletSearchOpen] = useState(false)
@@ -731,10 +735,12 @@ export default function ChampionDetailPage() {
   }, [])
 
   useEffect(() => {
-    if (!inPortfolio && !isAssignedChampion) {
-      navigate("/champion-360", { replace: true })
+    if (!id || !champion || (!inPortfolio && !isAssignedChampion)) {
+      navigate(inPortfolio ? "/portfolio/champions/overview" : "/champion-360", { replace: true })
     }
-  }, [inPortfolio, isAssignedChampion, navigate])
+  }, [champion, id, inPortfolio, isAssignedChampion, navigate])
+
+  if (!champion) return null
 
   const vehicleOverviewDetails = [
     { label: "Asset type", value: champion.vehicle.assetType },
@@ -812,8 +818,8 @@ export default function ChampionDetailPage() {
       <TopBar breadcrumbs={breadcrumbs} />
 
       <div className="flex-1 overflow-y-auto">
-        <div className="px-6 py-6">
-          <div className="flex items-start justify-between">
+        <div className="px-4 py-4 md:px-6 md:py-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <div className="flex items-center gap-2">
                 <BackButton onClick={() => navigate(backPath)} />
@@ -855,9 +861,9 @@ export default function ChampionDetailPage() {
           </div>
         </div>
 
-        <div className="px-6 pb-6 flex gap-6 items-start">
+        <div className="px-4 pb-6 md:px-6 flex flex-col gap-6 items-stretch lg:flex-row lg:items-start">
           {/* Left Column */}
-          <div className="w-[340px] max-w-[min(340px,40vw)] min-w-0 shrink flex flex-col gap-4">
+          <div className="w-full min-w-0 shrink flex flex-col gap-4 lg:w-[340px] lg:max-w-[min(340px,40vw)]">
             <ChampionInformation
               name={champion.name}
               riskLevel={champion.riskLevel}
@@ -1588,7 +1594,18 @@ export default function ChampionDetailPage() {
             <Button
               className="h-9 bg-brand-dark text-white hover:bg-brand-dark/90"
               disabled={!timeOffForm.type || !timeOffForm.startDate || !timeOffForm.endDate}
-              onClick={() => setShowCreateTimeOff(false)}
+              onClick={() => {
+                if (!id) return
+                createTimeOff(id, {
+                  type: timeOffForm.type as "Annual" | "Emergency" | "Sick",
+                  startDate: timeOffForm.startDate,
+                  endDate: timeOffForm.endDate,
+                })
+                setShowCreateTimeOff(false)
+                toast.success("Time-off request submitted", {
+                  description: `${champion.name}'s ${timeOffForm.type.toLowerCase()} leave is pending approval.`,
+                })
+              }}
             >
               Submit Request
             </Button>

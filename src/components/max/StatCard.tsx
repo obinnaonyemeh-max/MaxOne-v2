@@ -32,7 +32,7 @@ export function StatCard({
   return (
     <div
       className={cn(
-        "flex flex-col bg-gray-25 border border-gray-200 rounded-lg transition-colors hover:border-gray-950",
+        "min-w-0 w-full flex flex-col bg-gray-25 border border-gray-200 rounded-lg transition-colors hover:border-gray-950",
         onClick && "cursor-pointer",
         className
       )}

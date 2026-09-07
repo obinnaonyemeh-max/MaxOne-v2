@@ -147,7 +147,7 @@ export default function DynamicRepricingEnginePage() {
 
         <div className="flex-1 overflow-y-auto pb-6">
           <TabsContent value="dashboard" className="flex flex-col gap-4 mt-0">
-            <div className="px-6 grid grid-cols-6 gap-2">
+            <div className="px-4 md:px-6 grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-6">
               <StatCard
                 title="Awaiting Repricing"
                 value={mockRepricingMetrics.awaitingRepricing}
@@ -187,7 +187,7 @@ export default function DynamicRepricingEnginePage() {
               />
             </div>
 
-            <div className="px-6 grid grid-cols-2 gap-4">
+            <div className="px-4 md:px-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
               <div className="rounded-lg border border-gray-200 bg-white p-5 flex flex-col gap-3">
                 <span className="text-xs font-semibold uppercase tracking-wider text-breadcrumb-root">Active Rules</span>
                 <div className="flex flex-col divide-y divide-gray-100">

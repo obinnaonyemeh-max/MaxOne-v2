@@ -31,7 +31,7 @@ export function WizardHeader({
   const isLastStep = currentStep === TOTAL_STEPS
 
   return (
-    <div className="flex items-center justify-between border-b border-gray-200 bg-white px-6 py-4 shrink-0">
+    <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-200 bg-white px-4 py-4 shrink-0 md:px-6">
       <div>
         <div className="flex items-center gap-2">
           <h1 className="font-semibold text-sidebar-item-active" style={{ fontSize: "18px" }}>
@@ -44,7 +44,7 @@ export function WizardHeader({
         </p>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <Button variant="outline" onClick={onSaveDraft} disabled={isSubmitting}>
           Save Draft
         </Button>

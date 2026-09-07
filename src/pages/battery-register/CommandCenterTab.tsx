@@ -54,7 +54,7 @@ interface FETStatusBoxProps {
 
 function FETStatusBox({ title, icon, enabled, statusOn, description }: FETStatusBoxProps) {
   return (
-    <div className="flex-1 border border-border rounded-lg p-4">
+    <div className="min-w-0 flex-1 border border-border rounded-lg p-4">
       <div className="flex items-center gap-2 mb-3">
         <img src={icon} alt={title} className="h-8 w-8" />
       </div>
@@ -263,7 +263,7 @@ export function CommandCenterTab({ batteryId, batteryInfo }: CommandCenterTabPro
       />
 
       {/* Two Column Layout */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         {/* Left Column - Controls */}
         <div className="flex flex-col gap-4">
           {/* Battery Control Status */}
@@ -271,7 +271,7 @@ export function CommandCenterTab({ batteryId, batteryInfo }: CommandCenterTabPro
             <h3 className="text-base font-medium text-sidebar-item-active mb-4">
               Battery Control Status
             </h3>
-            <div className="flex gap-4">
+            <div className="flex min-w-0 flex-col gap-4 sm:flex-row">
               <FETStatusBox
                 title="Charge FET"
                 icon={chargeFetIcon}

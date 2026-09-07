@@ -105,7 +105,7 @@ export default function VehicleActivityPage() {
       />
 
       <div className="flex-1 overflow-y-auto">
-        <div className="px-6 py-6">
+        <div className="px-4 py-4 md:px-6 md:py-6">
           <div className="flex items-center gap-2">
             <BackButton onClick={() => navigate("/falcon/vehicle-register")} />
             <h1
@@ -121,8 +121,8 @@ export default function VehicleActivityPage() {
           </p>
         </div>
 
-        <div className="px-6 pb-6 flex flex-col gap-4">
-          <div className="flex gap-4 items-stretch">
+        <div className="px-4 pb-6 md:px-6 flex flex-col gap-4">
+          <div className="flex flex-col gap-4 items-stretch lg:flex-row">
             <div className="flex-1 min-w-0 min-h-0 flex flex-col gap-4">
               <LiveTrackingMap
                 className="flex-1 min-h-0"
@@ -136,7 +136,7 @@ export default function VehicleActivityPage() {
                 onViewAllTrips={() => navigate(`/falcon/vehicle-register/${vehicle.id}/trips`)}
               />
               {isEV && activity.battery && activity.charger && (
-                <div className="grid grid-cols-2 gap-4 shrink-0 items-stretch">
+                <div className="grid grid-cols-1 gap-4 shrink-0 items-stretch sm:grid-cols-2">
                   <BatteryInfoCard
                     className="h-full"
                     stateOfCharge={activity.battery.stateOfCharge}
@@ -156,7 +156,7 @@ export default function VehicleActivityPage() {
                 </div>
               )}
               {!isEV && (
-                <div className="grid grid-cols-2 gap-4 shrink-0 items-stretch">
+                <div className="grid grid-cols-1 gap-4 shrink-0 items-stretch sm:grid-cols-2">
                   <DriverScoreCard
                     className="h-full"
                     score={activity.driverScore.score}
@@ -173,7 +173,7 @@ export default function VehicleActivityPage() {
                 </div>
               )}
             </div>
-            <div className="w-[340px] max-w-[min(340px,40vw)] min-w-0 shrink flex flex-col gap-4">
+            <div className="w-full min-w-0 shrink flex flex-col gap-4 lg:w-[340px] lg:max-w-[min(340px,40vw)]">
               <VehicleOverviewCard
                 status={vehicle.lifecycleStatus}
                 statusVariant={
@@ -199,7 +199,7 @@ export default function VehicleActivityPage() {
 
           {isEV ? (
             <>
-              <div className="grid grid-cols-3 gap-4 items-stretch">
+              <div className="grid grid-cols-1 gap-4 items-stretch md:grid-cols-3">
                 <DriverScoreCard
                   className="h-full"
                   score={activity.driverScore.score}
@@ -230,7 +230,7 @@ export default function VehicleActivityPage() {
               />
             </>
           ) : (
-            <div className="grid gap-4 items-stretch" style={{ gridTemplateColumns: "minmax(0,3fr) minmax(0,7fr)" }}>
+            <div className="grid grid-cols-1 gap-4 items-stretch lg:grid-cols-[minmax(0,3fr)_minmax(0,7fr)]">
               <ImmobilizationCard
                 className="h-full"
                 immobilized={immobilized}
@@ -253,7 +253,7 @@ export default function VehicleActivityPage() {
             <h3 className="text-sidebar-item-active mb-4" style={{ fontSize: "16px", fontWeight: 500 }}>
               Reports
             </h3>
-            <div className="grid grid-cols-6 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
               <StatCard
                 title="Total trips"
                 value={activity.reports.totalTrips.toLocaleString()}

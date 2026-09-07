@@ -65,8 +65,8 @@ export function BulkUploadVehiclesFlow({ open, onClose, onComplete }: BulkUpload
           onClick: onClose,
         }}
       >
-        <div className="flex gap-8">
-          <div className="w-[280px] shrink-0">
+        <div className="flex flex-col md:flex-row gap-8">
+          <div className="w-full md:w-[280px] shrink-0">
             <DocUpload
               uploadedFile={file}
               onFileSelect={setFile}

@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from "react"
+import { useMediaQuery } from "@/hooks/useMediaQuery"
 import { format } from "date-fns"
 import {
   Calendar as CalendarIcon,
@@ -57,6 +58,7 @@ export function FilterBar({
 }: FilterBarProps) {
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
+  const isBelowMd = useMediaQuery("(max-width: 767px)")
 
   const activeFilterCount =
     filters.championStatus.length +
@@ -80,7 +82,7 @@ export function FilterBar({
         className
       )}
     >
-      <div className="flex items-center gap-2">
+      <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
         <Popover>
           <PopoverTrigger asChild>
             <Button
@@ -96,7 +98,7 @@ export function FilterBar({
               mode="range"
               selected={dateRange}
               onSelect={onDateRangeChange}
-              numberOfMonths={2}
+              numberOfMonths={isBelowMd ? 1 : 2}
             />
           </PopoverContent>
         </Popover>
@@ -131,17 +133,19 @@ export function FilterBar({
           onValueChange={setSearchQuery}
           placeholder={searchPlaceholder}
           onSubmit={handleSearchSubmit}
+          className={searchOpen ? "w-full min-w-0 sm:w-auto" : undefined}
+          inputClassName="w-full sm:w-48"
         />
 
         {children}
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex w-full flex-wrap items-center gap-2 md:w-auto">
         {secondaryAction && (
           <Button
             variant="outline"
             className={cn(
-              "h-9 gap-2 bg-gray-100 text-foreground hover:bg-gray-200",
+              "h-9 flex-1 gap-2 bg-gray-100 text-foreground hover:bg-gray-200 md:flex-none",
               secondaryAction.icon ? "px-3" : "px-4"
             )}
             onClick={secondaryAction.onClick}
@@ -160,7 +164,7 @@ export function FilterBar({
         {primaryAction && (
           <Button
             className={cn(
-              "h-9 gap-2 bg-brand-dark text-white hover:bg-brand-dark/90",
+              "h-9 flex-1 gap-2 bg-brand-dark text-white hover:bg-brand-dark/90 md:flex-none",
               primaryAction.icon ? "px-3" : "px-4"
             )}
             onClick={primaryAction.onClick}

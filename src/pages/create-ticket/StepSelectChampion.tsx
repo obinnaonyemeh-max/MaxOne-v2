@@ -2,7 +2,7 @@ import { Search } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { ChampionInformation } from "@/components/max/ChampionInformation"
-import { mockChampionDetails, type ChampionDetails } from "@/data/mockChampionDetails"
+import { listChampionDetails, type ChampionDetails } from "@/data/mockChampionDetails"
 import { championsForSimulationMode } from "@/data/driverExperienceAssignmentScope"
 import { useRoleSimulation } from "@/contexts/RoleSimulationContext"
 
@@ -23,7 +23,7 @@ export function StepSelectChampion({
 }: StepSelectChampionProps) {
   const { mode } = useRoleSimulation()
   const champions = championsForSimulationMode(
-    Object.values(mockChampionDetails),
+    listChampionDetails(),
     mode
   )
 

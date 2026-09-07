@@ -31,7 +31,7 @@ export function DriverDetailSheet({ driver, isOpen, onClose }: DriverDetailSheet
 
   return (
     <Sheet open={isOpen} onOpenChange={(open) => { if (!open) onClose() }}>
-      <SheetContent size="lg" className="flex flex-col h-full max-w-[40vw]">
+      <SheetContent size="lg" className="flex flex-col h-full">
         {/* Header */}
         <SheetHeader>
           <div className="flex items-center gap-3 pr-8">

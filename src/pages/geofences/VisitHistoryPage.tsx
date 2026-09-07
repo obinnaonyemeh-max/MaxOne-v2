@@ -199,7 +199,7 @@ export default function VisitHistoryPage() {
       </div>
 
       <div className="px-6 pb-4 shrink-0">
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-4">
           {stats.map((stat) => (
             <StatCard key={stat.title} title={stat.title} value={stat.value} indicatorColor={stat.indicatorColor} />
           ))}

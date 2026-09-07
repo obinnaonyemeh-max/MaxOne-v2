@@ -71,6 +71,40 @@ export const sidebarSections: SidebarSection[] = [
     label: "Lifecycle",
     items: [
       {
+        id: "deactivated-vehicles",
+        label: "Deactivated Vehicles",
+        icon: "/images/asset_assessment_menu.svg",
+        href: "/deactivated-vehicles",
+      },
+      {
+        id: "assessment-list",
+        label: "Assessment List",
+        icon: "/images/asset_assessment_menu.svg",
+        href: "/assessment-list",
+      },
+      {
+        id: "inventory",
+        label: "Inventory",
+        icon: "/images/inbound_menu.svg",
+        children: [
+          {
+            id: "inventory-list",
+            label: "Inventory List",
+            href: "/inventory/list",
+          },
+          {
+            id: "inventory-movement-history",
+            label: "Movement History",
+            href: "/inventory/movement-history",
+          },
+          {
+            id: "inventory-approvals",
+            label: "Approvals",
+            href: "/inventory/approvals",
+          },
+        ],
+      },
+      {
         id: "refurbishment",
         label: "Refurbishment",
         icon: "/images/refurbishment_menu.svg",

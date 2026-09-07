@@ -42,9 +42,9 @@ export function StepTicketDetails({
   onUpdateCallScriptAnswer,
 }: StepTicketDetailsProps) {
   return (
-    <div className="grid grid-cols-5 gap-6">
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
       {/* Left column — form */}
-      <div className="col-span-3 space-y-6">
+      <div className="space-y-6 lg:col-span-3">
         <div className="rounded-lg border border-gray-200 p-5 space-y-6">
           <FormSection title="Ticket Information">
             <div className="grid grid-cols-2 gap-x-4 gap-y-6">
@@ -121,7 +121,7 @@ export function StepTicketDetails({
       </div>
 
       {/* Right column — summary */}
-      <div className="col-span-2 space-y-4">
+      <div className="space-y-4 lg:col-span-2">
         <div className="bg-gray-50 border border-gray-100 rounded-md p-3">
           <div className="bg-white border border-[#f3f3f3] rounded py-3 px-3">
             <div className="flex items-center gap-2.5">

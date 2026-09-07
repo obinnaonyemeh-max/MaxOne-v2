@@ -153,7 +153,7 @@ export default function BatteryDetailsPage() {
             <TabsContent value="telemetry" className="mt-0">
               <div className="flex flex-col gap-4">
                 {/* Row 1: Charge Info + Metric Cards (40%) | SOC Trend (60%) */}
-                <div className="grid gap-4" style={{ gridTemplateColumns: "40% 1fr" }}>
+                <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
                   {/* Left Column: Charge Info + Metric Cards */}
                   <div className="flex flex-col gap-4">
                     <ChargeInfoCard
@@ -162,7 +162,7 @@ export default function BatteryDetailsPage() {
                       stateOfHealth={battery.stateOfHealth}
                       distanceLeft={battery.distanceLeft}
                     />
-                    <div className="grid grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                       <BatteryMetricCard
                         iconSrc="/images/voltage.svg"
                         label="Voltage"
@@ -202,7 +202,7 @@ export default function BatteryDetailsPage() {
                 </div>
 
                 {/* Row 2: SOH Trend + Temperature Trend */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
                   <SOHTrendCard
                     currentSOH={battery.stateOfHealth}
                     sohHistory={battery.sohHistory}
@@ -221,7 +221,7 @@ export default function BatteryDetailsPage() {
                 </div>
 
                 {/* Row 3: Voltage Trend + Current Trend */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
                   <TrendChartCard
                     title="Voltage Trend"
                     currentValue={battery.voltage}

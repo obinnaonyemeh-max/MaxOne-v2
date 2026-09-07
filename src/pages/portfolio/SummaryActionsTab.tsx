@@ -82,7 +82,7 @@ export function SummaryActionsTab({ contract, quote, onApprove, onCancel }: Summ
 
   return (
     <div className="px-6 flex flex-col gap-4">
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
         <StatCard
           title="Settlement Amount"
           value={formatCurrency(settlement.settlementAmount)}
@@ -106,7 +106,7 @@ export function SummaryActionsTab({ contract, quote, onApprove, onCancel }: Summ
 
       <div className="rounded-lg border border-gray-200 bg-white p-5">
         <span className="text-xs font-semibold uppercase tracking-wider text-breadcrumb-root">Settlement Validation</span>
-        <div className="mt-3 grid grid-cols-2 gap-x-6 gap-y-2.5">
+        <div className="mt-3 grid grid-cols-1 gap-x-6 gap-y-2.5 sm:grid-cols-2">
           {settlement.validation.map((item) => {
             const Icon = validationIcon[item.level]
             return (

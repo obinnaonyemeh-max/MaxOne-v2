@@ -29,7 +29,7 @@ export function StatusTabs({
   return (
     <div
       className={cn(
-        "flex items-center gap-1 overflow-x-auto border-b border-transparent px-6",
+        "flex items-center gap-1 overflow-x-auto border-b border-transparent px-4 md:px-6",
         className
       )}
     >

@@ -11,6 +11,10 @@ import { StepSelectCategory } from "./StepSelectCategory"
 import { StepSelectSubcategory } from "./StepSelectSubcategory"
 import { StepTicketDetails } from "./StepTicketDetails"
 import { resolveCallScript } from "@/data/callScriptTemplates"
+import { createTicket } from "@/data/ticketStore"
+import { SIMULATED_DRIVER_EXPERIENCE_AGENTS } from "@/data/driverExperienceAssignmentScope"
+import { championLocationLabel } from "@/data/mockChampions"
+import { useRoleSimulation } from "@/contexts/RoleSimulationContext"
 import type { WizardState, WizardAction, WizardStep } from "./types"
 
 const initialState: WizardState = {
@@ -148,6 +152,7 @@ function isNextEnabled(state: WizardState): boolean {
 
 export default function CreateTicketPage() {
   const navigate = useNavigate()
+  const { mode } = useRoleSimulation()
   const [state, dispatch] = useReducer(wizardReducer, initialState)
   const [showCancelDialog, setShowCancelDialog] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -174,25 +179,33 @@ export default function CreateTicketPage() {
   }
 
   const handleSubmit = () => {
+    if (!state.selectedChampion || !state.selectedCategory) return
     setIsSubmitting(true)
-    const { attachments, ...restDetails } = state.details
-    console.log("Submitting ticket:", {
-      champion: state.selectedChampion?.name,
-      category: state.selectedCategory?.name,
-      subcategory: state.selectedSubcategory?.name,
-      details: {
-        ...restDetails,
-        attachments: attachments.map((f) => f.name),
-      },
-      callScriptAnswers: state.callScriptAnswers,
+    const agentName =
+      mode === "welfare-agent"
+        ? SIMULATED_DRIVER_EXPERIENCE_AGENTS["welfare-agent"].name
+        : mode === "call-centre-agent"
+          ? SIMULATED_DRIVER_EXPERIENCE_AGENTS["call-centre-agent"].name
+          : "Fatima Bello"
+    const priority = (state.details.priority ||
+      state.selectedSubcategory?.priorityLevel ||
+      "Medium") as "High" | "Medium" | "Low"
+    createTicket({
+      championId: state.selectedChampion.championId,
+      affectedChampion: state.selectedChampion.name,
+      category: state.selectedCategory.name,
+      city: state.selectedChampion.city,
+      subcity: state.selectedChampion.subcity,
+      location: championLocationLabel(state.selectedChampion),
+      assignedAgent: agentName,
+      ticketCreator: agentName,
+      priority,
     })
-    setTimeout(() => {
-      setIsSubmitting(false)
-      toast.success("Ticket created successfully", {
-        description: `Ticket for ${state.selectedChampion?.name} has been submitted.`,
-      })
-      navigate("/ticket-management")
-    }, 1500)
+    toast.success("Ticket created successfully", {
+      description: `Ticket for ${state.selectedChampion.name} has been submitted.`,
+    })
+    setIsSubmitting(false)
+    navigate("/ticket-management")
   }
 
   return (

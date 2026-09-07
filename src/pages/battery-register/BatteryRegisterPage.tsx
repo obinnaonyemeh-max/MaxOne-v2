@@ -65,9 +65,9 @@ export default function BatteryRegisterPage() {
         className="shrink-0"
       />
 
-      <div className="flex-1 flex min-w-0 overflow-hidden px-6 pb-6 gap-4">
+      <div className="flex-1 flex min-w-0 flex-col overflow-hidden px-4 pb-6 gap-4 lg:flex-row md:px-6">
         {/* Left Panel - Battery List */}
-        <div className="w-[390px] max-w-[min(390px,45vw)] min-w-0 shrink border border-gray-200 rounded-lg flex flex-col bg-white overflow-hidden">
+        <div className="w-full min-w-0 shrink border border-gray-200 rounded-lg flex flex-col bg-white overflow-hidden h-[40vh] max-h-[360px] lg:h-auto lg:max-h-none lg:w-[390px] lg:max-w-[min(390px,45vw)]">
           {/* Header */}
           <div className="p-4 border-b border-gray-200">
             <div className="flex items-center justify-between mb-4">
@@ -149,7 +149,7 @@ export default function BatteryRegisterPage() {
         </div>
 
         {/* Right Panel - Battery Details */}
-        <div className="flex-1 overflow-y-auto bg-gray-50 border border-gray-200 rounded-lg p-6">
+        <div className="flex-1 min-w-0 overflow-y-auto bg-gray-50 border border-gray-200 rounded-lg p-4 md:p-6">
           {selectedBattery ? (
             <>
               {/* Battery Overview Header */}
@@ -170,7 +170,7 @@ export default function BatteryRegisterPage() {
               </div>
 
               {/* Top Section: Charge Info with Metrics (left) + Location (right) */}
-              <div className="grid grid-cols-2 gap-4 mb-4 items-stretch">
+              <div className="grid grid-cols-1 gap-4 mb-4 items-stretch lg:grid-cols-2">
                 {/* Left Column: Charge Info + Metric Cards */}
                 <div className="flex flex-col gap-4">
                   <ChargeInfoCard
@@ -181,7 +181,7 @@ export default function BatteryRegisterPage() {
                     className="flex-1"
                   />
                   {/* Metric Cards - same width as Charge Info */}
-                  <div className="grid grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                     <BatteryMetricCard
                       iconSrc="/images/voltage.svg"
                       label="Voltage"
@@ -213,7 +213,7 @@ export default function BatteryRegisterPage() {
               </div>
 
               {/* Middle Row: SOH Trend (55%) + Alerts (45%) */}
-              <div className="grid gap-4 mb-4" style={{ gridTemplateColumns: "55% 1fr" }}>
+              <div className="grid grid-cols-1 gap-4 mb-4 lg:grid-cols-2">
                 <SOHTrendCard
                   currentSOH={selectedBattery.stateOfHealth}
                   sohHistory={selectedBattery.sohHistory}

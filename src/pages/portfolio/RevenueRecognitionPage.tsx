@@ -58,7 +58,7 @@ export default function RevenueRecognitionPage() {
 
       <div className="px-6 pb-6 flex flex-col gap-4">
         <div className="rounded-lg border border-gray-200 bg-white p-5">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <FormField label="Country">
               <Select value={countryId} onValueChange={setCountryId}>
                 <SelectTrigger className="h-9 w-full bg-input-soft">
@@ -90,7 +90,7 @@ export default function RevenueRecognitionPage() {
           </div>
 
           {breakdown && (
-            <div className="grid grid-cols-4 gap-3 mt-4">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4 mt-4">
               <div className="rounded-md border border-gray-200 bg-gray-50 px-4 py-3">
                 <p className="text-[11px] font-semibold uppercase tracking-wider text-breadcrumb-root">Tenor</p>
                 <p className="mt-1 font-semibold text-sidebar-item-active text-sm">{breakdown.tenorMonths} months</p>
@@ -118,8 +118,8 @@ export default function RevenueRecognitionPage() {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-3 gap-4 items-start">
-            <div className="col-span-2">
+          <div className="grid grid-cols-1 gap-4 items-start lg:grid-cols-3">
+            <div className="col-span-1 lg:col-span-2">
               <RevenueRecognitionTable sections={breakdown.sections} />
             </div>
 

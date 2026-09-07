@@ -1,6 +1,12 @@
 import type { TimelineEntryData, AssignmentRecord } from "@/components/max"
 import type { TicketRecord } from "@/data/mockTicketRecords"
 import type { MovementLogRecord } from "@/data/mockAssetMovement"
+import {
+  championLocationLabel,
+  getChampionById,
+  mockChampions,
+  type Champion,
+} from "@/data/mockChampions"
 
 export interface WalletTransaction {
   id: string
@@ -32,6 +38,8 @@ export interface ChampionDetails {
   riskLevel: "High Risk" | "Medium Risk" | "Low Risk"
   phoneNumber: string
   location: string
+  city: string
+  subcity: string
   onboardedDate: string
   lastPingedOn: string
   contractStatus: "Active" | "Inactive"
@@ -177,7 +185,7 @@ export interface ChampionDetails {
   }
 }
 
-export const mockChampionDetails: Record<string, ChampionDetails> = {
+const authoredChampionDetails: Record<string, Omit<ChampionDetails, "city" | "subcity"> & { city?: string; subcity?: string }> = {
   "1": {
     id: "1",
     name: "Adewale Ogunleye",
@@ -406,13 +414,7 @@ export const mockChampionDetails: Record<string, ChampionDetails> = {
         { id: "t8", date: "21 May 2026, 03:35 PM", referenceId: "TXN-20260521-001", transactionType: "Debit", amount: "\u20A65,000", status: "Successful" },
       ],
     },
-    tickets: [
-      { id: "ct1", ticketId: "TKT-2026-00201", affectedChampion: "Adewale Ogunleye", category: "Vehicle Breakdown", location: "Lagos – Ikeja", city: "Lagos", subcity: "Ikeja", assignedAgent: "Fatima Bello", ticketCreator: "System", priority: "High", status: "Open", sla: "Breached", dateCreated: "27 May 2026" },
-      { id: "ct2", ticketId: "TKT-2026-00202", affectedChampion: "Adewale Ogunleye", category: "Payment Dispute", location: "Lagos – Ikeja", city: "Lagos", subcity: "Ikeja", assignedAgent: "Chidi Okafor", ticketCreator: "Adewale Ogunleye", priority: "Medium", status: "In Progress", sla: "Within SLA", dateCreated: "25 May 2026" },
-      { id: "ct3", ticketId: "TKT-2026-00203", affectedChampion: "Adewale Ogunleye", category: "App Issue", location: "Lagos – Ikeja", city: "Lagos", subcity: "Ikeja", assignedAgent: "Ngozi Eze", ticketCreator: "Adewale Ogunleye", priority: "Low", status: "Closed", sla: "Within SLA", dateCreated: "20 May 2026" },
-      { id: "ct4", ticketId: "TKT-2026-00204", affectedChampion: "Adewale Ogunleye", category: "Insurance Claim", location: "Lagos – Ikeja", city: "Lagos", subcity: "Ikeja", assignedAgent: "Tunde Bakare", ticketCreator: "System", priority: "High", status: "Pending Feedback", sla: "At Risk", dateCreated: "22 May 2026" },
-      { id: "ct5", ticketId: "TKT-2026-00205", affectedChampion: "Adewale Ogunleye", category: "Accident Report", location: "Lagos – Ikeja", city: "Lagos", subcity: "Ikeja", assignedAgent: "Fatima Bello", ticketCreator: "Adewale Ogunleye", priority: "Medium", status: "Open", sla: "Within SLA", dateCreated: "28 May 2026" },
-    ],
+    tickets: [],
     fieldOps: [
       {
         id: "fo1",
@@ -757,12 +759,7 @@ export const mockChampionDetails: Record<string, ChampionDetails> = {
         { id: "t5", date: "26 May 2026, 05:20 PM", referenceId: "TXN-20260526-002", transactionType: "Debit", amount: "\u20A65,000", status: "Successful" },
       ],
     },
-    tickets: [
-      { id: "ct6", ticketId: "TKT-2026-00301", affectedChampion: "Chinedu Okafor", category: "Payment Dispute", location: "Lagos – Lekki", city: "Lagos", subcity: "Lekki", assignedAgent: "Chidi Okafor", ticketCreator: "Chinedu Okafor", priority: "Medium", status: "Open", sla: "Within SLA", dateCreated: "29 May 2026" },
-      { id: "ct7", ticketId: "TKT-2026-00302", affectedChampion: "Chinedu Okafor", category: "App Issue", location: "Lagos – Lekki", city: "Lagos", subcity: "Lekki", assignedAgent: "Ngozi Eze", ticketCreator: "Chinedu Okafor", priority: "Low", status: "Closed", sla: "Within SLA", dateCreated: "18 May 2026" },
-      { id: "ct8", ticketId: "TKT-2026-00303", affectedChampion: "Chinedu Okafor", category: "Vehicle Breakdown", location: "Lagos – Lekki", city: "Lagos", subcity: "Lekki", assignedAgent: "Fatima Bello", ticketCreator: "System", priority: "High", status: "In Progress", sla: "At Risk", dateCreated: "26 May 2026" },
-      { id: "ct9", ticketId: "TKT-2026-00304", affectedChampion: "Chinedu Okafor", category: "Insurance Claim", location: "Lagos – Lekki", city: "Lagos", subcity: "Lekki", assignedAgent: "Tunde Bakare", ticketCreator: "System", priority: "High", status: "Closed", sla: "Breached", dateCreated: "15 May 2026" },
-    ],
+    tickets: [],
     fieldOps: [
       {
         id: "fo1",
@@ -883,6 +880,205 @@ export const mockChampionDetails: Record<string, ChampionDetails> = {
   },
 }
 
-export function getChampionDetails(id: string): ChampionDetails {
-  return mockChampionDetails[id] || mockChampionDetails["1"]
+function applySeedIdentity(
+  details: Omit<ChampionDetails, "city" | "subcity"> & { city?: string; subcity?: string },
+  seed: Champion
+): ChampionDetails {
+  return {
+    ...details,
+    name: seed.name,
+    championId: seed.championId,
+    avatarUrl: seed.avatarUrl,
+    phoneNumber: seed.contactNumber,
+    location: championLocationLabel(seed),
+    city: seed.city,
+    subcity: seed.subcity,
+    vehicleDetails: {
+      ...details.vehicleDetails,
+      identification: {
+        ...details.vehicleDetails.identification,
+        plateNumber: seed.plateNumber,
+      },
+      assignment: {
+        ...details.vehicleDetails.assignment,
+        location: seed.subcity,
+        receiver: seed.name,
+      },
+    },
+  }
 }
+
+function synthesizeChampionDetails(seed: Champion): ChampionDetails {
+  const location = championLocationLabel(seed)
+  const n = Number.parseInt(seed.id, 10) || 1
+  const outstanding = seed.outstandingBalance
+  const contractStatus = outstanding > 250000 ? "Inactive" : "Active"
+
+  return {
+    id: seed.id,
+    name: seed.name,
+    championId: seed.championId,
+    avatarUrl: seed.avatarUrl,
+    riskLevel: outstanding > 200000 ? "High Risk" : outstanding > 0 ? "Medium Risk" : "Low Risk",
+    phoneNumber: seed.contactNumber,
+    location,
+    city: seed.city,
+    subcity: seed.subcity,
+    onboardedDate: "12 Jan 2025",
+    lastPingedOn: `${seed.lastActiveDate}, 9:00 am`,
+    contractStatus,
+    vehicle: {
+      status: contractStatus === "Active" ? "Active" : "Asset Checkout",
+      statusVariant: contractStatus === "Active" ? "success" : "info",
+      imageUrl: "/images/2wheeler_overview.svg",
+      assetType: n % 3 === 0 ? "3 wheeler" : "2 wheeler",
+      manufacturer: "MaxE",
+      contractStatus,
+      lastUpdatedBy: "Femi Adeyemi",
+      lastPingedOn: `${seed.lastActiveDate}, 9:00 am`,
+    },
+    vehicleDetails: {
+      basicInfo: {
+        vehicleType: n % 3 === 0 ? "eTricycle" : "eMotorcycle",
+        model: n % 3 === 0 ? "Max T Series" : "Max E Series",
+        trim: n % 3 === 0 ? "T3" : "M2",
+        platformType: "Enterprise",
+      },
+      identification: {
+        chassisNumber: `358TF6EFD16D${String(1300 + n).padStart(4, "0")}`,
+        engineNumber: `52DSH${String(8313000 + n)}`,
+        ignitionNumber: String(85949000 + n),
+        plateNumber: seed.plateNumber,
+      },
+      vendor: {
+        oemVendorName: "GreenDrive Auto",
+        financialPartner: "Yamaha",
+      },
+      assignment: {
+        location: seed.subcity,
+        receiver: seed.name,
+        deliveryDate: "12 Jan 2025",
+        licenseExpiration: "12 Jan 2028",
+      },
+      telematics: {
+        simSerialNumber: `317GJD${String(7900 + n)}`,
+        deviceImei: `232RYK${String(24000 + n)}`,
+        phoneNumber: seed.contactNumber.replace(/\s/g, ""),
+        helmetNumber: `MAX-HEM${String(550 + n)}`,
+      },
+      assignmentHistory: [
+        {
+          id: "1",
+          duration: "12 Jan 2025 - Current",
+          assigneeName: seed.name,
+          status: "Active",
+          isCurrent: true,
+        },
+      ],
+      statusHistory: [
+        {
+          id: `sh-${seed.id}`,
+          date: "Jan 2025",
+          status: "Asset Checkout",
+          statusVariant: "info",
+          description: {
+            template: "Vehicle has been given to {champion} and {action} of the {location}",
+            highlights: {
+              champion: seed.name,
+              action: "checked out",
+              location: `${seed.subcity} office`,
+            },
+          },
+          actor: { action: "Checked out by", name: "Femi Adeyemi" },
+          duration: { range: "12 Jan - 13 Jan", total: "24 hrs" },
+        },
+      ],
+    },
+    assetMovement: { movementLog: [] },
+    maxIdCard: { variant: contractStatus === "Active" ? "active" : "inactive" },
+    biodata: {
+      fullName: seed.name,
+      age: `${28 + (n % 15)} years`,
+      dateOfBirth: "1 Jan 1994",
+      gender: n % 4 === 0 ? "Female" : "Male",
+      maritalStatus: n % 2 === 0 ? "Married" : "Single",
+      stateOfOrigin: seed.city,
+      lga: seed.subcity,
+      address: `${n} Champion Street, ${seed.subcity}, ${seed.city}`,
+      email: `${seed.name.toLowerCase().replace(/\s+/g, ".")}@email.com`,
+      nextOfKin: "Next of Kin",
+      nextOfKinPhone: "+234 800 000 0000",
+      bloodGroup: "O+",
+      genotype: "AA",
+    },
+    contracts: {
+      contractId: `CNT-2025-${String(n).padStart(3, "0")}`,
+      startDate: "12 Jan 2025",
+      endDate: "12 Jan 2027",
+      vehicleAssigned: `MAX-${seed.city.slice(0, 2).toUpperCase()}-CH-${200 + n}`,
+      dailyRemittance: "₦5,000",
+      totalRemitted: "₦2,500,000",
+      outstandingBalance: outstanding > 0 ? `₦${outstanding.toLocaleString()}` : "₦0",
+      status: contractStatus,
+      totalDays: 730,
+      daysElapsed: 200,
+      percentageElapsed: 27,
+    },
+    wallet: {
+      walletId: `WLT-${String(n).padStart(3, "0")}`,
+      balance: "₦50,000",
+      lastTransaction: "Daily Remittance Payment",
+      lastTransactionDate: seed.lastActiveDate,
+      totalCredits: "₦2,800,000",
+      totalDebits: "₦2,750,000",
+      bvn: "228****89008",
+      bankAccounts: [
+        {
+          bankName: "Moniepoint Microfinance Bank",
+          accountNumber: "0118**89098",
+          iconUrl: "/images/moniepoint.svg",
+          isPrimary: true,
+        },
+      ],
+      transactions: [],
+    },
+    guarantors: [],
+    fieldOps: [],
+    tickets: [],
+    welfareNotes: [],
+    timeOff: {
+      leavesAvailable: 20,
+      leavesEarned: 20,
+      eligibleLeavesTaken: 0,
+      emergencyLeavesTaken: 0,
+      currentStatus: "none",
+      history: [],
+    },
+    hmo: {
+      provider: "Hygeia HMO",
+      planType: "Basic Plan",
+      enrollmentDate: "1 Feb 2025",
+      expiryDate: "1 Feb 2027",
+      hmoId: `HYG-${seed.championId}`,
+      status: "Active",
+    },
+  }
+}
+
+export function getChampionDetails(id: string): ChampionDetails | undefined {
+  const seed = getChampionById(id)
+  if (!seed) return undefined
+  const overlay = authoredChampionDetails[id]
+  if (overlay) return applySeedIdentity(overlay, seed)
+  return synthesizeChampionDetails(seed)
+}
+
+export function listChampionDetails(): ChampionDetails[] {
+  return mockChampions
+    .map((champion) => getChampionDetails(champion.id))
+    .filter((details): details is ChampionDetails => details != null)
+}
+
+export const mockChampionDetails: Record<string, ChampionDetails> = Object.fromEntries(
+  listChampionDetails().map((details) => [details.id, details])
+)

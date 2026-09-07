@@ -163,7 +163,7 @@ export function ClosedAllocationResults({ result, onVehicleClick }: ClosedAlloca
         className="shrink-0"
       />
 
-      <div className="mt-4 grid grid-cols-4 gap-2 shrink-0">
+      <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-4 shrink-0">
         <StatCard title="Allocated" value={result.allocated} indicatorColor="var(--color-status-success)" />
         <StatCard title="Unallocated" value={unallocatedVehicles.length} indicatorColor="var(--color-status-danger)" />
         <StatCard title="Total Revenue" value={result.totalRevenue} indicatorColor="var(--color-status-info)" />

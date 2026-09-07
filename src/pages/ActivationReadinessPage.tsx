@@ -253,7 +253,7 @@ export default function ActivationReadinessPage() {
       </div>
 
       <div className="px-6 pb-4 shrink-0">
-        <div className="grid grid-cols-5 gap-2">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-5">
           {stats.map((stat) => (
             <StatCard key={stat.title} title={stat.title} value={stat.value} indicatorColor={stat.indicatorColor} />
           ))}
@@ -336,8 +336,8 @@ export default function ActivationReadinessPage() {
         }}
         secondaryAction={{ label: "Cancel", onClick: closeBulk }}
       >
-        <div className="flex gap-8">
-          <div className="w-[280px] shrink-0">
+        <div className="flex flex-col md:flex-row gap-8">
+          <div className="w-full md:w-[280px] shrink-0">
             <DocUpload
               uploadedFile={bulkFile}
               onFileSelect={setBulkFile}

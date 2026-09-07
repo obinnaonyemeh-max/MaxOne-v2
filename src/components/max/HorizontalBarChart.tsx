@@ -68,7 +68,7 @@ export function HorizontalBarChart({
   return (
     <div
       className={cn(
-        "bg-gray-25 border border-gray-200 rounded-lg",
+        "min-w-0 w-full bg-gray-25 border border-gray-200 rounded-lg",
         fill && "flex h-full min-h-0 flex-col",
         className
       )}

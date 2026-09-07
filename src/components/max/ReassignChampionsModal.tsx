@@ -19,35 +19,12 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
-import {
-  mockAgentPortfolioRecords,
-  reassignmentReasons,
-  type AgentPortfolioRecord,
-} from "@/data/mockAgentPortfolio"
+import { reassignmentReasons, type AgentPortfolioRecord } from "@/data/mockAgentPortfolio"
+import { useAgentPortfolioRecords } from "@/data/agentPortfolioStore"
 
 const COLOR_STATUS_SUCCESS = "var(--color-success)"
 const COLOR_STATUS_WARNING = "var(--color-warning)"
 const COLOR_GRAY_500 = "var(--color-gray-500)"
-
-const filterSections: FilterSection[] = [
-  {
-    id: "location",
-    title: "Location",
-    defaultExpanded: true,
-    options: [...new Set(mockAgentPortfolioRecords.map((a) => a.state))]
-      .sort()
-      .map((state) => ({ value: state, label: state })),
-  },
-  {
-    id: "status",
-    title: "Status",
-    options: [
-      { value: "Active",   label: "Active",   color: COLOR_STATUS_SUCCESS },
-      { value: "On Leave", label: "On Leave", color: COLOR_STATUS_WARNING },
-      { value: "Inactive", label: "Inactive", color: COLOR_GRAY_500 },
-    ],
-  },
-]
 
 const defaultFilters: GenericFilterState = {
   location: [],
@@ -84,6 +61,26 @@ export function ReassignChampionsModal({
   const [reason, setReason] = useState<string>("")
   const [search, setSearch] = useState("")
   const [filters, setFilters] = useState<GenericFilterState>(defaultFilters)
+  const agents = useAgentPortfolioRecords()
+  const filterSections: FilterSection[] = [
+    {
+      id: "location",
+      title: "Location",
+      defaultExpanded: true,
+      options: [...new Set(agents.map((agent) => agent.state))]
+        .sort()
+        .map((state) => ({ value: state, label: state })),
+    },
+    {
+      id: "status",
+      title: "Status",
+      options: [
+        { value: "Active",   label: "Active",   color: COLOR_STATUS_SUCCESS },
+        { value: "On Leave", label: "On Leave", color: COLOR_STATUS_WARNING },
+        { value: "Inactive", label: "Inactive", color: COLOR_GRAY_500 },
+      ],
+    },
+  ]
 
   // Clear the form on close so it never reopens half-filled.
   const handleOpenChange = (next: boolean) => {
@@ -113,7 +110,7 @@ export function ReassignChampionsModal({
   const byName = (a: AgentPortfolioRecord, b: AgentPortfolioRecord) =>
     a.agent.localeCompare(b.agent)
 
-  const available = mockAgentPortfolioRecords.filter((agent) => agent.id !== excludeAgentId)
+  const available = agents.filter((agent) => agent.id !== excludeAgentId)
 
   // Agents already covering the champions' location, offered first. Suggestions
   // ignore the search/filter below, which belongs to the "other agents" list.
@@ -156,7 +153,7 @@ export function ReassignChampionsModal({
   // Champions are normally served by an agent in their own city, so flag any
   // selection that would move them out of it.
   const outOfLocation = fromLocation
-    ? mockAgentPortfolioRecords.filter(
+    ? agents.filter(
         (agent) => targetAgentIds.includes(agent.id) && agent.state !== fromLocation
       )
     : []

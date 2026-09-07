@@ -64,8 +64,8 @@ export default function VehicleDetailsPage() {
       />
 
       <div className="flex-1 overflow-y-auto">
-        <div className="px-6 py-6">
-          <div className="flex items-start justify-between">
+        <div className="px-4 py-4 md:px-6 md:py-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <div className="flex items-center gap-2">
                 <BackButton
@@ -95,9 +95,9 @@ export default function VehicleDetailsPage() {
           </div>
         </div>
 
-        <div className="px-6 pb-6 flex gap-6 items-start">
+        <div className="px-4 pb-6 md:px-6 flex flex-col gap-6 items-stretch lg:flex-row lg:items-start">
           {/* Left Column */}
-          <div className="w-[340px] max-w-[min(340px,40vw)] min-w-0 shrink flex flex-col gap-4">
+          <div className="w-full min-w-0 shrink flex flex-col gap-4 lg:w-[340px] lg:max-w-[min(340px,40vw)]">
             <VehicleOverviewCard
               status={vehicle.vehicleStatus}
               statusVariant={vehicle.vehicleStatusVariant}
@@ -119,7 +119,7 @@ export default function VehicleDetailsPage() {
           {/* Right Column */}
           <div className="flex-1 min-w-0 self-stretch flex flex-col">
             <Tabs defaultValue="basic" className="flex flex-col flex-1 min-h-0">
-              <TabsList variant="line" className="shrink-0 pb-0 gap-0">
+              <TabsList variant="line" className="shrink-0 pb-0 gap-0 overflow-x-auto">
                 <TabsTrigger
                   value="basic"
                   className="px-4 py-3 text-sm font-medium data-[state=active]:text-sidebar-item-active data-[state=inactive]:text-breadcrumb-root"

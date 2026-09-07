@@ -47,22 +47,27 @@ function SheetOverlay({
 }
 
 const sheetSizeMap = {
-  sm: "max-w-[480px]",
-  md: "max-w-[640px]",
-  lg: "max-w-[800px]",
-  xl: "max-w-[960px]",
+  sm: "max-w-full md:max-w-[480px]",
+  md: "max-w-full md:max-w-[640px]",
+  lg: "max-w-full md:max-w-[min(800px,40vw)]",
+  xl: "max-w-full md:max-w-[min(960px,45vw)]",
   full: "max-w-full",
 } as const
 
 type SheetSize = keyof typeof sheetSizeMap
+type SheetSide = "left" | "right"
 
 function SheetContent({
   className,
   children,
   size = "md",
+  side = "right",
+  hideCloseButton = false,
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Content> & {
   size?: SheetSize
+  side?: SheetSide
+  hideCloseButton?: boolean
 }) {
   return (
     <SheetPortal>
@@ -70,20 +75,26 @@ function SheetContent({
       <DialogPrimitive.Content
         data-slot="sheet-content"
         className={cn(
-          "fixed inset-y-0 right-0 z-50 flex w-full flex-col border-l bg-background shadow-lg duration-300 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right",
+          "fixed inset-y-0 z-50 flex w-full flex-col bg-background shadow-lg duration-300 data-[state=open]:animate-in data-[state=closed]:animate-out",
+          side === "right" &&
+            "right-0 border-l data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right",
+          side === "left" &&
+            "left-0 border-r data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left",
           sheetSizeMap[size],
           className
         )}
         {...props}
       >
         {children}
-        <DialogPrimitive.Close
-          data-slot="sheet-close-button"
-          className="absolute right-4 top-4 flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-gray-100 hover:text-foreground transition-colors outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
-        >
-          <X className="h-4 w-4" />
-          <span className="sr-only">Close</span>
-        </DialogPrimitive.Close>
+        {!hideCloseButton && (
+          <DialogPrimitive.Close
+            data-slot="sheet-close-button"
+            className="absolute right-4 top-4 flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-gray-100 hover:text-foreground transition-colors outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+          >
+            <X className="h-4 w-4" />
+            <span className="sr-only">Close</span>
+          </DialogPrimitive.Close>
+        )}
       </DialogPrimitive.Content>
     </SheetPortal>
   )

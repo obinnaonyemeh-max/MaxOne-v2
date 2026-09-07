@@ -16,7 +16,7 @@ interface FieldGridProps {
 
 export function FieldGrid({ fields, values, dispatch }: FieldGridProps) {
   return (
-    <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+    <div className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
       {fields.map((field) => {
         const rawValue = values[field.key] as number
         return (

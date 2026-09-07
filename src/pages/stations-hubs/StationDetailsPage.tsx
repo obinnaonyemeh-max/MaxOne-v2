@@ -162,8 +162,8 @@ export default function StationDetailsPage() {
       />
 
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-        <div className="shrink-0 px-6 py-6">
-          <div className="flex items-start justify-between gap-4">
+        <div className="shrink-0 px-4 py-4 md:px-6 md:py-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <div className="flex items-center gap-2">
                 <BackButton onClick={() => navigate("/falcon/swap-stations")} />
@@ -179,7 +179,7 @@ export default function StationDetailsPage() {
                 View swap station information and activity
               </p>
             </div>
-            <div className="flex shrink-0 items-center gap-3">
+            <div className="flex shrink-0 flex-wrap items-center gap-3">
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
@@ -214,9 +214,9 @@ export default function StationDetailsPage() {
           </div>
         </div>
 
-        <div className="flex min-h-0 flex-1 flex-col px-6 pb-6">
+        <div className="flex min-h-0 flex-1 flex-col px-4 pb-6 md:px-6">
           <Tabs defaultValue={initialTab} className="flex min-h-0 flex-1 flex-col">
-            <TabsList variant="line" className="shrink-0 gap-0 pb-0">
+            <TabsList variant="line" className="shrink-0 gap-0 overflow-x-auto pb-0">
               <TabsTrigger
                 value="info"
                 className="px-4 py-3 text-sm font-medium data-[state=active]:text-sidebar-item-active data-[state=inactive]:text-breadcrumb-root"
@@ -250,8 +250,8 @@ export default function StationDetailsPage() {
             </TabsList>
 
             <TabsContent value="info" className="mt-4 min-h-0 flex-1">
-              <div className="flex h-full min-h-0 items-stretch gap-4">
-                <div className="w-[440px] shrink-0 overflow-y-auto">
+              <div className="flex h-full min-h-0 flex-col items-stretch gap-4 lg:flex-row">
+                <div className="w-full shrink-0 overflow-y-auto lg:w-[440px]">
                   <InfoCard title="Swap Station Details">
                     <InfoGrid columns={2} showDividers items={detailItems} />
                   </InfoCard>

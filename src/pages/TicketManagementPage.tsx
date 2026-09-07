@@ -25,14 +25,13 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import {
-  mockTicketRecords,
   type TicketRecord,
   statusVariantMap,
   priorityVariantMap,
   slaVariantMap,
 } from "@/data/mockTicketRecords"
 import { TicketDetailSheet } from "@/components/max/TicketDetailSheet"
-import { getTicketDetail, buildTicketDetailFromRecord } from "@/data/mockTicketDetail"
+import { mergeTicketDetail, useTicketRecords } from "@/data/ticketStore"
 import {
   geographyLabel,
   geographyLevelForScope,
@@ -229,11 +228,12 @@ export default function TicketManagementPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(25)
   const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null)
+  const ticketRecords = useTicketRecords()
   const geographyLevel = geographyLevelForScope(dataScope)
   const geographyFilterId = geographyLevel === "subcity" ? "subcity" : "city"
   const scopedTicketRecords = useMemo(
-    () => ticketsForSimulationMode(mockTicketRecords, mode),
-    [mode]
+    () => ticketsForSimulationMode(ticketRecords, mode),
+    [mode, ticketRecords]
   )
   const stats = useMemo(
     () => buildTicketStats(scopedTicketRecords),
@@ -283,7 +283,7 @@ export default function TicketManagementPage() {
     : null
 
   const ticketDetail = selectedRecord
-    ? getTicketDetail(selectedRecord.id) ?? buildTicketDetailFromRecord(selectedRecord)
+    ? mergeTicketDetail(selectedRecord)
     : null
 
   const filteredRecords = useMemo(() =>
@@ -321,7 +321,7 @@ export default function TicketManagementPage() {
           { label: "Ticket Management" },
         ]}
       />
-      <div className="flex-1 overflow-auto px-6 pb-6">
+      <div className="flex-1 overflow-auto px-4 pb-6 md:px-6">
         <div className="flex items-start justify-between">
           <PageHeader
             title="Ticket Management"
@@ -342,7 +342,7 @@ export default function TicketManagementPage() {
         </div>
 
         <div className="pb-4">
-          <div className="grid grid-cols-6 gap-2">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-6">
             {stats.map((stat) => (
               <StatCard
                 key={stat.title}

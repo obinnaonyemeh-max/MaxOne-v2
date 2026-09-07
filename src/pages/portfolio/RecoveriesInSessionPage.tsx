@@ -217,7 +217,7 @@ export default function RecoveriesInSessionPage() {
         className="shrink-0"
       />
 
-      <div className="px-6 grid grid-cols-3 gap-2 shrink-0 mb-4">
+      <div className="px-4 md:px-6 grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-3 shrink-0 mb-4">
         <StatCard
           title="Recoveries in Session"
           value={recoverySessionStats.inSession.toLocaleString()}

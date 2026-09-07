@@ -8,6 +8,8 @@ export type SimulationMode =
   | "fleet-officer"
   | "refurbishment-manager"
   | "refurbishment-officer"
+  | "inventory-manager"
+  | "inventory-officer"
   | "call-centre-agent"
   | "welfare-agent"
   | "field-ops-manager"
@@ -45,6 +47,8 @@ export type PermissionKey =
   | "ticketManagement.escalate"
   | "ticketManagement.close"
   | "ticketManagement.addComment"
+  | "inventory.editCostPrice"
+  | "inventory.approvals.decide"
 
 export type RoleDataScope =
   | { type: "city"; city: CityId }
@@ -91,6 +95,8 @@ export const ALL_PERMISSIONS: PermissionKey[] = [
   "ticketManagement.escalate",
   "ticketManagement.close",
   "ticketManagement.addComment",
+  "inventory.editCostPrice",
+  "inventory.approvals.decide",
 ]
 
 export const GLOBAL_FLEET_MANAGER: RoleDefinition = {
@@ -105,6 +111,8 @@ export const GLOBAL_FLEET_MANAGER: RoleDefinition = {
     "inbound-stock-setup",
     "activation-readiness",
     "vehicle-document",
+    "deactivated-vehicles",
+    "assessment-list",
     "refurbishment",
     "maintenance",
     "service-schedule",
@@ -170,6 +178,8 @@ export const FLEET_OFFICER: RoleDefinition = {
 
 const REFURBISHMENT_NAV_ITEM_IDS = [
   "refurbishment",
+  "deactivated-vehicles",
+  "assessment-list",
   "maintenance",
   "service-schedule",
   "disposal-auction",
@@ -191,6 +201,28 @@ export const REFURBISHMENT_OFFICER: RoleDefinition = {
   id: "refurbishment-officer",
   label: "Refurbishment Officer",
   navItemIds: REFURBISHMENT_NAV_ITEM_IDS,
+  dataScope: { type: "city", city: "Lagos" },
+  permissions: [],
+}
+
+const INVENTORY_NAV_ITEM_IDS = [
+  "inventory",
+  "inventory-list",
+  "inventory-movement-history",
+  "inventory-approvals",
+]
+
+export const INVENTORY_MANAGER: RoleDefinition = {
+  id: "inventory-manager",
+  label: "Inventory Manager",
+  navItemIds: INVENTORY_NAV_ITEM_IDS,
+  permissions: ["inventory.editCostPrice", "inventory.approvals.decide"],
+}
+
+export const INVENTORY_OFFICER: RoleDefinition = {
+  id: "inventory-officer",
+  label: "Inventory Officer",
+  navItemIds: INVENTORY_NAV_ITEM_IDS,
   dataScope: { type: "city", city: "Lagos" },
   permissions: [],
 }
@@ -324,6 +356,8 @@ export const SIMULATION_OPTIONS: {
   { mode: "fleet-officer", label: "Fleet Officer" },
   { mode: "refurbishment-manager", label: "Refurbishment Manager" },
   { mode: "refurbishment-officer", label: "Refurbishment Officer" },
+  { mode: "inventory-manager", label: "Inventory Manager" },
+  { mode: "inventory-officer", label: "Inventory Officer" },
   { mode: "call-centre-agent", label: "Call Centre Agent" },
   { mode: "welfare-agent", label: "Welfare Agent" },
   { mode: "field-ops-manager", label: "Field Ops Manager" },
@@ -340,6 +374,8 @@ export function getRoleDefinition(mode: SimulationMode): RoleDefinition | null {
   if (mode === "fleet-officer") return FLEET_OFFICER
   if (mode === "refurbishment-manager") return REFURBISHMENT_MANAGER
   if (mode === "refurbishment-officer") return REFURBISHMENT_OFFICER
+  if (mode === "inventory-manager") return INVENTORY_MANAGER
+  if (mode === "inventory-officer") return INVENTORY_OFFICER
   if (mode === "call-centre-agent") return CALL_CENTRE_AGENT
   if (mode === "welfare-agent") return WELFARE_AGENT
   if (mode === "field-ops-manager") return FIELD_OPS_MANAGER
@@ -484,6 +520,8 @@ export function getAllowedPathPrefixes(mode: SimulationMode): string[] | null {
   if (mode === "refurbishment-manager" || mode === "refurbishment-officer") {
     return [
       "/refurbishment",
+      "/deactivated-vehicles",
+      "/assessment-list",
       "/service-schedule",
       "/disposal-management",
       "/conversion-request",
@@ -491,6 +529,10 @@ export function getAllowedPathPrefixes(mode: SimulationMode): string[] | null {
       "/scrap-management",
       "/closed-assets",
     ]
+  }
+
+  if (mode === "inventory-manager" || mode === "inventory-officer") {
+    return ["/inventory"]
   }
 
   return [
@@ -502,6 +544,8 @@ export function getAllowedPathPrefixes(mode: SimulationMode): string[] | null {
     "/inbound",
     "/activation/readiness",
     "/vehicle-document",
+    "/deactivated-vehicles",
+    "/assessment-list",
     "/refurbishment",
     "/service-schedule",
     "/disposal-management",
@@ -583,6 +627,9 @@ export function getFallbackPathForDenied(pathname: string, mode: SimulationMode)
   }
   if (mode === "refurbishment-manager" || mode === "refurbishment-officer") {
     return "/refurbishment"
+  }
+  if (mode === "inventory-manager" || mode === "inventory-officer") {
+    return "/inventory/list"
   }
   return "/dashboard"
 }

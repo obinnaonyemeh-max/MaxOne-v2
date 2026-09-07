@@ -38,7 +38,7 @@ export function ExpandableSearch({
           onChange={(event) => onValueChange(event.target.value)}
           placeholder={placeholder}
           aria-label={placeholder}
-          className={cn("h-9 w-48", inputClassName)}
+          className={cn("h-9 w-48 min-w-0", inputClassName)}
           autoFocus
           onKeyDown={(event) => {
             if (event.key === "Escape") close()

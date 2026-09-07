@@ -157,7 +157,7 @@ export default function CreateAuctionPage() {
       />
 
       <div className="flex-1 overflow-y-auto">
-        <div className="px-6 py-6">
+        <div className="px-4 py-4 md:px-6 md:py-6">
           <div className="flex items-center gap-3 mb-1">
             <BackButton onClick={() => setShowCancelDialog(true)} />
             <div>

@@ -4,7 +4,7 @@ import { auctionSteps } from "./types"
 
 export function StepIndicator({ currentStep }: { currentStep: number }) {
   return (
-    <div className="flex items-center justify-between max-w-2xl mx-auto py-6">
+    <div className="flex items-center justify-between max-w-2xl mx-auto overflow-x-auto py-6">
       {auctionSteps.map((step, index) => {
         const isCompleted = step.number < currentStep
         const isActive = step.number === currentStep

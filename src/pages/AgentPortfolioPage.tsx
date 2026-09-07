@@ -22,10 +22,10 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import {
-  mockAgentPortfolioRecords,
   agentStatusVariantMap,
   type AgentPortfolioRecord,
 } from "@/data/mockAgentPortfolio"
+import { useAgentPortfolioRecords } from "@/data/agentPortfolioStore"
 import { useRoleSimulation } from "@/contexts/RoleSimulationContext"
 import {
   geographyLabel,
@@ -156,11 +156,12 @@ export default function AgentPortfolioPage() {
   const [filters, setFilters] = useState<GenericFilterState>(defaultFilters)
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(25)
+  const agents = useAgentPortfolioRecords()
   const geographyLevel = geographyLevelForScope(dataScope)
   const geographyFilterId = geographyLevel === "subcity" ? "subcity" : "city"
   const scopedRecords = useMemo(
-    () => mockAgentPortfolioRecords.filter((record) => filterByCity(record.city)),
-    [filterByCity]
+    () => agents.filter((record) => filterByCity(record.city)),
+    [agents, filterByCity]
   )
   const filterSections = useMemo(
     () => buildFilterSections(scopedRecords, geographyLevel),
@@ -211,7 +212,7 @@ export default function AgentPortfolioPage() {
           { label: "Agents Portfolio" },
         ]}
       />
-      <div className="flex-1 overflow-auto px-6 pb-6">
+      <div className="flex-1 overflow-auto px-4 pb-6 md:px-6">
         <PageHeader
           title="Agents Portfolio"
           subtitle="Manage champion-to-agent allocations and portfolios"

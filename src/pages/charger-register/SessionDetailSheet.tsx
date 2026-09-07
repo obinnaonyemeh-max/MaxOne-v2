@@ -90,7 +90,7 @@ export function SessionDetailSheet({ session, isOpen, onClose }: SessionDetailSh
 
   return (
     <Sheet open={isOpen} onOpenChange={(open) => { if (!open) onClose() }}>
-      <SheetContent size="lg" className="flex flex-col h-full max-w-[40vw]">
+      <SheetContent size="lg" className="flex flex-col h-full">
         <SheetHeader>
           <div className="flex items-center gap-3 pr-8">
             <SheetTitle className="text-sidebar-item-active">
@@ -107,7 +107,7 @@ export function SessionDetailSheet({ session, isOpen, onClose }: SessionDetailSh
 
         <div className="flex-1 overflow-y-auto px-6 py-4 space-y-5">
           {/* Metric Cards */}
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <BatteryMetricCard
               iconSrc="/images/charge_fet.svg"
               label="Energy Delivered"

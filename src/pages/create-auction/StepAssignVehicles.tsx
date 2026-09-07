@@ -68,8 +68,8 @@ export function StepAssignVehicles(props: StepAssignVehiclesProps) {
   })
 
   return (
-    <div className="grid grid-cols-5 gap-6 p-5">
-      <div className="col-span-3">
+    <div className="grid grid-cols-1 gap-6 p-5 lg:grid-cols-5">
+      <div className="lg:col-span-3">
         <FormSection title="Assign Vehicles">
           <p className="text-sm font-medium text-breadcrumb-root -mt-1 mb-3">
             Select the vehicles to include in this auction.
@@ -119,7 +119,7 @@ export function StepAssignVehicles(props: StepAssignVehiclesProps) {
         </FormSection>
       </div>
 
-      <div className="col-span-2">
+      <div className="lg:col-span-2">
         <FormSection title="Buyout Prices">
           <p className="text-sm font-medium text-breadcrumb-root -mt-1 mb-3">
             Set a buyout price for each selected vehicle.

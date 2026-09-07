@@ -17,7 +17,7 @@ export default function FalconDashboardPage() {
         ]}
       />
 
-      <div className="flex-1 overflow-auto px-6 pb-6">
+      <div className="flex-1 overflow-auto px-4 pb-6 md:px-6">
         <PageHeader
           title="Dashboard"
           subtitle="Monitor connected vehicles, energy, and alerts across your fleet"

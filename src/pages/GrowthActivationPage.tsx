@@ -325,7 +325,7 @@ export default function GrowthActivationPage() {
         ]}
       />
 
-      <div className="flex-1 overflow-auto px-6 pb-6">
+      <div className="flex-1 overflow-auto px-4 pb-6 md:px-6">
         <PageHeader
           title="Growth & Activation"
           subtitle="Monitor activation activity across all channels and locations"
@@ -333,7 +333,7 @@ export default function GrowthActivationPage() {
         />
 
         {/* Summary Stat Cards */}
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-4">
           {summaryStats.map((stat) => (
             <StatCard
               key={stat.title}
@@ -372,7 +372,7 @@ export default function GrowthActivationPage() {
             </div>
           </div>
           <div className="px-5 pb-5">
-            <div className="grid grid-cols-4 gap-2">
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-4">
               {growthChannels.map((channel) => {
                 const periodValue =
                   channelPeriod === "today"
@@ -444,7 +444,7 @@ export default function GrowthActivationPage() {
         </div>
 
         {/* Charts Row */}
-        <div className="grid grid-cols-2 gap-2 mt-6">
+        <div className="grid grid-cols-1 gap-2 mt-6 lg:grid-cols-2">
           {/* Activation Trend Line Chart */}
           <div className="bg-gray-25 border border-gray-200 rounded-lg">
             <div className="px-5 pt-5 pb-2">

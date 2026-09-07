@@ -183,8 +183,8 @@ export default function VehicleTripsPage() {
   }
 
   const dashboard = (
-    <div className="flex-1 min-w-[720px] min-h-0 flex gap-4">
-      <div className="flex-1 min-w-[360px] min-h-[480px] flex flex-col gap-4">
+    <div className="flex-1 min-w-0 min-h-0 flex flex-col gap-4 lg:min-w-[720px] lg:flex-row">
+      <div className="flex-1 min-w-0 min-h-[280px] flex flex-col gap-4 lg:min-w-[360px] lg:min-h-[480px]">
         <LiveTrackingMap
           key={isLiveTab ? "live" : selectedTrip?.id}
           className="flex-1 min-h-[480px]"
@@ -216,7 +216,7 @@ export default function VehicleTripsPage() {
           />
         </div>
       </div>
-      <div className="w-[340px] max-w-[min(340px,40vw)] min-w-0 shrink flex flex-col gap-4 min-h-0 overflow-y-auto">
+      <div className="w-full min-w-0 shrink flex flex-col gap-4 min-h-0 overflow-y-auto lg:w-[340px] lg:max-w-[min(340px,40vw)]">
         <VehicleOverviewCard
           className="shrink-0"
           title="Vehicle State"
@@ -288,13 +288,13 @@ export default function VehicleTripsPage() {
           />
         </div>
 
-        <div className="flex-1 min-h-0 overflow-auto px-6 py-4">
-          <div className="flex gap-4 h-full min-h-[760px]">
+        <div className="flex-1 min-h-0 overflow-auto px-4 py-4 md:px-6">
+          <div className="flex flex-col gap-4 h-full min-h-0 lg:flex-row lg:min-h-[760px]">
             {isLiveTab ? (
               dashboard
             ) : (
               <>
-                <div className="w-[340px] max-w-[min(340px,40vw)] min-w-0 shrink border border-gray-200 rounded-lg flex flex-col bg-white overflow-hidden">
+                <div className="w-full min-w-0 shrink border border-gray-200 rounded-lg flex flex-col bg-white overflow-hidden lg:w-[340px] lg:max-w-[min(340px,40vw)]">
                 <div className="p-4 border-b border-gray-200 flex items-start justify-between">
                   <div>
                     <p className="text-gray-950" style={{ fontSize: "28px", fontWeight: 600, lineHeight: 1 }}>

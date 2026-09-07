@@ -26,14 +26,17 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import {
-  getAgentById,
-  mockAgentChampions,
-  mockAgentPortfolioRecords,
   championStateVariantMap,
   championStates,
   type AgentChampionRecord,
   type ChampionState,
 } from "@/data/mockAgentPortfolio"
+import {
+  getAgentByIdSnapshot,
+  reassignChampions,
+  useAgentChampions,
+  useAgentPortfolioRecords,
+} from "@/data/agentPortfolioStore"
 import { useCan, useRoleSimulation } from "@/contexts/RoleSimulationContext"
 
 const COLOR_GRAY_500 = "var(--color-gray-500)"
@@ -165,23 +168,20 @@ export default function AgentDetailPage() {
   const [pageSize, setPageSize] = useState(25)
   const activeFilterCount = getActiveFilterCount(filters)
   const [reassignOpen, setReassignOpen] = useState(false)
-  // Champion -> new agent. Local to this page: the mock data is a module constant,
-  // so a reassignment lasts until the app reloads.
-  const [reassignments, setReassignments] = useState<Record<string, string>>({})
   const { message: toast, variant: toastVariant, showToast } = useToast()
+  const agents = useAgentPortfolioRecords()
+  const allChampions = useAgentChampions()
 
-  const selectedAgent = agentId ? getAgentById(agentId) : undefined
+  const selectedAgent = agentId ? getAgentByIdSnapshot(agentId) : undefined
   const agent = selectedAgent && filterByCity(selectedAgent.city)
     ? selectedAgent
     : undefined
   const champions = useMemo(
     () =>
       agentId
-        ? mockAgentChampions.filter(
-            (champion) => (reassignments[champion.id] ?? champion.agentId) === agentId
-          )
+        ? allChampions.filter((champion) => champion.agentId === agentId)
         : [],
-    [agentId, reassignments]
+    [agentId, allChampions]
   )
 
   const filteredChampions = useMemo(() =>
@@ -230,17 +230,11 @@ export default function AgentDetailPage() {
 
     // With more than one agent picked the champions are spread evenly between
     // them, round-robin, so no single book absorbs the whole batch.
-    setReassignments((prev) => {
-      const next = { ...prev }
-      selectedIds.forEach((id, index) => {
-        next[id] = targetAgentIds[index % targetAgentIds.length]
-      })
-      return next
-    })
+    reassignChampions(selectedIds, targetAgentIds)
 
     const destination =
       targetAgentIds.length === 1
-        ? mockAgentPortfolioRecords.find((a) => a.id === targetAgentIds[0])?.agent
+        ? agents.find((a) => a.id === targetAgentIds[0])?.agent
         : `${targetAgentIds.length} agents`
 
     showToast(`${moved} champion${moved === 1 ? "" : "s"} reassigned to ${destination} (${reason})`)
@@ -299,7 +293,7 @@ export default function AgentDetailPage() {
         ]}
       />
 
-      <div className="flex-1 overflow-auto px-6 pb-6">
+      <div className="flex-1 overflow-auto px-4 pb-6 md:px-6">
         <div className="py-6">
           <div className="flex items-center gap-2">
             <BackButton onClick={() => navigate("/driver-experience/agents/portfolio")} />
@@ -317,7 +311,7 @@ export default function AgentDetailPage() {
         </div>
 
         <div className="pb-4">
-          <div className="grid grid-cols-4 gap-2">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-4">
             {stats.map((stat) => (
               <StatCard
                 key={stat.title}

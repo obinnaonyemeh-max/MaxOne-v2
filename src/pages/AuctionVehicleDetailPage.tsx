@@ -125,7 +125,7 @@ export default function AuctionVehicleDetailPage() {
         }
       />
 
-      <header className="px-6 py-6 shrink-0">
+      <header className="px-4 py-4 shrink-0 md:px-6 md:py-6">
         <div className="flex items-center gap-3">
           <BackButton
             onClick={() => navigate(fromDisposal ? "/disposal-management" : id ? `/auction/${id}` : "/auction")}
@@ -137,12 +137,12 @@ export default function AuctionVehicleDetailPage() {
         </div>
       </header>
 
-      <div className="px-6 flex flex-col flex-1 min-h-0 overflow-y-auto pb-8">
-        <div className="grid grid-cols-3 grid-rows-1 gap-2 shrink-0" style={{ height: "350px" }}>
-          <div className="col-span-2 overflow-hidden rounded-lg border border-content-card-border">
+      <div className="px-4 flex flex-col flex-1 min-h-0 overflow-y-auto pb-8 md:px-6">
+        <div className="grid grid-cols-1 gap-2 shrink-0 md:grid-cols-3 md:h-[350px]">
+          <div className="h-[220px] overflow-hidden rounded-lg border border-content-card-border md:col-span-2 md:h-full">
             <img src={mainPhoto} alt={`${vehicle.makeModel} main`} className="h-full w-full object-cover" />
           </div>
-          <div className="grid grid-rows-2 gap-2">
+          <div className="hidden grid-rows-2 gap-2 md:grid">
             {sidePhotos.map((photo, i) => (
               <div
                 key={i}
@@ -154,10 +154,10 @@ export default function AuctionVehicleDetailPage() {
           </div>
         </div>
 
-        <div className="mt-6 flex gap-6">
+        <div className="mt-6 flex flex-col gap-6 lg:flex-row">
           <div className="flex-1 min-w-0">
         <Tabs defaultValue="vehicle-info" className="flex flex-col">
-          <TabsList variant="line" className="shrink-0 pb-0 gap-0 w-fit">
+          <TabsList variant="line" className="shrink-0 pb-0 gap-0 w-fit max-w-full overflow-x-auto">
             <TabsTrigger value="vehicle-info" className="px-4 py-2" style={{ fontSize: "14px" }}>
               Vehicle Information
             </TabsTrigger>
@@ -242,7 +242,7 @@ export default function AuctionVehicleDetailPage() {
         </Tabs>
           </div>
 
-          <aside className="w-80 shrink-0 self-start sticky top-0">
+          <aside className="w-full shrink-0 self-start lg:sticky lg:top-0 lg:w-80">
           <InfoCard title="Bid Information">
             <div>
               {[

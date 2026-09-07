@@ -74,7 +74,7 @@ export function Pagination({
   return (
     <div
       className={cn(
-        "flex flex-wrap items-center justify-between gap-4 px-2 py-2",
+        "flex flex-col gap-3 px-2 py-2 md:flex-row md:flex-wrap md:items-center md:justify-between md:gap-4",
         className
       )}
     >
@@ -90,7 +90,7 @@ export function Pagination({
         {itemLabel}
       </p>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 overflow-x-auto">
         <Button
           variant="outline"
           size="icon"

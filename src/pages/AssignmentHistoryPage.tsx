@@ -217,7 +217,7 @@ export default function AssignmentHistoryPage() {
           { label: "Assignment History" },
         ]}
       />
-      <div className="flex-1 overflow-auto px-6 pb-6">
+      <div className="flex-1 overflow-auto px-4 pb-6 md:px-6">
         <PageHeader
           title="Assignment History"
           subtitle="Every champion-to-agent change, who made it and why"

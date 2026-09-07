@@ -23,17 +23,20 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import {
-  mockMarkedTransfers,
   statusVariantMap,
   type MarkedTransferRecord,
 } from "@/data/mockMarkedTransfers"
 import {
-  mockTimeOffApprovals,
   timeOffStatusVariantMap,
   leaveTypeVariantMap,
   type TimeOffApprovalRecord,
 } from "@/data/mockTimeOffApprovals"
 import { useRoleSimulation } from "@/contexts/RoleSimulationContext"
+import {
+  updateTransferStatus,
+  useTimeOffApprovals,
+  useTransferApprovals,
+} from "@/data/approvalStore"
 
 // ── Transfer columns ──
 
@@ -194,11 +197,11 @@ const timeOffFilterSections: FilterSection[] = [
 // ── Page ──
 
 export default function ApprovalsPage() {
-  const { mode } = useRoleSimulation()
+  const { mode, filterByCity } = useRoleSimulation()
   const isReadOnly =
     mode === "executive" || mode === "dxp-product-manager"
-  // Transfer state
-  const [transferData, setTransferData] = useState(mockMarkedTransfers)
+  const transferData = useTransferApprovals()
+  const timeOffData = useTimeOffApprovals()
   const [transferPage, setTransferPage] = useState(1)
   const [transferPageSize, setTransferPageSize] = useState(10)
   const [transferFilters, setTransferFilters] = useState<GenericFilterState>({})
@@ -219,10 +222,19 @@ export default function ApprovalsPage() {
   const transferFilterCount = getActiveFilterCount(transferFilters)
   const timeOffFilterCount = getActiveFilterCount(timeOffFilters)
 
+  const scopedTransfers = useMemo(
+    () => transferData.filter((record) => filterByCity(record.city)),
+    [filterByCity, transferData]
+  )
+  const scopedTimeOffs = useMemo(
+    () => timeOffData.filter((record) => filterByCity(record.city)),
+    [filterByCity, timeOffData]
+  )
+
   // ── Transfer filtering ──
 
   const filteredTransfers = useMemo(() => {
-    return transferData.filter((record) => {
+    return scopedTransfers.filter((record) => {
       const statuses = transferFilters.status || []
       if (statuses.length > 0 && !statuses.includes(record.status)) return false
 
@@ -237,7 +249,7 @@ export default function ApprovalsPage() {
 
       return true
     })
-  }, [transferData, transferFilters, transferSearch])
+  }, [scopedTransfers, transferFilters, transferSearch])
 
   const paginatedTransfers = useMemo(() => {
     const start = (transferPage - 1) * transferPageSize
@@ -247,7 +259,7 @@ export default function ApprovalsPage() {
   // ── Time-off filtering ──
 
   const filteredTimeOffs = useMemo(() => {
-    return mockTimeOffApprovals.filter((record) => {
+    return scopedTimeOffs.filter((record) => {
       const statuses = timeOffFilters.status || []
       if (statuses.length > 0 && !statuses.includes(record.status)) return false
 
@@ -264,7 +276,7 @@ export default function ApprovalsPage() {
 
       return true
     })
-  }, [timeOffFilters, timeOffSearch])
+  }, [scopedTimeOffs, timeOffFilters, timeOffSearch])
 
   const paginatedTimeOffs = useMemo(() => {
     const start = (timeOffPage - 1) * timeOffPageSize
@@ -273,8 +285,8 @@ export default function ApprovalsPage() {
 
   // ── Stat counts ──
 
-  const pendingTransfers = transferData.filter((r) => r.status === "Pending").length
-  const pendingTimeOffs = mockTimeOffApprovals.filter((r) => r.status === "Pending").length
+  const pendingTransfers = scopedTransfers.filter((r) => r.status === "Pending").length
+  const pendingTimeOffs = scopedTimeOffs.filter((r) => r.status === "Pending").length
   const totalPending = pendingTransfers + pendingTimeOffs
 
   // ── Handlers ──
@@ -284,18 +296,7 @@ export default function ApprovalsPage() {
     status: MarkedTransferRecord["status"],
     rejectionReason?: string
   ) => {
-    setTransferData((prev) =>
-      prev.map((r) =>
-        r.id === id
-          ? {
-              ...r,
-              status,
-              ...(rejectionReason ? { rejectionReason } : {}),
-              ...(status === "Approved" ? { approvedBy: "Desmond Nsogbuwa" } : {}),
-            }
-          : r
-      )
-    )
+    updateTransferStatus(id, status, rejectionReason)
   }
 
   const tabs = [
@@ -311,7 +312,7 @@ export default function ApprovalsPage() {
           { label: "Approvals" },
         ]}
       />
-      <div className="flex-1 overflow-auto px-6 pb-6">
+      <div className="flex-1 overflow-auto px-4 pb-6 md:px-6">
         <PageHeader
           title="Approvals"
           subtitle="Review and process pending approval requests"
@@ -319,7 +320,7 @@ export default function ApprovalsPage() {
         />
 
         {/* Stat Cards */}
-        <div className="grid grid-cols-3 gap-2 mb-4">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 mb-4">
           <StatCard
             title="Total Pending"
             value={totalPending}

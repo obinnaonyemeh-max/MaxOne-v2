@@ -256,7 +256,7 @@ export default function MCPManagementPage() {
       />
 
       <div className="px-6 flex flex-col flex-1 min-h-0">
-        <div className="grid grid-cols-7 gap-2 shrink-0">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 shrink-0">
           {mcpStats.map((stat) => (
             <StatCard
               key={stat.title}

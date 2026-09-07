@@ -16,7 +16,6 @@ import {
   WelfareDetailSheet,
   Modal,
   DatePickerField,
-  type WelfareChampion,
   type FilterSection,
   type GenericFilterState,
 } from "@/components/max"
@@ -47,6 +46,15 @@ import {
 import { useRoleSimulation } from "@/contexts/RoleSimulationContext"
 import { championsForSimulationMode } from "@/data/driverExperienceAssignmentScope"
 import {
+  WELFARE_REFERENCE_DATE,
+  type WelfareChampion,
+} from "@/data/mockWelfare"
+import {
+  logWelfareNote,
+  scheduleFollowUp,
+  useWelfareRecords,
+} from "@/data/welfareStore"
+import {
   geographyLabel,
   geographyLevelForScope,
   type DriverExperienceGeographyLevel,
@@ -75,171 +83,6 @@ const championStateVariantMap: Record<ChampionState, BadgeVariant> = {
   Suspended: "danger",
 }
 
-// ── Mock data ──
-
-export const mockWelfareRecords: WelfareChampion[] = [
-  {
-    id: "1",
-    name: "Adewale Ogunleye",
-    championId: "CHP-001",
-    avatarUrl: "/images/champvatar.png",
-    location: "Lagos",
-    subcity: "Ikeja",
-    vehicle: "4 Wheelers",
-    welfareStatus: "Healthy",
-    championState: "Active",
-    lastContact: "8 Jun 2026",
-    nextFollowUp: "9 Jun 2026",
-    issuesLogged: 0,
-    phoneNumber: "+234 801 234 5678",
-  },
-  {
-    id: "2",
-    name: "Chinedu Okafor",
-    championId: "CHP-002",
-    avatarUrl: "/images/champvatar.png",
-    location: "Lagos",
-    subcity: "Lekki",
-    vehicle: "4 Wheelers",
-    welfareStatus: "Needs Attention",
-    championState: "Active",
-    lastContact: "5 Jun 2026",
-    nextFollowUp: "7 Jun 2026",
-    issuesLogged: 2,
-    phoneNumber: "+234 802 345 6789",
-  },
-  {
-    id: "3",
-    name: "Emeka Nwosu",
-    championId: "CHP-003",
-    avatarUrl: "/images/champvatar.png",
-    location: "Abeokuta",
-    subcity: "Ibara",
-    vehicle: "4 Wheelers",
-    welfareStatus: "At Risk",
-    championState: "Active",
-    lastContact: "1 Jun 2026",
-    nextFollowUp: "5 Jun 2026",
-    issuesLogged: 4,
-    phoneNumber: "+234 803 456 7890",
-  },
-  {
-    id: "4",
-    name: "Funke Adeyemi",
-    championId: "CHP-004",
-    avatarUrl: "/images/champvatar.png",
-    location: "Osogbo",
-    subcity: "Oke Fia",
-    vehicle: "3 Wheelers",
-    welfareStatus: "Critical",
-    championState: "Suspended",
-    lastContact: "28 May 2026",
-    nextFollowUp: "3 Jun 2026",
-    issuesLogged: 7,
-    phoneNumber: "+234 804 567 8901",
-    transferRejection: {
-      date: "5 Jul 2026",
-      ownershipType: "Outright Payment",
-      rejectionReason: "Outstanding hire-purchase balance of ₦200,000 must be fully settled before outright ownership transfer can be processed.",
-    },
-  },
-  {
-    id: "5",
-    name: "Gbenga Alabi",
-    championId: "CHP-005",
-    avatarUrl: "/images/champvatar.png",
-    location: "Lagos",
-    subcity: "Victoria Island",
-    vehicle: "4 Wheelers",
-    welfareStatus: "Healthy",
-    championState: "Active",
-    lastContact: "9 Jun 2026",
-    nextFollowUp: "12 Jun 2026",
-    issuesLogged: 0,
-    phoneNumber: "+234 805 678 9012",
-  },
-  {
-    id: "6",
-    name: "Hassan Musa",
-    championId: "CHP-006",
-    avatarUrl: "/images/champvatar.png",
-    location: "Ibadan",
-    subcity: "Challenge",
-    vehicle: "2 Wheelers",
-    welfareStatus: "Needs Attention",
-    championState: "On Leave",
-    lastContact: "4 Jun 2026",
-    nextFollowUp: "9 Jun 2026",
-    issuesLogged: 1,
-    phoneNumber: "+234 806 789 0123",
-  },
-  {
-    id: "7",
-    name: "Ibrahim Yusuf",
-    championId: "CHP-007",
-    avatarUrl: "/images/champvatar.png",
-    location: "Sango Ota",
-    subcity: "Ota Central",
-    vehicle: "3 Wheelers",
-    welfareStatus: "At Risk",
-    championState: "Inactive",
-    lastContact: "30 May 2026",
-    nextFollowUp: "4 Jun 2026",
-    issuesLogged: 5,
-    phoneNumber: "+234 807 890 1234",
-    transferRejection: {
-      date: "1 Jul 2026",
-      ownershipType: "Outright Payment",
-      rejectionReason: "Required documents (NIN verification, proof of final payment, and vehicle inspection report) were not provided. Please resubmit with complete documentation.",
-    },
-  },
-  {
-    id: "8",
-    name: "Janet Eze",
-    championId: "CHP-008",
-    avatarUrl: "/images/champvatar.png",
-    location: "Lagos",
-    subcity: "Yaba",
-    vehicle: "4 Wheelers",
-    welfareStatus: "Healthy",
-    championState: "Active",
-    lastContact: "7 Jun 2026",
-    nextFollowUp: "10 Jun 2026",
-    issuesLogged: 0,
-    phoneNumber: "+234 808 901 2345",
-  },
-  {
-    id: "9",
-    name: "Kalu Nnamdi",
-    championId: "CHP-009",
-    avatarUrl: "/images/champvatar.png",
-    location: "Abeokuta",
-    subcity: "Oke-Ilewo",
-    vehicle: "2 Wheelers",
-    welfareStatus: "Critical",
-    championState: "Active",
-    lastContact: "25 May 2026",
-    nextFollowUp: "2 Jun 2026",
-    issuesLogged: 6,
-    phoneNumber: "+234 809 012 3456",
-  },
-  {
-    id: "10",
-    name: "Lateef Bakare",
-    championId: "CHP-010",
-    avatarUrl: "/images/champvatar.png",
-    location: "Lagos",
-    subcity: "Ajah",
-    vehicle: "4 Wheelers",
-    welfareStatus: "Healthy",
-    championState: "Active",
-    lastContact: "8 Jun 2026",
-    nextFollowUp: "11 Jun 2026",
-    issuesLogged: 1,
-    phoneNumber: "+234 810 123 4567",
-  },
-]
-
 // ── Color constants ──
 
 const COLOR_BLUE = "var(--color-status-info)"
@@ -249,8 +92,6 @@ const COLOR_RED = "var(--color-badge-inactive-text)"
 const COLOR_PURPLE = "#8b5cf6"
 
 // ── Follow-up queue buckets ──
-
-export const WELFARE_REFERENCE_DATE = new Date("2026-06-09")
 
 function classifyFollowUp(dateStr: string): "overdue" | "today" | "upcoming" {
   const d = new Date(dateStr)
@@ -638,9 +479,7 @@ export default function WelfarePage() {
   const isReadOnly =
     mode === "executive" || mode === "dxp-product-manager"
   const hidesSummaryAndQueue = mode === "dxp-product-manager"
-  const [welfareRecords, setWelfareRecords] = useState<WelfareChampion[]>(
-    () => mockWelfareRecords
-  )
+  const welfareRecords = useWelfareRecords()
   const [period, setPeriod] = useState("30")
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
@@ -761,13 +600,7 @@ export default function WelfarePage() {
     if (!scheduleChampion || !followUpDate) return
 
     const nextFollowUp = format(followUpDate, "d MMM yyyy")
-    setWelfareRecords((records) =>
-      records.map((record) =>
-        record.id === scheduleChampion.id
-          ? { ...record, nextFollowUp }
-          : record
-      )
-    )
+    scheduleFollowUp(scheduleChampion.id, nextFollowUp)
     setSelectedChampion((champion) =>
       champion?.id === scheduleChampion.id
         ? { ...champion, nextFollowUp }
@@ -780,8 +613,30 @@ export default function WelfarePage() {
   }, [closeScheduleFollowUp, followUpDate, scheduleChampion])
 
   const handleLogInteraction = useCallback(() => {
+    if (!logNoteChampion) return
+    if (!logNoteForm.channel || !logNoteForm.interactionType || !logNoteForm.summary.trim()) {
+      return
+    }
+    logWelfareNote(logNoteChampion.id, {
+      channel: logNoteForm.channel as "Phone Call" | "SMS" | "WhatsApp" | "In-Person",
+      interactionType: logNoteForm.interactionType as
+        | "Routine Check-In"
+        | "Incident Follow-up"
+        | "Welfare Complaint",
+      summary: logNoteForm.summary,
+      issuesRaised: logNoteForm.issuesRaised,
+      actionTaken: logNoteForm.actionTaken,
+      followUpRequired: logNoteForm.followUpRequired,
+      incidentStatus: (logNoteForm.incidentStatus || "Open") as
+        | "Open"
+        | "In-Progress"
+        | "Resolved",
+    })
+    toast.success("Note logged", {
+      description: `Welfare note added for ${logNoteChampion.name}.`,
+    })
     closeLogNote()
-  }, [closeLogNote])
+  }, [closeLogNote, logNoteChampion, logNoteForm])
 
   const columns = useMemo(
     () => getColumns(openLogNote, isReadOnly, geographyLevel),
@@ -796,7 +651,7 @@ export default function WelfarePage() {
           { label: "Welfare" },
         ]}
       />
-      <div className="flex-1 overflow-auto px-6 pb-6">
+      <div className="flex-1 overflow-auto px-4 pb-6 md:px-6">
         <div className="flex items-center justify-between">
           <PageHeader
             title="Welfare"
@@ -818,7 +673,7 @@ export default function WelfarePage() {
         {!hidesSummaryAndQueue && (
           <>
             {/* Stat Cards */}
-            <div className="grid grid-cols-5 gap-2">
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-5">
               {summaryStats.map((stat) => (
                 <StatCard
                   key={stat.title}
@@ -837,7 +692,7 @@ export default function WelfarePage() {
               >
                 Follow-up Queue
               </h3>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
                 <FollowUpColumn
                   title="Overdue"
                   accent={COLOR_RED}

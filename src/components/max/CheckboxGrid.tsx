@@ -15,8 +15,8 @@ export interface CheckboxGridProps {
 
 const columnClasses: Record<NonNullable<CheckboxGridProps["columns"]>, string> = {
   1: "grid-cols-1",
-  2: "grid-cols-2",
-  3: "grid-cols-3",
+  2: "grid-cols-1 sm:grid-cols-2",
+  3: "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
 }
 
 export function CheckboxGrid({ items, checked, onToggle, columns = 2, className }: CheckboxGridProps) {

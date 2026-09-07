@@ -69,7 +69,7 @@ export function RegistrationPrepTab() {
 
   return (
     <>
-      <div className="grid grid-cols-4 gap-2 mt-4">
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-4 mt-4">
         {getRegistrationStats(regRecords).map((stat) => (
           <StatCard
             key={stat.title}

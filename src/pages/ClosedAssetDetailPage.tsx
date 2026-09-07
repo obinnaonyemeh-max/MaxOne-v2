@@ -52,7 +52,7 @@ export default function ClosedAssetDetailPage() {
       </header>
 
       <div className="px-6 flex flex-col flex-1 min-h-0 overflow-y-auto pb-8">
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           <StatCard title="Recovery Value" value={record.recoveryValue} indicatorColor="var(--color-gray-400)" />
           <StatCard title="Write-Off Amount" value={record.writeOffAmount} indicatorColor="var(--color-gray-400)" />
         </div>

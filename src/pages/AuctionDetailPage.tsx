@@ -286,7 +286,7 @@ export default function AuctionDetailPage() {
           />
         )}
 
-        <div className="mt-4 grid grid-cols-4 gap-2 shrink-0">
+        <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-4 shrink-0">
           <StatCard
             title="Total Vehicles"
             value={event.vehicles}

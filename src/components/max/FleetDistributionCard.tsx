@@ -44,7 +44,7 @@ export function FleetDistributionCard({
       </div>
 
       <div className={cn("min-h-0 flex-1 overflow-hidden px-5 pb-5", compact && "px-3 pb-3")}>
-        <div className={cn("grid h-full min-h-0 gap-2", regions.length === 1 ? "grid-cols-1" : "grid-cols-2")}>
+        <div className={cn("grid h-full min-h-0 gap-2", regions.length === 1 ? "grid-cols-1" : "grid-cols-1 md:grid-cols-2")}>
           {regions.map((region) => (
             <DistributionChart
               key={region.region}

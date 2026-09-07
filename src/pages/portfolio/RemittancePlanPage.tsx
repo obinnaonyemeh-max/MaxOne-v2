@@ -71,15 +71,15 @@ export default function RemittancePlanPage() {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-3 gap-6 items-start">
-              <div className="col-span-2 flex flex-col gap-3">
+            <div className="grid grid-cols-1 gap-6 items-start lg:grid-cols-3">
+              <div className="col-span-1 flex flex-col gap-3 lg:col-span-2">
                 <CollapsibleCard
                   icon={Layers}
                   title="Remittance Schedule"
                   defaultOpen
                   helperText={`Auto-populated from ${batch.code}'s pricing template. View only.`}
                 >
-                  <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+                  <div className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
                     <div className="flex flex-col gap-1.5">
                       <label className="text-xs font-medium text-breadcrumb-root">Tenor (months)</label>
                       <Input value={schedule.tenorMonths} disabled className="h-9 bg-gray-100" />
@@ -110,7 +110,7 @@ export default function RemittancePlanPage() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-3 mt-4">
+                  <div className="grid grid-cols-1 gap-3 mt-4 sm:grid-cols-3">
                     <div className="rounded-md border border-gray-200 bg-gray-50 px-3 py-2.5">
                       <p className="text-[11px] font-semibold uppercase tracking-wider text-breadcrumb-root">
                         Equity Contribution

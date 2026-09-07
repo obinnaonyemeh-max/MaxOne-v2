@@ -21,8 +21,8 @@ import {
 
 const CHART_GRID_CLASS: Record<number, string> = {
   1: "grid-cols-1",
-  2: "grid-cols-2",
-  3: "grid-cols-3",
+  2: "grid-cols-1 lg:grid-cols-2",
+  3: "grid-cols-1 md:grid-cols-2 lg:grid-cols-3",
 }
 
 function ChartWidget({
@@ -99,7 +99,7 @@ export default function DashboardPage() {
         ]}
       />
 
-      <div className="flex-1 overflow-auto px-6 pb-6">
+      <div className="flex-1 overflow-auto px-4 pb-6 md:px-6">
         <PageHeader
           title="Dashboard"
           subtitle={
@@ -124,7 +124,7 @@ export default function DashboardPage() {
         ) : (
           <>
             {statWidgets.length > 0 && (
-              <div className="grid grid-cols-4 gap-2">
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-4">
                 {statWidgets.map((widget) => {
                   const data = widgetData.stats[widget.id]
                   if (!data) return null

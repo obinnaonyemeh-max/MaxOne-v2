@@ -16,7 +16,7 @@ export function BatteryMetricCard({
   showAlert = false,
 }: BatteryMetricCardProps) {
   return (
-    <div className="bg-content-card border border-border rounded-lg p-4">
+    <div className="min-w-0 w-full bg-content-card border border-border rounded-lg p-4">
       <div className="flex items-start justify-between mb-3">
         <img src={iconSrc} alt={label} className="h-7 w-7" />
         {showAlert && (

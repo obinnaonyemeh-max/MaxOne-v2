@@ -267,23 +267,23 @@ export function TamperLocationMap({
           }}
         >
           {/* Line 1 — 3-col so Email aligns under Estimated Travelled Time */}
-          <div className="grid grid-cols-3 gap-x-6 gap-y-3">
+          <div className="grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-3">
             <RecoveryField label="Recovery Pair" value={recovery.pairNames} />
             <RecoveryField
               label="Recovery Pairs Email"
               value={recovery.emails}
-              className="col-span-2"
+              className="sm:col-span-2"
               truncate={false}
             />
           </div>
           {/* Line 2 */}
-          <div className="grid grid-cols-3 gap-x-6 mt-3">
+          <div className="grid grid-cols-1 gap-x-6 gap-y-3 mt-3 sm:grid-cols-3">
             <RecoveryField label="Recovery Pairs Location" value={liveRecoveryLocation} />
             <RecoveryField label="Estimated Travelled Time" value={recovery.estimatedTime} />
             <RecoveryField label="Estimated Distance" value={recovery.estimatedDistance} />
           </div>
           {/* Line 3 */}
-          <div className="grid grid-cols-3 gap-x-6 mt-3">
+          <div className="grid grid-cols-1 gap-x-6 gap-y-3 mt-3 sm:grid-cols-3">
             <RecoveryField label="Last Update" value={liveLastUpdate} />
             <RecoveryField
               label="Recovery Status"

@@ -20,7 +20,7 @@ export function ActivationQueueCard({
   return (
     <div
       className={cn(
-        "bg-gray-25 border border-gray-200 rounded-lg",
+        "min-w-0 w-full bg-gray-25 border border-gray-200 rounded-lg",
         className
       )}
     >

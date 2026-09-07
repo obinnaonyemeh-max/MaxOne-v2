@@ -174,7 +174,7 @@ export default function ConversionRequestPage() {
       />
 
       <div className="px-6 flex flex-col flex-1 min-h-0">
-        <div className="grid grid-cols-4 gap-2 shrink-0">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-4 shrink-0">
           <StatCard
             title="Total Requests"
             value={scopedRecords.length}

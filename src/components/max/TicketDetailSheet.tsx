@@ -52,6 +52,12 @@ import {
   priorityVariantMap,
   slaVariantMap,
 } from "@/data/mockTicketRecords"
+import {
+  addTicketComment,
+  changeTicketStatus,
+  closeTicket,
+  reassignTicket,
+} from "@/data/ticketStore"
 
 interface TicketDetailSheetProps {
   ticket: TicketDetail | null
@@ -195,9 +201,6 @@ export function TicketDetailSheet({ ticket, isOpen, onClose }: TicketDetailSheet
   const canAddComment = useCan("ticketManagement.addComment")
   const [showCommentInput, setShowCommentInput] = useState(false)
   const [commentText, setCommentText] = useState("")
-  const [localComments, setLocalComments] = useState<
-    { id: string; author: string; text: string; timestamp: string }[]
-  >([])
   const [showReassign, setShowReassign] = useState(false)
   const [reassignAgent, setReassignAgent] = useState("")
   const [reassignReason, setReassignReason] = useState("")
@@ -218,7 +221,6 @@ export function TicketDetailSheet({ ticket, isOpen, onClose }: TicketDetailSheet
   useEffect(() => {
     setShowCommentInput(false)
     setCommentText("")
-    setLocalComments([])
     setShowReassign(false)
     setReassignAgent("")
     setReassignReason("")
@@ -236,6 +238,7 @@ export function TicketDetailSheet({ ticket, isOpen, onClose }: TicketDetailSheet
 
   const handleReassign = () => {
     setIsSubmitting(true)
+    reassignTicket(ticket.id, reassignAgent)
     setTimeout(() => {
       setIsSubmitting(false)
       setShowReassign(false)
@@ -243,7 +246,7 @@ export function TicketDetailSheet({ ticket, isOpen, onClose }: TicketDetailSheet
       toast.success("Ticket reassigned successfully", {
         description: `${ticket.ticketId} has been reassigned to ${reassignAgent}.`,
       })
-    }, 1500)
+    }, 400)
   }
 
   const handleEscalate = () => {
@@ -255,11 +258,12 @@ export function TicketDetailSheet({ ticket, isOpen, onClose }: TicketDetailSheet
       toast.success("Ticket escalated successfully", {
         description: `${ticket.ticketId} has been escalated to ${escalateOfficer}.`,
       })
-    }, 1500)
+    }, 400)
   }
 
   const handleCloseTicket = () => {
     setIsSubmitting(true)
+    closeTicket(ticket.id)
     setTimeout(() => {
       setIsSubmitting(false)
       setShowCloseTicket(false)
@@ -267,11 +271,12 @@ export function TicketDetailSheet({ ticket, isOpen, onClose }: TicketDetailSheet
       toast.success("Ticket closed successfully", {
         description: `${ticket.ticketId} has been marked as Resolved.`,
       })
-    }, 1500)
+    }, 400)
   }
 
   const handleChangeStatus = () => {
     setIsSubmitting(true)
+    changeTicketStatus(ticket.id, newStatus as "Open" | "In Progress" | "Pending Feedback")
     setTimeout(() => {
       setIsSubmitting(false)
       setShowChangeStatus(false)
@@ -279,40 +284,21 @@ export function TicketDetailSheet({ ticket, isOpen, onClose }: TicketDetailSheet
       toast.success("Ticket status updated", {
         description: `${ticket.ticketId} status changed to ${newStatus}.`,
       })
-    }, 1500)
+    }, 400)
   }
 
-  const allComments = [...ticket.incident.comments, ...localComments]
+  const allComments = ticket.incident.comments
 
   const handleAddComment = () => {
     if (!commentText.trim()) return
-    const now = new Date()
-    const formatted = now.toLocaleDateString("en-GB", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    })
-    const time = now.toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    })
-    setLocalComments((prev) => [
-      ...prev,
-      {
-        id: `local-${Date.now()}`,
-        author: "You",
-        text: commentText.trim(),
-        timestamp: `${formatted}, ${time}`,
-      },
-    ])
+    addTicketComment(ticket.id, commentText)
     setCommentText("")
     setShowCommentInput(false)
   }
 
   return (
     <Sheet open={isOpen} onOpenChange={(open) => { if (!open) onClose() }}>
-      <SheetContent size="lg" className="flex flex-col h-full max-w-[40vw]">
+      <SheetContent size="lg" className="flex flex-col h-full">
         {/* Sticky Header */}
         <SheetHeader>
           <div className="flex items-center gap-3 pr-8">

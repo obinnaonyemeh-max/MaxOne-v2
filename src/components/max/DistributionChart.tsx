@@ -42,7 +42,7 @@ export function DistributionChart({
   return (
     <div
       className={cn(
-        "bg-white border border-gray-200 rounded-lg p-4",
+        "min-w-0 w-full bg-white border border-gray-200 rounded-lg p-4",
         compact && "flex h-full min-h-0 flex-col overflow-hidden p-3",
         className
       )}
@@ -65,18 +65,19 @@ export function DistributionChart({
 
       <div
         className={cn(
-          "flex w-full items-center",
+          "flex min-w-0 w-full flex-col items-center gap-4 sm:flex-row sm:items-center",
+          compact ? "gap-4 sm:gap-4" : "sm:gap-10",
           centerContent && "justify-center",
           compact && "min-h-0 flex-1"
         )}
-        style={{ gap: compact ? "16px" : "100px" }}
       >
         <div
-          className="shrink-0"
-          style={{
-            width: compact ? "108px" : "185px",
-            height: compact ? "108px" : "185px",
-          }}
+          className={cn(
+            "shrink-0",
+            compact
+              ? "h-[108px] w-[108px]"
+              : "h-[160px] w-[160px] sm:h-[185px] sm:w-[185px]"
+          )}
         >
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
@@ -143,7 +144,7 @@ export function DistributionChart({
           </ResponsiveContainer>
         </div>
 
-        <div className={cn("flex-1", compact && "min-w-0")}>
+        <div className="min-w-0 w-full flex-1">
           <p
             className="text-gray-600 mb-2"
             style={{ fontSize: compact ? "11px" : "13px", fontWeight: 500 }}

@@ -14,7 +14,7 @@ export function StepperSidebar({ currentStep, completedSteps, onSelectStep }: St
   const progress = Math.round((completedSteps.length / TOTAL_STEPS) * 100)
 
   return (
-    <div className="w-[300px] shrink-0 border-r border-gray-200 bg-white h-full overflow-y-auto">
+    <div className="hidden h-full w-[300px] shrink-0 overflow-y-auto border-r border-gray-200 bg-white lg:block">
       <div className="px-5 pt-5 pb-4 border-b border-gray-100">
         <div className="flex items-center justify-between mb-2">
           <span className="text-xs font-semibold uppercase tracking-wider text-breadcrumb-root">Progress</span>

@@ -1,9 +1,12 @@
-import { mockChampionDetails } from "./mockChampionDetails"
+import { getChampionByCode } from "./mockChampions"
+import { listChampionDetails } from "./mockChampionDetails"
 
 export interface TimeOffApprovalRecord {
   id: string
   championName: string
   championId: string
+  city: string
+  subcity: string
   leaveType: "Annual" | "Emergency" | "Sick"
   startDate: string
   endDate: string
@@ -11,19 +14,23 @@ export interface TimeOffApprovalRecord {
   approvedBy: string
 }
 
-export const mockTimeOffApprovals: TimeOffApprovalRecord[] = Object.values(
-  mockChampionDetails
-).flatMap((champion) =>
-  champion.timeOff.history.map((leave) => ({
-    id: `to-${champion.championId}-${leave.id}`,
-    championName: champion.name,
-    championId: champion.championId,
-    leaveType: leave.type,
-    startDate: leave.startDate,
-    endDate: leave.endDate,
-    status: leave.status,
-    approvedBy: leave.approvedBy,
-  }))
+export const mockTimeOffApprovals: TimeOffApprovalRecord[] = listChampionDetails().flatMap(
+  (champion) =>
+    champion.timeOff.history.map((leave) => {
+      const seed = getChampionByCode(champion.championId)
+      return {
+        id: `to-${champion.championId}-${leave.id}`,
+        championName: champion.name,
+        championId: champion.championId,
+        city: seed?.city ?? champion.city,
+        subcity: seed?.subcity ?? champion.subcity,
+        leaveType: leave.type,
+        startDate: leave.startDate,
+        endDate: leave.endDate,
+        status: leave.status,
+        approvedBy: leave.approvedBy,
+      }
+    })
 )
 
 export const timeOffStatusVariantMap: Record<

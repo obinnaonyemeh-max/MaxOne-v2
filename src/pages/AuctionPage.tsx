@@ -232,7 +232,7 @@ export default function AuctionPage() {
       </div>
 
       <div className="px-6 flex flex-col flex-1 min-h-0 overflow-y-auto overflow-x-hidden">
-        <div className="grid grid-cols-3 gap-2 shrink-0">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 shrink-0">
           <StatCard
             title="Active"
             value={counts.active}

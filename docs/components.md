@@ -90,6 +90,8 @@ The MaxOne design system provides a consistent set of UI components for building
 - **Tailwind CSS** for styling
 - **shadcn/ui** as the base component library
 
+Responsive layout (breakpoints, mobile drawer chrome, and page recipes) is documented in [RESPONSIVE.md](./RESPONSIVE.md). Fix shared `max/` primitives before adding page-level breakpoints.
+
 ## Component Architecture
 
 ```
@@ -256,6 +258,7 @@ interface SidebarRenderProps {
 - Background: `#F0F0F0` (content-bg)
 - Content card: White background with `#E7E7E7` border, 8px border radius
 - Sidebar width: 240px expanded, 64px collapsed
+- Below `lg`: sidebar moves into a left drawer; content card padding and radius are dropped. See [RESPONSIVE.md](./RESPONSIVE.md).
 
 ---
 

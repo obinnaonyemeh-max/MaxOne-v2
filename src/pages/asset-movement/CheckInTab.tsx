@@ -42,7 +42,7 @@ export function CheckInTab() {
 
   return (
     <>
-      <div className="grid grid-cols-6 gap-2 shrink-0">
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-6 shrink-0">
         {stats.map((stat) => (
           <StatCard
             key={stat.title}

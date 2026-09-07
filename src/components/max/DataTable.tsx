@@ -43,7 +43,7 @@ export function DataTable<TData, TValue>({
 
   if (isLoading) {
     return (
-      <div className={cn("px-2", className)}>
+      <div className={cn("min-w-0 overflow-x-auto px-2", className)}>
         <Table>
           <TableHeader className="sticky top-0 z-10 [&_tr]:border-0">
             <TableRow className="hover:bg-transparent border-0">
@@ -76,7 +76,7 @@ export function DataTable<TData, TValue>({
   }
 
   return (
-    <div className={cn("px-2", className)}>
+    <div className={cn("min-w-0 overflow-x-auto px-2", className)}>
       <Table>
         <TableHeader className="sticky top-0 z-10 [&_tr]:border-0">
           {table.getHeaderGroups().map((headerGroup) => (

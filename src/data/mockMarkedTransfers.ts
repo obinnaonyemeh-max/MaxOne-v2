@@ -1,7 +1,11 @@
+import { getChampionByCode } from "./mockChampions"
+
 export interface MarkedTransferRecord {
   id: string
   championName: string
   championId: string
+  city: string
+  subcity: string
   requestDate: string
   status: "Pending" | "Approved" | "Rejected" | "Approval in Progress"
   rejectionReason?: string
@@ -25,7 +29,7 @@ export interface MarkedTransferRecord {
   }
 }
 
-export const mockMarkedTransfers: MarkedTransferRecord[] = [
+const seedMarkedTransfers: Omit<MarkedTransferRecord, "city" | "subcity">[] = [
   {
     id: "1",
     championName: "Adewale Ogunleye",
@@ -271,7 +275,64 @@ export const mockMarkedTransfers: MarkedTransferRecord[] = [
       utilization: "85%",
     },
   },
+  {
+    id: "11",
+    championName: "Patricia Obi",
+    championId: "CHP-014",
+    requestDate: "16 Jul 2026",
+    status: "Pending",
+    contractId: "CTR-2024-00420",
+    contractEndDate: "14 Jul 2026",
+    finalPaymentDate: "12 Jul 2026",
+    outstandingBalance: "₦0",
+    vehicleCondition: "Good",
+    handoverStatus: "Pending Inspection",
+    triggerType: "Contract Completion",
+    vehicle: {
+      maxVehicleId: "VH-2024-00420",
+      plateNumber: "ABJ-201-AA",
+      type: "2 Wheeler",
+      model: "TVS King",
+      brand: "TVS",
+      currentStatus: "Active",
+      lastKnownLocation: "Wuse, Abuja",
+      utilization: "80%",
+    },
+  },
+  {
+    id: "12",
+    championName: "Tochukwu Ibe",
+    championId: "CHP-017",
+    requestDate: "11 Jul 2026",
+    status: "Pending",
+    contractId: "CTR-2024-00421",
+    contractEndDate: "9 Jul 2026",
+    finalPaymentDate: "7 Jul 2026",
+    outstandingBalance: "₦40,000",
+    vehicleCondition: "Fair",
+    handoverStatus: "Pending Inspection",
+    triggerType: "Contract Completion",
+    vehicle: {
+      maxVehicleId: "VH-2024-00421",
+      plateNumber: "KAN-501-CC",
+      type: "2 Wheeler",
+      model: "Bajaj Boxer",
+      brand: "Bajaj",
+      currentStatus: "Active",
+      lastKnownLocation: "Sabon Gari, Kano",
+      utilization: "71%",
+    },
+  },
 ]
+
+export const mockMarkedTransfers: MarkedTransferRecord[] = seedMarkedTransfers.map((transfer) => {
+  const champion = getChampionByCode(transfer.championId)
+  return {
+    ...transfer,
+    city: champion?.city ?? "",
+    subcity: champion?.subcity ?? "",
+  }
+})
 
 export const statusVariantMap: Record<MarkedTransferRecord["status"], "warning" | "success" | "danger" | "info"> = {
   "Pending": "warning",

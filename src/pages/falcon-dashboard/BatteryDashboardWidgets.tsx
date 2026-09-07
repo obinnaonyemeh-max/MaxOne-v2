@@ -152,7 +152,7 @@ export function BatteryDashboardWidgets({
   }, [])
 
   const statsCards = (
-    <div className={fill ? "grid shrink-0 grid-cols-6 gap-2" : "grid grid-cols-6 gap-2"}>
+    <div className={fill ? "grid shrink-0 grid-cols-2 gap-2 xl:grid-cols-6" : "grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-6"}>
       {stats.map((stat) => (
         <StatCard
           key={stat.title}
@@ -171,7 +171,7 @@ export function BatteryDashboardWidgets({
         {showStats && statsCards}
 
         {showCharts && (
-        <div className={fill ? "grid min-h-0 flex-1 grid-cols-2 gap-2" : `grid grid-cols-2 gap-4 ${showStats ? "mt-6" : ""}`}>
+        <div className={fill ? "grid min-h-0 flex-1 grid-cols-1 gap-2 lg:grid-cols-2" : `grid grid-cols-1 gap-4 lg:grid-cols-2 ${showStats ? "mt-6" : ""}`}>
           {/* Average State of Health Distribution */}
           <div className={fill ? "flex h-full min-h-0 flex-col bg-gray-25 border border-gray-200 rounded-lg" : "bg-gray-25 border border-gray-200 rounded-lg"}>
             <div className="flex items-center justify-between px-5 pt-5 pb-2">

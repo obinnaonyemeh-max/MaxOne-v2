@@ -69,7 +69,7 @@ export function StepSelectCategory({
         />
       </div>
 
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {filteredCategories.map((category) => {
           const Icon = iconMap[category.icon]
           const isSelected = selectedCategory?.id === category.id

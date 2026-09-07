@@ -286,7 +286,7 @@ export default function DriverSafetyScorePage() {
         ]}
       />
 
-      <div className="flex-1 overflow-auto px-6 pb-6">
+      <div className="flex-1 overflow-auto px-4 pb-6 md:px-6">
         <div className="flex items-center justify-between">
           <PageHeader
             title="Drivers Safety Performance"
@@ -306,7 +306,7 @@ export default function DriverSafetyScorePage() {
         </div>
 
         {/* Summary Stat Cards */}
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-4">
           {summaryStats.map((stat) => (
             <StatCard
               key={stat.title}

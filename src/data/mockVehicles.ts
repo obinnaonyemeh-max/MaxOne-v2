@@ -1,5 +1,7 @@
 import type { LagosSubCity } from "./cityScope"
 
+export type VehicleCategory = "EV" | "ICE"
+
 export type VehicleStatus =
   | "Exit"
   | "Active"
@@ -32,6 +34,7 @@ export interface Vehicle {
   location: string
   championStatus: "Active" | "Inactive" | null
   contractStatus: "Active" | "Inactive" | null
+  category: VehicleCategory
   vehicleStatus: VehicleStatus
   subStatus: SubStatus
   driverSafetyScore: number | null
@@ -133,6 +136,7 @@ function buildVehicle(
     location,
     championStatus: inbound ? null : index % 4 === 0 ? "Inactive" : "Active",
     contractStatus: inbound ? null : index % 5 === 0 ? "Inactive" : "Active",
+    category: index % 3 === 0 ? "ICE" : "EV",
     vehicleStatus,
     subStatus,
     driverSafetyScore: inbound ? null : 35 + ((index * 11) % 61),

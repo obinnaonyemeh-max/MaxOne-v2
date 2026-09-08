@@ -33,8 +33,24 @@ export interface StationBattery {
   stateOfCharge: number
   isCharging: boolean
   isPluggedIn: boolean
+  lastEventType: StationBatteryEventType
   pendingTransferId?: string | null
 }
+
+export type StationBatteryEventType =
+  | "battery-swap"
+  | "checked-in"
+  | "assigned-to-vehicle"
+  | "transfer"
+  | "recovery-action"
+
+export const STATION_BATTERY_EVENT_TYPES: StationBatteryEventType[] = [
+  "battery-swap",
+  "checked-in",
+  "assigned-to-vehicle",
+  "transfer",
+  "recovery-action",
+]
 
 const ADMIN_NAMES = [
   "Adewale Okonkwo",
@@ -197,6 +213,7 @@ function generateStationBattery(station: SwapStation, index: number): StationBat
     stateOfCharge: Math.floor(Math.random() * 101),
     isCharging,
     isPluggedIn,
+    lastEventType: STATION_BATTERY_EVENT_TYPES[index % STATION_BATTERY_EVENT_TYPES.length],
   }
 }
 
@@ -271,6 +288,7 @@ export function moveBatteriesToStation(batteryIds: string[], destinationStationI
     if (batteryIds.includes(battery.id)) {
       battery.stationId = destinationStationId
       battery.pendingTransferId = null
+      battery.lastEventType = "transfer"
     }
   }
 }

@@ -388,12 +388,14 @@ export type AlertStatus = "triggered" | "acknowledged" | "in-progress" | "resolv
 
 export interface AlertHistoryItem {
   id: string
+  batteryId: string
   alertType: string
   severity: string
   status: AlertStatus
   triggeredOn: string
   assignedTo: string
   resolutionStatus: string
+  resolutionReason?: string
 }
 
 // Using the StatusBadge variants defined in the project
@@ -414,6 +416,7 @@ export const alertStatusLabels: Record<AlertStatus, string> = {
 export const mockAlertHistory: AlertHistoryItem[] = [
   {
     id: "ALT-10482",
+    batteryId: "BAT-9883774",
     alertType: "Over Temperature Protection",
     severity: "Level 3",
     status: "triggered",
@@ -423,6 +426,7 @@ export const mockAlertHistory: AlertHistoryItem[] = [
   },
   {
     id: "ALT-10483",
+    batteryId: "BAT-9883775",
     alertType: "Battery Degradation Threshold",
     severity: "Level 4",
     status: "acknowledged",
@@ -432,6 +436,7 @@ export const mockAlertHistory: AlertHistoryItem[] = [
   },
   {
     id: "ALT-10484",
+    batteryId: "BAT-9883776",
     alertType: "Offline Detection",
     severity: "Level 2",
     status: "in-progress",
@@ -441,15 +446,18 @@ export const mockAlertHistory: AlertHistoryItem[] = [
   },
   {
     id: "ALT-10485",
+    batteryId: "BAT-9883777",
     alertType: "Voltage Undervoltage Protection",
     severity: "Level 1",
     status: "resolved",
     triggeredOn: "22 Feb 2024, 13:25:43 WAT",
     assignedTo: "Daniel Amokachi",
     resolutionStatus: "Resolved - Battery Rebalanced",
+    resolutionReason: "Battery cells were rebalanced and voltage returned to the normal operating range.",
   },
   {
     id: "ALT-10486",
+    batteryId: "BAT-9883778",
     alertType: "Cell Imbalance Detected",
     severity: "Level 2",
     status: "triggered",
@@ -459,6 +467,7 @@ export const mockAlertHistory: AlertHistoryItem[] = [
   },
   {
     id: "ALT-10487",
+    batteryId: "BAT-9883779",
     alertType: "SOH Below Threshold",
     severity: "Level 3",
     status: "acknowledged",
@@ -468,15 +477,18 @@ export const mockAlertHistory: AlertHistoryItem[] = [
   },
   {
     id: "ALT-10488",
+    batteryId: "BAT-9883774",
     alertType: "Communication Loss",
     severity: "Level 1",
     status: "resolved",
     triggeredOn: "19 Feb 2024, 16:30:00 WAT",
     assignedTo: "Daniel Amokachi",
     resolutionStatus: "Resolved - Connection Restored",
+    resolutionReason: "Communication with the BMS was restored after a SIM reset at the station.",
   },
   {
     id: "ALT-10489",
+    batteryId: "BAT-9883775",
     alertType: "Overcurrent Protection",
     severity: "Level 4",
     status: "in-progress",
@@ -485,6 +497,13 @@ export const mockAlertHistory: AlertHistoryItem[] = [
     resolutionStatus: "Replacement Scheduled",
   },
 ]
+
+export const batteryAlertsUnresolvedCount = mockAlertHistory.filter(
+  (alert) => alert.status !== "resolved"
+).length
+export const batteryAlertsResolvedCount = mockAlertHistory.filter(
+  (alert) => alert.status === "resolved"
+).length
 
 // Alert Detail interface for drawer
 export interface AlertTimelineEntry {
@@ -521,6 +540,7 @@ export interface AlertDetail {
   assignee: string
   assignedTo: string | null
   timeline: AlertTimelineEntry[]
+  resolutionReason?: string
 }
 
 export const mockAlertDetails: Record<string, AlertDetail> = {
@@ -693,6 +713,7 @@ export const mockAlertDetails: Record<string, AlertDetail> = {
     location: "Surulere Swap Station",
     assignee: "Daniel Amokachi",
     assignedTo: null,
+    resolutionReason: "Battery cells were rebalanced and voltage returned to the normal operating range.",
     timeline: [
       {
         id: "1",
@@ -771,7 +792,81 @@ export const mockAlertDetails: Record<string, AlertDetail> = {
 }
 
 export function getAlertDetail(alertId: string): AlertDetail | undefined {
-  return mockAlertDetails[alertId]
+  if (mockAlertDetails[alertId]) return mockAlertDetails[alertId]
+
+  const history = mockAlertHistory.find((alert) => alert.id === alertId)
+  if (!history) return undefined
+
+  return {
+    id: history.id,
+    alertType: history.alertType,
+    status: history.status,
+    severity: history.severity,
+    triggeredOn: history.triggeredOn,
+    description: `${history.alertType} was reported for ${history.batteryId}.`,
+    batteryId: history.batteryId,
+    alarmCode: "—",
+    age: "—",
+    location: "—",
+    assignee: history.assignedTo,
+    assignedTo: history.assignedTo,
+    resolutionReason: history.resolutionReason,
+    timeline: [],
+  }
+}
+
+export function resolveBatteryAlert(
+  alertId: string,
+  reason: string
+): AlertDetail | undefined {
+  const historyIndex = mockAlertHistory.findIndex((alert) => alert.id === alertId)
+  if (historyIndex !== -1) {
+    mockAlertHistory[historyIndex] = {
+      ...mockAlertHistory[historyIndex],
+      status: "resolved",
+      resolutionStatus: "Resolved",
+      resolutionReason: reason,
+    }
+  }
+
+  const current = getAlertDetail(alertId)
+  if (!current) return undefined
+
+  const now = new Date()
+  const resolved: AlertDetail = {
+    ...current,
+    status: "resolved",
+    age: "Resolved",
+    resolutionReason: reason,
+    timeline: [
+      ...current.timeline,
+      {
+        id: `resolved-${now.getTime()}`,
+        date: now.toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+        }),
+        status: "Resolved",
+        statusVariant: "success",
+        description: {
+          template: "Alert marked as resolved.",
+          highlights: {},
+        },
+        actor: {
+          action: "Resolved by",
+          name: "Current User",
+        },
+        duration: {
+          range: `${now.toLocaleTimeString("en-GB", { hour12: false })} WAT`,
+          total: "",
+        },
+      },
+    ],
+  }
+
+  mockAlertDetails[alertId] = resolved
+  return resolved
 }
 
 // Mock trend data for telemetry charts

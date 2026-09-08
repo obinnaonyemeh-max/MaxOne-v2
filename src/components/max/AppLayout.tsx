@@ -12,6 +12,8 @@ import {
   sidebarUser,
 } from "@/data/sidebarConfig"
 import { mockVehicles } from "@/data/mockVehicles"
+import { batteryAlertsUnresolvedCount } from "@/data/mockBatteryRegisterData"
+import { tamperUnresolvedCount } from "@/data/mockTamperAlerts"
 import { SIMULATED_DRIVER_EXPERIENCE_AGENTS } from "@/data/driverExperienceAssignmentScope"
 import { useRoleSimulation } from "@/contexts/RoleSimulationContext"
 import {
@@ -19,15 +21,19 @@ import {
   isPathAllowedForMode,
 } from "@/data/rolePermissions"
 
-function withFleetRegisterCount(
+function withSidebarBadges(
   sections: SidebarSection[],
-  count: number
+  badges: Record<string, number>
 ): SidebarSection[] {
+  const applyBadge = (item: SidebarItem): SidebarItem => ({
+    ...item,
+    badge: item.id in badges ? badges[item.id] : item.badge,
+    children: item.children?.map(applyBadge),
+  })
+
   return sections.map((section) => ({
     ...section,
-    items: section.items.map((item) =>
-      item.id === "fleet-register" ? { ...item, badge: count } : item
-    ),
+    items: section.items.map(applyBadge),
   }))
 }
 
@@ -107,7 +113,12 @@ export function AppLayout({ children }: AppLayoutProps) {
     : roleSidebarSections
 
   const activeSections = markActiveSections(
-    withFleetRegisterCount(sections, fleetRegisterCount),
+    withSidebarBadges(sections, {
+      "fleet-register": fleetRegisterCount,
+      "tamper-alerts": tamperUnresolvedCount,
+      "battery-alerts": batteryAlertsUnresolvedCount,
+      alerts: tamperUnresolvedCount + batteryAlertsUnresolvedCount,
+    }),
     location.pathname
   )
 

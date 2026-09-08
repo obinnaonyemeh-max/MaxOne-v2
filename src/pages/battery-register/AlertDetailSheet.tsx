@@ -8,10 +8,7 @@ import {
   SheetTitle,
   SheetDescription,
 } from "@/components/ui/sheet"
-import { InfoCard } from "@/components/max/InfoCard"
-import { InfoGrid } from "@/components/max/InfoGrid"
-import { StatusBadge } from "@/components/max/StatusBadge"
-import { StatusTimeline } from "@/components/max/StatusTimeline"
+import { FormField, InfoCard, InfoGrid, Modal, StatusBadge, StatusTimeline } from "@/components/max"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -32,12 +29,17 @@ import { Textarea } from "@/components/ui/textarea"
 import { ExternalLink, Loader2 } from "lucide-react"
 import { toast } from "sonner"
 import type { AlertDetail } from "@/data/mockBatteryRegisterData"
-import { alertStatusVariantMap, alertStatusLabels } from "@/data/mockBatteryRegisterData"
+import {
+  alertStatusVariantMap,
+  alertStatusLabels,
+  resolveBatteryAlert,
+} from "@/data/mockBatteryRegisterData"
 
 interface AlertDetailSheetProps {
   alert: AlertDetail | null
   isOpen: boolean
   onClose: () => void
+  onResolved?: (alert: AlertDetail) => void
 }
 
 const severityVariantMap: Record<string, "danger" | "warning" | "info" | "success"> = {
@@ -55,17 +57,21 @@ const assigneeList = [
   { name: "Chidi Okafor", department: "Maintenance" },
 ]
 
-export function AlertDetailSheet({ alert, isOpen, onClose }: AlertDetailSheetProps) {
+export function AlertDetailSheet({ alert, isOpen, onClose, onResolved }: AlertDetailSheetProps) {
   const navigate = useNavigate()
   const [showAssign, setShowAssign] = useState(false)
+  const [showResolve, setShowResolve] = useState(false)
   const [assignAgent, setAssignAgent] = useState("")
   const [assignReason, setAssignReason] = useState("")
+  const [resolveReason, setResolveReason] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
     setShowAssign(false)
+    setShowResolve(false)
     setAssignAgent("")
     setAssignReason("")
+    setResolveReason("")
     setIsSubmitting(false)
   }, [alert?.id])
 
@@ -73,7 +79,7 @@ export function AlertDetailSheet({ alert, isOpen, onClose }: AlertDetailSheetPro
 
   const handleAcknowledge = () => {
     toast.success("Alert acknowledged", {
-      description: `${alert.id} has been acknowledged.`,
+      description: `${alert.alertType} has been acknowledged.`,
     })
     onClose()
   }
@@ -85,16 +91,26 @@ export function AlertDetailSheet({ alert, isOpen, onClose }: AlertDetailSheetPro
       setShowAssign(false)
       onClose()
       toast.success("Alert assigned successfully", {
-        description: `${alert.id} has been assigned to ${assignAgent}.`,
+        description: `${alert.alertType} has been assigned to ${assignAgent}.`,
       })
     }, 1500)
   }
 
   const handleResolve = () => {
+    const reason = resolveReason.trim()
+    if (!reason) return
+
+    const updated = resolveBatteryAlert(alert.id, reason)
+    setShowResolve(false)
+    setResolveReason("")
+
+    if (updated) {
+      onResolved?.(updated)
+    }
+
     toast.success("Alert resolved", {
-      description: `${alert.id} has been marked as resolved.`,
+      description: `${alert.alertType} has been marked as resolved.`,
     })
-    onClose()
   }
 
   const metadataItems = [
@@ -140,12 +156,12 @@ export function AlertDetailSheet({ alert, isOpen, onClose }: AlertDetailSheetPro
   ]
 
   return (
+    <>
     <Sheet open={isOpen} onOpenChange={(open) => { if (!open) onClose() }}>
-      <SheetContent size="lg" className="flex flex-col h-full">
-        {/* Sticky Header */}
+      <SheetContent size="lg" className="flex h-full flex-col">
         <SheetHeader>
           <div className="flex items-center gap-3 pr-8">
-            <SheetTitle className="text-sidebar-item-active">{alert.id}</SheetTitle>
+            <SheetTitle className="text-sidebar-item-active">{alert.alertType}</SheetTitle>
             <StatusBadge variant={alertStatusVariantMap[alert.status]} withDot>
               {alertStatusLabels[alert.status]}
             </StatusBadge>
@@ -154,31 +170,34 @@ export function AlertDetailSheet({ alert, isOpen, onClose }: AlertDetailSheetPro
             </StatusBadge>
           </div>
           <SheetDescription>
-            {alert.alertType} &middot; Triggered {alert.triggeredOn}
+            {alert.batteryId} &middot; Triggered {alert.triggeredOn}
           </SheetDescription>
         </SheetHeader>
 
-        {/* Scrollable Body */}
-        <div className="flex-1 overflow-y-auto px-6 py-4 space-y-5">
-          {/* Section 1: Description */}
+        <div className="flex-1 space-y-5 overflow-y-auto px-6 py-4">
           <InfoCard title="Description">
-            <p className="text-sm text-sidebar-item-active leading-relaxed">
+            <p className="text-sm leading-relaxed text-sidebar-item-active">
               {alert.description}
             </p>
           </InfoCard>
 
-          {/* Section 2: Alert Lifecycle Timeline */}
           <InfoCard title="Alert Lifecycle Timeline">
             <StatusTimeline entries={alert.timeline} />
           </InfoCard>
 
-          {/* Section 3: Alert Metadata */}
+          {alert.status === "resolved" && alert.resolutionReason && (
+            <InfoCard title="Resolution Reason">
+              <p className="text-sm leading-relaxed text-sidebar-item-active">
+                {alert.resolutionReason}
+              </p>
+            </InfoCard>
+          )}
+
           <InfoCard title="Alert Metadata">
             <InfoGrid columns={2} items={metadataItems} />
           </InfoCard>
         </div>
 
-        {/* Sticky Footer */}
         <SheetFooter>
           {alert.status === "triggered" && (
             <Button
@@ -203,25 +222,51 @@ export function AlertDetailSheet({ alert, isOpen, onClose }: AlertDetailSheetPro
           {alert.status !== "resolved" && (
             <Button
               className="h-10 px-4 bg-brand-dark text-white hover:bg-brand-dark/90"
-              onClick={handleResolve}
+              onClick={() => setShowResolve(true)}
             >
               Resolve
             </Button>
           )}
         </SheetFooter>
       </SheetContent>
+    </Sheet>
 
-      {/* Assign Alert Modal */}
+      <Modal
+        open={showResolve}
+        onOpenChange={setShowResolve}
+        title="Resolve alert"
+        subtitle={`${alert.alertType} · ${alert.batteryId}`}
+        className="max-w-lg"
+        secondaryAction={{
+          label: "Cancel",
+          onClick: () => setShowResolve(false),
+        }}
+        primaryAction={{
+          label: "Resolve",
+          disabled: !resolveReason.trim(),
+          onClick: handleResolve,
+        }}
+      >
+        <FormField label="Reason for resolution">
+          <Textarea
+            value={resolveReason}
+            onChange={(event) => setResolveReason(event.target.value)}
+            placeholder="Explain why this alert is being resolved..."
+            className="min-h-[120px] resize-y"
+          />
+        </FormField>
+      </Modal>
+
       <Dialog open={showAssign} onOpenChange={setShowAssign}>
         <DialogContent className="max-w-sm p-0">
-          <DialogHeader className="px-6 pt-6 pb-4 border-b border-gray-100">
+          <DialogHeader className="border-b border-gray-100 px-6 pt-6 pb-4">
             <DialogTitle>Assign Alert</DialogTitle>
             <DialogDescription>
-              {alert.id} &middot; {alert.alertType}
+              {alert.alertType} &middot; {alert.batteryId}
             </DialogDescription>
           </DialogHeader>
 
-          <div className="px-6 py-5 space-y-4">
+          <div className="space-y-4 px-6 py-5">
             <div className="space-y-1.5">
               <label className="text-xs font-medium text-breadcrumb-root">
                 Select Assignee
@@ -232,7 +277,7 @@ export function AlertDetailSheet({ alert, isOpen, onClose }: AlertDetailSheetPro
                 </SelectTrigger>
                 <SelectContent>
                   {assigneeList
-                    .filter((a) => a.name !== alert.assignee)
+                    .filter((assignee) => assignee.name !== alert.assignee)
                     .map((agent) => (
                       <SelectItem key={agent.name} value={agent.name}>
                         {agent.name} — {agent.department}
@@ -248,7 +293,7 @@ export function AlertDetailSheet({ alert, isOpen, onClose }: AlertDetailSheetPro
               </label>
               <Textarea
                 value={assignReason}
-                onChange={(e) => setAssignReason(e.target.value)}
+                onChange={(event) => setAssignReason(event.target.value)}
                 placeholder="Provide notes for this assignment..."
                 rows={3}
                 className="text-sm"
@@ -256,7 +301,7 @@ export function AlertDetailSheet({ alert, isOpen, onClose }: AlertDetailSheetPro
             </div>
           </div>
 
-          <DialogFooter className="px-6 py-4 border-t border-gray-100">
+          <DialogFooter className="border-t border-gray-100 px-6 py-4">
             <Button variant="outline" className="h-9" onClick={() => setShowAssign(false)} disabled={isSubmitting}>
               Cancel
             </Button>
@@ -271,6 +316,6 @@ export function AlertDetailSheet({ alert, isOpen, onClose }: AlertDetailSheetPro
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </Sheet>
+    </>
   )
 }

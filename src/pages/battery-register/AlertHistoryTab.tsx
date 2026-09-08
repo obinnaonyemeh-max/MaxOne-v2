@@ -33,15 +33,6 @@ import { AlertDetailSheet } from "./AlertDetailSheet"
 
 const columns: ColumnDef<AlertHistoryItem>[] = [
   {
-    accessorKey: "id",
-    header: "Alert ID",
-    cell: ({ row }) => (
-      <span className="font-medium text-table-text-primary" style={{ fontSize: "14px" }}>
-        {row.original.id}
-      </span>
-    ),
-  },
-  {
     accessorKey: "alertType",
     header: "Alert Type",
     cell: ({ row }) => (
@@ -154,6 +145,7 @@ export function AlertHistoryTab() {
   const [endDate, setEndDate] = useState<Date | undefined>()
   const [selectedAlertId, setSelectedAlertId] = useState<string | null>(null)
   const [selectedAlert, setSelectedAlert] = useState<AlertDetail | null>(null)
+  const [historyVersion, setHistoryVersion] = useState(0)
 
   const handleRowClick = (row: AlertHistoryItem) => {
     const alertDetail = getAlertDetail(row.id)
@@ -200,7 +192,7 @@ export function AlertHistoryTab() {
     }
 
     return data
-  }, [searchQuery, filters])
+  }, [searchQuery, filters, historyVersion])
 
   const paginatedData = useMemo(() => {
     const startIndex = (currentPage - 1) * pageSize
@@ -341,7 +333,7 @@ export function AlertHistoryTab() {
               setSearchQuery(value)
               setCurrentPage(1)
             }}
-            placeholder="Search alert ID, type, or assignee..."
+            placeholder="Search type or assignee..."
             inputClassName="w-64"
           />
         </div>
@@ -378,6 +370,10 @@ export function AlertHistoryTab() {
         alert={selectedAlert}
         isOpen={!!selectedAlertId}
         onClose={handleCloseSheet}
+        onResolved={(updated) => {
+          setSelectedAlert(updated)
+          setHistoryVersion((version) => version + 1)
+        }}
       />
     </>
   )

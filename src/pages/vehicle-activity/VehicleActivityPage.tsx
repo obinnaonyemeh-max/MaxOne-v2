@@ -1,6 +1,5 @@
 import { useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
-import { toast } from "sonner"
 import {
   TopBar,
   BackButton,
@@ -18,8 +17,6 @@ import { LiveTrackingMap } from "./LiveTrackingMap"
 import { BatteryInfoCard } from "./BatteryInfoCard"
 import { BatterySwapHistoryModal } from "./BatterySwapHistoryModal"
 import { ChargerInfoCard } from "./ChargerInfoCard"
-import { ImmobilizationCard } from "./ImmobilizationCard"
-import { ImmobilizeVehicleModal } from "./ImmobilizeVehicleModal"
 import { DriverScoreCard } from "./DriverScoreCard"
 import { EnforcementHistoryCard } from "./EnforcementHistoryCard"
 import { EnforcementHistoryModal } from "./EnforcementHistoryModal"
@@ -36,8 +33,6 @@ export default function VehicleActivityPage() {
   const navigate = useNavigate()
   const vehicle = getVehicleById(id || "")
   const activity = getVehicleActivity(id || "")
-  const [immobilized, setImmobilized] = useState(activity?.immobilized ?? false)
-  const [confirmOpen, setConfirmOpen] = useState(false)
   const [swapHistoryOpen, setSwapHistoryOpen] = useState(false)
   const [enforcementOpen, setEnforcementOpen] = useState(false)
 
@@ -85,9 +80,9 @@ export default function VehicleActivityPage() {
     },
     {
       label: "Shutoff status",
-      value: immobilized ? "Immobilised" : "Mobilised",
+      value: activity.immobilized ? "Immobilised" : "Mobilised",
       isStatus: true,
-      statusVariant: immobilized ? ("danger" as const) : ("success" as const),
+      statusVariant: activity.immobilized ? ("danger" as const) : ("success" as const),
     },
     { label: "IMEI", value: activity.imei },
     { label: "Last updated by", value: activity.lastUpdatedBy },
@@ -199,7 +194,7 @@ export default function VehicleActivityPage() {
 
           {isEV ? (
             <>
-              <div className="grid grid-cols-1 gap-4 items-stretch md:grid-cols-3">
+              <div className="grid grid-cols-1 gap-4 items-stretch md:grid-cols-2">
                 <DriverScoreCard
                   className="h-full"
                   score={activity.driverScore.score}
@@ -213,12 +208,6 @@ export default function VehicleActivityPage() {
                   latest={activity.enforcement.latest}
                   onViewAllClick={() => setEnforcementOpen(true)}
                 />
-                <ImmobilizationCard
-                  className="h-full"
-                  immobilized={immobilized}
-                  onImmobiliseClick={() => setConfirmOpen(true)}
-                  onDiagnosticsClick={() => toast.success("Diagnostics request sent")}
-                />
               </div>
               <ChargeStopsCard
                 chargeStops={activity.primeStops}
@@ -230,23 +219,15 @@ export default function VehicleActivityPage() {
               />
             </>
           ) : (
-            <div className="grid grid-cols-1 gap-4 items-stretch lg:grid-cols-[minmax(0,3fr)_minmax(0,7fr)]">
-              <ImmobilizationCard
-                className="h-full"
-                immobilized={immobilized}
-                onImmobiliseClick={() => setConfirmOpen(true)}
-                onDiagnosticsClick={() => toast.success("Diagnostics request sent")}
-              />
-              <ChargeStopsCard
-                className="h-full"
-                chargeStops={activity.primeStops}
-                title="Prime Stops"
-                viewAllLabel="VIEW ALL STOPS"
-                countNoun="Prime stop"
-                emptyLabel="No prime stops recorded"
-                onViewAllClick={() => navigate(`/falcon/vehicle-register/${vehicle.id}/stops`)}
-              />
-            </div>
+            <ChargeStopsCard
+              className="h-full"
+              chargeStops={activity.primeStops}
+              title="Prime Stops"
+              viewAllLabel="VIEW ALL STOPS"
+              countNoun="Prime stop"
+              emptyLabel="No prime stops recorded"
+              onViewAllClick={() => navigate(`/falcon/vehicle-register/${vehicle.id}/stops`)}
+            />
           )}
 
           <div className="bg-content-card border border-border rounded-lg p-5">
@@ -301,27 +282,6 @@ export default function VehicleActivityPage() {
         plateNumber={vehicle.plateNumber}
         batteryId={activity.battery?.batteryId ?? ""}
         swaps={activity.battery?.swapHistory ?? []}
-      />
-
-      <ImmobilizeVehicleModal
-        open={confirmOpen}
-        onOpenChange={setConfirmOpen}
-        immobilized={immobilized}
-        plateNumber={vehicle.plateNumber}
-        championName={vehicle.assignedDriver ?? "Unassigned"}
-        imei={activity.imei}
-        vehicleType={vehicle.vehicleType}
-        category={vehicle.category}
-        currentSpeed={vehicle.speed ?? 0}
-        onConfirm={({ reason }) => {
-          const nextImmobilized = !immobilized
-          setImmobilized(nextImmobilized)
-          setConfirmOpen(false)
-          toast.success(
-            nextImmobilized ? "Vehicle immobilised" : "Vehicle mobilised",
-            { description: reason }
-          )
-        }}
       />
     </>
   )

@@ -82,7 +82,7 @@ export function ChargeSpotListCard({
         </div>
         <div className="text-right">
           <span className="block text-gray-500" style={{ fontSize: "11px" }}>
-            Average stop duration
+            Average charge duration
           </span>
           <span className="text-gray-950 font-medium" style={{ fontSize: "13px" }}>
             {spot.averageStopDuration}
@@ -98,7 +98,7 @@ export function ChargeSpotListCard({
         </div>
         <div className="text-right">
           <span className="block text-gray-500" style={{ fontSize: "11px" }}>
-            Avg distance between stop
+            Avg distance between spots
           </span>
           <span className="text-gray-950 font-medium" style={{ fontSize: "13px" }}>
             {spot.avgDistanceBetweenStop}

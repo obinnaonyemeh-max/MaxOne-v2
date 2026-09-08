@@ -53,20 +53,54 @@ export default function VehiclesPage() {
   const [filters, setFilters] = useState<FilterState>({
     championStatus: [],
     contractStatus: [],
+    assetClasses: [],
+    vehicleTypes: [],
     locations: [],
   })
   const [showAddVehicleModal, setShowAddVehicleModal] = useState(false)
   const [showBulkUpdateModal, setShowBulkUpdateModal] = useState(false)
 
   const filteredVehicles = useMemo(() => {
-    if (activeTab === "all") {
-      return scopedVehicles
-    }
     return scopedVehicles.filter((vehicle) => {
-      const vehicleTabId = vehicleStatusToTabId[vehicle.vehicleStatus]
-      return vehicleTabId === activeTab
+      if (activeTab !== "all") {
+        const vehicleTabId = vehicleStatusToTabId[vehicle.vehicleStatus]
+        if (vehicleTabId !== activeTab) return false
+      }
+      if (
+        filters.championStatus.length > 0 &&
+        (vehicle.championStatus == null ||
+          !filters.championStatus.includes(vehicle.championStatus))
+      ) {
+        return false
+      }
+      if (
+        filters.contractStatus.length > 0 &&
+        (vehicle.contractStatus == null ||
+          !filters.contractStatus.includes(vehicle.contractStatus))
+      ) {
+        return false
+      }
+      if (
+        filters.assetClasses.length > 0 &&
+        !filters.assetClasses.includes(vehicle.assetType)
+      ) {
+        return false
+      }
+      if (
+        filters.vehicleTypes.length > 0 &&
+        !filters.vehicleTypes.includes(vehicle.category)
+      ) {
+        return false
+      }
+      if (
+        filters.locations.length > 0 &&
+        !filters.locations.includes(vehicle.location)
+      ) {
+        return false
+      }
+      return true
     })
-  }, [activeTab, scopedVehicles])
+  }, [activeTab, filters, scopedVehicles])
 
   const statusTabs = useMemo(() => getStatusTabs(scopedVehicles), [scopedVehicles])
 
@@ -96,7 +130,10 @@ export default function VehiclesPage() {
           dateRange={dateRange}
           onDateRangeChange={setDateRange}
           filters={filters}
-          onFiltersChange={setFilters}
+          onFiltersChange={(next) => {
+            setFilters(next)
+            setCurrentPage(1)
+          }}
           onSearch={(query) => console.log("Search:", query)}
           secondaryAction={
             canBulkUpdate

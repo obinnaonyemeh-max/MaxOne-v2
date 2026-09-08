@@ -121,7 +121,7 @@ export function DocUpload({
   }, [previewUrl])
 
   return (
-    <>
+    <div className="h-full">
       {uploadState === "idle" && (
         <DocDropZone
           file={null}
@@ -136,7 +136,7 @@ export function DocUpload({
       )}
 
       {uploadState === "uploading" && (
-        <div className={cn("flex flex-col justify-center gap-3 rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 px-6 py-5", minHeightClass)}>
+        <div className={cn("flex h-full flex-col justify-center gap-3 rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 px-6 py-5", minHeightClass)}>
           <p className="text-[13px] text-gray-500">
             Uploading{" "}
             <span className="font-semibold text-gray-950">{pendingFile?.name}</span>
@@ -152,7 +152,7 @@ export function DocUpload({
       )}
 
       {uploadState === "uploaded" && (
-        <div className={cn("flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 py-4", minHeightClass)}>
+        <div className={cn("flex h-full flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 py-4", minHeightClass)}>
           <div className="group relative">
             {previewUrl ? (
               <img
@@ -188,7 +188,7 @@ export function DocUpload({
           </p>
         </div>
       )}
-    </>
+    </div>
   )
 }
 

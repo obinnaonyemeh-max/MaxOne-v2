@@ -41,6 +41,8 @@ interface FilterBarProps {
 const defaultFilters: FilterState = {
   championStatus: [],
   contractStatus: [],
+  assetClasses: [],
+  vehicleTypes: [],
   locations: [],
 }
 
@@ -63,6 +65,8 @@ export function FilterBar({
   const activeFilterCount =
     filters.championStatus.length +
     filters.contractStatus.length +
+    filters.assetClasses.length +
+    filters.vehicleTypes.length +
     filters.locations.length
 
   const handleSearchSubmit = () => {

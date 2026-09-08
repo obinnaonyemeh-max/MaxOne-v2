@@ -6,6 +6,7 @@ import {
   InfoCard,
   InfoGrid,
   BackButton,
+  Modal,
   Tooltip,
   TooltipContent,
   TooltipTrigger,
@@ -65,6 +66,7 @@ export default function StationDetailsPage() {
   const [hoursOpen, setHoursOpen] = useState(false)
   const [transferOpen, setTransferOpen] = useState(false)
   const [addBatteriesOpen, setAddBatteriesOpen] = useState(false)
+  const [photoPreviewOpen, setPhotoPreviewOpen] = useState(false)
   const [logVersion, setLogVersion] = useState(0)
 
   useEffect(() => {
@@ -141,11 +143,18 @@ export default function StationDetailsPage() {
     {
       label: "Photo of Swap Station",
       value: (
-        <img
-          src={station.photoUrl || "/images/station.svg"}
-          alt=""
-          className="h-14 w-20 rounded border border-gray-200 bg-amber-50 object-contain"
-        />
+        <button
+          type="button"
+          onClick={() => setPhotoPreviewOpen(true)}
+          className="rounded border border-gray-200 bg-amber-50 transition-colors hover:border-gray-950"
+          aria-label="View swap station photo"
+        >
+          <img
+            src={station.photoUrl || "/images/station.svg"}
+            alt="Swap station"
+            className="h-14 w-20 object-contain"
+          />
+        </button>
       ),
     },
     { label: "Forced closure", value: station.forcedClosure ? "Yes" : "No" },
@@ -297,6 +306,19 @@ export default function StationDetailsPage() {
         </div>
       </div>
 
+      <Modal
+        open={photoPreviewOpen}
+        onOpenChange={setPhotoPreviewOpen}
+        title="Photo of Swap Station"
+        subtitle={station.name}
+        className="max-w-2xl"
+      >
+        <img
+          src={station.photoUrl || "/images/station.svg"}
+          alt={station.name}
+          className="mx-auto max-h-[70vh] w-full rounded-lg bg-amber-50 object-contain"
+        />
+      </Modal>
       <CreateSwapStationModal
         open={editOpen}
         onOpenChange={setEditOpen}

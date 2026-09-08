@@ -1,5 +1,5 @@
 import { BatteryLevelIcon, StatusBadge } from "@/components/max"
-import type { StationBattery } from "@/data/mockStationsData"
+import type { StationBattery, StationBatteryEventType } from "@/data/mockStationsData"
 
 export type StationBatteryChargeStatus = "charging" | "plugged-in" | "idle"
 
@@ -17,6 +17,27 @@ const statusVariant: Record<
   "plugged-in": "danger",
   idle: "warning",
 }
+
+const eventTypeLabel: Record<StationBatteryEventType, string> = {
+  "battery-swap": "BATTERY SWAP",
+  "checked-in": "CHECKED IN",
+  "assigned-to-vehicle": "ASSIGNED TO VEHICLE",
+  transfer: "TRANSFER",
+  "recovery-action": "RECOVERY ACTION",
+}
+
+const eventTypeVariant: Record<
+  StationBatteryEventType,
+  "success" | "default" | "yard" | "warning" | "danger"
+> = {
+  "battery-swap": "success",
+  "checked-in": "default",
+  "assigned-to-vehicle": "yard",
+  transfer: "warning",
+  "recovery-action": "danger",
+}
+
+const pillStyle = { fontSize: "9px", letterSpacing: "0.05em", padding: "2px 6px" } as const
 
 export function getStationBatteryChargeStatus(
   battery: StationBattery
@@ -73,14 +94,24 @@ export function StationBatteryGridCard({
               className="mt-0.5 shrink-0"
             />
           </div>
-          <div className="mt-1">
+          <div className="mt-1 flex flex-wrap items-center gap-1">
             <StatusBadge
               variant={statusVariant[status]}
               withDot={false}
               size="sm"
-              style={{ fontSize: "9px", letterSpacing: "0.05em", padding: "2px 6px" }}
+              className="uppercase"
+              style={pillStyle}
             >
               {statusLabel[status]}
+            </StatusBadge>
+            <StatusBadge
+              variant={eventTypeVariant[battery.lastEventType]}
+              withDot={false}
+              size="sm"
+              className="uppercase"
+              style={pillStyle}
+            >
+              {eventTypeLabel[battery.lastEventType]}
             </StatusBadge>
           </div>
         </div>

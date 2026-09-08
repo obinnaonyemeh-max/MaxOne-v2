@@ -28,7 +28,7 @@ export function DocDropZone({
   const name = file ? `Replace ${file.name}` : "Upload document"
 
   return (
-    <div className={className}>
+    <div className="h-full">
       <input
         ref={inputRef}
         type="file"
@@ -53,7 +53,8 @@ export function DocDropZone({
           if (f) onFileSelect(f)
         }}
         className={cn(
-          "flex w-full flex-col items-center justify-center gap-3 rounded-lg border-2 border-dashed p-5 cursor-pointer transition-colors min-h-[100px]",
+          "flex h-full w-full flex-col items-center justify-center gap-3 rounded-lg border-2 border-dashed p-5 cursor-pointer transition-colors min-h-[100px]",
+          className,
           isDragOver
             ? "border-brand-primary bg-brand-primary/5"
             : file

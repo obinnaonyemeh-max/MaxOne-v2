@@ -6,13 +6,15 @@ import { cn } from "@/lib/utils"
 export interface FilterState {
   championStatus: string[]
   contractStatus: string[]
+  assetClasses: string[]
+  vehicleTypes: string[]
   locations: string[]
 }
 
 interface StatusOption {
   value: string
   label: string
-  color: string
+  color?: string
 }
 
 const championStatusOptions: StatusOption[] = [
@@ -25,6 +27,17 @@ const contractStatusOptions: StatusOption[] = [
   { value: "Inactive", label: "Inactive", color: "var(--color-danger)" },
 ]
 
+const assetClassOptions: StatusOption[] = [
+  { value: "2 Wheeler", label: "2 Wheeler", color: "var(--color-status-info)" },
+  { value: "3 Wheeler", label: "3 Wheeler", color: "var(--color-status-warning)" },
+  { value: "4 Wheeler", label: "4 Wheeler", color: "var(--color-status-purple)" },
+]
+
+const vehicleTypeOptions: StatusOption[] = [
+  { value: "EV", label: "EV", color: "var(--color-success)" },
+  { value: "ICE", label: "ICE", color: "var(--color-gray-500)" },
+]
+
 const locationOptions = [
   "Ekiti",
   "Gbagba",
@@ -33,6 +46,14 @@ const locationOptions = [
   "Bodija",
   "Lekki",
 ]
+
+const SECTION_IDS = [
+  "championStatus",
+  "contractStatus",
+  "assetClass",
+  "vehicleType",
+  "locations",
+] as const
 
 interface FilterSectionProps {
   title: string
@@ -78,6 +99,31 @@ interface FilterPopoverProps {
   className?: string
 }
 
+function FilterOptionRow({
+  option,
+  checked,
+  onToggle,
+}: {
+  option: StatusOption
+  checked: boolean
+  onToggle: () => void
+}) {
+  return (
+    <div className="flex items-center justify-between px-2 py-1.5 rounded-md hover:bg-gray-50">
+      <div className="flex items-center gap-2">
+        {option.color && (
+          <span
+            className="h-2 w-2 rounded-full"
+            style={{ backgroundColor: option.color }}
+          />
+        )}
+        <span className="font-medium text-sm">{option.label}</span>
+      </div>
+      <Switch checked={checked} onCheckedChange={onToggle} />
+    </div>
+  )
+}
+
 export function FilterPopover({
   filters,
   onFiltersChange,
@@ -86,17 +132,18 @@ export function FilterPopover({
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     championStatus: true,
     contractStatus: false,
+    assetClass: false,
+    vehicleType: false,
     locations: false,
   })
 
   const toggleSection = (section: string) => {
     setExpandedSections((prev) => {
       const isCurrentlyExpanded = prev[section]
-      const next: Record<string, boolean> = {
-        championStatus: false,
-        contractStatus: false,
-        locations: false,
-      }
+      const next: Record<string, boolean> = {}
+      SECTION_IDS.forEach((id) => {
+        next[id] = false
+      })
       if (!isCurrentlyExpanded) {
         next[section] = true
       }
@@ -104,33 +151,16 @@ export function FilterPopover({
     })
   }
 
-  const toggleChampionStatus = (value: string) => {
-    const current = filters.championStatus
+  const toggleFilter = (key: keyof FilterState, value: string) => {
+    const current = filters[key]
     const updated = current.includes(value)
-      ? current.filter((v) => v !== value)
+      ? current.filter((item) => item !== value)
       : [...current, value]
-    onFiltersChange({ ...filters, championStatus: updated })
-  }
-
-  const toggleContractStatus = (value: string) => {
-    const current = filters.contractStatus
-    const updated = current.includes(value)
-      ? current.filter((v) => v !== value)
-      : [...current, value]
-    onFiltersChange({ ...filters, contractStatus: updated })
-  }
-
-  const toggleLocation = (value: string) => {
-    const current = filters.locations
-    const updated = current.includes(value)
-      ? current.filter((v) => v !== value)
-      : [...current, value]
-    onFiltersChange({ ...filters, locations: updated })
+    onFiltersChange({ ...filters, [key]: updated })
   }
 
   return (
-    <div className={cn("w-64 p-1", className)}>
-      {/* Champion Status Section */}
+    <div className={cn("w-64 max-h-[calc(var(--radix-popover-content-available-height)-2rem)] overflow-y-auto p-1", className)}>
       <div className="mb-2">
         <FilterSection
           title="Champion Status"
@@ -138,30 +168,18 @@ export function FilterPopover({
           onToggle={() => toggleSection("championStatus")}
         >
           {championStatusOptions.map((option) => (
-            <div
+            <FilterOptionRow
               key={option.value}
-              className="flex items-center justify-between px-2 py-1.5 rounded-md hover:bg-gray-50"
-            >
-              <div className="flex items-center gap-2">
-                <span
-                  className="h-2 w-2 rounded-full"
-                  style={{ backgroundColor: option.color }}
-                />
-                <span className="font-medium text-sm">{option.label}</span>
-              </div>
-              <Switch
-                checked={filters.championStatus.includes(option.value)}
-                onCheckedChange={() => toggleChampionStatus(option.value)}
-              />
-            </div>
+              option={option}
+              checked={filters.championStatus.includes(option.value)}
+              onToggle={() => toggleFilter("championStatus", option.value)}
+            />
           ))}
         </FilterSection>
       </div>
 
-      {/* Divider */}
       <div className="h-px bg-divider mx-2 mb-2" />
 
-      {/* Contract Status Section */}
       <div className="mb-2">
         <FilterSection
           title="Contract Status"
@@ -169,30 +187,56 @@ export function FilterPopover({
           onToggle={() => toggleSection("contractStatus")}
         >
           {contractStatusOptions.map((option) => (
-            <div
+            <FilterOptionRow
               key={option.value}
-              className="flex items-center justify-between px-2 py-1.5 rounded-md hover:bg-gray-50"
-            >
-              <div className="flex items-center gap-2">
-                <span
-                  className="h-2 w-2 rounded-full"
-                  style={{ backgroundColor: option.color }}
-                />
-                <span className="font-medium text-sm">{option.label}</span>
-              </div>
-              <Switch
-                checked={filters.contractStatus.includes(option.value)}
-                onCheckedChange={() => toggleContractStatus(option.value)}
-              />
-            </div>
+              option={option}
+              checked={filters.contractStatus.includes(option.value)}
+              onToggle={() => toggleFilter("contractStatus", option.value)}
+            />
           ))}
         </FilterSection>
       </div>
 
-      {/* Divider */}
       <div className="h-px bg-divider mx-2 mb-2" />
 
-      {/* Location Section */}
+      <div className="mb-2">
+        <FilterSection
+          title="Asset Class"
+          isExpanded={expandedSections.assetClass}
+          onToggle={() => toggleSection("assetClass")}
+        >
+          {assetClassOptions.map((option) => (
+            <FilterOptionRow
+              key={option.value}
+              option={option}
+              checked={filters.assetClasses.includes(option.value)}
+              onToggle={() => toggleFilter("assetClasses", option.value)}
+            />
+          ))}
+        </FilterSection>
+      </div>
+
+      <div className="h-px bg-divider mx-2 mb-2" />
+
+      <div className="mb-2">
+        <FilterSection
+          title="Vehicle Type"
+          isExpanded={expandedSections.vehicleType}
+          onToggle={() => toggleSection("vehicleType")}
+        >
+          {vehicleTypeOptions.map((option) => (
+            <FilterOptionRow
+              key={option.value}
+              option={option}
+              checked={filters.vehicleTypes.includes(option.value)}
+              onToggle={() => toggleFilter("vehicleTypes", option.value)}
+            />
+          ))}
+        </FilterSection>
+      </div>
+
+      <div className="h-px bg-divider mx-2 mb-2" />
+
       <div>
         <FilterSection
           title="Location"
@@ -200,16 +244,12 @@ export function FilterPopover({
           onToggle={() => toggleSection("locations")}
         >
           {locationOptions.map((location) => (
-            <div
+            <FilterOptionRow
               key={location}
-              className="flex items-center justify-between px-2 py-1.5 rounded-md hover:bg-gray-50"
-            >
-              <span className="font-medium text-sm">{location}</span>
-              <Switch
-                checked={filters.locations.includes(location)}
-                onCheckedChange={() => toggleLocation(location)}
-              />
-            </div>
+              option={{ value: location, label: location }}
+              checked={filters.locations.includes(location)}
+              onToggle={() => toggleFilter("locations", location)}
+            />
           ))}
         </FilterSection>
       </div>

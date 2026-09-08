@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 
-import { Modal, LoaderModal, DocUpload } from "@/components/max"
+import { Modal, LoaderModal, DocUpload, BulkValidationReport } from "@/components/max"
 
 type BulkUpdateStep = "upload" | "validating" | "validated" | "importing" | "imported"
 
@@ -111,40 +111,11 @@ export function BulkUpdateFlow({ open, onClose }: BulkUpdateFlowProps) {
           onClick: onClose,
         }}
       >
-        <div className="flex flex-col items-center py-6">
-          <img src="/images/success_Checkmark.svg" alt="Success" className="h-16 w-16" />
-
-          <h3 className="mt-6 font-semibold text-sidebar-item-active" style={{ fontSize: "18px" }}>
-            Vehicles ready to update
-          </h3>
-
-          <p className="mt-2 text-center text-breadcrumb-root font-medium" style={{ fontSize: "13px" }}>
-            All entries have been successfully validated. You can proceed with updating them in the system.
-          </p>
-
-          <div className="mt-8 w-full rounded-lg border border-gray-200 p-6">
-            <div className="grid grid-cols-3 divide-x divide-gray-200">
-              <div className="text-center px-4">
-                <p className="text-breadcrumb-root font-medium" style={{ fontSize: "13px" }}>Total Rows</p>
-                <p className="mt-2 font-semibold text-sidebar-item-active" style={{ fontSize: "28px" }}>
-                  {stats.totalRows}
-                </p>
-              </div>
-              <div className="text-center px-4">
-                <p className="text-breadcrumb-root font-medium" style={{ fontSize: "13px" }}>Valid Entries</p>
-                <p className="mt-2 font-semibold" style={{ fontSize: '28px', color: 'var(--color-success-bright)' }}>
-                  {stats.validEntries}
-                </p>
-              </div>
-              <div className="text-center px-4">
-                <p className="text-breadcrumb-root font-medium" style={{ fontSize: "13px" }}>Rows with Errors</p>
-                <p className="mt-2 font-semibold text-sidebar-item-active" style={{ fontSize: "28px" }}>
-                  {stats.rowsWithErrors}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
+        <BulkValidationReport
+          stats={stats}
+          successTitle="Vehicles ready to update"
+          successDescription="All entries have been successfully validated. You can proceed with updating them in the system."
+        />
       </Modal>
 
       <LoaderModal open={open && step === "importing"} message="Updating data..." />

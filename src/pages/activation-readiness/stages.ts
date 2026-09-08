@@ -1,10 +1,6 @@
-export type StageKey =
-  | "bikeAssembly"
-  | "qualityControl"
-  | "paintingBranding"
-  | "licensingReg"
-  | "tracker"
-  | "insurance"
+import type { ActivationStageKey } from "@/data/mockActivationRecords"
+
+export type StageKey = ActivationStageKey
 
 export const STAGES: { key: StageKey; label: string }[] = [
   { key: "bikeAssembly",     label: "Bike Assembly"        },

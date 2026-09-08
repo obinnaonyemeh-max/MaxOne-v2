@@ -36,6 +36,7 @@ export {
 } from "./periodFilter"
 export { Banner, type BannerProps } from "./Banner"
 export { LoaderModal, type LoaderModalProps } from "./LoaderModal"
+export { BulkValidationReport, type BulkValidationStats } from "./BulkValidationReport"
 export { DocDropZone, type DocDropZoneProps } from "./DocDropZone"
 export { DocUpload, type DocUploadProps } from "./DocUpload"
 export { LifecycleMiniCard } from "./LifecycleMiniCard"

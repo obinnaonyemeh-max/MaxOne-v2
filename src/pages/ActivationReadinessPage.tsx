@@ -8,9 +8,6 @@ import {
   DataTable,
   StatusBadge,
   Pagination,
-  Modal,
-  LoaderModal,
-  DocUpload,
   ExpandableSearch,
   GenericFilterPopover,
   getActiveFilterCount,
@@ -21,8 +18,10 @@ import { StatCard } from "@/components/max/StatCard"
 import { Button } from "@/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { useCan, useCityScopedRecords } from "@/contexts/RoleSimulationContext"
+import { addPendingVehicleDocument } from "@/data/vehicleDocumentStore"
 import { useUpdateModal } from "./activation-readiness/useUpdateModal"
 import { ActivationUpdateModal } from "./activation-readiness/ActivationUpdateModal"
+import { BulkActivationUploadModal } from "./activation-readiness/BulkActivationUploadModal"
 import { STAGE_KEYS } from "./activation-readiness/stages"
 
 import {
@@ -52,8 +51,6 @@ const STATUS_FILTER_SECTION: FilterSection = {
     { value: "Flagged",     label: "Flagged",          color: COLOR_STATUS_DANGER  },
   ],
 }
-
-const BULK_STATS = { totalRows: 11, validEntries: 11, rowsWithErrors: 0 }
 
 function StageCell({ status }: { status: StageStatus }) {
   return (
@@ -158,8 +155,6 @@ function makeColumns(
   return cols
 }
 
-type BulkStep = "upload" | "validating" | "validated" | "importing" | "imported"
-
 export default function ActivationReadinessPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [searchOpen, setSearchOpen]   = useState(false)
@@ -169,16 +164,14 @@ export default function ActivationReadinessPage() {
 
   const activeFilterCount = getActiveFilterCount(filters)
 
-  const [bulkStep, setBulkStep]     = useState<BulkStep>("upload")
   const [showBulkModal, setShowBulkModal] = useState(false)
-  const [bulkFile, setBulkFile]     = useState<File | null>(null)
 
-  const openBulk  = () => { setBulkStep("upload"); setBulkFile(null); setShowBulkModal(true) }
-  const closeBulk = () => { setShowBulkModal(false); setBulkStep("upload"); setBulkFile(null) }
+  const openBulk  = () => { setShowBulkModal(true) }
 
   const canUpdate = useCan("activationReadiness.update")
   const canBulkUpload = useCan("activationReadiness.bulkUpload")
-  const scopedRecords = useCityScopedRecords(mockActivationRecords, "location")
+  const [records, setRecords] = useState(mockActivationRecords)
+  const scopedRecords = useCityScopedRecords(records, "location")
 
   const stats = useMemo(
     () => [
@@ -204,7 +197,15 @@ export default function ActivationReadinessPage() {
     [scopedRecords]
   )
 
-  const updateModal = useUpdateModal()
+  const updateModal = useUpdateModal((updated) => {
+    setRecords((prev) => prev.map((r) => (r.id === updated.id ? updated : r)))
+    if (updated.ready === "Ready") {
+      addPendingVehicleDocument({
+        vehicleId: updated.chassis,
+        location: updated.location,
+      })
+    }
+  })
   const columns = useMemo(
     () => makeColumns(updateModal.open, canUpdate),
     [updateModal.open, canUpdate]
@@ -236,21 +237,19 @@ export default function ActivationReadinessPage() {
     <>
       <TopBar breadcrumbs={[{ label: "Activation" }, { label: "Activation Readiness" }]} />
 
-      <div className="flex items-start justify-between px-6 pt-6 pb-2 shrink-0">
-        <PageHeader
-          title="Activation Readiness Tracker"
-          subtitle="Phase B — Vehicle Activation Readiness"
-          className="p-0"
-        />
-        {canBulkUpload && (
-          <div className="pt-6">
+      <PageHeader
+        title="Activation Readiness Tracker"
+        subtitle="Phase B — Vehicle Activation Readiness"
+        className="shrink-0"
+        action={
+          canBulkUpload ? (
             <Button className="h-9 gap-2 text-sm" onClick={openBulk}>
               <img src="/images/bulk_update.svg" alt="" className="h-4 w-4 brightness-0 invert" />
               Bulk Activation Upload
             </Button>
-          </div>
-        )}
-      </div>
+          ) : undefined
+        }
+      />
 
       <div className="px-6 pb-4 shrink-0">
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-5">
@@ -319,133 +318,32 @@ export default function ActivationReadinessPage() {
         </div>
       </div>
 
-      {/* Bulk Activation Upload — Step 1: Upload */}
-      <Modal
-        open={showBulkModal && bulkStep === "upload"}
-        onOpenChange={closeBulk}
-        title="Bulk Activation Upload"
-        subtitle="Update multiple vehicle activation statuses at once"
-        className="max-w-3xl"
-        primaryAction={{
-          label: "Validate data",
-          onClick: () => {
-            setBulkStep("validating")
-            setTimeout(() => setBulkStep("validated"), 2000)
-          },
-          disabled: !bulkFile,
+      <BulkActivationUploadModal
+        open={showBulkModal}
+        onOpenChange={setShowBulkModal}
+        records={scopedRecords}
+        onApply={(next) => {
+          const byId = new Map(next.map((r) => [r.id, r]))
+          setRecords((prev) => prev.map((r) => byId.get(r.id) ?? r))
+          next.forEach((record) => {
+            if (STAGE_KEYS.every((key) => record[key] === "completed")) {
+              addPendingVehicleDocument({
+                vehicleId: record.chassis,
+                location: record.location,
+              })
+            }
+          })
         }}
-        secondaryAction={{ label: "Cancel", onClick: closeBulk }}
-      >
-        <div className="flex flex-col md:flex-row gap-8">
-          <div className="w-full md:w-[280px] shrink-0">
-            <DocUpload
-              uploadedFile={bulkFile}
-              onFileSelect={setBulkFile}
-              accept=".xlsx,.xls,.csv"
-              maxSizeLabel=""
-              label="Drag and drop filled template sheet"
-              icon={<img src="/images/xls.svg" alt="XLS" className="mx-auto h-12 w-auto mb-2" />}
-              minHeightClass="min-h-[280px]"
-            />
-          </div>
-          <div className="flex-1">
-            <h4 className="font-semibold text-sidebar-item-active" style={{ fontSize: "16px" }}>
-              Upload activation data for multiple vehicles
-            </h4>
-            <p className="mt-2 text-breadcrumb-root font-medium" style={{ fontSize: "13px" }}>
-              Download the template, fill in the activation stage details for each vehicle, and upload the completed file to apply updates across all records.
-            </p>
-            <a href="#" className="mt-4 inline-block underline font-medium text-status-warning" style={{ fontSize: "14px" }}
-              onClick={(e) => e.preventDefault()}>
-              Download template sheet
-            </a>
-            <div className="pt-2">
-              <img src="/images/upload_sheet.svg" alt="Spreadsheet preview" className="w-full" />
-            </div>
-          </div>
-        </div>
-      </Modal>
-
-      {/* Step 2: Validating */}
-      <LoaderModal open={showBulkModal && bulkStep === "validating"} message="Validating file..." />
-
-      {/* Step 3: Validated */}
-      <Modal
-        open={showBulkModal && bulkStep === "validated"}
-        onOpenChange={closeBulk}
-        title="Bulk Activation Upload"
-        subtitle="Update multiple vehicle activation statuses at once"
-        showBackButton
-        onBack={() => setBulkStep("upload")}
-        className="max-w-xl"
-        primaryAction={{
-          label: "Import Data",
-          onClick: () => {
-            setBulkStep("importing")
-            setTimeout(() => setBulkStep("imported"), 2000)
-          },
-          icon: true,
-        }}
-        secondaryAction={{ label: "Cancel", onClick: closeBulk }}
-      >
-        <div className="flex flex-col items-center py-6">
-          <img src="/images/success_Checkmark.svg" alt="Success" className="h-16 w-16" />
-          <h3 className="mt-6 font-semibold text-sidebar-item-active" style={{ fontSize: "18px" }}>
-            Activation data ready to import
-          </h3>
-          <p className="mt-2 text-center text-breadcrumb-root font-medium" style={{ fontSize: "13px" }}>
-            All entries have been successfully validated. You can proceed with importing the activation updates into the system.
-          </p>
-          <div className="mt-8 w-full rounded-lg border border-gray-200 p-6">
-            <div className="grid grid-cols-3 divide-x divide-gray-200">
-              <div className="text-center px-4">
-                <p className="text-breadcrumb-root font-medium" style={{ fontSize: "13px" }}>Total Rows</p>
-                <p className="mt-2 font-semibold text-sidebar-item-active" style={{ fontSize: "28px" }}>{BULK_STATS.totalRows}</p>
-              </div>
-              <div className="text-center px-4">
-                <p className="text-breadcrumb-root font-medium" style={{ fontSize: "13px" }}>Valid Entries</p>
-                <p className="mt-2 font-semibold text-status-success" style={{ fontSize: "28px" }}>{BULK_STATS.validEntries}</p>
-              </div>
-              <div className="text-center px-4">
-                <p className="text-breadcrumb-root font-medium" style={{ fontSize: "13px" }}>Rows with Errors</p>
-                <p className="mt-2 font-semibold text-sidebar-item-active" style={{ fontSize: "28px" }}>{BULK_STATS.rowsWithErrors}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </Modal>
-
-      {/* Step 4: Importing */}
-      <LoaderModal open={showBulkModal && bulkStep === "importing"} message="Importing activation data..." />
-
-      {/* Step 5: Imported */}
-      <Modal
-        open={showBulkModal && bulkStep === "imported"}
-        onOpenChange={closeBulk}
-        hideHeader
-        className="max-w-[280px]"
-      >
-        <div className="flex flex-col items-center justify-center py-8">
-          <img src="/images/success_Checkmark.svg" alt="Success" className="h-20 w-20" />
-          <p className="mt-6 font-semibold text-sidebar-item-active" style={{ fontSize: "18px" }}>
-            Import successful!
-          </p>
-          <button
-            onClick={closeBulk}
-            className="mt-8 px-12 py-3 rounded-lg bg-brand-dark text-white font-medium hover:bg-opacity-90 transition-colors"
-          >
-            Done
-          </button>
-        </div>
-      </Modal>
+      />
 
       <ActivationUpdateModal
         record={updateModal.record}
         draftStages={updateModal.draftStages}
+        stageSla={updateModal.stageSla}
         openAccordions={updateModal.openAccordions}
         onClose={updateModal.close}
         onToggleAccordion={updateModal.toggleAccordion}
-        onStageStatusChange={updateModal.setStageStatus}
+        onStartStage={updateModal.startStage}
         onMarkCompleted={updateModal.markCompleted}
       />
     </>

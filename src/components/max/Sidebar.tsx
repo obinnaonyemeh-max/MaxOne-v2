@@ -210,7 +210,7 @@ function SidebarNavItem({ item, onItemClick, isExpanded = false, onToggleExpand,
           ) : null
         )}
         <span className="flex-1 text-left truncate min-w-0">{item.label}</span>
-        {item.badge !== undefined && (
+        {item.badge !== undefined && !hasChildren && (
           <span
             className={cn(
               "rounded-full px-1.5 py-0.5 text-[10px] font-medium",

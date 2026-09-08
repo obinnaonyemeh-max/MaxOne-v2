@@ -26,7 +26,6 @@ import { Button } from "@/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 
 import {
-  mockVehicleDocuments,
   vehicleDocumentStats,
   complianceAlerts,
   docStatusVariantMap,
@@ -34,6 +33,7 @@ import {
   type DocumentStatus,
   type ChecklistDocument,
 } from "@/data/mockVehicleDocuments"
+import { useVehicleDocuments } from "@/data/vehicleDocumentStore"
 import { useCan, useCityScopedRecords, useRoleSimulation } from "@/contexts/RoleSimulationContext"
 import { DocumentChecklistModal } from "./vehicle-documents/DocumentChecklistModal"
 import { UploadDocumentModal } from "./vehicle-documents/UploadDocumentModal"
@@ -42,7 +42,7 @@ import { UploadDocumentsForVehicleModal } from "./vehicle-documents/UploadDocume
 const COLOR_STATUS_SUCCESS = "var(--color-status-success)"
 const COLOR_STATUS_DANGER = "var(--color-status-danger)"
 const COLOR_STATUS_WARNING = "var(--color-status-warning)"
-const COLOR_STATUS_INFO = "var(--color-status-info)"
+const COLOR_GRAY_500 = "var(--color-gray-500)"
 
 const filterSections: FilterSection[] = [
   {
@@ -50,6 +50,7 @@ const filterSections: FilterSection[] = [
     title: "Status",
     defaultExpanded: true,
     options: [
+      { value: "Pending", label: "Pending", color: COLOR_GRAY_500 },
       { value: "Complete", label: "Complete", color: COLOR_STATUS_SUCCESS },
       { value: "Expiring Soon", label: "Expiring Soon", color: COLOR_STATUS_WARNING },
       { value: "Expired", label: "Expired", color: COLOR_STATUS_DANGER },
@@ -69,12 +70,14 @@ const docColorClass: Record<DocumentStatus, string> = {
   valid: "bg-status-success",
   expiring: "bg-status-warning",
   expired: "bg-status-danger",
+  missing: "bg-gray-200",
 }
 
 const statusLabel: Record<DocumentStatus, string> = {
   valid: "Valid",
   expiring: "Expiring Soon",
   expired: "Expired",
+  missing: "Not uploaded",
 }
 
 function DocumentsCell({
@@ -111,9 +114,21 @@ function DocumentsCell({
 
 function CompletionCell({ value }: { value: number }) {
   const color =
-    value >= 100 ? "bg-status-success" : value >= 80 ? "bg-status-warning" : "bg-status-danger"
+    value === 0
+      ? "bg-gray-300"
+      : value >= 100
+        ? "bg-status-success"
+        : value >= 80
+          ? "bg-status-warning"
+          : "bg-status-danger"
   const textColor =
-    value >= 100 ? "text-status-success-text" : value >= 80 ? "text-status-warning-text" : "text-status-danger"
+    value === 0
+      ? "text-gray-500"
+      : value >= 100
+        ? "text-status-success-text"
+        : value >= 80
+          ? "text-status-warning-text"
+          : "text-status-danger"
   return (
     <div className="flex items-center gap-2 min-w-[140px]">
       <div className="h-1.5 flex-1 rounded-full bg-gray-100 overflow-hidden">
@@ -206,7 +221,7 @@ export default function VehicleDocumentsPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [searchOpen, setSearchOpen] = useState(false)
   const [filters, setFilters] = useState<GenericFilterState>({ status: [], type: [] })
-  const [alertsExpanded, setAlertsExpanded] = useState(true)
+  const [alertsExpanded, setAlertsExpanded] = useState(false)
   const [selectedRecord, setSelectedRecord] = useState<VehicleDocumentRecord | null>(null)
   const [replaceOpen, setReplaceOpen] = useState(false)
   const [replaceVehicleId, setReplaceVehicleId] = useState<string>("")
@@ -220,7 +235,8 @@ export default function VehicleDocumentsPage() {
   const canUploadDoc = useCan("vehicleDocument.upload")
   const canReplaceDoc = useCan("vehicleDocument.replace")
   const { dataScope } = useRoleSimulation()
-  const scopedDocuments = useCityScopedRecords(mockVehicleDocuments, "location")
+  const documents = useVehicleDocuments()
+  const scopedDocuments = useCityScopedRecords(documents, "location")
 
   const vehicleOptions = useMemo(
     () =>
@@ -301,20 +317,22 @@ export default function VehicleDocumentsPage() {
         expiringVehicles: scopedDocuments.filter((r) => r.status === "Expiring Soon").length,
         totalFleet: scopedDocuments.length,
         region: dataScope.type === "subCity" ? dataScope.subCity : dataScope.city,
+        pendingCount: scopedDocuments.filter((r) => r.status === "Pending").length,
       }
-    : vehicleDocumentStats
+    : {
+        ...vehicleDocumentStats,
+        pendingCount: scopedDocuments.filter((r) => r.status === "Pending").length,
+      }
 
   return (
     <>
       <TopBar breadcrumbs={[{ label: "Deployment" }, { label: "Vehicle Document" }]} />
 
-      <div className="flex items-start justify-between px-6 pt-6 pb-2 shrink-0">
-        <PageHeader
-          title="Vehicle Documents"
-          subtitle="Fleet compliance & document tracking"
-          className="p-0"
-        />
-      </div>
+      <PageHeader
+        title="Vehicle Documents"
+        subtitle="Fleet compliance & document tracking"
+        className="shrink-0"
+      />
 
       <div className="px-6 pb-4 shrink-0">
         <div className="rounded-lg border border-status-danger/20 bg-status-danger/[0.08] px-5 py-4 flex items-start gap-4">
@@ -380,27 +398,22 @@ export default function VehicleDocumentsPage() {
           <StatCard
             title="Documentation Coverage"
             value={`${s.coveragePct}%`}
-            subtitle={`${s.coverageComplete} of ${s.coverageTotal} vehicles complete`}
-            trend={{ value: s.coverageTrend, direction: "up" }}
             indicatorColor={COLOR_STATUS_SUCCESS}
           />
           <StatCard
             title="Expired Documents"
             value={s.expiredCount}
-            subtitle={`Across ${s.expiredVehicles} vehicles · ${s.expiredFleetPct}% of fleet`}
             indicatorColor={COLOR_STATUS_DANGER}
           />
           <StatCard
             title="Expiring in 7 Days"
             value={s.expiringSoonCount}
-            subtitle={`Documents due for renewal · ${s.expiringVehicles} vehicles affected`}
             indicatorColor={COLOR_STATUS_WARNING}
           />
           <StatCard
-            title="Total Fleet Vehicles"
-            value={s.totalFleet}
-            subtitle={`Active · ${s.region} · 2-wheel & 3-wheel fleet`}
-            indicatorColor={COLOR_STATUS_INFO}
+            title="Pending document uploads"
+            value={s.pendingCount}
+            indicatorColor={COLOR_GRAY_500}
           />
         </div>
       </div>

@@ -4,25 +4,27 @@ import { Button } from "@/components/ui/button"
 import type { ActivationRecord, StageStatus } from "@/data/mockActivationRecords"
 import { StageAccordionItem } from "./StageAccordionItem"
 import { STAGES, type StageKey } from "./stages"
-import type { DraftStages } from "./useUpdateModal"
+import type { DraftStageSla, DraftStages } from "./useUpdateModal"
 
 interface Props {
   record: ActivationRecord | null
   draftStages: DraftStages
+  stageSla: DraftStageSla
   openAccordions: Set<StageKey>
   onClose: () => void
   onToggleAccordion: (key: StageKey) => void
-  onStageStatusChange: (key: StageKey, status: StageStatus) => void
+  onStartStage: (key: StageKey) => void
   onMarkCompleted: (key: StageKey) => void
 }
 
 export function ActivationUpdateModal({
   record,
   draftStages,
+  stageSla,
   openAccordions,
   onClose,
   onToggleAccordion,
-  onStageStatusChange,
+  onStartStage,
   onMarkCompleted,
 }: Props) {
   const [flagResolved, setFlagResolved] = useState(false)
@@ -59,9 +61,10 @@ export function ActivationUpdateModal({
             stageKey={key}
             label={label}
             status={(draftStages[key] ?? "pending") as StageStatus}
+            sla={stageSla[key]}
             isOpen={openAccordions.has(key)}
             onToggle={() => onToggleAccordion(key)}
-            onStatusChange={(s) => onStageStatusChange(key, s)}
+            onStart={() => onStartStage(key)}
             onMarkCompleted={() => onMarkCompleted(key)}
           />
         ))}

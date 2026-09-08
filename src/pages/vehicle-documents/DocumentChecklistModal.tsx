@@ -19,12 +19,14 @@ const dotClass: Record<DocumentStatus, string> = {
   valid: "bg-status-success",
   expiring: "bg-status-warning",
   expired: "bg-status-danger",
+  missing: "bg-gray-300",
 }
 
 const expiryColorClass: Record<DocumentStatus, string> = {
   valid: "text-status-success",
   expiring: "text-status-warning",
   expired: "text-status-danger",
+  missing: "text-gray-400",
 }
 
 function ChecklistRow({
@@ -42,35 +44,43 @@ function ChecklistRow({
           {doc.name}
         </p>
         <p className="font-medium text-breadcrumb-root" style={{ fontSize: "12px" }}>
-          Uploaded by {doc.uploadedBy} · {doc.uploadStatus}
+          {doc.status === "missing" ? "Not uploaded yet" : `Uploaded by ${doc.uploadedBy} · ${doc.uploadStatus}`}
         </p>
       </div>
       <div className="text-right shrink-0">
-        <p
-          className="font-medium text-gray-500 uppercase"
-          style={{ fontSize: "11px", letterSpacing: "0.5px" }}
-        >
-          {doc.expiry ? "Expiry" : "No Expiry"}
-        </p>
-        {doc.expiry && (
-          <p
-            className={cn("font-semibold", expiryColorClass[doc.status])}
-            style={{ fontSize: "13px" }}
-          >
-            {doc.expiry}
-          </p>
+        {doc.status === "missing" ? (
+          <p className="font-medium text-gray-400" style={{ fontSize: "13px" }}>—</p>
+        ) : (
+          <>
+            <p
+              className="font-medium text-gray-500 uppercase"
+              style={{ fontSize: "11px", letterSpacing: "0.5px" }}
+            >
+              {doc.expiry ? "Expiry" : "No Expiry"}
+            </p>
+            {doc.expiry && (
+              <p
+                className={cn("font-semibold", expiryColorClass[doc.status])}
+                style={{ fontSize: "13px" }}
+              >
+                {doc.expiry}
+              </p>
+            )}
+          </>
         )}
       </div>
-      <Button
-        variant="outline"
-        size="icon"
-        className="h-8 w-8 shrink-0"
-        aria-label="View document"
-        title="View document"
-      >
-        <Eye className="h-4 w-4" />
-      </Button>
-      {onReplace && (
+      {doc.status !== "missing" && (
+        <Button
+          variant="outline"
+          size="icon"
+          className="h-8 w-8 shrink-0"
+          aria-label="View document"
+          title="View document"
+        >
+          <Eye className="h-4 w-4" />
+        </Button>
+      )}
+      {onReplace && doc.status !== "missing" && (
         <Button
           variant="outline"
           className="h-8 text-xs px-3 shrink-0"

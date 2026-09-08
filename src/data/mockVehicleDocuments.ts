@@ -1,7 +1,7 @@
-export type DocumentStatus = "valid" | "expiring" | "expired"
-export type VehicleDocStatus = "Complete" | "Expiring Soon" | "Expired"
+export type DocumentStatus = "valid" | "expiring" | "expired" | "missing"
+export type VehicleDocStatus = "Complete" | "Expiring Soon" | "Expired" | "Pending"
 export type VehicleType = "2-Wheel" | "3-Wheel"
-export type UploadStatus = "Uploaded" | "Expired" | "Expiring Soon"
+export type UploadStatus = "Uploaded" | "Expired" | "Expiring Soon" | "Pending"
 
 export interface ChecklistDocument {
   name: string
@@ -21,6 +21,44 @@ export interface VehicleDocumentRecord {
   lastUpdated: string
   location: string
   checklist: ChecklistDocument[]
+}
+
+const requiredDocNames = [
+  "Vehicle Registration Certificate",
+  "Insurance Certificate",
+  "Roadworthiness Certificate",
+  "Hackney Permit",
+  "Driver's License",
+  "Vehicle License",
+  "Customs Clearance Certificate",
+  "Procurement Invoice",
+] as const
+
+const pendingChecklist: ChecklistDocument[] = requiredDocNames.map((name) => ({
+  name,
+  uploadedBy: "",
+  uploadStatus: "Pending",
+  expiry: null,
+  status: "missing",
+}))
+
+export function createPendingVehicleDocument(input: {
+  vehicleId: string
+  location: string
+  champion?: string
+  type?: VehicleType
+}): VehicleDocumentRecord {
+  return {
+    vehicleId: input.vehicleId,
+    champion: input.champion ?? "Unassigned",
+    type: input.type ?? "2-Wheel",
+    documents: requiredDocNames.map(() => "missing" as const),
+    completion: 0,
+    status: "Pending",
+    lastUpdated: "—",
+    location: input.location,
+    checklist: pendingChecklist,
+  }
 }
 
 const defaultChecklist: ChecklistDocument[] = [
@@ -139,6 +177,17 @@ export const mockVehicleDocuments: VehicleDocumentRecord[] = [
     location: "Accra, Ghana",
     checklist: defaultChecklist,
   },
+  {
+    vehicleId: "VH-00214",
+    champion: "Tunde Bakare",
+    type: "2-Wheel",
+    documents: ["missing", "missing", "missing", "missing", "missing", "missing", "missing", "missing"],
+    completion: 0,
+    status: "Pending",
+    lastUpdated: "—",
+    location: "Ikeja",
+    checklist: pendingChecklist,
+  },
 ]
 
 export const vehicleDocumentStats = {
@@ -153,6 +202,7 @@ export const vehicleDocumentStats = {
   expiringVehicles: 5,
   totalFleet: 200,
   region: "Lagos, Nigeria",
+  pendingCount: 1,
 }
 
 export const complianceAlerts: ComplianceAlert[] = [
@@ -161,8 +211,9 @@ export const complianceAlerts: ComplianceAlert[] = [
   { vehicleId: "VH-00127", message: "Vehicle Registration expired today" },
 ]
 
-export const docStatusVariantMap: Record<VehicleDocStatus, "success" | "warning" | "danger"> = {
+export const docStatusVariantMap: Record<VehicleDocStatus, "success" | "warning" | "danger" | "default"> = {
   Complete: "success",
   "Expiring Soon": "warning",
   Expired: "danger",
+  Pending: "default",
 }

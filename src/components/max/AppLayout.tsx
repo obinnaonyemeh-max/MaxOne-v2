@@ -117,7 +117,6 @@ export function AppLayout({ children }: AppLayoutProps) {
       "fleet-register": fleetRegisterCount,
       "tamper-alerts": tamperUnresolvedCount,
       "battery-alerts": batteryAlertsUnresolvedCount,
-      alerts: tamperUnresolvedCount + batteryAlertsUnresolvedCount,
     }),
     location.pathname
   )

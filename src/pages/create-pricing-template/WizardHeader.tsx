@@ -1,6 +1,6 @@
 import { Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { StatusBadge } from "@/components/max"
+import { BackButton, StatusBadge } from "@/components/max"
 import { STAGE_TITLES, TOTAL_STAGES, type WizardStage } from "./types"
 
 interface WizardHeaderProps {
@@ -9,6 +9,7 @@ interface WizardHeaderProps {
   currentStage: WizardStage
   isSubmitting: boolean
   isNextEnabled: boolean
+  onExit: () => void
   onPrevious: () => void
   onNext: () => void
   onPublish: () => void
@@ -21,6 +22,7 @@ export function WizardHeader({
   currentStage,
   isSubmitting,
   isNextEnabled,
+  onExit,
   onPrevious,
   onNext,
   onPublish,
@@ -30,16 +32,19 @@ export function WizardHeader({
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-200 bg-white px-4 py-4 shrink-0 md:px-6">
-      <div>
-        <div className="flex items-center gap-2">
-          <h1 className="font-semibold text-sidebar-item-active" style={{ fontSize: "18px" }}>
-            {templateName || "New Pricing Template"}
-          </h1>
-          <StatusBadge variant={status === "Active" ? "success" : "default"}>{status}</StatusBadge>
+      <div className="flex items-center gap-3">
+        <BackButton onClick={onExit} />
+        <div>
+          <div className="flex items-center gap-2">
+            <h1 className="font-semibold text-sidebar-item-active" style={{ fontSize: "18px" }}>
+              {templateName || "New Pricing Template"}
+            </h1>
+            <StatusBadge variant={status === "Active" ? "success" : "default"}>{status}</StatusBadge>
+          </div>
+          <p className="mt-0.5 text-xs font-medium text-breadcrumb-root">
+            Stage {currentStage} of {TOTAL_STAGES} &middot; {STAGE_TITLES[currentStage]}
+          </p>
         </div>
-        <p className="mt-0.5 text-xs font-medium text-breadcrumb-root">
-          Stage {currentStage} of {TOTAL_STAGES} &middot; {STAGE_TITLES[currentStage]}
-        </p>
       </div>
 
       <div className="flex flex-wrap items-center gap-2">

@@ -99,6 +99,43 @@ function RowActionsMenu({
   )
 }
 
+function RowActionButtons({
+  row,
+  onAction,
+}: {
+  row: WriteOffBatch
+  onAction: (action: "approve" | "reject", row: WriteOffBatch) => void
+}) {
+  const disabled = row.status !== "Pending"
+
+  return (
+    <div className="flex items-center gap-4">
+      <button
+        type="button"
+        disabled={disabled}
+        onClick={(e) => {
+          e.stopPropagation()
+          onAction("approve", row)
+        }}
+        className="text-sm font-medium text-status-success hover:underline disabled:pointer-events-none disabled:opacity-40"
+      >
+        Approve
+      </button>
+      <button
+        type="button"
+        disabled={disabled}
+        onClick={(e) => {
+          e.stopPropagation()
+          onAction("reject", row)
+        }}
+        className="text-sm font-medium text-status-danger hover:underline disabled:pointer-events-none disabled:opacity-40"
+      >
+        Reject
+      </button>
+    </div>
+  )
+}
+
 interface WriteOffColumnsOptions {
   selectedIds: string[]
   allSelected: boolean
@@ -108,6 +145,8 @@ interface WriteOffColumnsOptions {
   sortDirection: SortDirection
   onSort: (key: SortKey) => void
   onAction: (action: "approve" | "reject", row: WriteOffBatch) => void
+  /** "menu" (default) shows an overflow ellipsis; "buttons" shows Approve/Reject inline — use for pages where every row is actionable. */
+  actionsVariant?: "menu" | "buttons"
 }
 
 export function getWriteOffColumns({
@@ -118,6 +157,7 @@ export function getWriteOffColumns({
   sortKey,
   sortDirection,
   onSort,
+  actionsVariant = "menu",
   onAction,
 }: WriteOffColumnsOptions): ColumnDef<WriteOffBatch>[] {
   const sortHeader = (label: string, key: SortKey) => () => (
@@ -202,7 +242,12 @@ export function getWriteOffColumns({
     {
       id: "actions",
       header: "",
-      cell: ({ row }) => <RowActionsMenu row={row.original} onAction={onAction} />,
+      cell: ({ row }) =>
+        actionsVariant === "buttons" ? (
+          <RowActionButtons row={row.original} onAction={onAction} />
+        ) : (
+          <RowActionsMenu row={row.original} onAction={onAction} />
+        ),
     },
   ]
 }

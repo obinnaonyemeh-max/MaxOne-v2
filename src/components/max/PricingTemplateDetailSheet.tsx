@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
-import { ChevronDown } from "lucide-react"
+import { useNavigate } from "react-router-dom"
+import { ChevronDown, Pencil, Archive } from "lucide-react"
 
 import { Sheet, SheetContent, SheetHeader, SheetFooter, SheetTitle, SheetDescription } from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
@@ -11,19 +12,21 @@ import {
   templateVehiclePurchaseCostTotal,
   type PricingTemplate,
 } from "@/data/mockPricingTemplates"
-import { mockAssetClasses, mockVehicleTypeOptions } from "@/data/mockVehicleCatalog"
+import { mockAssetClasses } from "@/data/mockVehicleCatalog"
 
 interface PricingTemplateDetailSheetProps {
   template: PricingTemplate | null
   isOpen: boolean
   onClose: () => void
+  onArchive: (template: PricingTemplate) => void
 }
 
 function formatCurrency(amount: number): string {
   return "₦" + Math.round(amount).toLocaleString()
 }
 
-export function PricingTemplateDetailSheet({ template, isOpen, onClose }: PricingTemplateDetailSheetProps) {
+export function PricingTemplateDetailSheet({ template, isOpen, onClose, onArchive }: PricingTemplateDetailSheetProps) {
+  const navigate = useNavigate()
   const [openCategoryKey, setOpenCategoryKey] = useState<string | null>(null)
 
   useEffect(() => {
@@ -33,8 +36,9 @@ export function PricingTemplateDetailSheet({ template, isOpen, onClose }: Pricin
   if (!template) return null
 
   const assetCost = templateVehiclePurchaseCostTotal(template.costCategories)
-  const assetClass = mockAssetClasses.find((a) => a.id === template.vehicleTypePrimary)
-  const subtype = mockVehicleTypeOptions.find((v) => v.id === template.vehicleTypeSubtype)
+  const assetClass = mockAssetClasses.find((a) => a.id === template.vehicleTypeSubtype)
+  const status = template.status ?? "Draft"
+  const isArchived = status === "Inactive"
 
   return (
     <Sheet open={isOpen} onOpenChange={(open) => { if (!open) onClose() }}>
@@ -42,7 +46,7 @@ export function PricingTemplateDetailSheet({ template, isOpen, onClose }: Pricin
         <SheetHeader>
           <div className="flex flex-wrap items-center gap-2 pr-8">
             <SheetTitle className="text-sidebar-item-active">{template.name}</SheetTitle>
-            <StatusBadge variant={template.status === "Active" ? "success" : "default"}>{template.status ?? "Draft"}</StatusBadge>
+            <StatusBadge variant={status === "Active" ? "success" : "default"}>{status}</StatusBadge>
           </div>
           <SheetDescription>
             {template.code ?? "—"} &middot; {template.productType ?? "—"} &middot; {template.currency ?? "—"}
@@ -62,10 +66,10 @@ export function PricingTemplateDetailSheet({ template, isOpen, onClose }: Pricin
                 items={[
                   { label: "Template Code", value: template.code ?? "—" },
                   { label: "Product Type", value: template.productType ?? "—" },
-                  { label: "Vehicle Type", value: [assetClass?.name, subtype?.name].filter(Boolean).join(" · ") || "—" },
+                  { label: "Vehicle Type", value: [template.vehicleTypePrimary, assetClass?.name].filter(Boolean).join(" · ") || "—" },
                   { label: "Currency", value: template.currency ?? "—" },
                   { label: "Effective Date", value: template.effectiveDate ?? "—" },
-                  { label: "Status", value: template.status ?? "Draft" },
+                  { label: "Status", value: status },
                   { label: "Description", value: template.description ?? "—" },
                 ]}
               />
@@ -129,8 +133,26 @@ export function PricingTemplateDetailSheet({ template, isOpen, onClose }: Pricin
         </div>
 
         <SheetFooter className="flex-wrap items-center justify-start gap-2">
-          <Button variant="outline" className="h-9 px-3" onClick={onClose}>
-            Close
+          {status === "Draft" && (
+            <Button
+              className="h-9 px-3 gap-1.5 bg-brand-dark text-white hover:bg-brand-dark/90"
+              onClick={() => {
+                onClose()
+                navigate(`/portfolio/pricing-configuration/templates/create?edit=${template.id}`)
+              }}
+            >
+              <Pencil className="h-3.5 w-3.5" />
+              Continue Editing
+            </Button>
+          )}
+          <Button
+            variant="outline"
+            className="h-9 px-3 gap-1.5 border-status-danger/30 text-status-danger hover:bg-status-danger/10 disabled:pointer-events-none disabled:opacity-40"
+            disabled={isArchived}
+            onClick={() => onArchive(template)}
+          >
+            <Archive className="h-3.5 w-3.5" />
+            {isArchived ? "Template Archived" : "Archive Template"}
           </Button>
         </SheetFooter>
       </SheetContent>

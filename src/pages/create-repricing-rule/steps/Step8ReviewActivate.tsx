@@ -1,6 +1,7 @@
 import type { ReactNode } from "react"
 import { format } from "date-fns"
 import { Banner, InfoGrid } from "@/components/max"
+import { mockPricingBatchRecords } from "@/data/mockPricingBatchRecords"
 import { mockRepricingRules } from "@/data/mockRepricingEngine"
 import {
   equityFundingPercent,
@@ -29,6 +30,7 @@ export function Step8ReviewActivate({ values }: Step8Props) {
   const existingActiveRule = mockRepricingRules.find(
     (r) => r.status === "Active" && r.country === values.country && r.vehicleType === values.vehicleType
   )
+  const pricingBatch = mockPricingBatchRecords.find((batch) => batch.id === values.pricingBatchId)
 
   return (
     <div className="flex flex-col gap-4">
@@ -38,6 +40,7 @@ export function Step8ReviewActivate({ values }: Step8Props) {
             columns={2}
             items={[
               { label: "Rule Name", value: values.ruleName || "—" },
+              { label: "Pricing Batch", value: pricingBatch?.code || "—" },
               { label: "Country", value: values.country || "—" },
               { label: "Vehicle Type", value: values.vehicleType || "—" },
               { label: "Vehicle Model", value: values.vehicleModel || "—" },

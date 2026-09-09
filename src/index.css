@@ -162,12 +162,23 @@
   * {
     border-color: var(--color-border);
   }
+  html {
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
   body {
+    height: 100%;
+    overflow: hidden;
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: 'Satoshi', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    overscroll-behavior: none;
+  }
+  #root {
+    height: 100%;
   }
 
   .leaflet-container {

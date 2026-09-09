@@ -4,11 +4,10 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { FormSection, FormField } from "@/pages/vehicles/FormControls"
-import { mockAssetClasses, mockVehicleTypeOptions } from "@/data/mockVehicleCatalog"
+import { mockAssetClasses, VEHICLE_POWERTRAIN_TYPES } from "@/data/mockVehicleCatalog"
 import { COLLECTION_DENOMINATIONS } from "@/data/mockFinanciers"
+import { PRICING_TEMPLATE_PRODUCT_TYPES } from "@/data/mockPricingTemplates"
 import { type WizardAction, type WizardState } from "../types"
-
-const PRODUCT_TYPES = ["Hire Purchase", "Lease-to-Own", "Subscription", "Outright Sale"]
 
 interface Stage1Props {
   values: WizardState
@@ -16,13 +15,6 @@ interface Stage1Props {
 }
 
 export function Stage1TemplateDetails({ values, dispatch }: Stage1Props) {
-  const vehicleTypeOptions = mockVehicleTypeOptions.filter((v) => v.assetClassId === values.vehicleTypePrimary)
-
-  const handlePrimaryChange = (value: string) => {
-    dispatch({ type: "UPDATE_FIELD", field: "vehicleTypePrimary", value })
-    dispatch({ type: "UPDATE_FIELD", field: "vehicleTypeSubtype", value: "" })
-  }
-
   return (
     <div className="rounded-lg border border-gray-200 bg-white p-6">
       <FormSection title="Template Details">
@@ -39,22 +31,13 @@ export function Stage1TemplateDetails({ values, dispatch }: Stage1Props) {
               className="h-9 bg-input-soft"
             />
           </FormField>
-          <FormField label="Template Code *">
-            <Input
-              value={values.templateCode}
-              onChange={(e) => dispatch({ type: "UPDATE_FIELD", field: "templateCode", value: e.target.value })}
-              placeholder="e.g. TPL-2W-STD"
-              className="h-9 bg-input-soft"
-            />
-          </FormField>
-
           <FormField label="Product Type *">
             <Select value={values.productType} onValueChange={(v) => dispatch({ type: "UPDATE_FIELD", field: "productType", value: v })}>
               <SelectTrigger className="h-9 w-full bg-input-soft">
                 <SelectValue placeholder="Select product type" />
               </SelectTrigger>
               <SelectContent>
-                {PRODUCT_TYPES.map((p) => (
+                {PRICING_TEMPLATE_PRODUCT_TYPES.map((p) => (
                   <SelectItem key={p} value={p}>
                     {p}
                   </SelectItem>
@@ -62,6 +45,7 @@ export function Stage1TemplateDetails({ values, dispatch }: Stage1Props) {
               </SelectContent>
             </Select>
           </FormField>
+
           <FormField label="Currency *">
             <Select value={values.currency} onValueChange={(v) => dispatch({ type: "UPDATE_FIELD", field: "currency", value: v })}>
               <SelectTrigger className="h-9 w-full bg-input-soft">
@@ -78,14 +62,17 @@ export function Stage1TemplateDetails({ values, dispatch }: Stage1Props) {
           </FormField>
 
           <FormField label="Vehicle Type — Primary *">
-            <Select value={values.vehicleTypePrimary} onValueChange={handlePrimaryChange}>
+            <Select
+              value={values.vehicleTypePrimary}
+              onValueChange={(v) => dispatch({ type: "UPDATE_FIELD", field: "vehicleTypePrimary", value: v })}
+            >
               <SelectTrigger className="h-9 w-full bg-input-soft">
-                <SelectValue placeholder="Select asset class" />
+                <SelectValue placeholder="Select EV or ICE" />
               </SelectTrigger>
               <SelectContent>
-                {mockAssetClasses.map((a) => (
-                  <SelectItem key={a.id} value={a.id}>
-                    {a.name}
+                {VEHICLE_POWERTRAIN_TYPES.map((type) => (
+                  <SelectItem key={type} value={type}>
+                    {type}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -95,15 +82,14 @@ export function Stage1TemplateDetails({ values, dispatch }: Stage1Props) {
             <Select
               value={values.vehicleTypeSubtype}
               onValueChange={(v) => dispatch({ type: "UPDATE_FIELD", field: "vehicleTypeSubtype", value: v })}
-              disabled={!values.vehicleTypePrimary}
             >
               <SelectTrigger className="h-9 w-full bg-input-soft">
-                <SelectValue placeholder={values.vehicleTypePrimary ? "Select vehicle type" : "Select primary type first"} />
+                <SelectValue placeholder="Select asset class" />
               </SelectTrigger>
               <SelectContent>
-                {vehicleTypeOptions.map((v) => (
-                  <SelectItem key={v.id} value={v.id}>
-                    {v.name}
+                {mockAssetClasses.map((a) => (
+                  <SelectItem key={a.id} value={a.id}>
+                    {a.name}
                   </SelectItem>
                 ))}
               </SelectContent>

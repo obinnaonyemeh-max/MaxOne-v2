@@ -56,7 +56,7 @@ export default function RevenueRecognitionPage() {
         </div>
       </div>
 
-      <div className="px-6 pb-6 flex flex-col gap-4">
+      <div className="flex-1 overflow-y-auto px-6 pb-6 flex flex-col gap-4">
         <div className="rounded-lg border border-gray-200 bg-white p-5">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <FormField label="Country">

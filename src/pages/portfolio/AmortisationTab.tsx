@@ -27,18 +27,16 @@ export function AmortisationTab({ contract, quote }: AmortisationTabProps) {
 
   if (!schedule) {
     return (
-      <div className="px-6">
-        <div className="flex items-center justify-center rounded-lg border border-dashed border-gray-200 bg-gray-25 py-16">
-          <p className="text-sm font-medium text-breadcrumb-root">
-            Select a country, customer and contract to generate an amortisation schedule.
-          </p>
-        </div>
+      <div className="flex items-center justify-center rounded-lg border border-dashed border-gray-200 bg-gray-25 py-16">
+        <p className="text-sm font-medium text-breadcrumb-root">
+          Search a champion to generate an amortisation schedule.
+        </p>
       </div>
     )
   }
 
   return (
-    <div className="px-6">
+    <div>
       <div className="rounded-lg border border-gray-200 bg-white overflow-hidden">
         <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 border-b border-gray-100">
           <button

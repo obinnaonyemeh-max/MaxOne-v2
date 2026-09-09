@@ -1,18 +1,28 @@
 import { useEffect, useMemo, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { Plus } from "lucide-react"
+import { toast } from "sonner"
 
 import { TopBar, PageHeader, StatCard, PricingTemplateDetailSheet } from "@/components/max"
 import { Button } from "@/components/ui/button"
-import { mockPricingTemplates, templateGrandTotal, type PricingTemplate } from "@/data/mockPricingTemplates"
+import { mockPricingTemplates, archivePricingTemplate, templateGrandTotal, type PricingTemplate } from "@/data/mockPricingTemplates"
 import { PricingTemplatesTable } from "./PricingTemplatesTable"
 import { buildPricingTemplateColumns } from "./pricingTemplateColumns"
 
 export default function PricingTemplatesListPage() {
   const navigate = useNavigate()
   const [isLoading, setIsLoading] = useState(true)
-  const [templates] = useState<PricingTemplate[]>(mockPricingTemplates)
+  const [templates, setTemplates] = useState<PricingTemplate[]>(mockPricingTemplates)
   const [selectedTemplate, setSelectedTemplate] = useState<PricingTemplate | null>(null)
+
+  const handleArchive = (template: PricingTemplate) => {
+    archivePricingTemplate(template.id)
+    setTemplates([...mockPricingTemplates])
+    setSelectedTemplate({ ...template, status: "Inactive" })
+    toast.success("Template archived", {
+      description: `${template.name} is now inactive and won't be selectable for new pricing batches.`,
+    })
+  }
 
   useEffect(() => {
     const timeout = setTimeout(() => setIsLoading(false), 400)
@@ -23,7 +33,7 @@ export default function PricingTemplatesListPage() {
     () => ({
       total: templates.length,
       active: templates.filter((t) => t.status === "Active").length,
-      draft: templates.filter((t) => t.status !== "Active").length,
+      draft: templates.filter((t) => (t.status ?? "Draft") === "Draft").length,
       averageGrandTotal:
         templates.length > 0
           ? templates.reduce((sum, t) => sum + templateGrandTotal(t.costCategories), 0) / templates.length
@@ -100,6 +110,7 @@ export default function PricingTemplatesListPage() {
         template={selectedTemplate}
         isOpen={selectedTemplate !== null}
         onClose={() => setSelectedTemplate(null)}
+        onArchive={handleArchive}
       />
     </>
   )

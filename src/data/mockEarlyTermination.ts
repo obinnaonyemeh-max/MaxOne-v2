@@ -6,6 +6,7 @@ export type EarlyTerminationContractStatus = "Active" | "Paused" | "Completed"
 
 export interface EarlyTerminationContract {
   id: string
+  championId: string
   countryId: string
   countryName: string
   customerName: string
@@ -37,6 +38,7 @@ export const earlyTerminationStatusVariantMap: Record<EarlyTerminationContractSt
 export const mockEarlyTerminationContracts: EarlyTerminationContract[] = [
   {
     id: "1",
+    championId: "CHP-101",
     countryId: "ng",
     countryName: "Nigeria",
     customerName: "Kwame Mensah",
@@ -58,9 +60,10 @@ export const mockEarlyTerminationContracts: EarlyTerminationContract[] = [
   },
   {
     id: "2",
+    championId: "CHP-106",
     countryId: "ng",
     countryName: "Nigeria",
-    customerName: "Kwame Mensah",
+    customerName: "Ibrahim Sule",
     contractNumber: "CTR-ET-20461",
     vehicleManufacturer: "TVS",
     vehicleModel: "King Deluxe",
@@ -79,6 +82,7 @@ export const mockEarlyTerminationContracts: EarlyTerminationContract[] = [
   },
   {
     id: "3",
+    championId: "CHP-102",
     countryId: "ng",
     countryName: "Nigeria",
     customerName: "Fatima Bello",
@@ -100,6 +104,7 @@ export const mockEarlyTerminationContracts: EarlyTerminationContract[] = [
   },
   {
     id: "4",
+    championId: "CHP-103",
     countryId: "ke",
     countryName: "Kenya",
     customerName: "Amina Otieno",
@@ -121,6 +126,7 @@ export const mockEarlyTerminationContracts: EarlyTerminationContract[] = [
   },
   {
     id: "5",
+    championId: "CHP-104",
     countryId: "ug",
     countryName: "Uganda",
     customerName: "Grace Namuli",
@@ -142,6 +148,7 @@ export const mockEarlyTerminationContracts: EarlyTerminationContract[] = [
   },
   {
     id: "6",
+    championId: "CHP-105",
     countryId: "gh",
     countryName: "Ghana",
     customerName: "Kojo Asante",

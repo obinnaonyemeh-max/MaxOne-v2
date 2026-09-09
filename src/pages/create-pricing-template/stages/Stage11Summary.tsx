@@ -23,7 +23,7 @@ interface Stage11Props {
 export function Stage11Summary({ values }: Stage11Props) {
   const statement = buildIncomeStatement(values)
   const mixValid = fundingMixIsValid(values)
-  const coreFieldsFilled = values.templateName.trim() !== "" && values.templateCode.trim() !== "" && values.vehicleTypeSubtype !== ""
+  const coreFieldsFilled = values.templateName.trim() !== "" && values.vehicleTypeSubtype !== ""
   const auditPassed = mixValid && coreFieldsFilled
 
   return (
@@ -96,7 +96,7 @@ export function Stage11Summary({ values }: Stage11Props) {
           </p>
           {!auditPassed && (
             <ul className="mt-1 text-xs text-status-danger list-disc list-inside">
-              {!coreFieldsFilled && <li>Template name, code and vehicle subtype are required (Stage 1).</li>}
+              {!coreFieldsFilled && <li>Template name and vehicle subtype are required (Stage 1).</li>}
               {!mixValid && <li>Debt and equity funding mix must sum to 100% (Stage 4).</li>}
             </ul>
           )}

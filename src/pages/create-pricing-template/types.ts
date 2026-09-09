@@ -30,7 +30,6 @@ export const TOTAL_STAGES = 11
 export interface WizardFields {
   // Stage 1 — Template Details
   templateName: string
-  templateCode: string
   productType: string
   vehicleTypePrimary: string
   vehicleTypeSubtype: string
@@ -108,7 +107,6 @@ export const initialWizardState: WizardState = {
   completedStages: [],
 
   templateName: "",
-  templateCode: "",
   productType: "",
   vehicleTypePrimary: "",
   vehicleTypeSubtype: "",

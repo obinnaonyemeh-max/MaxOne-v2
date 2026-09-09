@@ -1,8 +1,18 @@
 import { useMemo, useState } from "react"
+import { SlidersHorizontal } from "lucide-react"
 import { toast } from "sonner"
 
-import { DataTable, StatCard } from "@/components/max"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import {
+  DataTable,
+  ExpandableSearch,
+  StatCard,
+  GenericFilterPopover,
+  getActiveFilterCount,
+  type FilterSection,
+  type GenericFilterState,
+} from "@/components/max"
+import { Button } from "@/components/ui/button"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import {
   mockRepricingExceptions,
   mockResolvedExceptionsThisWeek,
@@ -14,15 +24,30 @@ import { EditExceptionInputsModal, type ExceptionInputOverrides } from "./EditEx
 import { ApproveOverrideModal } from "./ApproveOverrideModal"
 import { RerunContractModal } from "./RerunContractModal"
 
-const ALL_REASONS = "all"
+const defaultFilters: GenericFilterState = {
+  reason: [],
+}
+
+const filterSections: FilterSection[] = [
+  {
+    id: "reason",
+    title: "Reason",
+    defaultExpanded: true,
+    options: EXCEPTION_REASONS.map((reason) => ({ value: reason, label: reason })),
+  },
+]
 
 export function ExceptionQueueTab() {
   const [exceptions, setExceptions] = useState<RepricingException[]>(mockRepricingExceptions)
   const [resolvedThisWeek, setResolvedThisWeek] = useState(mockResolvedExceptionsThisWeek)
-  const [reasonFilter, setReasonFilter] = useState(ALL_REASONS)
+  const [filters, setFilters] = useState<GenericFilterState>(defaultFilters)
+  const [searchQuery, setSearchQuery] = useState("")
+  const [searchOpen, setSearchOpen] = useState(false)
   const [editInputsException, setEditInputsException] = useState<RepricingException | null>(null)
   const [approveOverrideException, setApproveOverrideException] = useState<RepricingException | null>(null)
   const [rerunException, setRerunException] = useState<RepricingException | null>(null)
+
+  const activeFilterCount = getActiveFilterCount(filters)
 
   const stats = useMemo(
     () => ({
@@ -34,9 +59,20 @@ export function ExceptionQueueTab() {
   )
 
   const filteredExceptions = useMemo(() => {
-    if (reasonFilter === ALL_REASONS) return exceptions
-    return exceptions.filter((e) => e.reason === reasonFilter)
-  }, [exceptions, reasonFilter])
+    return exceptions.filter((e) => {
+      if (filters.reason.length > 0 && !filters.reason.includes(e.reason)) return false
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase()
+        if (
+          !e.exceptionId.toLowerCase().includes(q) &&
+          !e.contractId.toLowerCase().includes(q) &&
+          !e.championName.toLowerCase().includes(q)
+        )
+          return false
+      }
+      return true
+    })
+  }, [exceptions, filters, searchQuery])
 
   const resolveException = (exception: RepricingException) => {
     setExceptions((prev) => prev.filter((e) => e.id !== exception.id))
@@ -103,24 +139,37 @@ export function ExceptionQueueTab() {
 
       <div className="px-6">
         <div className="rounded-lg border border-gray-200 bg-white overflow-hidden">
-          <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-            <h3 className="font-semibold text-sidebar-item-active text-sm">Exception Queue</h3>
-            <Select value={reasonFilter} onValueChange={setReasonFilter}>
-              <SelectTrigger className="h-9 w-[260px] bg-white">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={ALL_REASONS}>Reason: All</SelectItem>
-                {EXCEPTION_REASONS.map((reason) => (
-                  <SelectItem key={reason} value={reason}>
-                    Reason: {reason}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div className="flex items-center gap-2 px-2 py-2 border-b border-gray-100">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className="h-9 gap-2">
+                  <SlidersHorizontal className="h-4 w-4" />
+                  <span className="text-sm">Filter</span>
+                  {activeFilterCount > 0 && (
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-brand-dark text-xs text-white">
+                      {activeFilterCount}
+                    </span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-2" align="start">
+                <GenericFilterPopover sections={filterSections} filters={filters} onFiltersChange={setFilters} />
+              </PopoverContent>
+            </Popover>
+
+            <ExpandableSearch
+              open={searchOpen}
+              onOpenChange={setSearchOpen}
+              value={searchQuery}
+              onValueChange={setSearchQuery}
+              placeholder="Search by exception ID, contract, champion..."
+              inputClassName="w-72"
+            />
           </div>
 
-          <DataTable columns={columns} data={filteredExceptions} emptyMessage="No open exceptions." />
+          <div className="overflow-x-auto">
+            <DataTable columns={columns} data={filteredExceptions} emptyMessage="No open exceptions." />
+          </div>
         </div>
       </div>
 

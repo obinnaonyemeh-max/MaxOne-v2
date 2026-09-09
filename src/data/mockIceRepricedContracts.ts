@@ -1,18 +1,16 @@
 // Mock data for Portfolio > Products & Pricing > Dynamic Repricing Engine > ICE Repricing tab.
-// A read-only audit register of every ICE contract the scheduled repricing engine (or a
-// bulk manual upload) has touched, along with the fuel-index rule applied and the
-// resulting daily remittance.
+// A read-only audit register of every ICE vehicle asset the scheduled repricing engine (or
+// a bulk manual upload) has touched, along with the fuel-index rule applied and the
+// resulting daily remittance. These vehicles are mid-refurbishment, so they carry no
+// active champion or contract yet.
 
 export type IceRefurbishmentStatus = "Completed" | "Pending" | "N/A"
 export type IceRepricingStatus = "Repriced" | "Pending" | "Exception" | "Failed"
 
 export interface IceRepricedContract {
   id: string
-  /** Format: CT-ICE-XXXX */
-  contractId: string
-  championName: string
-  /** Format: CH-XXXX */
-  championId: string
+  /** Format: VEH-ICE-XXXX */
+  vehicleId: string
   plateNumber: string
   vehicleModel: string
   country: string
@@ -45,9 +43,7 @@ export const iceRepricingStatusVariantMap: Record<IceRepricingStatus, BadgeVaria
 export const mockIceRepricedContracts: IceRepricedContract[] = [
   {
     id: "1",
-    contractId: "CT-ICE-8100",
-    championName: "Yusuf Abdullahi",
-    championId: "CH-9200",
+    vehicleId: "VEH-ICE-8100",
     plateNumber: "LAG-902-ICE",
     vehicleModel: "TVS King Deluxe 3W",
     country: "Nigeria",
@@ -61,9 +57,7 @@ export const mockIceRepricedContracts: IceRepricedContract[] = [
   },
   {
     id: "2",
-    contractId: "CT-ICE-8101",
-    championName: "Grace Adeboye",
-    championId: "CH-9201",
+    vehicleId: "VEH-ICE-8101",
     plateNumber: "LAG-347-ICE",
     vehicleModel: "TVS King Deluxe 3W",
     country: "Nigeria",
@@ -77,9 +71,7 @@ export const mockIceRepricedContracts: IceRepricedContract[] = [
   },
   {
     id: "3",
-    contractId: "CT-ICE-8102",
-    championName: "Musa Garba",
-    championId: "CH-9202",
+    vehicleId: "VEH-ICE-8102",
     plateNumber: "ABJ-140-ICE",
     vehicleModel: "Keke Bajaj RE",
     country: "Nigeria",
@@ -93,9 +85,7 @@ export const mockIceRepricedContracts: IceRepricedContract[] = [
   },
   {
     id: "4",
-    contractId: "CT-ICE-8103",
-    championName: "Chinedu Okafor",
-    championId: "CH-9203",
+    vehicleId: "VEH-ICE-8103",
     plateNumber: "IBD-055-ICE",
     vehicleModel: "Boxer 150",
     country: "Nigeria",
@@ -109,9 +99,7 @@ export const mockIceRepricedContracts: IceRepricedContract[] = [
   },
   {
     id: "5",
-    contractId: "CT-ICE-8104",
-    championName: "Wafula Simiyu",
-    championId: "CH-9204",
+    vehicleId: "VEH-ICE-8104",
     plateNumber: "KDA 340X",
     vehicleModel: "Keke Bajaj RE",
     country: "Kenya",
@@ -125,9 +113,7 @@ export const mockIceRepricedContracts: IceRepricedContract[] = [
   },
   {
     id: "6",
-    contractId: "CT-ICE-8105",
-    championName: "Fatima Bello",
-    championId: "CH-9205",
+    vehicleId: "VEH-ICE-8105",
     plateNumber: "LAG-561-ICE",
     vehicleModel: "TVS King Deluxe 3W",
     country: "Nigeria",
@@ -141,9 +127,7 @@ export const mockIceRepricedContracts: IceRepricedContract[] = [
   },
   {
     id: "7",
-    contractId: "CT-ICE-8106",
-    championName: "Achieng Otieno",
-    championId: "CH-9206",
+    vehicleId: "VEH-ICE-8106",
     plateNumber: "KDB 615X",
     vehicleModel: "Boxer 150",
     country: "Kenya",
@@ -157,9 +141,7 @@ export const mockIceRepricedContracts: IceRepricedContract[] = [
   },
   {
     id: "8",
-    contractId: "CT-ICE-8107",
-    championName: "Ibrahim Sule",
-    championId: "CH-9207",
+    vehicleId: "VEH-ICE-8107",
     plateNumber: "ABJ-289-ICE",
     vehicleModel: "Keke Bajaj RE",
     country: "Nigeria",
@@ -173,9 +155,7 @@ export const mockIceRepricedContracts: IceRepricedContract[] = [
   },
   {
     id: "9",
-    contractId: "CT-ICE-8108",
-    championName: "Njoroge Kariuki",
-    championId: "CH-9208",
+    vehicleId: "VEH-ICE-8108",
     plateNumber: "KDC 447X",
     vehicleModel: "Boxer 150",
     country: "Kenya",
@@ -189,9 +169,7 @@ export const mockIceRepricedContracts: IceRepricedContract[] = [
   },
   {
     id: "10",
-    contractId: "CT-ICE-8109",
-    championName: "Adaeze Obi",
-    championId: "CH-9209",
+    vehicleId: "VEH-ICE-8109",
     plateNumber: "LAG-710-ICE",
     vehicleModel: "TVS King Deluxe 3W",
     country: "Nigeria",

@@ -24,11 +24,15 @@ import {
   getActiveFilterCount,
   type FilterSection,
   type GenericFilterState,
+  PauseContractModal,
+  PauseHistorySheet,
+  type ContractPauseRecord,
+  ContractDocumentModal,
 } from "@/components/max"
 import { format } from "date-fns"
 import { AddPaymentTransactionFlow } from "@/pages/portfolio/AddPaymentTransactionFlow"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import { Phone, MessageSquare, MessageCircle, User, Plus, History, ChevronDown, SlidersHorizontal, RotateCcw, Ban, UserPlus } from "lucide-react"
+import { Phone, MessageSquare, MessageCircle, User, Plus, History, ChevronDown, SlidersHorizontal, RotateCcw, Ban, UserPlus, PauseCircle, FileText } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import {
@@ -55,6 +59,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input"
 import { useCan, useRoleSimulation } from "@/contexts/RoleSimulationContext"
 import { mockAgentPortfolioRecords } from "@/data/mockAgentPortfolio"
+import { sidebarUser } from "@/data/sidebarConfig"
 import { isChampionAssignedForSimulationMode } from "@/data/driverExperienceAssignmentScope"
 import { createTimeOff, useChampionDetails } from "@/data/championStore"
 import type { WalletTransaction, WelfareNote, ChampionDetails } from "@/data/mockChampionDetails"
@@ -642,6 +647,39 @@ export default function ChampionDetailPage() {
     toast.success(`${guarantor.name} has been blacklisted`)
   }
 
+  // Pause Contract / Pause History / Contract Document (Portfolio)
+  const [isContractPaused, setIsContractPaused] = useState(false)
+  const [pauseRecords, setPauseRecords] = useState<ContractPauseRecord[]>([])
+  const [showPauseContract, setShowPauseContract] = useState(false)
+  const [showPauseHistory, setShowPauseHistory] = useState(false)
+  const [showContractDocument, setShowContractDocument] = useState(false)
+
+  const nowFormatted = () =>
+    new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })
+
+  const handlePauseContract = (reason: string) => {
+    if (!champion) return
+    setPauseRecords((prev) => [
+      { id: crypto.randomUUID(), reason, pausedBy: sidebarUser.name, pausedAt: nowFormatted(), resumedAt: null },
+      ...prev,
+    ])
+    setIsContractPaused(true)
+    setShowPauseContract(false)
+    toast.success("Contract paused", {
+      description: `${champion.contracts.contractId} has been paused. Remittance collection is on hold.`,
+    })
+  }
+
+  const handleResumeContract = () => {
+    if (!champion) return
+    setPauseRecords((prev) =>
+      prev.map((record, index) => (index === 0 ? { ...record, resumedAt: nowFormatted() } : record))
+    )
+    setIsContractPaused(false)
+    toast.success("Contract resumed", {
+      description: `${champion.contracts.contractId} is now active again.`,
+    })
+  }
 
   const [showCreateTimeOff, setShowCreateTimeOff] = useState(false)
   const [showLeaveHistory, setShowLeaveHistory] = useState(false)
@@ -982,11 +1020,43 @@ export default function ChampionDetailPage() {
                         { label: "Daily Remittance", value: champion.contracts.dailyRemittance },
                         { label: "Total Remitted", value: champion.contracts.totalRemitted },
                         { label: "Outstanding Balance", value: champion.contracts.outstandingBalance },
-                        { label: "Status", value: champion.contracts.status },
+                        { label: "Status", value: isContractPaused ? "Paused" : champion.contracts.status },
                       ]}
                     />
                   </InfoCard>
                 </div>
+
+                {inPortfolio && (
+                  <div className="mt-3 grid grid-cols-3 gap-2">
+                    {isContractPaused ? (
+                      <Button
+                        variant="outline"
+                        className="h-9 w-full gap-2 border-status-success/30 text-status-success hover:bg-status-success/10"
+                        onClick={handleResumeContract}
+                      >
+                        <RotateCcw className="h-4 w-4" />
+                        Resume Contract
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="outline"
+                        className="h-9 w-full gap-2 border-status-warning/30 text-status-warning hover:bg-status-warning/10"
+                        onClick={() => setShowPauseContract(true)}
+                      >
+                        <PauseCircle className="h-4 w-4" />
+                        Pause Contract
+                      </Button>
+                    )}
+                    <Button variant="outline" className="h-9 w-full gap-2" onClick={() => setShowPauseHistory(true)}>
+                      <History className="h-4 w-4" />
+                      See Pause History
+                    </Button>
+                    <Button variant="outline" className="h-9 w-full gap-2" onClick={() => setShowContractDocument(true)}>
+                      <FileText className="h-4 w-4" />
+                      Generate Contract PDF
+                    </Button>
+                  </div>
+                )}
               </TabsContent>
 
               {/* Asset Tab */}
@@ -1670,6 +1740,37 @@ export default function ChampionDetailPage() {
           const target = mockAgentPortfolioRecords.find((a) => a.id === agentIds[0])
           toast.success(`${champion.name} reassigned to ${target?.agent} (${reason})`)
           setReassignOpen(false)
+        }}
+      />
+
+      {/* Pause Contract / Pause History / Contract Document (Portfolio) */}
+      <PauseContractModal
+        open={showPauseContract}
+        onClose={() => setShowPauseContract(false)}
+        championName={champion.name}
+        contractId={champion.contracts.contractId}
+        onConfirm={handlePauseContract}
+      />
+      <PauseHistorySheet
+        open={showPauseHistory}
+        onClose={() => setShowPauseHistory(false)}
+        championName={champion.name}
+        contractId={champion.contracts.contractId}
+        records={pauseRecords}
+      />
+      <ContractDocumentModal
+        open={showContractDocument}
+        onClose={() => setShowContractDocument(false)}
+        contract={{
+          championName: champion.name,
+          championId: champion.championId,
+          contractId: champion.contracts.contractId,
+          startDate: champion.contracts.startDate,
+          endDate: champion.contracts.endDate,
+          vehicleAssigned: champion.contracts.vehicleAssigned,
+          dailyRemittance: champion.contracts.dailyRemittance,
+          outstandingBalance: champion.contracts.outstandingBalance,
+          status: isContractPaused ? "Paused" : champion.contracts.status,
         }}
       />
 

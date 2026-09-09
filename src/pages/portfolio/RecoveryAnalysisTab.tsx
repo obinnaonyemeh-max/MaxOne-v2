@@ -15,18 +15,16 @@ export function RecoveryAnalysisTab({ contract, quote }: RecoveryAnalysisTabProp
 
   if (!breakdown) {
     return (
-      <div className="px-6">
-        <div className="flex items-center justify-center rounded-lg border border-dashed border-gray-200 bg-gray-25 py-16">
-          <p className="text-sm font-medium text-breadcrumb-root">
-            Select a country, customer and contract to generate a recovery analysis.
-          </p>
-        </div>
+      <div className="flex items-center justify-center rounded-lg border border-dashed border-gray-200 bg-gray-25 py-16">
+        <p className="text-sm font-medium text-breadcrumb-root">
+          Search a champion to generate a recovery analysis.
+        </p>
       </div>
     )
   }
 
   return (
-    <div className="px-6 flex flex-col gap-4">
+    <div className="flex flex-col gap-4">
       <Banner
         title="How recovery is calculated"
         description={

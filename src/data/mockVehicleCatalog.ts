@@ -1,6 +1,8 @@
 // Vehicle taxonomy for the Pricing Batch creation cascade: Asset Class > Vehicle Type,
 // and Manufacturer > Model > Trim.
 
+export const VEHICLE_POWERTRAIN_TYPES = ["EV", "ICE"] as const
+
 export interface AssetClass {
   id: string
   name: string

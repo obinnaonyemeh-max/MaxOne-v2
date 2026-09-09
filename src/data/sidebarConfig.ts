@@ -657,6 +657,12 @@ export const portfolioSidebarSections: SidebarSection[] = [
         icon: "/images/early_termination_menu.svg",
         href: "/portfolio/ops/write-offs",
       },
+      {
+        id: "portfolio-write-off-approvals",
+        label: "WO Approvals",
+        icon: "/images/memo_circle_check_menu.svg",
+        href: "/portfolio/ops/write-off-approvals",
+      },
     ],
   },
   {

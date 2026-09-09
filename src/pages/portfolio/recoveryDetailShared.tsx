@@ -1,11 +1,25 @@
 // Shared helpers for Recovery Pair and Recovery Agent detail pages.
 
+import { type CSSProperties } from "react"
 import { type ColumnDef } from "@tanstack/react-table"
 import { type TimelineEntryData } from "@/components/max"
 import { formatElapsed, type PendingRecovery, type RecoverySession } from "@/data/mockRecoveries"
 
 export function formatCurrency(amount: number): string {
   return "₦" + amount.toLocaleString()
+}
+
+// Frosted map-overlay treatment for active-session mini-maps — matches the Falcon
+// vehicle activity map's overlay so every "active session on a map" view looks the same.
+export const sessionMapOverlayStyle: CSSProperties = {
+  width: "220px",
+  background: "rgba(255, 255, 255, 0.72)",
+  backdropFilter: "blur(8px)",
+  WebkitBackdropFilter: "blur(8px)",
+  boxShadow: "0 4px 16px rgba(0, 0, 0, 0.08)",
+  border: "1px solid rgba(255, 255, 255, 0.5)",
+  fontVariantNumeric: "tabular-nums",
+  textAlign: "right",
 }
 
 export const pendingRecoveryQueueColumns: ColumnDef<PendingRecovery>[] = [

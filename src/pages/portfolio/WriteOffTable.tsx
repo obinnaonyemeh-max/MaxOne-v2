@@ -11,9 +11,10 @@ interface WriteOffTableProps {
   batches: WriteOffBatch[]
   isLoading?: boolean
   onAction: (action: "approve" | "reject", row: WriteOffBatch) => void
+  actionsVariant?: "menu" | "buttons"
 }
 
-export function WriteOffTable({ batches, isLoading = false, onAction }: WriteOffTableProps) {
+export function WriteOffTable({ batches, isLoading = false, onAction, actionsVariant }: WriteOffTableProps) {
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
   const [searchQuery, setSearchQuery] = useState("")
@@ -76,6 +77,7 @@ export function WriteOffTable({ batches, isLoading = false, onAction }: WriteOff
     sortDirection,
     onSort: handleSort,
     onAction,
+    actionsVariant,
   })
 
   return (

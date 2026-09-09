@@ -9,6 +9,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import { useRoleSimulation } from "@/contexts/RoleSimulationContext"
 import {
   getChargerById,
   getChargeSpotsByChargerId,
@@ -96,6 +97,7 @@ export default function ChargeSpotsPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const location = useLocation()
+  const { filterByCity } = useRoleSimulation()
   const fromPath = (location.state as { from?: string } | null)?.from
   const charger = getChargerById(id || "")
   const spots = useMemo(
@@ -133,6 +135,12 @@ export default function ChargeSpotsPage() {
       setSelectedSpotId(filteredSpots[0].id)
     }
   }, [filteredSpots, selectedSpotId])
+
+  useEffect(() => {
+    if (charger && !filterByCity(charger.stateDeployed)) {
+      navigate("/falcon/ev-chargers", { replace: true })
+    }
+  }, [charger, filterByCity, navigate])
 
   if (!charger) {
     return (

@@ -18,6 +18,7 @@ import {
   type SwapStation,
 } from "@/data/mockStationsData"
 import { initiateTransfer } from "@/data/mockStationTransfers"
+import { useRoleSimulation } from "@/contexts/RoleSimulationContext"
 
 type TransferStep = "select" | "destination" | "preview"
 
@@ -29,7 +30,8 @@ interface TransferBatteriesModalProps {
 }
 
 function stationLabel(station: SwapStation): string {
-  return `${station.name} · ${station.city} · ${station.provider}`
+  const typeLabel = station.locationType === "hub" ? "Hub" : "Station"
+  return `${station.name} (${typeLabel}) · ${station.city} · ${station.provider}`
 }
 
 export function TransferBatteriesModal({
@@ -38,6 +40,7 @@ export function TransferBatteriesModal({
   station,
   onInitiated,
 }: TransferBatteriesModalProps) {
+  const { dataScope, filterByCity } = useRoleSimulation()
   const [step, setStep] = useState<TransferStep>("select")
   const [search, setSearch] = useState("")
   const [brands, setBrands] = useState<StationProvider[]>([])
@@ -71,8 +74,13 @@ export function TransferBatteriesModal({
   )
 
   const destinations = useMemo(
-    () => mockSwapStations.filter((item) => item.id !== station.id),
-    [station.id]
+    () =>
+      mockSwapStations.filter((item) => {
+        if (item.id === station.id) return false
+        if (dataScope?.type === "station") return true
+        return !dataScope || filterByCity(item.city)
+      }),
+    [dataScope, filterByCity, station.id]
   )
 
   const selectedDestination = destinations.find((item) => item.id === destinationId)

@@ -82,6 +82,22 @@ export function widgetsForFalconModules(
     .sort((a, b) => a.order - b.order)
 }
 
+/** Sidebar nav ids that publish Falcon widgets. `batteries` maps to catalog id `battery-register`. */
+const FALCON_NAV_TO_WIDGET_MODULE: Record<string, string> = {
+  batteries: "battery-register",
+}
+
+export function falconWidgetModuleIdsFromNav(navItemIds: readonly string[]): string[] {
+  const catalogModules = new Set(FALCON_WIDGET_CATALOG.map((widget) => widget.moduleId))
+  return [
+    ...new Set(
+      navItemIds
+        .map((id) => FALCON_NAV_TO_WIDGET_MODULE[id] ?? id)
+        .filter((id) => catalogModules.has(id))
+    ),
+  ]
+}
+
 export function widgetsForFalconFullBuild(): FalconDashboardWidget[] {
   return widgetsForFalconModules(
     FALCON_WIDGET_CATALOG.map((widget) => widget.moduleId)

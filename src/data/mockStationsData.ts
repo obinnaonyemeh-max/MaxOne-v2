@@ -1,12 +1,14 @@
 import { CITIES, CITY_COORDINATES, type City } from "./cities"
 
 export type StationProvider = "MAX" | "Siltech" | "Pash" | "Spiro"
+export type StationLocationType = "swap-station" | "hub"
 
 export const STATION_PROVIDERS: StationProvider[] = ["MAX", "Siltech", "Pash", "Spiro"]
 
 export interface SwapStation {
   id: string
   name: string
+  locationType: StationLocationType
   city: City
   subCity?: string | null
   provider: StationProvider
@@ -24,6 +26,16 @@ export interface SwapStation {
   address?: string | null
   country?: string | null
   adminName?: string | null
+}
+
+export function isHubLocation(
+  station: Pick<SwapStation, "locationType">
+): boolean {
+  return station.locationType === "hub"
+}
+
+export function locationIconUrl(type: StationLocationType): string {
+  return type === "hub" ? "/images/hub.svg" : "/images/station.svg"
 }
 
 export interface StationBattery {
@@ -169,6 +181,11 @@ function generateSwapsToday(): number {
   return Math.floor(Math.random() * 60)
 }
 
+function resolveLocationType(name: string, index: number): StationLocationType {
+  if (name.toLowerCase().includes("hub")) return "hub"
+  return index % 4 === 0 ? "hub" : "swap-station"
+}
+
 function generateStation(index: number): SwapStation {
   const city = CITIES[index % CITIES.length]
   const names = STATION_NAMES_BY_CITY[city]
@@ -176,10 +193,13 @@ function generateStation(index: number): SwapStation {
   const suffix = Math.floor(index / (CITIES.length * names.length))
   const cityCoord = CITY_COORDINATES[city]
   const capacity = pick(CAPACITIES)
+  const locationType = resolveLocationType(name, index)
+  const isHub = locationType === "hub"
 
   return {
     id: `STN-${(1000000 + index).toString().slice(1)}`,
     name: suffix > 0 ? `${name} ${suffix + 1}` : name,
+    locationType,
     city,
     provider: STATION_PROVIDERS[index % STATION_PROVIDERS.length],
     coordinates: {
@@ -189,8 +209,8 @@ function generateStation(index: number): SwapStation {
     batteriesAvailable: generateAvailability(capacity),
     batteriesCapacity: capacity,
     averageSoc: Math.floor(Math.random() * 81) + 15,
-    totalCollections: generateCollections(),
-    totalSwapsToday: generateSwapsToday(),
+    totalCollections: isHub ? 0 : generateCollections(),
+    totalSwapsToday: isHub ? 0 : generateSwapsToday(),
     adminName: pickStationAdminName(index),
   }
 }
@@ -222,7 +242,13 @@ export const mockSwapStations: SwapStation[] = Array.from(
   (_, i) => generateStation(i)
 )
 
-export const totalSwapStations = mockSwapStations.length
+export const totalSwapStations = mockSwapStations.filter(
+  (station) => station.locationType === "swap-station"
+).length
+
+export const totalHubs = mockSwapStations.filter(
+  (station) => station.locationType === "hub"
+).length
 
 const stationBatteries: StationBattery[] = mockSwapStations.flatMap((station) =>
   Array.from({ length: station.batteriesAvailable }, (_, index) =>
@@ -234,8 +260,26 @@ export function getStationById(id: string): SwapStation | undefined {
   return mockSwapStations.find((station) => station.id === id)
 }
 
+/** Resolve station ids by exact display name (stable across generated ids). */
+export function getStationIdsByName(name: string): string[] {
+  return mockSwapStations
+    .filter((station) => station.name === name)
+    .map((station) => station.id)
+}
+
 export function getStationBatteries(stationId: string): StationBattery[] {
   return stationBatteries.filter((battery) => battery.stationId === stationId)
+}
+
+export function getStationChargeCounts(stationId: string): {
+  charging: number
+  pluggedIn: number
+} {
+  const batteries = getStationBatteries(stationId)
+  return {
+    charging: batteries.filter((battery) => battery.isCharging).length,
+    pluggedIn: batteries.filter((battery) => battery.isPluggedIn && !battery.isCharging).length,
+  }
 }
 
 export function findStationBatteryById(id: string): StationBattery | undefined {
@@ -319,8 +363,8 @@ export function updateStation(
 }
 
 export function formatStationCollections(amount: number): string {
-  if (amount === 0) return "NGN 0"
-  return `NGN ${amount.toLocaleString("en-NG", {
+  if (amount === 0) return "₦0"
+  return `₦${amount.toLocaleString("en-NG", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   })}`

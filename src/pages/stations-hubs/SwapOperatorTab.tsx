@@ -17,13 +17,20 @@ import {
   swapOperatorStatusVariantMap,
   type StationSwapOperator,
 } from "@/data/mockStationOperators"
+import type { StationLocationType } from "@/data/mockStationsData"
 
 interface SwapOperatorTabProps {
   stationId: string
   stationName: string
+  locationType?: StationLocationType
 }
 
-export function SwapOperatorTab({ stationId, stationName }: SwapOperatorTabProps) {
+export function SwapOperatorTab({
+  stationId,
+  stationName,
+  locationType = "swap-station",
+}: SwapOperatorTabProps) {
+  const isHub = locationType === "hub"
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [currentPage, setCurrentPage] = useState(1)
@@ -143,7 +150,7 @@ export function SwapOperatorTab({ stationId, stationName }: SwapOperatorTabProps
             onClick={() => setAssignOpen(true)}
           >
             <UserPlus className="h-4 w-4" />
-            <span className="text-sm">Assign swap operator</span>
+            <span className="text-sm">{isHub ? "Assign operator" : "Assign swap operator"}</span>
           </Button>
         </div>
 
@@ -151,7 +158,7 @@ export function SwapOperatorTab({ stationId, stationName }: SwapOperatorTabProps
           <DataTable
             columns={columns}
             data={paginated}
-            emptyMessage="No swap operators to show yet."
+            emptyMessage={isHub ? "No operators to show yet." : "No swap operators to show yet."}
           />
         </div>
       </div>
@@ -174,7 +181,7 @@ export function SwapOperatorTab({ stationId, stationName }: SwapOperatorTabProps
       <ReassignTechnicianModal
         open={assignOpen}
         onOpenChange={setAssignOpen}
-        title="Assign swap operator"
+        title={isHub ? "Assign operator" : "Assign swap operator"}
         subtitle={`Search and select an operator to assign to ${stationName}.`}
         primaryLabel="Assign"
         searchPlaceholder="Search operator, specialty or city…"
@@ -195,7 +202,7 @@ export function SwapOperatorTab({ stationId, stationName }: SwapOperatorTabProps
         title="Revoke operator access?"
         subtitle={
           revokeTarget
-            ? `${revokeTarget.name} will no longer be able to operate swaps at this station.`
+            ? `${revokeTarget.name} will no longer be able to ${isHub ? "operate this hub" : "operate swaps at this station"}.`
             : undefined
         }
         secondaryAction={{

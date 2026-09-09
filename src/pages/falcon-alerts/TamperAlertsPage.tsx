@@ -30,6 +30,7 @@ import {
   tamperResolvedCount,
   type TamperAlert,
 } from "@/data/mockTamperAlerts"
+import { useRoleSimulation } from "@/contexts/RoleSimulationContext"
 
 const COLOR_STATUS_WARNING = "var(--color-warning)"
 const COLOR_STATUS_DANGER = "var(--color-danger)"
@@ -133,13 +134,9 @@ const columns: ColumnDef<TamperAlert>[] = [
   },
 ]
 
-const statusTabs: StatusTab[] = [
-  { id: "unresolved", label: "Unresolved", count: tamperUnresolvedCount },
-  { id: "resolved", label: "Resolved", count: tamperResolvedCount },
-]
-
 export default function TamperAlertsPage() {
   const navigate = useNavigate()
+  const { dataScope, filterByCity } = useRoleSimulation()
   const [activeTab, setActiveTab] = useState("unresolved")
   const [searchQuery, setSearchQuery] = useState("")
   const [searchOpen, setSearchOpen] = useState(false)
@@ -148,8 +145,30 @@ export default function TamperAlertsPage() {
   const [pageSize, setPageSize] = useState(25)
   const activeFilterCount = getActiveFilterCount(filters)
 
+  const scopedAlerts = useMemo(
+    () => mockTamperAlerts.filter((alert) => filterByCity(alert.parameters.city)),
+    [filterByCity]
+  )
+
+  const statusTabs: StatusTab[] = [
+    {
+      id: "unresolved",
+      label: "Unresolved",
+      count: dataScope
+        ? scopedAlerts.filter((alert) => alert.status !== "Resolved").length
+        : tamperUnresolvedCount,
+    },
+    {
+      id: "resolved",
+      label: "Resolved",
+      count: dataScope
+        ? scopedAlerts.filter((alert) => alert.status === "Resolved").length
+        : tamperResolvedCount,
+    },
+  ]
+
   const filteredAlerts = useMemo(() =>
-    mockTamperAlerts.filter((alert) => {
+    scopedAlerts.filter((alert) => {
       const isResolved = alert.status === "Resolved"
       if (activeTab === "unresolved" && isResolved) return false
       if (activeTab === "resolved" && !isResolved) return false
@@ -165,7 +184,7 @@ export default function TamperAlertsPage() {
       }
       return true
     }),
-    [activeTab, filters, searchQuery]
+    [activeTab, filters, scopedAlerts, searchQuery]
   )
 
   const totalPages = Math.max(1, Math.ceil(filteredAlerts.length / pageSize))

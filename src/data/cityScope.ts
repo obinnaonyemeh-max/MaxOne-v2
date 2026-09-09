@@ -1,4 +1,7 @@
+import { CITIES } from "@/data/cities"
+
 export type CityId = "Lagos"
+export type CountryId = "Nigeria"
 
 /** Neighborhoods / yards treated as Lagos sub-cities for city-scoped dashboards. */
 export const LAGOS_SUBCITIES = [
@@ -38,17 +41,48 @@ const CITY_TOKENS: Record<CityId, string[]> = {
   Lagos: LAGOS_TOKENS,
 }
 
+const NIGERIA_TOKENS = [
+  ...LAGOS_TOKENS,
+  ...CITIES.map((city) => city.toLowerCase()),
+  "ogun",
+  "osun",
+  "ondo",
+  "nigeria",
+  "abuja",
+  "fct",
+  "port harcourt",
+  "kano",
+  "enugu",
+  "aba",
+  "abia",
+  "rivers",
+]
+
+const COUNTRY_TOKENS: Record<CountryId, string[]> = {
+  Nigeria: NIGERIA_TOKENS,
+}
+
 function normalize(value: string): string {
   return value.trim().toLowerCase()
 }
 
-/** True when a location / destination string belongs to the given city. */
-export function isInCityScope(value: string | null | undefined, city: CityId): boolean {
+function matchesTokens(value: string | null | undefined, tokens: string[]): boolean {
   if (!value) return false
   const normalized = normalize(value)
-  return CITY_TOKENS[city].some(
-    (token) => normalized === token || normalized.includes(token)
-  )
+  return tokens.some((token) => normalized === token || normalized.includes(token))
+}
+
+/** True when a location / destination string belongs to the given city. */
+export function isInCityScope(value: string | null | undefined, city: CityId): boolean {
+  return matchesTokens(value, CITY_TOKENS[city])
+}
+
+/** True when a location belongs to the given country (Nigeria cities, states, and Lagos tokens). */
+export function isInCountryScope(
+  value: string | null | undefined,
+  country: CountryId
+): boolean {
+  return matchesTokens(value, COUNTRY_TOKENS[country])
 }
 
 /** Map a Lagos location string to its sub-city, or null if it is not a known neighborhood. */

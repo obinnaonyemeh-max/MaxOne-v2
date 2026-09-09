@@ -18,6 +18,9 @@ import {
   type BarChartWidgetData,
   type DashboardWidget,
 } from "@/data/dashboardWidgets"
+import { falconWidgetModuleIdsFromNav } from "@/data/falconDashboardWidgets"
+import { getRoleDefinition } from "@/data/rolePermissions"
+import { FalconDashboardBody } from "@/pages/falcon-dashboard/FalconDashboardBody"
 
 const CHART_GRID_CLASS: Record<number, string> = {
   1: "grid-cols-1",
@@ -72,8 +75,14 @@ function ChartWidget({
 export default function DashboardPage() {
   const navigate = useNavigate()
   const widgets = useDashboardWidgets()
-  const { dataScope } = useRoleSimulation()
+  const { dataScope, isFullBuild, mode } = useRoleSimulation()
   const widgetData = useMemo(() => getDashboardWidgetData(dataScope), [dataScope])
+  const falconModuleIds = useMemo(() => {
+    if (isFullBuild) return []
+    const role = getRoleDefinition(mode)
+    if (!role) return []
+    return falconWidgetModuleIdsFromNav(role.navItemIds)
+  }, [isFullBuild, mode])
 
   const statWidgets = useMemo(
     () => widgets.filter((widget) => widget.size === "stat"),
@@ -105,14 +114,14 @@ export default function DashboardPage() {
           subtitle={
             dataScope?.type === "subCity"
               ? `See real-time fleet overview for ${dataScope.subCity}`
-              : dataScope?.city
+              : dataScope?.type === "city"
                 ? `See real-time fleet overview for ${dataScope.city}`
                 : "See real-time fleet overview across all regions"
           }
           className="px-0"
         />
 
-        {widgets.length === 0 ? (
+        {widgets.length === 0 && falconModuleIds.length === 0 ? (
           <div className="rounded-lg border border-gray-200 bg-gray-25 px-6 py-16 text-center">
             <p className="font-medium text-gray-950" style={{ fontSize: "16px" }}>
               No dashboard widgets for this role
@@ -165,6 +174,12 @@ export default function DashboardPage() {
                     title={widgetDisplayTitle(widget, dataScope)}
                   />
                 ))}
+              </div>
+            )}
+
+            {falconModuleIds.length > 0 && (
+              <div className={widgets.length > 0 ? "mt-6" : undefined}>
+                <FalconDashboardBody allowedModuleIds={falconModuleIds} />
               </div>
             )}
           </>

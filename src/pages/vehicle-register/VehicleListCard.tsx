@@ -10,6 +10,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import { useCan } from "@/contexts/RoleSimulationContext"
 import type { TrackingStatus, VehicleCategory, VehicleType } from "@/data/mockVehicleRegister"
 
 interface VehicleListCardProps {
@@ -140,6 +141,10 @@ export function VehicleListCard({
   className,
 }: VehicleListCardProps) {
   const [menuOpen, setMenuOpen] = useState(false)
+  const canApplyEnforcement = useCan("falcon.enforcement.apply")
+  const visibleMenuItems = menuItems.filter(
+    (item) => item.id !== "enforcement-actions" || canApplyEnforcement
+  )
   const isEV = category === "ev"
   const vehicleIcon = getVehicleIcon(vehicleType, category)
 
@@ -204,7 +209,7 @@ export function VehicleListCard({
                   className="w-56 p-1"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  {menuItems.map((item) => (
+                  {visibleMenuItems.map((item) => (
                     <button
                       key={item.id}
                       onClick={(e) => {

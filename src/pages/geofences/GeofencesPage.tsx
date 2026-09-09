@@ -18,6 +18,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { mockGeofences, totalGeofences } from "@/data/mockGeofences"
+import { useCityScopedRecords, useRoleSimulation } from "@/contexts/RoleSimulationContext"
 import { GeofenceListCard } from "./GeofenceListCard"
 import { GeofencesMap } from "./GeofencesMap"
 
@@ -27,30 +28,12 @@ const typeChips = [
   { id: "office", label: "Office", count: 40, color: "#F97316" },
 ]
 
-const AREAS = Array.from(new Set(mockGeofences.map((g) => g.area.replace(/\.$/, ""))))
-
-const filterSections: FilterSection[] = [
-  {
-    id: "type",
-    title: "Type",
-    defaultExpanded: true,
-    options: [
-      { value: "city", label: "City", color: "#3B82F6" },
-      { value: "station", label: "Swap Station", color: "#22C55E" },
-      { value: "office", label: "Office", color: "#F97316" },
-    ],
-  },
-  {
-    id: "area",
-    title: "Location",
-    options: AREAS.map((a) => ({ value: a, label: a })),
-  },
-]
-
 const defaultFilters: GenericFilterState = { type: [], area: [] }
 
 export default function GeofencesPage() {
   const navigate = useNavigate()
+  const { dataScope } = useRoleSimulation()
+  const scopedGeofences = useCityScopedRecords(mockGeofences, "area")
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [activeType, setActiveType] = useState<string | null>(null)
@@ -59,15 +42,65 @@ export default function GeofencesPage() {
   const listRef = useRef<HTMLDivElement>(null)
   const activeFilterCount = getActiveFilterCount(filters)
 
+  const areas = useMemo(
+    () => Array.from(new Set(scopedGeofences.map((g) => g.area.replace(/\.$/, "")))),
+    [scopedGeofences]
+  )
+
+  const filterSections: FilterSection[] = useMemo(
+    () => [
+      {
+        id: "type",
+        title: "Type",
+        defaultExpanded: true,
+        options: [
+          { value: "city", label: "City", color: "#3B82F6" },
+          { value: "station", label: "Swap Station", color: "#22C55E" },
+          { value: "office", label: "Office", color: "#F97316" },
+        ],
+      },
+      {
+        id: "area",
+        title: "Location",
+        options: areas.map((a) => ({ value: a, label: a })),
+      },
+    ],
+    [areas]
+  )
+
+  const displayTypeChips = useMemo(() => {
+    if (!dataScope) return typeChips
+    return [
+      {
+        id: "city",
+        label: "City",
+        count: scopedGeofences.filter((g) => g.type === "city").length,
+        color: "#3B82F6",
+      },
+      {
+        id: "station",
+        label: "Swap Station",
+        count: scopedGeofences.filter((g) => g.type === "station").length,
+        color: "#22C55E",
+      },
+      {
+        id: "office",
+        label: "Office",
+        count: scopedGeofences.filter((g) => g.type === "office").length,
+        color: "#F97316",
+      },
+    ]
+  }, [dataScope, scopedGeofences])
+
   const geofences = useMemo(
     () =>
-      mockGeofences.filter((g) => {
+      scopedGeofences.filter((g) => {
         if (activeType && g.type !== activeType) return false
         if (filters.type.length > 0 && !filters.type.includes(g.type)) return false
         if (filters.area.length > 0 && !filters.area.includes(g.area.replace(/\.$/, ""))) return false
         return true
       }),
-    [activeType, filters]
+    [activeType, filters, scopedGeofences]
   )
 
   // Nothing is preselected. If the current selection is filtered out, drop it.
@@ -103,7 +136,7 @@ export default function GeofencesPage() {
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h2 className="text-gray-950" style={{ fontSize: "18px", fontWeight: 600 }}>
-                  {totalGeofences.toLocaleString()}
+                  {(dataScope ? scopedGeofences.length : totalGeofences).toLocaleString()}
                 </h2>
                 <span className="text-gray-500" style={{ fontSize: "12px", fontWeight: 500 }}>
                   Total Geofenced Locations
@@ -137,7 +170,7 @@ export default function GeofencesPage() {
 
             {/* Type chips + distribution */}
             <BatteryStatusFilterChips
-              chips={typeChips}
+              chips={displayTypeChips}
               activeChipId={activeType}
               onChipClick={setActiveType}
             />

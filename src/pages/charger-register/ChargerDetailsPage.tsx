@@ -1,3 +1,4 @@
+import { useEffect } from "react"
 import { useParams, useNavigate, useSearchParams } from "react-router-dom"
 import {
   TopBar,
@@ -10,6 +11,8 @@ import {
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { getChargerById, type ChargerStatus, type LifecycleStatus } from "@/data/mockChargerData"
+import { useRoleSimulation } from "@/contexts/RoleSimulationContext"
+import { isPathAllowedForMode } from "@/data/rolePermissions"
 import { ChargingSessionsTab } from "./ChargingSessionsTab"
 
 const COLOR_SUCCESS = "var(--color-success)"
@@ -46,9 +49,20 @@ const lifecycleLabels: Record<LifecycleStatus, string> = {
 export default function ChargerDetailsPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const { mode, filterByCity } = useRoleSimulation()
   const [searchParams] = useSearchParams()
   const initialTab = searchParams.get("tab") || "info"
   const charger = getChargerById(id || "")
+  const canViewChargeSpots = isPathAllowedForMode(
+    `/falcon/ev-chargers/${id}/charge-spots`,
+    mode
+  )
+
+  useEffect(() => {
+    if (charger && !filterByCity(charger.stateDeployed)) {
+      navigate("/falcon/ev-chargers", { replace: true })
+    }
+  }, [charger, filterByCity, navigate])
 
   if (!charger) {
     return (
@@ -189,23 +203,25 @@ export default function ChargerDetailsPage() {
                 Showing charger information and charging session data
               </p>
             </div>
-            <div className="flex items-center gap-3">
-              <Button
-                className="h-10 gap-2 bg-sidebar-item-active hover:bg-sidebar-item-active/90"
-                onClick={() =>
-                  navigate(`/falcon/ev-chargers/${charger.id}/charge-spots`, {
-                    state: { from: `/falcon/ev-chargers/${charger.id}` },
-                  })
-                }
-              >
-                <img
-                  src="/images/charge_spot.svg"
-                  alt=""
-                  className="h-5 w-5"
-                />
-                View Charge Spots
-              </Button>
-            </div>
+            {canViewChargeSpots && (
+              <div className="flex items-center gap-3">
+                <Button
+                  className="h-10 gap-2 bg-sidebar-item-active hover:bg-sidebar-item-active/90"
+                  onClick={() =>
+                    navigate(`/falcon/ev-chargers/${charger.id}/charge-spots`, {
+                      state: { from: `/falcon/ev-chargers/${charger.id}` },
+                    })
+                  }
+                >
+                  <img
+                    src="/images/charge_spot.svg"
+                    alt=""
+                    className="h-5 w-5"
+                  />
+                  View Charge Spots
+                </Button>
+              </div>
+            )}
           </div>
         </div>
 

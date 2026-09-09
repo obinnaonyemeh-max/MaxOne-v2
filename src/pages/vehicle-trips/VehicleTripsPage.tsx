@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import { RefreshCw } from "lucide-react"
 import { toast } from "sonner"
@@ -20,6 +20,7 @@ import {
   interpolateTrip,
   type TripPoint,
 } from "@/data/mockVehicleActivity"
+import { useRoleSimulation } from "@/contexts/RoleSimulationContext"
 import { TrendChartCard } from "@/pages/battery-register/TrendChartCard"
 import { LiveTrackingMap } from "@/pages/vehicle-activity/LiveTrackingMap"
 import { EventTrackingCard } from "./EventTrackingCard"
@@ -59,6 +60,7 @@ function headingFor(points: TripPoint[], sampled: TripPoint): { degrees: number;
 export default function VehicleTripsPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const { filterByCity } = useRoleSimulation()
   const vehicle = getVehicleById(id || "")
   const activity = getVehicleActivity(id || "")
   const trips = getVehicleTrips(id || "")
@@ -164,6 +166,12 @@ export default function VehicleTripsPage() {
     ]
     return rows
   }, [activity, currentSample, displaySpeed, heading.degrees, heading.label, isEV, isLiveTab, moving, startSeconds])
+
+  useEffect(() => {
+    if (vehicle && !filterByCity(vehicle.city)) {
+      navigate("/falcon/vehicle-register", { replace: true })
+    }
+  }, [filterByCity, navigate, vehicle])
 
   if (!vehicle || !activity) {
     return (

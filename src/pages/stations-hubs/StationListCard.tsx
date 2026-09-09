@@ -2,9 +2,12 @@ import { ChevronDown } from "lucide-react"
 import { motion, AnimatePresence } from "motion/react"
 import { cn } from "@/lib/utils"
 import { clickableSurfaceProps } from "@/lib/clickableSurface"
-import { BatteryLevelIcon } from "@/components/max/BatteryLevelIcon"
+import { BatteryLevelIcon } from "@/components/max"
 import {
   formatStationCollections,
+  getStationChargeCounts,
+  isHubLocation,
+  locationIconUrl,
   type SwapStation,
 } from "@/data/mockStationsData"
 import {
@@ -58,7 +61,9 @@ export function StationListCard({
   onViewFullInfo,
 }: StationListCardProps) {
   const isEmpty = station.batteriesAvailable === 0
+  const isHub = isHubLocation(station)
   const averageSoc = isEmpty ? "N/A" : `${station.averageSoc}%`
+  const chargeCounts = isHub ? getStationChargeCounts(station.id) : null
 
   return (
     <div
@@ -74,13 +79,13 @@ export function StationListCard({
         <div className="flex items-start gap-3 pr-6">
           <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-amber-50">
             <img
-              src="/images/station.svg"
+              src={locationIconUrl(station.locationType)}
               alt=""
               className="h-8 w-8 object-contain"
             />
           </div>
           <div className="min-w-0 flex-1">
-            <div className="flex min-w-0 items-center gap-2">
+            <div className="flex min-w-0 items-center justify-between gap-2">
               <span
                 className="min-w-0 truncate text-gray-950"
                 style={{ fontSize: "14px", fontWeight: 600 }}
@@ -92,7 +97,10 @@ export function StationListCard({
                   chargeLevel={station.averageSoc}
                   tooltip={`Average SOC: ${station.averageSoc}%`}
                 />
-                <StationActionsMenu onAction={onMenuAction} />
+                <StationActionsMenu
+                  locationType={station.locationType}
+                  onAction={onMenuAction}
+                />
               </div>
             </div>
             <p
@@ -133,15 +141,31 @@ export function StationListCard({
                     label="Number of Reserved Batteries"
                     value={displayValue(station.reservedBatteries)}
                   />
-                  <DetailField
-                    label="Total Swaps (Today)"
-                    value={station.totalSwapsToday.toLocaleString()}
-                    align="right"
-                  />
-                  <DetailField
-                    label="Total Collections"
-                    value={formatStationCollections(station.totalCollections)}
-                  />
+                  {isHub && chargeCounts ? (
+                    <>
+                      <DetailField
+                        label="Charging now"
+                        value={chargeCounts.charging.toLocaleString()}
+                        align="right"
+                      />
+                      <DetailField
+                        label="Plugged in"
+                        value={chargeCounts.pluggedIn.toLocaleString()}
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <DetailField
+                        label="Total Swaps (Today)"
+                        value={station.totalSwapsToday.toLocaleString()}
+                        align="right"
+                      />
+                      <DetailField
+                        label="Total Collections"
+                        value={formatStationCollections(station.totalCollections)}
+                      />
+                    </>
+                  )}
                   <DetailField label="Provider" value={station.provider} align="right" />
                 </div>
 
@@ -170,7 +194,11 @@ export function StationListCard({
           e.stopPropagation()
           onExpandClick?.()
         }}
-        aria-label={isExpanded ? "Collapse station details" : "Expand station details"}
+          aria-label={
+            isExpanded
+              ? `Collapse ${isHub ? "hub" : "station"} details`
+              : `Expand ${isHub ? "hub" : "station"} details`
+          }
         className={cn(
           "absolute right-3 rounded p-1 hover:bg-gray-100",
           isExpanded ? "top-3" : "top-1/2 -translate-y-1/2"

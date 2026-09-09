@@ -44,6 +44,7 @@ export function SetOperatingHoursModal({
   station,
   onSave,
 }: SetOperatingHoursModalProps) {
+  const noun = station.locationType === "hub" ? "hub" : "swap station"
   const [openHours, setOpenHours] = useState("")
   const [closeHours, setCloseHours] = useState("")
   const [forcedClosure, setForcedClosure] = useState(false)
@@ -77,7 +78,7 @@ export function SetOperatingHoursModal({
         open={open && !saved}
         onOpenChange={onOpenChange}
         title="Set Operating Hours"
-        subtitle="Set when this swap station is open. Force closure overrides these hours and keeps the station closed."
+        subtitle={`Set when this ${noun} is open. Force closure overrides these hours and keeps the ${noun} closed.`}
         className="max-w-md"
         secondaryAction={{
           label: "Cancel",
@@ -115,16 +116,16 @@ export function SetOperatingHoursModal({
             <div className="flex items-center justify-between gap-4">
               <div className="min-w-0">
                 <p className="font-medium text-gray-950" style={{ fontSize: "13px" }}>
-                  Force swap station closure
+                  Force {noun} closure
                 </p>
                 <p className="mt-1 text-gray-500" style={{ fontSize: "12px" }}>
-                  Overrides operating hours and keeps the station closed.
+                  Overrides operating hours and keeps the {noun} closed.
                 </p>
               </div>
               <Switch
                 checked={forcedClosure}
                 onCheckedChange={setForcedClosure}
-                aria-label="Force swap station closure"
+                aria-label={`Force ${noun} closure`}
               />
             </div>
           </div>

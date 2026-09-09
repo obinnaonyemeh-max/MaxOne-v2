@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import {
   TopBar,
@@ -19,6 +19,8 @@ import { BatterySwapHistoryModal } from "./BatterySwapHistoryModal"
 import { ChargerInfoCard } from "./ChargerInfoCard"
 import { DriverScoreCard } from "./DriverScoreCard"
 import { EnforcementHistoryCard } from "./EnforcementHistoryCard"
+import { useRoleSimulation } from "@/contexts/RoleSimulationContext"
+import { isPathAllowedForMode } from "@/data/rolePermissions"
 import { EnforcementHistoryModal } from "./EnforcementHistoryModal"
 
 const COLOR_GREEN = "var(--color-success)"
@@ -31,10 +33,21 @@ const COLOR_DANGER = "var(--color-danger)"
 export default function VehicleActivityPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const { mode, filterByCity } = useRoleSimulation()
   const vehicle = getVehicleById(id || "")
   const activity = getVehicleActivity(id || "")
+  const canViewStops = isPathAllowedForMode(
+    `/falcon/vehicle-register/${id}/stops`,
+    mode
+  )
   const [swapHistoryOpen, setSwapHistoryOpen] = useState(false)
   const [enforcementOpen, setEnforcementOpen] = useState(false)
+
+  useEffect(() => {
+    if (vehicle && !filterByCity(vehicle.city)) {
+      navigate("/falcon/vehicle-register", { replace: true })
+    }
+  }, [filterByCity, navigate, vehicle])
 
   if (!vehicle || !activity) {
     return (
@@ -215,7 +228,11 @@ export default function VehicleActivityPage() {
                 viewAllLabel="VIEW ALL STOPS"
                 countNoun="Prime stop"
                 emptyLabel="No prime stops recorded"
-                onViewAllClick={() => navigate(`/falcon/vehicle-register/${vehicle.id}/stops`)}
+                onViewAllClick={
+                  canViewStops
+                    ? () => navigate(`/falcon/vehicle-register/${vehicle.id}/stops`)
+                    : undefined
+                }
               />
             </>
           ) : (
@@ -226,7 +243,11 @@ export default function VehicleActivityPage() {
               viewAllLabel="VIEW ALL STOPS"
               countNoun="Prime stop"
               emptyLabel="No prime stops recorded"
-              onViewAllClick={() => navigate(`/falcon/vehicle-register/${vehicle.id}/stops`)}
+              onViewAllClick={
+                canViewStops
+                  ? () => navigate(`/falcon/vehicle-register/${vehicle.id}/stops`)
+                  : undefined
+              }
             />
           )}
 

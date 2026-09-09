@@ -32,11 +32,15 @@ import { applyEnforcement } from "@/data/mockEnforcement"
 import { VehicleListCard } from "./VehicleListCard"
 import { VehiclesMap } from "./VehiclesMap"
 import { VehicleFilterPopover, getActiveFilterCount, type VehicleFilters } from "./VehicleFilterPanel"
+import { useCan, useCityScopedRecords, useRoleSimulation } from "@/contexts/RoleSimulationContext"
 import { EnforcementHistoryModal } from "@/pages/vehicle-activity/EnforcementHistoryModal"
 import { EnforcementActionModal } from "@/pages/vehicle-activity/EnforcementActionModal"
 
 export default function VehicleRegisterPage() {
   const navigate = useNavigate()
+  const canApplyEnforcement = useCan("falcon.enforcement.apply")
+  const { dataScope } = useRoleSimulation()
+  const scopedVehicles = useCityScopedRecords(mockVehicleRegisterItems, "city")
   const [activeCheckTab, setActiveCheckTab] = useState<CheckStatus>("checked-out")
   const [activeStatusFilter, setActiveStatusFilter] = useState<TrackingStatus | null>(null)
   const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(
@@ -55,21 +59,35 @@ export default function VehicleRegisterPage() {
   const listContainerRef = useRef<HTMLDivElement>(null)
 
   const checkTabs = [
-    { id: "checked-out", label: "Checked Out", count: checkedOutCount },
-    { id: "checked-in", label: "Checked In", count: checkedInCount },
+    {
+      id: "checked-out",
+      label: "Checked Out",
+      count: dataScope
+        ? scopedVehicles.filter((vehicle) => vehicle.checkStatus === "checked-out").length
+        : checkedOutCount,
+    },
+    {
+      id: "checked-in",
+      label: "Checked In",
+      count: dataScope
+        ? scopedVehicles.filter((vehicle) => vehicle.checkStatus === "checked-in").length
+        : checkedInCount,
+    },
   ]
 
   const filterChips = trackingStatusCounts.map((item) => ({
     id: item.status,
     label: item.label,
-    count: item.count,
+    count: dataScope
+      ? scopedVehicles.filter((vehicle) => vehicle.trackingStatus === item.status).length
+      : item.count,
     color: item.color,
   }))
 
   const activeFilterCount = getActiveFilterCount(advancedFilters)
 
   const filteredVehicles = useMemo(() => {
-    let vehicles = mockVehicleRegisterItems
+    let vehicles = scopedVehicles
 
     if (activeCheckTab) {
       vehicles = vehicles.filter((v) => v.checkStatus === activeCheckTab)
@@ -108,7 +126,7 @@ export default function VehicleRegisterPage() {
     }
 
     return vehicles
-  }, [activeCheckTab, activeStatusFilter, advancedFilters])
+  }, [activeCheckTab, activeStatusFilter, advancedFilters, scopedVehicles])
 
   useEffect(() => {
     if (filteredVehicles.length === 0) {
@@ -177,7 +195,7 @@ export default function VehicleRegisterPage() {
                   className="text-gray-950"
                   style={{ fontSize: "18px", fontWeight: 600 }}
                 >
-                  {totalVehicles.toLocaleString()}
+                  {(dataScope ? scopedVehicles.length : totalVehicles).toLocaleString()}
                 </h2>
                 <span
                   className="text-gray-500"
@@ -332,26 +350,28 @@ export default function VehicleRegisterPage() {
         }
       />
 
-      <EnforcementActionModal
-        open={!!enforcementActionVehicleId}
-        onOpenChange={(open) => {
-          if (!open) setEnforcementActionVehicleId(null)
-        }}
-        onApply={({ action, actionLabel, reason, comment }) => {
-          if (enforcementActionVehicleId) {
-            applyEnforcement({
-              vehicleId: enforcementActionVehicleId,
-              action,
-              reason,
-              comment,
+      {canApplyEnforcement && (
+        <EnforcementActionModal
+          open={!!enforcementActionVehicleId}
+          onOpenChange={(open) => {
+            if (!open) setEnforcementActionVehicleId(null)
+          }}
+          onApply={({ action, actionLabel, reason, comment }) => {
+            if (enforcementActionVehicleId) {
+              applyEnforcement({
+                vehicleId: enforcementActionVehicleId,
+                action,
+                reason,
+                comment,
+              })
+            }
+            setEnforcementActionVehicleId(null)
+            toast.success(`${actionLabel} applied`, {
+              description: comment ? `${reason} — ${comment}` : reason,
             })
-          }
-          setEnforcementActionVehicleId(null)
-          toast.success(`${actionLabel} applied`, {
-            description: comment ? `${reason} — ${comment}` : reason,
-          })
-        }}
-      />
+          }}
+        />
+      )}
     </>
   )
 }

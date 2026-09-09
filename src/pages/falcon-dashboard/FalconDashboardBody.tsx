@@ -1,4 +1,5 @@
-import type { ReactNode } from "react"
+import { useMemo, type ReactNode } from "react"
+import { useRoleSimulation } from "@/contexts/RoleSimulationContext"
 import {
   DistributionChart,
   FleetDistributionCard,
@@ -7,11 +8,14 @@ import {
   StatCard,
   TimeSeriesStatCard,
 } from "@/components/max"
-import { widgetsForFalconFullBuild } from "@/data/falconDashboardWidgets"
+import {
+  widgetsForFalconFullBuild,
+  widgetsForFalconModules,
+  type FalconDashboardWidget,
+} from "@/data/falconDashboardWidgets"
 import {
   mockSwapStations,
   STATION_PROVIDERS,
-  totalSwapStations,
   type StationProvider,
 } from "@/data/mockStationsData"
 import { mockGeofences, totalGeofences } from "@/data/mockGeofences"
@@ -23,9 +27,7 @@ import {
   tripDashboardTrend,
 } from "@/data/mockSwapDashboardData"
 
-const widgets = widgetsForFalconFullBuild()
-const widgetIds = new Set(widgets.map((widget) => widget.id))
-const hasWidget = (id: (typeof widgets)[number]["id"]) => widgetIds.has(id)
+type HasWidget = (id: FalconDashboardWidget["id"]) => boolean
 
 const PROVIDER_COLORS: Record<StationProvider, string> = {
   MAX: "var(--color-status-info)",
@@ -34,11 +36,18 @@ const PROVIDER_COLORS: Record<StationProvider, string> = {
   Spiro: "var(--color-success)",
 }
 
-const stationProviderItems = STATION_PROVIDERS.map((provider) => ({
-  label: provider,
-  value: mockSwapStations.filter((station) => station.provider === provider).length,
-  color: PROVIDER_COLORS[provider],
-}))
+function useScopedSwapStations() {
+  const { dataScope, filterByCity, filterByStation } = useRoleSimulation()
+  return useMemo(
+    () =>
+      mockSwapStations.filter((station) => {
+        if (station.locationType !== "swap-station") return false
+        if (dataScope?.type === "station") return filterByStation(station.id)
+        return !dataScope || filterByCity(station.city)
+      }),
+    [dataScope, filterByCity, filterByStation]
+  )
+}
 
 const geofenceItems = [
   {
@@ -102,12 +111,19 @@ function TotalCo2Card({ className }: { className?: string }) {
 }
 
 function TotalSwapStationsCard({ className }: { className?: string }) {
+  const swapStations = useScopedSwapStations()
+  const items = STATION_PROVIDERS.map((provider) => ({
+    label: provider,
+    value: swapStations.filter((station) => station.provider === provider).length,
+    color: PROVIDER_COLORS[provider],
+  }))
+
   return (
     <SegmentedStatCard
       className={className}
       title="Total Swap Stations"
-      value={totalSwapStations}
-      items={stationProviderItems}
+      value={swapStations.length}
+      items={items}
     />
   )
 }
@@ -225,7 +241,7 @@ function StatGrid({ children, count }: { children: ReactNode; count: number }) {
   return <div className={`mb-6 grid ${columns} gap-2`}>{children}</div>
 }
 
-function PageLayout() {
+function PageLayout({ hasWidget }: { hasWidget: HasWidget }) {
   const topStats = [
     hasWidget("total-fleet") ? <TotalFleetCard key="total-fleet" /> : null,
     hasWidget("total-co2-emitted") ? <TotalCo2Card key="total-co2-emitted" /> : null,
@@ -294,7 +310,7 @@ function PageLayout() {
   )
 }
 
-function VehicleTrackingScreen() {
+function VehicleTrackingScreen({ hasWidget }: { hasWidget: HasWidget }) {
   return (
     <div className="grid h-full min-h-0 grid-cols-2 grid-rows-[auto_1fr_1fr_1fr] gap-3">
       {hasWidget("total-fleet") && <TotalFleetCard className="h-full" />}
@@ -311,7 +327,7 @@ function VehicleTrackingScreen() {
   )
 }
 
-function BatteriesScreen() {
+function BatteriesScreen({ hasWidget }: { hasWidget: HasWidget }) {
   return (
     <div className="grid h-full min-h-0 grid-rows-[auto_minmax(0,1.15fr)_minmax(0,1fr)] gap-3">
       {hasWidget("battery-overview") && <BatteryDashboardWidgets statsOnly />}
@@ -352,13 +368,19 @@ function BatteriesScreen() {
 
 export function FalconDashboardBody({
   moduleId,
+  allowedModuleIds,
 }: {
   moduleId?: string
+  allowedModuleIds?: readonly string[]
 }) {
-  if (!moduleId) return <PageLayout />
+  const widgets = allowedModuleIds
+    ? widgetsForFalconModules(allowedModuleIds)
+    : widgetsForFalconFullBuild()
+  const widgetIds = new Set(widgets.map((widget) => widget.id))
+  const hasWidget: HasWidget = (id) => widgetIds.has(id)
 
-  if (moduleId === "vehicle-register") return <VehicleTrackingScreen />
-  if (moduleId === "battery-register") return <BatteriesScreen />
+  if (moduleId === "vehicle-register") return <VehicleTrackingScreen hasWidget={hasWidget} />
+  if (moduleId === "battery-register") return <BatteriesScreen hasWidget={hasWidget} />
 
-  return <PageLayout />
+  return <PageLayout hasWidget={hasWidget} />
 }

@@ -1,6 +1,9 @@
-import { BatteryLevelIcon } from "@/components/max/BatteryLevelIcon"
+import { BatteryLevelIcon } from "@/components/max"
 import {
   formatStationCollections,
+  getStationChargeCounts,
+  isHubLocation,
+  locationIconUrl,
   type SwapStation,
 } from "@/data/mockStationsData"
 import {
@@ -16,6 +19,8 @@ interface StationGridCardProps {
 
 export function StationGridCard({ station, onClick, onMenuAction }: StationGridCardProps) {
   const isEmpty = station.batteriesAvailable === 0
+  const isHub = isHubLocation(station)
+  const chargeCounts = isHub ? getStationChargeCounts(station.id) : null
 
   return (
     <div
@@ -33,26 +38,31 @@ export function StationGridCard({ station, onClick, onMenuAction }: StationGridC
       <div className="flex items-start gap-3">
         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-amber-50">
           <img
-            src="/images/station.svg"
+            src={locationIconUrl(station.locationType)}
             alt=""
             className="h-8 w-8 object-contain"
           />
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-2">
-            <h3
-              className="truncate text-gray-950"
-              style={{ fontSize: "14px", fontWeight: 600 }}
-            >
-              {station.name}
-            </h3>
+            <div className="min-w-0">
+              <h3
+                className="truncate text-gray-950"
+                style={{ fontSize: "14px", fontWeight: 600 }}
+              >
+                {station.name}
+              </h3>
+            </div>
             <div className="flex shrink-0 items-center gap-1.5">
               <BatteryLevelIcon
                 chargeLevel={station.averageSoc}
                 tooltip={`Average SOC: ${station.averageSoc}%`}
                 className="mt-0.5"
               />
-              <StationActionsMenu onAction={onMenuAction} />
+              <StationActionsMenu
+                locationType={station.locationType}
+                onAction={onMenuAction}
+              />
             </div>
           </div>
           <p
@@ -72,22 +82,45 @@ export function StationGridCard({ station, onClick, onMenuAction }: StationGridC
           aria-hidden
           className="absolute top-2 bottom-2 left-1/2 w-px -translate-x-1/2 bg-gray-300 opacity-60"
         />
-        <div>
-          <p className="text-gray-500" style={{ fontSize: "11px", fontWeight: 500 }}>
-            Total Collections
-          </p>
-          <p className="mt-0.5 text-gray-950" style={{ fontSize: "12px", fontWeight: 600 }}>
-            {formatStationCollections(station.totalCollections)}
-          </p>
-        </div>
-        <div className="pl-1.5">
-          <p className="text-gray-500" style={{ fontSize: "11px", fontWeight: 500 }}>
-            Swaps (Today)
-          </p>
-          <p className="mt-0.5 text-gray-950" style={{ fontSize: "12px", fontWeight: 600 }}>
-            {station.totalSwapsToday.toLocaleString()}
-          </p>
-        </div>
+        {isHub && chargeCounts ? (
+          <>
+            <div>
+              <p className="text-gray-500" style={{ fontSize: "11px", fontWeight: 500 }}>
+                Charging now
+              </p>
+              <p className="mt-0.5 text-gray-950" style={{ fontSize: "12px", fontWeight: 600 }}>
+                {chargeCounts.charging.toLocaleString()}
+              </p>
+            </div>
+            <div className="pl-1.5">
+              <p className="text-gray-500" style={{ fontSize: "11px", fontWeight: 500 }}>
+                Plugged in
+              </p>
+              <p className="mt-0.5 text-gray-950" style={{ fontSize: "12px", fontWeight: 600 }}>
+                {chargeCounts.pluggedIn.toLocaleString()}
+              </p>
+            </div>
+          </>
+        ) : (
+          <>
+            <div>
+              <p className="text-gray-500" style={{ fontSize: "11px", fontWeight: 500 }}>
+                Total Collections
+              </p>
+              <p className="mt-0.5 text-gray-950" style={{ fontSize: "12px", fontWeight: 600 }}>
+                {formatStationCollections(station.totalCollections)}
+              </p>
+            </div>
+            <div className="pl-1.5">
+              <p className="text-gray-500" style={{ fontSize: "11px", fontWeight: 500 }}>
+                Swaps (Today)
+              </p>
+              <p className="mt-0.5 text-gray-950" style={{ fontSize: "12px", fontWeight: 600 }}>
+                {station.totalSwapsToday.toLocaleString()}
+              </p>
+            </div>
+          </>
+        )}
       </div>
     </div>
   )

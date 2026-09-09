@@ -29,7 +29,7 @@ export function StatusTabs({
   return (
     <div
       className={cn(
-        "flex items-center gap-1 overflow-x-auto border-b border-transparent px-4 md:px-6",
+        "flex items-center gap-1 overflow-x-auto overflow-y-hidden overscroll-none scrollbar-hide border-b border-transparent px-4 md:px-6",
         className
       )}
     >
@@ -42,7 +42,7 @@ export function StatusTabs({
             key={tab.id}
             onClick={() => onTabChange(tab.id)}
             className={cn(
-              "relative whitespace-nowrap px-2 py-3 text-sm font-medium transition-colors duration-200 ease-in-out",
+              "relative whitespace-nowrap px-2 py-3 text-sm font-medium transition-colors duration-200 ease-in-out first:pl-0",
               isActive
                 ? "text-foreground"
                 : "text-muted-foreground hover:text-foreground"

@@ -22,6 +22,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import { useCan, useRoleSimulation } from "@/contexts/RoleSimulationContext"
+import { getStationById } from "@/data/mockStationsData"
 import {
   acceptTransfer,
   getTransferDirection,
@@ -71,6 +73,8 @@ export function TransferLogTab({
   refreshKey = 0,
   onStationChange,
 }: TransferLogTabProps) {
+  const canTransfer = useCan("falcon.stations.transfer")
+  const { dataScope, filterByCity, filterByStation } = useRoleSimulation()
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [filters, setFilters] = useState<GenericFilterState>(defaultFilters)
@@ -246,8 +250,17 @@ export function TransferLogTab({
     },
   ]
 
+  const destinationInScope =
+    !selectedTransfer ||
+    !dataScope ||
+    (dataScope.type === "station"
+      ? filterByStation(selectedTransfer.destinationStationId)
+      : filterByCity(getStationById(selectedTransfer.destinationStationId)?.city))
+
   const canAct =
+    canTransfer &&
     selectedTransfer &&
+    destinationInScope &&
     getTransferDirection(selectedTransfer, stationId) === "incoming" &&
     selectedTransfer.status === "pending"
 

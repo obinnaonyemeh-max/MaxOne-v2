@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import { RefreshCw, FileText, UserCog, History } from "lucide-react"
 import { toast } from "sonner"
@@ -16,6 +16,7 @@ import {
   tamperStatusVariantMap,
   mockTamperMovementHistory,
 } from "@/data/mockTamperAlerts"
+import { useRoleSimulation } from "@/contexts/RoleSimulationContext"
 import { TamperLocationMap } from "./TamperLocationMap"
 import { AssessmentReportModal } from "./AssessmentReportModal"
 import { AssessmentSummaryModal } from "./AssessmentSummaryModal"
@@ -52,6 +53,7 @@ const buildRecordedAnswers = (): AssessmentAnswers =>
 export default function TamperAlertDetailPage() {
   const navigate = useNavigate()
   const { id } = useParams<{ id: string }>()
+  const { filterByCity } = useRoleSimulation()
   const alert = mockTamperAlerts.find((a) => a.id === id)
   const hasRecordedAssessment = !!alert && alert.status === "In Progress"
   const isResolved = !!alert && alert.status === "Resolved"
@@ -104,6 +106,12 @@ export default function TamperAlertDetailPage() {
   }
 
   const backToList = () => navigate("/falcon/alerts/tamper")
+
+  useEffect(() => {
+    if (alert && !filterByCity(alert.parameters.city)) {
+      navigate("/falcon/alerts/tamper", { replace: true })
+    }
+  }, [alert, filterByCity, navigate])
 
   if (!alert) {
     return (

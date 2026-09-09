@@ -1,7 +1,8 @@
+import { useEffect } from "react"
 import { useParams, useNavigate, useSearchParams, useLocation } from "react-router-dom"
 import { TopBar, InfoCard, InfoGrid, BackButton, StatusBadge } from "@/components/max"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import { getBatteryById, mockTrendData } from "@/data/mockBatteryRegisterData"
+import { getBatteryById, getBatteryCityScopeValue, mockTrendData } from "@/data/mockBatteryRegisterData"
 import { ChargeInfoCard } from "./ChargeInfoCard"
 import { BatteryMetricCard } from "./BatteryMetricCard"
 import { TrendChartCard } from "./TrendChartCard"
@@ -9,6 +10,7 @@ import { SOHTrendCard } from "./SOHTrendCard"
 import { CellVoltageCard } from "./CellVoltageCard"
 import { AlertHistoryTab } from "./AlertHistoryTab"
 import { MovementHistoryTab } from "./MovementHistoryTab"
+import { useCan, useRoleSimulation } from "@/contexts/RoleSimulationContext"
 import { CommandCenterTab } from "./CommandCenterTab"
 
 const assignmentStatusToVariant: Record<string, "success" | "default" | "warning"> = {
@@ -28,9 +30,27 @@ export default function BatteryDetailsPage() {
   const navigate = useNavigate()
   const location = useLocation()
   const [searchParams] = useSearchParams()
-  const initialTab = searchParams.get("tab") || "info"
+  const canViewTelemetry = useCan("falcon.batteries.tab.telemetry")
+  const canViewMovement = useCan("falcon.batteries.tab.movement")
+  const canCommand = useCan("falcon.batteries.command")
+  const { filterByCity } = useRoleSimulation()
+  const requestedTab = searchParams.get("tab") || "info"
+  const allowedTabs = new Set([
+    "info",
+    "alerts",
+    ...(canViewTelemetry ? ["telemetry"] : []),
+    ...(canViewMovement ? ["movement"] : []),
+    ...(canCommand ? ["command"] : []),
+  ])
+  const initialTab = allowedTabs.has(requestedTab) ? requestedTab : "info"
   const fromPath = (location.state as { from?: string } | null)?.from
   const battery = getBatteryById(id || "")
+
+  useEffect(() => {
+    if (battery && !filterByCity(getBatteryCityScopeValue(battery))) {
+      navigate("/falcon/batteries/register", { replace: true })
+    }
+  }, [battery, filterByCity, navigate])
 
   if (!battery) {
     return (
@@ -114,30 +134,36 @@ export default function BatteryDetailsPage() {
               >
                 Battery Information
               </TabsTrigger>
-              <TabsTrigger
-                value="telemetry"
-                className="px-4 py-3 text-sm font-medium data-[state=active]:text-sidebar-item-active data-[state=inactive]:text-breadcrumb-root"
-              >
-                Telemetry
-              </TabsTrigger>
+              {canViewTelemetry && (
+                <TabsTrigger
+                  value="telemetry"
+                  className="px-4 py-3 text-sm font-medium data-[state=active]:text-sidebar-item-active data-[state=inactive]:text-breadcrumb-root"
+                >
+                  Telemetry
+                </TabsTrigger>
+              )}
               <TabsTrigger
                 value="alerts"
                 className="px-4 py-3 text-sm font-medium data-[state=active]:text-sidebar-item-active data-[state=inactive]:text-breadcrumb-root"
               >
                 Alert History
               </TabsTrigger>
-              <TabsTrigger
-                value="movement"
-                className="px-4 py-3 text-sm font-medium data-[state=active]:text-sidebar-item-active data-[state=inactive]:text-breadcrumb-root"
-              >
-                Movement History
-              </TabsTrigger>
-              <TabsTrigger
-                value="command"
-                className="px-4 py-3 text-sm font-medium data-[state=active]:text-sidebar-item-active data-[state=inactive]:text-breadcrumb-root"
-              >
-                Command Center
-              </TabsTrigger>
+              {canViewMovement && (
+                <TabsTrigger
+                  value="movement"
+                  className="px-4 py-3 text-sm font-medium data-[state=active]:text-sidebar-item-active data-[state=inactive]:text-breadcrumb-root"
+                >
+                  Movement History
+                </TabsTrigger>
+              )}
+              {canCommand && (
+                <TabsTrigger
+                  value="command"
+                  className="px-4 py-3 text-sm font-medium data-[state=active]:text-sidebar-item-active data-[state=inactive]:text-breadcrumb-root"
+                >
+                  Command Center
+                </TabsTrigger>
+              )}
             </TabsList>
 
             {/* Battery Information Tab */}
@@ -149,7 +175,7 @@ export default function BatteryDetailsPage() {
               </div>
             </TabsContent>
 
-            {/* Telemetry Tab */}
+            {canViewTelemetry && (
             <TabsContent value="telemetry" className="mt-0">
               <div className="flex flex-col gap-4">
                 {/* Row 1: Charge Info + Metric Cards (40%) | SOC Trend (60%) */}
@@ -250,29 +276,32 @@ export default function BatteryDetailsPage() {
                 <CellVoltageCard cellVoltages={battery.cellVoltages} />
               </div>
             </TabsContent>
+            )}
 
             {/* Alert History Tab */}
             <TabsContent value="alerts" className="mt-0">
               <AlertHistoryTab />
             </TabsContent>
 
-            {/* Movement History Tab */}
-            <TabsContent value="movement" className="mt-0">
-              <MovementHistoryTab />
-            </TabsContent>
+            {canViewMovement && (
+              <TabsContent value="movement" className="mt-0">
+                <MovementHistoryTab />
+              </TabsContent>
+            )}
 
-            {/* Command Center Tab */}
-            <TabsContent value="command" className="mt-0">
-              <CommandCenterTab 
-                batteryId={battery.id} 
-                batteryInfo={{
-                  id: battery.id,
-                  status: battery.status,
-                  currentRider: battery.assignedTo || "Temilade Osuji",
-                  currentVehicle: "MAX-38849",
-                }}
-              />
-            </TabsContent>
+            {canCommand && (
+              <TabsContent value="command" className="mt-0">
+                <CommandCenterTab 
+                  batteryId={battery.id} 
+                  batteryInfo={{
+                    id: battery.id,
+                    status: battery.status,
+                    currentRider: battery.assignedTo || "Temilade Osuji",
+                    currentVehicle: "MAX-38849",
+                  }}
+                />
+              </TabsContent>
+            )}
           </Tabs>
         </div>
       </div>

@@ -29,8 +29,8 @@ A **role** is four things, all defined on `RoleDefinition` in [`src/data/rolePer
 
 1. **Nav** — `navItemIds`: sidebar item `id`s this role may see (include parent folders).
 2. **Actions** — `permissions`: allow-list of `PermissionKey`s. Omit a key to hide the control.
-3. **Data scope** — optional `dataScope` (today: `{ type: "city", city: "Lagos" }`). Omit for unscoped data.
-4. **Dashboard** — **not** configured on the role. Widgets are derived from `navItemIds` via `MODULE_WIDGETS` in [`src/data/dashboardWidgets.ts`](../src/data/dashboardWidgets.ts).
+3. **Data scope** — optional `dataScope` (`{ type: "city", city: "Lagos" }`, `{ type: "subCity", ... }`, `{ type: "station", stationIds }`, or `{ type: "country", country: "Nigeria" }`). Omit for unscoped data.
+4. **Dashboard** — **not** configured on the role. Fleet Ops widgets are derived from `navItemIds` via `MODULE_WIDGETS` in [`src/data/dashboardWidgets.ts`](../src/data/dashboardWidgets.ts). Falcon widgets for GFM are derived the same way from [`src/data/falconDashboardWidgets.ts`](../src/data/falconDashboardWidgets.ts) via `falconWidgetModuleIdsFromNav`.
 
 ```mermaid
 flowchart TD
@@ -38,7 +38,7 @@ flowchart TD
   ctx[RoleSimulationContext]
   nav[Filtered sidebar plus path allowlist]
   actions[useCan omit controls]
-  data[useCityScopedRecords / filterByCity]
+  data[useCityScopedRecords / filterByCity / filterByStation]
   dash[widgetsForModules]
   picker --> ctx
   ctx --> nav
@@ -47,16 +47,16 @@ flowchart TD
   ctx --> dash
 ```
 
-In role mode the App Switcher is hidden. The user stays in Fleet Ops (or whatever `navItemIds` allow). Deep links to hidden modules redirect to a fallback path (`/dashboard` for most roles; `/refurbishment` for Refurbishment Manager and Refurbishment Officer; `/inventory/list` for Inventory Manager and Inventory Officer).
+In role mode the App Switcher is hidden. The user stays in whatever `navItemIds` allow. GFM is the exception that merges Fleet Ops and a Falcon subset into one sidebar. Hub Manager is Falcon-only (Energy plus Falcon Dashboard). Swap Operator is Falcon-only Stations & Hubs (no dashboard). Telematics Officer is Falcon-only Monitoring plus Energy (Dashboard home). Deep links to hidden modules redirect to a fallback path (`/dashboard` for most roles; `/refurbishment` for Refurbishment Manager and Refurbishment Officer; `/inventory/list` for Inventory Manager and Inventory Officer; `/falcon/dashboard` for Hub Manager and Telematics Officer; `/falcon/swap-stations` for Swap Operator).
 
 ## Key files
 
 | File | Role |
 |---|---|
 | [`src/data/rolePermissions.ts`](../src/data/rolePermissions.ts) | `SimulationMode`, `RoleDefinition`, permission keys, nav allowlist, path allow/deny |
-| [`src/contexts/RoleSimulationContext.tsx`](../src/contexts/RoleSimulationContext.tsx) | Mode persistence, `can()`, `dataScope`, `filterByCity`, `useCityScopedRecords` |
+| [`src/contexts/RoleSimulationContext.tsx`](../src/contexts/RoleSimulationContext.tsx) | Mode persistence, `can()`, `dataScope`, `filterByCity`, `filterByStation`, `useCityScopedRecords`, `useStationScopedRecords` |
 | [`src/data/sidebarConfig.ts`](../src/data/sidebarConfig.ts) | Sidebar item `id`s and hrefs |
-| [`src/data/cityScope.ts`](../src/data/cityScope.ts) | City matcher and Lagos sub-cities |
+| [`src/data/cityScope.ts`](../src/data/cityScope.ts) | City matcher, Nigeria country matcher, and Lagos sub-cities |
 | [`src/data/dashboardWidgets.ts`](../src/data/dashboardWidgets.ts) | Widget catalog, module mapping, city-scoped numbers and titles |
 | [`src/components/max/Sidebar.tsx`](../src/components/max/Sidebar.tsx) | Name-card picker (`SIMULATION_OPTIONS`) |
 | [`src/components/max/AppLayout.tsx`](../src/components/max/AppLayout.tsx) | Nav filter, App Switcher visibility, deep-link guard |
@@ -71,7 +71,9 @@ Follow these on every new role and every new gated action.
 - **Ungated pages stay fully usable.** If a page has no `useCan` check, any role that can open the module can perform every action on that page. Only add a permission key when you need to restrict someone.
 - **Unmentioned modules stay hidden.** If a leaf is not in `navItemIds`, it is not in the sidebar. Include parent ids when children should show (`inbound` for batches, `asset-reassignment` for kit, `maintenance` for service schedule, `disposal-auction` for disposal children).
 - **Widgets belong to leaf modules, not roles.** Do not attach widgets to a `RoleDefinition`. If the role has `fleet-register` in `navItemIds`, it gets the Fleet Register widgets. City-scoped roles keep the same catalog; only numbers, subtitles, and “by City” vs “by Sub-City” titles change.
-- **City matching is centralized.** Use `isInCityScope` / `useCityScopedRecords` / `filterByCity`. Do not write `includes("Lagos")` on pages.
+- **City matching is centralized.** Use `isInCityScope` / `isInCountryScope` / `useCityScopedRecords` / `filterByCity`. Do not write `includes("Lagos")` on pages.
+- **Country scope is not Lagos city scope.** Do not reuse `filterByCity("Lagos")` for a country role; that hides Ibadan stations and `ogun` chargers. `filterByCity` already branches on `dataScope.type === "country"` via `isInCountryScope`.
+- **Station assignment is not city scope.** Do not reuse `filterByCity` for a station-assigned role. Use `filterByStation` / `useStationScopedRecords`. `filterByCity("Lagos")` would show every Lagos station.
 - **Ikeja, Lekki, Victoria Island, and Surulere are Lagos sub-cities**, not cities. Dashboard charts for a city-scoped role say “by Sub-City”.
 - **Vehicle Master Data (`inbound-stock-setup`) is reference data.** Do not city-filter it.
 - **Stat tabs and pagination** must count the filtered set, not the global mocks.
@@ -85,9 +87,9 @@ These are the templates to copy.
 |---|---|---|---|---|---|---|---|---|
 | Picker label | Full Build | Global Fleet Manager | City Fleet Officer | Fleet Officer | Refurbishment Manager | Refurbishment Officer | Inventory Manager | Inventory Officer |
 | App Switcher | Yes | No | No | No | No | No | No | No |
-| Nav | All apps / modules | Fleet Ops allowlist below | Same as GFM | Dashboard, Fleet Register, Activation Readiness, Vehicle Document, Kit | Refurbishment, Deactivated Vehicles, Assessment List, Service Schedule, all Disposal & Auction children except Predictive Lab | Same as RM | Inventory List, Movement History, Approvals | Same as IM |
+| Nav | All apps / modules | Fleet Ops allowlist plus Falcon: Vehicle Tracking, Geofencing, Stations & Hubs, Batteries, EV Chargers (merged sidebar; App Switcher still hidden) | Fleet Ops allowlist only (no Falcon) | Dashboard, Fleet Register, Activation Readiness, Vehicle Document, Kit | Refurbishment, Deactivated Vehicles, Assessment List, Service Schedule, all Disposal & Auction children except Predictive Lab | Same as RM | Inventory List, Movement History, Approvals | Same as IM |
 | Data | All cities | All cities | Lagos only | Ikeja only | All cities | Lagos only | All cities | Lagos only |
-| Dashboard | All catalog widgets | `fleet-register` + `asset-movement` | Same as GFM, Lagos numbers | `fleet-register` only, Ikeja numbers | **Hidden** (fallback `/refurbishment`) | **Hidden** (fallback `/refurbishment`) | **Hidden** (fallback `/inventory/list`) | **Hidden** (fallback `/inventory/list`) |
+| Dashboard | All catalog widgets | `fleet-register` + `asset-movement`, plus Falcon widgets from Tracking, Geofencing, Stations, and Batteries | `fleet-register` + `asset-movement`, Lagos numbers (no Falcon widgets) | `fleet-register` only, Ikeja numbers | **Hidden** (fallback `/refurbishment`) | **Hidden** (fallback `/refurbishment`) | **Hidden** (fallback `/inventory/list`) | **Hidden** (fallback `/inventory/list`) |
 | Gated Fleet Register | All actions and columns | No Add / Bulk / Edit; hide Contract Risk and Collection % | Same as GFM | Same as GFM | Module hidden | Module hidden | Module hidden | Module hidden |
 | Vehicle details Telematics | Yes | Yes | Yes | Hidden | Module hidden | Module hidden | Module hidden | Module hidden |
 | Inbound | All mutations | View only | View only | Hidden | Hidden | Hidden | Hidden | Hidden |
@@ -95,8 +97,9 @@ These are the templates to copy.
 | Auction / Closed Assets | Yes | Hidden | Hidden | Hidden | **Yes** | **Yes** (Lagos) | Hidden | Hidden |
 | Predictive Lab | Soon item | Hidden | Hidden | Hidden | Hidden | Hidden | Hidden | Hidden |
 | Activation / Documents / Kit | All | View only (kit assign blocked for GFM) | Act on update/upload/kit | Same as CFO | Hidden | Hidden | Hidden | Hidden |
+| Falcon | All modules and mutations | View-only Tracking, Geofencing, Stations, Batteries, Chargers. No Dashboard, Enforcement page, or Alerts. Mutations and extra tabs/routes hidden | Hidden | Hidden | Hidden | Hidden | Hidden | Hidden |
 
-Hidden for GFM and City Fleet Officer (not in `navItemIds`): Ownership Transfer, Auction, Closed Assets, Predictive Lab, Control, Inventory, and every non–Fleet Ops app. Deactivated Vehicles and Assessment List are visible to GFM and City Fleet Officer.
+Hidden for GFM and City Fleet Officer (not in `navItemIds`): Ownership Transfer, Auction, Closed Assets, Predictive Lab, Control, Inventory, Driver Growth, Driver Experience, and Portfolio. GFM also sees the Falcon subset above in the same sidebar. Deactivated Vehicles and Assessment List are visible to GFM and City Fleet Officer. City Fleet Officer does **not** inherit GFM’s Falcon nav.
 
 Fleet Officer also hides Asset Movement, Inbound, Refurbishment, Maintenance / Service Schedule, and all Disposal & Auction.
 
@@ -106,11 +109,19 @@ Inventory Manager sees only Inventory (List, Movement History, Approvals) across
 
 Inventory Officer has the same nav, Lagos-only lists, Cost Price visible but not editable, and Approvals view-only (no Accept/Reject). Add Parts, Bulk Add Quantities, and adjust +/− stay available. Denied paths fall back to `/inventory/list`.
 
-Kit assign path `/activation-assignment/asset-reassignment/kit/assign` is denied for **Global Fleet Manager only**. Denied paths for Refurbishment Manager and Refurbishment Officer fall back to `/refurbishment`.
+Hub Manager is a Lagos-scoped Falcon Energy role. Sidebar: Falcon Dashboard, Stations & Hubs, Batteries, EV Chargers. They see all Lagos stations and hubs, transfer batteries from any Lagos station to another Lagos station, and accept/reject incoming transfers to Lagos stations. Create/edit station, set hours, add batteries, and Operators are hidden. Batteries is full access (Telemetry, Movement, Command Center) for Lagos batteries. EV Chargers is view-only (register + info/sessions); Add Chargers and Charge Spots are hidden. Denied paths fall back to `/falcon/dashboard`; charge-spots falls back to the charger detail. GFM and City Fleet Officer are unchanged.
+
+Swap Operator is a **station-assigned** Falcon Energy role (not city-scoped). Assigned station is Lekki Phase 1, resolved by `name` from `mockSwapStations` (not a hardcoded id). Sidebar: Stations & Hubs only (no Falcon Dashboard — a single station-count card is not useful). They see that station only; other station ids redirect to `/falcon/swap-stations`. They can set operating hours and transfer batteries from the assigned station to **any** other station in the catalog, and accept/reject incoming transfers to the assigned station. Battery list is view-only (cards are not clickable). Create, edit pencil, add batteries, Operators, Batteries, EV Chargers, and Dashboard are hidden. Denied paths fall back to `/falcon/swap-stations`. Hub Manager stays Lagos-city and does **not** get `setHours`.
+
+Telematics Officer is a **Nigeria country-scoped** Falcon role (not Hub Manager’s Lagos city scope and not Swap Operator station assignment). Sidebar: Falcon Dashboard, Vehicle Tracking, Enforcement, Alerts (Tamper + Battery Alerts nav), Geofencing, Stations & Hubs, Batteries, EV Chargers. Home and denied fallback: `/falcon/dashboard`. Slideshow stays Full Build only. Tracking, Enforcement, Alerts, Geofencing, Batteries, and EV Chargers (including Add Chargers and Charge Spots) use Full Build actions. Stations & Hubs is view-only: info, battery list (cards stay clickable), and swap history. Hidden on stations: Create, Edit pencil, Set hours, Transfer, Add batteries, Operators, Transfer log. GFM still sees a view-only Transfer log. Hub Manager / Swap Operator / GFM / CFO are unchanged.
+
+Kit assign path `/activation-assignment/asset-reassignment/kit/assign` is denied for **Global Fleet Manager only**. GFM charge-spots and vehicle-stops deep links fall back to the charger detail and vehicle activity pages. Telematics Officer is **not** on those deny lists (Charge Spots and vehicle stops stay available). Denied paths for Refurbishment Manager and Refurbishment Officer fall back to `/refurbishment`.
+
+GFM Falcon is view-only: enforcement history, visit history, Show vehicles, and station/battery/charger info stay. Create/edit/immobilize/transfer/command/add-charger are hidden. Extra surfaces (Falcon Dashboard, Enforcement module, Alerts, charge spots, vehicle stops, station Operators, battery Telemetry / Movement / Command Center) are omitted from nav and denied as routes.
 
 ## Permission catalog
 
-Full Build has every key. GFM has telematics only. City Fleet Officer has the six marked below. Fleet Officer has the same five action grants as CFO, without telematics. Refurbishment Manager has part cost only. Refurbishment Officer has no gated keys (part cost hidden). Inventory Manager has `inventory.editCostPrice` and `inventory.approvals.decide`. Inventory Officer has no gated keys (edit price and Accept/Reject hidden).
+Full Build has every key. GFM has telematics only (Falcon mutation keys stay Full Build except Hub Manager’s transfer and battery keys, Swap Operator’s `setHours` + transfer, and Telematics Officer’s tracking / battery / add-charger keys). City Fleet Officer has the six marked below. Fleet Officer has the same five action grants as CFO, without telematics. Refurbishment Manager has part cost only. Refurbishment Officer has no gated keys (part cost hidden). Inventory Manager has `inventory.editCostPrice` and `inventory.approvals.decide`. Inventory Officer has no gated keys (edit price and Accept/Reject hidden). Hub Manager has `falcon.stations.transfer`, `falcon.batteries.tab.telemetry`, `falcon.batteries.tab.movement`, and `falcon.batteries.command`. Swap Operator has `falcon.stations.setHours` and `falcon.stations.transfer`. Telematics Officer has `falcon.enforcement.apply`, `falcon.vehicle.immobilize`, `falcon.vehicle.shareLiveLocation`, `falcon.batteries.tab.telemetry`, `falcon.batteries.tab.movement`, `falcon.batteries.command`, and `falcon.chargers.add` — no `falcon.stations.*`. Charge Spots is a path allow, not a permission key.
 
 | Key | Where it is used | Full Build | GFM | CFO | FO | RM | RO | IM | IO |
 |---|---|---|---|---|---|---|---|---|---|
@@ -143,6 +154,19 @@ Full Build has every key. GFM has telematics only. City Fleet Officer has the si
 | `ticketManagement.addComment` | [`TicketDetailSheet.tsx`](../src/components/max/TicketDetailSheet.tsx) — Add Comment | Yes | — | — | — | — | — | — | — |
 | `inventory.editCostPrice` | [`InventoryListPage.tsx`](../src/pages/InventoryListPage.tsx) — Edit cost price pencil | Yes | — | — | — | — | — | Yes | — |
 | `inventory.approvals.decide` | [`InventoryApprovalsPage.tsx`](../src/pages/InventoryApprovalsPage.tsx) — Accept / Reject | Yes | — | — | — | — | — | Yes | — |
+| `falcon.enforcement.apply` | [`VehicleListCard.tsx`](../src/pages/vehicle-register/VehicleListCard.tsx) — Enforcement actions | Yes | — | — | — | — | — | — | — |
+| `falcon.vehicle.immobilize` | [`ImmobilizationCard.tsx`](../src/pages/vehicle-activity/ImmobilizationCard.tsx) — Immobilise / diagnostics | Yes | — | — | — | — | — | — | — |
+| `falcon.vehicle.shareLiveLocation` | [`LiveTrackingMap.tsx`](../src/pages/vehicle-activity/LiveTrackingMap.tsx) — Share live location | Yes | — | — | — | — | — | — | — |
+| `falcon.stations.create` | [`StationsHubsPage.tsx`](../src/pages/stations-hubs/StationsHubsPage.tsx) — Create station | Yes | — | — | — | — | — | — | — |
+| `falcon.stations.edit` | [`StationDetailsPage.tsx`](../src/pages/stations-hubs/StationDetailsPage.tsx) — Edit pencil | Yes | — | — | — | — | — | — | — |
+| `falcon.stations.setHours` | [`StationDetailsPage.tsx`](../src/pages/stations-hubs/StationDetailsPage.tsx) — Set operating hours | Yes | — | — | — | — | — | — | — |
+| `falcon.stations.addBatteries` | [`StationBatteryListTab.tsx`](../src/pages/stations-hubs/StationBatteryListTab.tsx) — Add batteries | Yes | — | — | — | — | — | — | — |
+| `falcon.stations.transfer` | [`TransferLogTab.tsx`](../src/pages/stations-hubs/TransferLogTab.tsx) — Transfer / Accept / Reject | Yes | — | — | — | — | — | — | — |
+| `falcon.stations.manageOperators` | [`StationDetailsPage.tsx`](../src/pages/stations-hubs/StationDetailsPage.tsx) — Operators tab | Yes | — | — | — | — | — | — | — |
+| `falcon.batteries.tab.telemetry` | [`BatteryDetailsPage.tsx`](../src/pages/battery-register/BatteryDetailsPage.tsx) — Telemetry tab | Yes | — | — | — | — | — | — | — |
+| `falcon.batteries.tab.movement` | [`BatteryDetailsPage.tsx`](../src/pages/battery-register/BatteryDetailsPage.tsx) — Movement History tab | Yes | — | — | — | — | — | — | — |
+| `falcon.batteries.command` | [`BatteryDetailsPage.tsx`](../src/pages/battery-register/BatteryDetailsPage.tsx) — Command Center tab | Yes | — | — | — | — | — | — | — |
+| `falcon.chargers.add` | [`ChargerRegisterPage.tsx`](../src/pages/charger-register/ChargerRegisterPage.tsx) — Add Chargers | Yes | — | — | — | — | — | — | — |
 
 Call Centre Agent receives `ticketManagement.create`, `ticketManagement.changeStatus`, `ticketManagement.close`, and `ticketManagement.addComment`. Reassign and Escalate remain hidden.
 
@@ -152,7 +176,7 @@ When you add a key, add it to the `PermissionKey` union **and** `ALL_PERMISSIONS
 
 Filter the sidebar by item **`id`**, not by label. Source of truth: [`src/data/sidebarConfig.ts`](../src/data/sidebarConfig.ts).
 
-Fleet Ops ids used by GFM / City Fleet Officer:
+Fleet Ops ids used by City Fleet Officer (and as the Fleet Ops half of GFM):
 
 ```
 dashboard
@@ -175,6 +199,50 @@ scrap-management
 asset-reassignment
 asset-reassignment-kit
 ```
+
+Falcon ids used by GFM only (`FALCON_GFM_NAV_ITEM_IDS`). GFM concatenates filtered Fleet Ops sections with filtered Falcon sections (Monitoring + Energy). App Switcher stays hidden.
+
+```
+vehicle-register
+geofencing
+stations-hubs
+batteries
+ev-chargers
+```
+
+Not granted to GFM: `falcon-dashboard`, `enforcement`, `alerts`, `tamper-alerts`, `battery-alerts`.
+
+Hub Manager Falcon ids (`FALCON_HUB_MANAGER_NAV_ITEM_IDS`). Sidebar source is `falconSidebarSections` only:
+
+```
+falcon-dashboard
+stations-hubs
+batteries
+ev-chargers
+```
+
+Swap Operator Falcon ids (`FALCON_SWAP_OPERATOR_NAV_ITEM_IDS`). Same Falcon-only sidebar source:
+
+```
+stations-hubs
+```
+
+Telematics Officer Falcon ids (`FALCON_TELEMATICS_OFFICER_NAV_ITEM_IDS`). Same Falcon-only sidebar source:
+
+```
+falcon-dashboard
+vehicle-register
+enforcement
+alerts
+tamper-alerts
+battery-alerts
+geofencing
+stations-hubs
+batteries
+ev-chargers
+```
+
+Path prefixes: `/falcon/dashboard`, `/falcon/vehicle-register`, `/falcon/enforcement`, `/falcon/alerts`, `/falcon/geofences`, `/falcon/swap-stations`, `/falcon/batteries`, `/falcon/ev-chargers`. Battery Alerts has no page today (same as Full Build); do not build a new module.
 
 Fleet Officer ids:
 
@@ -224,18 +292,26 @@ Optional on the role:
 dataScope: { type: "city", city: "Lagos" }
 // or
 dataScope: { type: "subCity", city: "Lagos", subCity: "Ikeja" }
+// or
+dataScope: { type: "station", stationIds: getStationIdsByName("Lekki Phase 1") }
+// or
+dataScope: { type: "country", country: "Nigeria" }
 ```
 
-`dataScope` is `null` for Full Build, GFM, Refurbishment Manager, and Inventory Manager. City Fleet Officer, Refurbishment Officer, and Inventory Officer use Lagos. Fleet Officer uses Ikeja. When set:
+`dataScope` is `null` for Full Build, GFM, Refurbishment Manager, and Inventory Manager. City Fleet Officer, Refurbishment Officer, Inventory Officer, and Hub Manager use Lagos. Fleet Officer uses Ikeja. Swap Operator uses station assignment (Lekki Phase 1). Telematics Officer uses country Nigeria. When set:
 
-- `useCityScopedRecords(records, "location")` (or `"destination"` for batches) filters lists.
-- `filterByCity(value)` returns `true` when unscoped; city scope uses `isInCityScope`; sub-city scope uses `resolveLagosSubCity(value) === subCity`.
-- Dashboard stats, distribution, and bar charts are derived from the scoped `mockVehicles`.
+- `useCityScopedRecords(records, "location")` (or `"destination"` for batches) filters lists for city / sub-city / country scope.
+- `filterByCity(value)` returns `true` when unscoped or station-scoped; city scope uses `isInCityScope`; sub-city scope uses `resolveLagosSubCity(value) === subCity`; country scope uses `isInCountryScope`.
+- `filterByStation(id)` returns `true` when unscoped or not station-scoped; station scope requires the id in `dataScope.stationIds`.
+- `useStationScopedRecords(records, "id")` filters station lists for station-assigned roles.
+- Dashboard stats, distribution, and bar charts are derived from the scoped `mockVehicles` for city / sub-city roles.
 - Dashboard subtitle names the city or sub-city.
 
 Lagos matcher tokens live in [`src/data/cityScope.ts`](../src/data/cityScope.ts). Treat a string as Lagos if it matches any of: `Lagos`, `Lagos Hub`, `Lagos, Nigeria`, `Nigeria / Lagos`, `Ikeja`, `Ikeja Yard`, `Lekki`, `Victoria Island`, `Surulere`, `Surulere Yard`, `Yaba`, `Gbagada`.
 
-Exclude Accra, Abuja, Kano, Port Harcourt, Ibadan yards (Eleyele, Bodija, Gbagba), Kenya cities, and similar.
+Nigeria country tokens include Lagos tokens, all Falcon `CITIES` (Lagos, Sagamu, Ibadan, Abeokuta, Sango Ota, Osogbo, Akure), plus `ogun`, `osun`, `ondo`, `nigeria`, `abuja`, `fct`, `port harcourt`, `kano`, `enugu`, `aba`, `abia`, and `rivers`. That keeps Ibadan stations and the `ogun` charger visible for Telematics Officer while Hub Manager stays Lagos-only.
+
+Exclude Accra, Abuja, Kano, Port Harcourt, Ibadan yards (Eleyele, Bodija, Gbagba), Kenya cities, and similar **from Lagos city scope**. Those Nigeria cities stay in country scope.
 
 `resolveLagosSubCity` maps a location onto the four dashboard sub-cities: Ikeja, Lekki, Victoria Island, Surulere. Generic `"Lagos"` does **not** match a sub-city officer — mock rows for those lists must use a neighborhood name.
 
@@ -257,6 +333,12 @@ Exclude Accra, Abuja, Kano, Port Harcourt, Ibadan yards (Eleyele, Bodija, Gbagba
 | Auction | `location` | Events, create-auction vehicles, and detail redirects. Location dropdown limited to in-scope depots when `dataScope` is set |
 | Closed Assets | `location` | Out-of-city `/closed-assets/:id` redirects to the list |
 | Vehicle Master Data | — | **Do not filter** |
+| Stations & Hubs | `city` or station `id` | Hub Manager sees Lagos stations and hubs; transfer destinations stay Lagos-only. Swap Operator sees Lekki Phase 1 only (`filterByStation`); other `/falcon/swap-stations/:id` redirect to the list. Swap Operator transfer destinations are **any** other station. Accept/Reject only when the destination is in-scope (assigned station for Swap Operator). Battery list cards are not clickable for roles without `/falcon/batteries`. Telematics Officer sees all Nigeria stations and hubs; Create/Edit/Hours/Transfer/Add batteries/Operators/Transfer log are hidden. Transfer log stays visible for Full Build (`canTransfer`) and GFM (view-only) |
+| Batteries | `currentStation` via `getBatteryCityScopeValue` | Hub Manager sees Lagos batteries (station name → `SwapStation.city`, else Lagos tokens). Telematics Officer sees Nigeria-scoped batteries with Telemetry, Movement, and Command Center. Out-of-scope `/falcon/batteries/:id` redirects to the register |
+| EV Chargers | `stateDeployed` | Hub Manager sees Lagos chargers (`lagos` token); Add Chargers and Charge Spots stay hidden. Telematics Officer sees Nigeria chargers including `ogun`, plus Add Chargers and Charge Spots (`isPathAllowedForMode` on that charger’s charge-spots path — not `isFullBuild`). GFM stays denied Charge Spots. Out-of-scope `/falcon/ev-chargers/:id` redirects to the register |
+| Vehicle Tracking | `city` | Telematics Officer lists and tab counts use the scoped set. Out-of-country activity / trips / stops ids redirect to `/falcon/vehicle-register`. Vehicle stops stay allowed (do not add this mode to GFM’s stops deny) |
+| Geofencing | `area` | Country/city filter on the geofence `area` field. Visit history has no area field and is not filtered |
+| Tamper Alerts | `parameters.city` | Filter only the city token, not free-text `location` / lat-long. Out-of-scope detail ids redirect to `/falcon/alerts/tamper` |
 
 Give new mock rows a location/destination the matcher understands. If a city-scoped role would otherwise see zero rows, relabel a majority of the mocks into that city. For a sub-city role, relabel **all** in-scope city-level rows to that sub-city (Fleet Officer: all former Lagos activation / document / kit rows are Ikeja).
 
@@ -271,6 +353,12 @@ Widgets are published by **leaf module id** in `MODULE_WIDGETS`:
 | `activation-dashboard` | Activation Queue |
 | `champion-360` | Total Champions, Active Champions, Inactive Champions, Champions by City |
 | `ticket-management` | Open Tickets, SLA Breached, Resolved Tickets, Ticket Status Breakdown, Tickets by Category |
+| `vehicle-register` | Falcon: Total Fleet, CO₂, Distance, ICE & EV Activity, Trips, Geographical Distribution, Vehicle Tracking, Total Swaps |
+| `geofencing` | Falcon: Total Geofence Locations |
+| `stations-hubs` | Falcon: Total Swap Stations |
+| `batteries` | Falcon: Battery Overview, Average SOC, Battery Alert Summary (catalog module id `battery-register`) |
+
+Falcon widgets live in [`src/data/falconDashboardWidgets.ts`](../src/data/falconDashboardWidgets.ts). GFM’s Fleet Ops `/dashboard` appends them from `navItemIds` via `falconWidgetModuleIdsFromNav`. Hub Manager’s home is `/falcon/dashboard` with Stations + Batteries widgets (`allowedModuleIds` from nav). Telematics Officer’s home is `/falcon/dashboard` with Tracking + Geofencing + Stations + Batteries widgets from nav (EV Chargers still publish none). Swap Operator has no dashboard module; home and denied paths are `/falcon/swap-stations`. Total Swap Stations uses `filterByCity` for non-station scope (Nigeria count for Telematics Officer; Lagos for Hub Manager) and assigned ids when `dataScope.type === "station"`. Battery widget numbers stay catalog mocks. Slideshow is Full Build only. Full Build still sees the full Falcon catalog on `/falcon/dashboard`. EV Chargers publish no widgets. CFO has no Falcon nav, so no Falcon widgets.
 
 Driver Experience widgets use `DRIVER_EXPERIENCE_MODULE_WIDGETS` in the same file. Call Centre Agent receives the combined widget sets for `champion-360` and `ticket-management`; unrelated Driver Experience widgets stay hidden.
 
@@ -326,7 +414,7 @@ Within the Welfare section, Welfare Agent sees and can use everything available 
 
 The Schedule action in the Welfare Champion detail sheet opens the shared `Modal` with the shared `DatePickerField`. Confirming a date updates that Champion's `nextFollowUp` in page state and immediately moves the Champion into the matching Overdue, Due Today, or Upcoming follow-up queue.
 
-A role that has `fleet-register` and `asset-movement` (and not `activation-dashboard`) gets the GFM dashboard: no Activation Queue; the two city charts sit in a two-column grid.
+A role that has `fleet-register` and `asset-movement` (and not `activation-dashboard`) gets the GFM dashboard: no Activation Queue; the two city charts sit in a two-column grid. GFM also appends Falcon widgets from Tracking, Geofencing, Stations, and Batteries. CFO has the same Fleet Ops widgets without Falcon.
 
 Fleet Officer has only `fleet-register`, so 3PL/Yard stats and Check-in by City are omitted.
 
@@ -338,7 +426,7 @@ City-scoped data (`getDashboardWidgetData`):
 - Fleet Distribution: sub-cities, not Global / Nigeria / Ghana / Cameroon. A sub-city role gets a single chart for that sub-city.
 - Active / Check-in charts: sub-cities, not other countries. Titles become **Active Fleet by Sub-City** and **Check-in Fleet by Sub-City** via `widgetDisplayTitle`.
 
-Full Build and GFM keep the global widget numbers.
+Full Build and GFM keep the global widget numbers. Hub Manager’s Total Swap Stations card counts Lagos stations. Telematics Officer’s Total Swap Stations card counts Nigeria (all mock Falcon cities). Swap Operator does not have a Falcon dashboard.
 
 ## Add a new role
 
@@ -368,14 +456,15 @@ In [`src/data/rolePermissions.ts`](../src/data/rolePermissions.ts):
 In [`src/contexts/RoleSimulationContext.tsx`](../src/contexts/RoleSimulationContext.tsx):
 
 - Accept the new id in `readStoredMode()`.
+- Falcon-only roles (Hub Manager, Swap Operator, Telematics Officer) use `falconSidebarSections`.
 
 Reuse another role’s `navItemIds` when the spec says “same nav as X”.
 
 ### 3. Path allowlist
 
-`getAllowedPathPrefixes` is **hardcoded** and **branches by mode**. It is not derived from `navItemIds`. GFM / City Fleet Officer share one prefix list (includes `/deactivated-vehicles` and `/assessment-list`). Fleet Officer has a shorter list (`/dashboard`, `/fleet-register`, `/activation/readiness`, `/vehicle-document`, kit). Refurbishment Manager and Refurbishment Officer share: `/refurbishment`, `/deactivated-vehicles`, `/assessment-list`, `/service-schedule`, `/disposal-management`, `/conversion-request`, `/auction`, `/scrap-management`, `/closed-assets`. Inventory Manager and Inventory Officer: `/inventory`. Add every list href **and** every detail route under those modules.
+`getAllowedPathPrefixes` is **hardcoded** and **branches by mode**. It is not derived from `navItemIds`. City Fleet Officer uses `FLEET_OPS_PATH_PREFIXES` (includes `/deactivated-vehicles` and `/assessment-list`). GFM uses that list plus `/falcon/vehicle-register`, `/falcon/geofences`, `/falcon/swap-stations`, `/falcon/batteries`, `/falcon/ev-chargers` — not a blanket `/falcon`. Hub Manager: `/falcon/dashboard`, `/falcon/swap-stations`, `/falcon/batteries`, `/falcon/ev-chargers`. Swap Operator: `/falcon/swap-stations`. Telematics Officer: `/falcon/dashboard`, `/falcon/vehicle-register`, `/falcon/enforcement`, `/falcon/alerts`, `/falcon/geofences`, `/falcon/swap-stations`, `/falcon/batteries`, `/falcon/ev-chargers`. Fleet Officer has a shorter list (`/dashboard`, `/fleet-register`, `/activation/readiness`, `/vehicle-document`, kit). Refurbishment Manager and Refurbishment Officer share: `/refurbishment`, `/deactivated-vehicles`, `/assessment-list`, `/service-schedule`, `/disposal-management`, `/conversion-request`, `/auction`, `/scrap-management`, `/closed-assets`. Inventory Manager and Inventory Officer: `/inventory`. Add every list href **and** every detail route under those modules.
 
-If an action lives under an allowed prefix but the role must not open it, add it to `getDeniedPathPrefixes` for that mode and map a sensible fallback in `getFallbackPathForDenied` (GFM kit assign → kit list; Refurbishment Manager / Officer denied paths → `/refurbishment`; Inventory Manager / Officer → `/inventory/list`).
+If an action lives under an allowed prefix but the role must not open it, add it to `getDeniedPathPrefixes` for that mode (or a suffix check in `isPathAllowedForMode` when the id is dynamic) and map a sensible fallback in `getFallbackPathForDenied` (GFM kit assign → kit list; GFM/Hub Manager charge-spots → charger detail; GFM stops → vehicle activity; Refurbishment Manager / Officer denied paths → `/refurbishment`; Inventory Manager / Officer → `/inventory/list`; Hub Manager and Telematics Officer → `/falcon/dashboard`; Swap Operator → `/falcon/swap-stations`).
 
 [`AppLayout.tsx`](../src/components/max/AppLayout.tsx) redirects any disallowed pathname.
 
@@ -409,7 +498,7 @@ const canEditVehicle = useCan("fleetRegister.editVehicle")
 
 ## Add a city scope
 
-Today only `CityId = "Lagos"` exists.
+Today only `CityId = "Lagos"` and `CountryId = "Nigeria"` exist. Station assignment (`{ type: "station", stationIds }`) is a separate scope — do not implement it with `filterByCity`. Country scope uses `isInCountryScope` / the `country` branch of `filterByCity`. Do not reuse Lagos city tokens for a country role.
 
 1. Extend `CityId` and `CITY_TOKENS` in [`src/data/cityScope.ts`](../src/data/cityScope.ts). List every mock spelling (hub, yard, `Country / City`, neighborhood).
 2. If the dashboard should break that city into neighborhoods, add a resolver like `resolveLagosSubCity` and wire `getDashboardWidgetData` / `widgetDisplayTitle`. For a single-neighborhood role, use `{ type: "subCity", city, subCity }`.
@@ -425,6 +514,8 @@ Today only `CityId = "Lagos"` exists.
 4. If city-scoped roles should show different numbers or titles, handle that in `getDashboardWidgetData` and `widgetDisplayTitle`.
 
 Do not add the widget to `RoleDefinition`.
+
+Falcon widgets belong in [`src/data/falconDashboardWidgets.ts`](../src/data/falconDashboardWidgets.ts). If the sidebar leaf id differs from the catalog `moduleId` (example: `batteries` → `battery-register`), add the alias in `FALCON_NAV_TO_WIDGET_MODULE`. GFM picks them up automatically from `navItemIds`.
 
 ## Verify
 
@@ -447,4 +538,4 @@ Switch the name card to the new role and check:
 - **Path prefixes are not derived from nav.** Updating `navItemIds` without `getAllowedPathPrefixes` leaves deep links open or blocks valid detail pages. Always edit both.
 - **No city switcher in the UI.** A City Fleet Officer is Lagos-only. Another city is a new role or a new `dataScope.city`, not a dropdown.
 - **Simulation is client-only.** Anyone can switch roles from the name card. Do not treat this as security.
-- **Ungated equals allowed.** Service Schedule, Disposal, Deactivated Vehicles, and Assessment List have no permission keys. Any role that can open those modules can use every control on them until you add keys. Inventory is visible to Full Build, Inventory Manager, and Inventory Officer. Inventory gates edit cost price via `inventory.editCostPrice` and Accept/Reject via `inventory.approvals.decide`. Refurbishment gates the work-order parts Cost column via `refurbishment.column.partCost`.
+- **Ungated equals allowed.** Service Schedule, Disposal, Deactivated Vehicles, and Assessment List have no permission keys. Any role that can open those modules can use every control on them until you add keys. Inventory is visible to Full Build, Inventory Manager, and Inventory Officer. Inventory gates edit cost price via `inventory.editCostPrice` and Accept/Reject via `inventory.approvals.decide`. Refurbishment gates the work-order parts Cost column via `refurbishment.column.partCost`. Falcon is visible to Full Build (App Switcher), GFM (merged sidebar, view-only), Hub Manager, Swap Operator, and Telematics Officer. Falcon mutations and extra tabs require the `falcon.*` keys.

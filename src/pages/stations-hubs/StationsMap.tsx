@@ -2,7 +2,7 @@ import { useEffect } from "react"
 import { MapContainer, TileLayer, Marker, useMap } from "react-leaflet"
 import L from "leaflet"
 import "leaflet/dist/leaflet.css"
-import type { SwapStation } from "@/data/mockStationsData"
+import { locationIconUrl, type SwapStation } from "@/data/mockStationsData"
 
 interface StationsMapProps {
   stations: SwapStation[]
@@ -11,21 +11,28 @@ interface StationsMapProps {
   className?: string
 }
 
-const defaultStationIcon = new L.Icon({
-  iconUrl: "/images/station.svg",
-  iconSize: [32, 32],
-  iconAnchor: [16, 32],
-  popupAnchor: [0, -32],
-  className: "station-marker-default",
-})
+function makeLocationIcon(iconUrl: string, selected: boolean) {
+  const size = selected ? 44 : 32
+  return new L.Icon({
+    iconUrl,
+    iconSize: [size, size],
+    iconAnchor: [size / 2, size],
+    popupAnchor: [0, -size],
+    className: selected ? "station-marker-selected" : "station-marker-default",
+  })
+}
 
-const selectedStationIcon = new L.Icon({
-  iconUrl: "/images/station.svg",
-  iconSize: [44, 44],
-  iconAnchor: [22, 44],
-  popupAnchor: [0, -44],
-  className: "station-marker-selected",
-})
+const defaultStationIcon = makeLocationIcon(locationIconUrl("swap-station"), false)
+const selectedStationIcon = makeLocationIcon(locationIconUrl("swap-station"), true)
+const defaultHubIcon = makeLocationIcon(locationIconUrl("hub"), false)
+const selectedHubIcon = makeLocationIcon(locationIconUrl("hub"), true)
+
+function markerIcon(station: SwapStation, selected: boolean) {
+  if (station.locationType === "hub") {
+    return selected ? selectedHubIcon : defaultHubIcon
+  }
+  return selected ? selectedStationIcon : defaultStationIcon
+}
 
 function MapController({
   stations,
@@ -101,7 +108,7 @@ export function StationsMap({
             <Marker
               key={station.id}
               position={[station.coordinates.lat, station.coordinates.lng]}
-              icon={isSelected ? selectedStationIcon : defaultStationIcon}
+              icon={markerIcon(station, isSelected)}
               opacity={isSelected ? 1 : 0.75}
               zIndexOffset={isSelected ? 1000 : 0}
               eventHandlers={{

@@ -13,6 +13,7 @@ import { CITIES, CITY_COORDINATES, type City } from "@/data/cities"
 import {
   STATION_PROVIDERS,
   pickStationAdminName,
+  type StationLocationType,
   type StationProvider,
   type SwapStation,
 } from "@/data/mockStationsData"
@@ -48,9 +49,18 @@ interface CreateSwapStationModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   station?: SwapStation | null
+  locationType?: StationLocationType
   onCreate?: (station: SwapStation) => void
   onAddBatteries?: (station: SwapStation) => void
   onSave?: (station: SwapStation) => void
+}
+
+function nounFor(type: StationLocationType): "hub" | "swap station" {
+  return type === "hub" ? "hub" : "swap station"
+}
+
+function titleNounFor(type: StationLocationType): "Hub" | "Swap Station" {
+  return type === "hub" ? "Hub" : "Swap Station"
 }
 
 function formFromStation(station: SwapStation): typeof emptyForm {
@@ -76,6 +86,7 @@ function stationFromForm(
     averageSoc: 0,
     totalCollections: 0,
     totalSwapsToday: 0,
+    locationType: "swap-station",
     ...extras,
     id,
     name: form.name.trim(),
@@ -96,11 +107,16 @@ export function CreateSwapStationModal({
   open,
   onOpenChange,
   station,
+  locationType: locationTypeProp,
   onCreate,
   onAddBatteries,
   onSave,
 }: CreateSwapStationModalProps) {
   const isEdit = Boolean(station)
+  const locationType: StationLocationType =
+    station?.locationType ?? locationTypeProp ?? "swap-station"
+  const noun = nounFor(locationType)
+  const titleNoun = titleNounFor(locationType)
   const [step, setStep] = useState<"form" | "preview" | "created">("form")
   const [form, setForm] = useState(emptyForm)
   const [photo, setPhoto] = useState<File | null>(null)
@@ -148,10 +164,10 @@ export function CreateSwapStationModal({
             station?.id ?? "STN-PREVIEW",
             station
               ? { ...station, photoUrl: photoUrl ?? station.photoUrl }
-              : { photoUrl }
+              : { photoUrl, locationType }
           )
         : null,
-    [form, isValid, station, photoUrl]
+    [form, isValid, station, photoUrl, locationType]
   )
 
   const handleCityChange = (city: string) => {
@@ -182,6 +198,7 @@ export function CreateSwapStationModal({
 
     const created = stationFromForm(form, `STN-${Date.now().toString().slice(-6)}`, {
       photoUrl,
+      locationType,
     })
     setCreatedStation(created)
     onCreate?.(created)
@@ -208,16 +225,16 @@ export function CreateSwapStationModal({
       onOpenChange={onOpenChange}
       title={
         isPreview
-          ? "Preview Swap Station"
+          ? `Preview ${titleNoun}`
           : isEdit
-            ? "Edit Swap Station Details"
-            : "Create a Swap Station"
+            ? `Edit ${titleNoun} Details`
+            : `Create a ${titleNoun}`
       }
       subtitle={
         isPreview
           ? isEdit
-            ? "Review the updated station details before saving."
-            : "Review how this station will appear before creating it."
+            ? `Review the updated ${noun} details before saving.`
+            : `Review how this ${noun} will appear before creating it.`
           : undefined
       }
       maxHeight="85vh"
@@ -231,7 +248,7 @@ export function CreateSwapStationModal({
       primaryAction={
         isPreview
           ? {
-              label: isEdit ? "Save Changes" : "Create Station",
+              label: isEdit ? "Save Changes" : `Create ${titleNoun}`,
               onClick: handleSubmit,
             }
           : {
@@ -249,17 +266,17 @@ export function CreateSwapStationModal({
           {photoUrl && (
             <img
               src={photoUrl}
-              alt={form.name.trim() || "Swap station"}
+              alt={form.name.trim() || titleNoun}
               className="h-40 w-full rounded-xl object-cover"
             />
           )}
 
-          <InfoCard title="Station Details">
+          <InfoCard title={`${titleNoun} Details`}>
             <InfoGrid
               columns={2}
               showDividers
               items={[
-                { label: "Station Name", value: form.name.trim() },
+                { label: `${titleNoun} Name`, value: form.name.trim() },
                 { label: "Provider", value: form.provider },
                 { label: "Address", value: form.address.trim() },
                 { label: "Country", value: form.country },
@@ -281,11 +298,11 @@ export function CreateSwapStationModal({
         </div>
       ) : (
       <div className="space-y-4">
-        <FormField label="Swap Station Name">
+        <FormField label={`${titleNoun} Name`}>
           <Input
             value={form.name}
             onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))}
-            placeholder="Enter a swap station name"
+            placeholder={`Enter a ${noun} name`}
             className="h-12"
           />
         </FormField>
@@ -377,11 +394,11 @@ export function CreateSwapStationModal({
           </Select>
         </FormField>
 
-        <FormField label="Upload a picture of the swap station">
+        <FormField label={`Upload a picture of the ${noun}`}>
           {isEdit && photoUrl && !photo && (
             <img
               src={photoUrl}
-              alt={form.name.trim() || "Swap station"}
+              alt={form.name.trim() || titleNoun}
               className="mb-2 h-28 w-full rounded-xl object-cover"
             />
           )}
@@ -412,12 +429,12 @@ export function CreateSwapStationModal({
         if (!next) handleLater()
       }}
       variant="success"
-      title={isEdit ? "Swap station updated" : "Swap station created"}
+      title={isEdit ? `${titleNoun} updated` : `${titleNoun} created`}
       subtitle={
         isEdit
           ? createdStation
             ? `${createdStation.name} has been updated.`
-            : "The swap station has been updated."
+            : `The ${noun} has been updated.`
           : createdStation
             ? `${createdStation.name} has been added. You can add batteries now, or do this later.`
             : "You can add batteries now, or do this later."

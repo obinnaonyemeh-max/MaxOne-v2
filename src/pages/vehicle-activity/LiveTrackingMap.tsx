@@ -17,6 +17,7 @@ import {
   type TripPoint,
 } from "@/data/mockVehicleActivity"
 import type { TrackingStatus, VehicleCategory, VehicleType } from "@/data/mockVehicleRegister"
+import { useCan } from "@/contexts/RoleSimulationContext"
 import { ShareLiveLocationModal } from "./ShareLiveLocationModal"
 
 interface LiveTrackingMapProps {
@@ -181,6 +182,7 @@ export function LiveTrackingMap({
   onSampledChange,
   className,
 }: LiveTrackingMapProps) {
+  const canShareLiveLocation = useCan("falcon.vehicle.shareLiveLocation")
   const isReplayMode = mode === "replay"
   const canAnimate = !isReplayMode && (trackingStatus === "moving" || trackingStatus === "stopped")
   const [liveEdge, setLiveEdge] = useState(() => (isReplayMode ? 1 : initialLiveEdge(trackingStatus)))
@@ -619,7 +621,7 @@ export function LiveTrackingMap({
                     : "Playing back this trip"}
             </span>
           </div>
-          {!isReplayMode && (
+          {!isReplayMode && canShareLiveLocation && (
             <button
               type="button"
               onClick={() => setShareOpen(true)}

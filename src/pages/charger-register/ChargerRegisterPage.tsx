@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from "react"
 import { useNavigate } from "react-router-dom"
-import { RefreshCw } from "lucide-react"
+import { Plus, RefreshCw } from "lucide-react"
 import {
   TopBar,
   PageHeader,
@@ -16,33 +16,51 @@ import {
   checkedInCount,
   type CheckStatus,
 } from "@/data/mockChargerData"
+import { useCan, useCityScopedRecords, useRoleSimulation } from "@/contexts/RoleSimulationContext"
+import { AddChargerFlow } from "./AddChargerFlow"
 import { ChargerListCard } from "./ChargerListCard"
 import { ChargersMap } from "./ChargersMap"
 
 export default function ChargerRegisterPage() {
   const navigate = useNavigate()
+  const canAddChargers = useCan("falcon.chargers.add")
+  const { dataScope } = useRoleSimulation()
+  const scopedChargers = useCityScopedRecords(mockChargerRegisterItems, "stateDeployed")
   const [activeCheckTab, setActiveCheckTab] = useState<CheckStatus>("checked-out")
   const [activeStatusFilter, setActiveStatusFilter] = useState<string | null>(null)
-  const [selectedChargerId, setSelectedChargerId] = useState<string | null>(
-    mockChargerRegisterItems[0]?.id ?? null
-  )
+  const [selectedChargerId, setSelectedChargerId] = useState<string | null>(null)
   const [expandedChargerId, setExpandedChargerId] = useState<string | null>(null)
+  const [showAddChargerModal, setShowAddChargerModal] = useState(false)
   const listContainerRef = useRef<HTMLDivElement>(null)
 
   const checkTabs = [
-    { id: "checked-out", label: "Checked Out", count: checkedOutCount },
-    { id: "checked-in", label: "Checked In", count: checkedInCount },
+    {
+      id: "checked-out",
+      label: "Checked Out",
+      count: dataScope
+        ? scopedChargers.filter((charger) => charger.checkStatus === "checked-out").length
+        : checkedOutCount,
+    },
+    {
+      id: "checked-in",
+      label: "Checked In",
+      count: dataScope
+        ? scopedChargers.filter((charger) => charger.checkStatus === "checked-in").length
+        : checkedInCount,
+    },
   ]
 
   const filterChips = chargerStatusCounts.map((item) => ({
     id: item.status,
     label: item.label,
-    count: item.count,
+    count: dataScope
+      ? scopedChargers.filter((charger) => charger.status === item.status).length
+      : item.count,
     color: item.color,
   }))
 
   const filteredChargers = useMemo(() => {
-    let chargers = mockChargerRegisterItems
+    let chargers = scopedChargers
 
     if (activeCheckTab) {
       chargers = chargers.filter((c) => c.checkStatus === activeCheckTab)
@@ -53,7 +71,7 @@ export default function ChargerRegisterPage() {
     }
 
     return chargers
-  }, [activeCheckTab, activeStatusFilter])
+  }, [activeCheckTab, activeStatusFilter, scopedChargers])
 
   useEffect(() => {
     if (filteredChargers.length === 0) {
@@ -76,11 +94,13 @@ export default function ChargerRegisterPage() {
     card?.scrollIntoView({ block: "nearest", behavior: "smooth" })
   }, [selectedChargerId])
 
-  const displayCount = activeStatusFilter
+  const displayCount = dataScope
     ? filteredChargers.length
-    : activeCheckTab === "checked-out"
-      ? checkedOutCount
-      : checkedInCount
+    : activeStatusFilter
+      ? filteredChargers.length
+      : activeCheckTab === "checked-out"
+        ? checkedOutCount
+        : checkedInCount
 
   const handleStatusFilterClick = (statusId: string | null) => {
     setActiveStatusFilter(statusId)
@@ -99,6 +119,17 @@ export default function ChargerRegisterPage() {
         title="Charger Register"
         subtitle="View and manage all chargers in your fleet with real-time status and location tracking."
         className="shrink-0"
+        action={
+          canAddChargers ? (
+            <Button
+              className="h-10 gap-2 bg-brand-dark text-white hover:bg-brand-dark/90"
+              onClick={() => setShowAddChargerModal(true)}
+            >
+              <Plus className="h-4 w-4" />
+              Add Chargers
+            </Button>
+          ) : undefined
+        }
       />
 
       <div className="flex-1 flex min-w-0 flex-col overflow-hidden px-4 pb-6 gap-4 lg:flex-row md:px-6">
@@ -112,7 +143,7 @@ export default function ChargerRegisterPage() {
                   className="text-gray-950"
                   style={{ fontSize: "18px", fontWeight: 600 }}
                 >
-                  {totalChargers.toLocaleString()}
+                  {(dataScope ? scopedChargers.length : totalChargers).toLocaleString()}
                 </h2>
                 <span
                   className="text-gray-500"
@@ -217,6 +248,13 @@ export default function ChargerRegisterPage() {
           />
         </div>
       </div>
+
+      {canAddChargers && (
+        <AddChargerFlow
+          open={showAddChargerModal}
+          onClose={() => setShowAddChargerModal(false)}
+        />
+      )}
     </>
   )
 }

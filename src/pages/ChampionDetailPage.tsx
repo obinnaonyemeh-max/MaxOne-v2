@@ -885,7 +885,7 @@ export default function ChampionDetailPage() {
               {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
               <div
                 ref={tabsScrollRef}
-                className="shrink-0 overflow-x-auto scrollbar-hide pb-1.5 cursor-grab select-none"
+                className="shrink-0 overflow-x-auto overflow-y-hidden overscroll-none scrollbar-hide pb-1.5 cursor-grab select-none"
                 onMouseDown={onMouseDown}
                 onMouseUp={onMouseUp}
                 onMouseLeave={onMouseUp}

@@ -57,19 +57,28 @@ export function StationBatteryGridCard({
   onClick,
 }: StationBatteryGridCardProps) {
   const status = getStationBatteryChargeStatus(battery)
+  const clickable = Boolean(onClick)
 
   return (
     <div
-      role="button"
-      tabIndex={0}
+      role={clickable ? "button" : undefined}
+      tabIndex={clickable ? 0 : undefined}
       onClick={onClick}
-      onKeyDown={(event) => {
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault()
-          onClick?.()
-        }
-      }}
-      className="flex h-full cursor-pointer flex-col gap-4 rounded-xl border border-gray-200 bg-white p-4 transition-colors hover:border-gray-950"
+      onKeyDown={
+        clickable
+          ? (event) => {
+              if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault()
+                onClick?.()
+              }
+            }
+          : undefined
+      }
+      className={
+        clickable
+          ? "flex h-full cursor-pointer flex-col gap-4 rounded-xl border border-gray-200 bg-white p-4 transition-colors hover:border-gray-950"
+          : "flex h-full flex-col gap-4 rounded-xl border border-gray-200 bg-white p-4"
+      }
     >
       <div className="flex items-start gap-3">
         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-50">

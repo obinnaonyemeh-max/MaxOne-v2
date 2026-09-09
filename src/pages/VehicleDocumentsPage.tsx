@@ -316,7 +316,12 @@ export default function VehicleDocumentsPage() {
         expiringSoonCount: scopedDocuments.filter((r) => r.status === "Expiring Soon").length,
         expiringVehicles: scopedDocuments.filter((r) => r.status === "Expiring Soon").length,
         totalFleet: scopedDocuments.length,
-        region: dataScope.type === "subCity" ? dataScope.subCity : dataScope.city,
+        region:
+          dataScope.type === "subCity"
+            ? dataScope.subCity
+            : dataScope.type === "city"
+              ? dataScope.city
+              : "",
         pendingCount: scopedDocuments.filter((r) => r.status === "Pending").length,
       }
     : {

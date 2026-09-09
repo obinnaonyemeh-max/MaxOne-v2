@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react"
+import { useEffect, useState, useMemo } from "react"
 import { useNavigate } from "react-router-dom"
 import { RefreshCw } from "lucide-react"
 import {
@@ -11,9 +11,12 @@ import { Button } from "@/components/ui/button"
 import {
   mockBatteryRegisterItems,
   batteryStatusCounts,
+  getBatteryCityScopeValue,
   totalBatteries,
   type BatteryRegisterItem,
+  type BatteryStatus,
 } from "@/data/mockBatteryRegisterData"
+import { useRoleSimulation } from "@/contexts/RoleSimulationContext"
 import { ChargeInfoCard } from "./ChargeInfoCard"
 import { BatteryLocationCard } from "./BatteryLocationCard"
 import { BatteryMetricCard } from "./BatteryMetricCard"
@@ -23,31 +26,62 @@ import { CellVoltageCard } from "./CellVoltageCard"
 
 export default function BatteryRegisterPage() {
   const navigate = useNavigate()
-  const [activeFilter, setActiveFilter] = useState<string | null>(null)
-  const [selectedBatteryId, setSelectedBatteryId] = useState<string | null>(
-    mockBatteryRegisterItems[0]?.id ?? null
+  const { dataScope, filterByCity } = useRoleSimulation()
+  const scopedBatteries = useMemo(
+    () =>
+      mockBatteryRegisterItems.filter((battery) =>
+        filterByCity(getBatteryCityScopeValue(battery))
+      ),
+    [filterByCity]
   )
+  const [activeFilter, setActiveFilter] = useState<string | null>(null)
+  const [selectedBatteryId, setSelectedBatteryId] = useState<string | null>(null)
   const [expandedBatteryId, setExpandedBatteryId] = useState<string | null>(null)
 
-  const filterChips = batteryStatusCounts.map((item) => ({
-    id: item.status,
-    label: item.label,
-    count: item.count,
-    color: item.color,
-  }))
+  const filterChips = useMemo(() => {
+    if (!dataScope) {
+      return batteryStatusCounts.map((item) => ({
+        id: item.status,
+        label: item.label,
+        count: item.count,
+        color: item.color,
+      }))
+    }
+    return batteryStatusCounts.map((item) => ({
+      id: item.status,
+      label: item.label,
+      count: scopedBatteries.filter((battery) => battery.status === item.status).length,
+      color: item.color,
+    }))
+  }, [dataScope, scopedBatteries])
 
   const filteredBatteries = useMemo(() => {
-    if (!activeFilter) return mockBatteryRegisterItems
-    return mockBatteryRegisterItems.filter((b) => b.status === activeFilter)
-  }, [activeFilter])
+    if (!activeFilter) return scopedBatteries
+    return scopedBatteries.filter((b) => b.status === (activeFilter as BatteryStatus))
+  }, [activeFilter, scopedBatteries])
 
   const selectedBattery: BatteryRegisterItem | undefined = useMemo(() => {
-    return mockBatteryRegisterItems.find((b) => b.id === selectedBatteryId)
-  }, [selectedBatteryId])
+    return scopedBatteries.find((b) => b.id === selectedBatteryId)
+  }, [scopedBatteries, selectedBatteryId])
 
-  const displayCount = activeFilter
+  useEffect(() => {
+    if (filteredBatteries.length === 0) {
+      setSelectedBatteryId(null)
+      return
+    }
+    if (
+      !selectedBatteryId ||
+      !filteredBatteries.some((battery) => battery.id === selectedBatteryId)
+    ) {
+      setSelectedBatteryId(filteredBatteries[0].id)
+    }
+  }, [filteredBatteries, selectedBatteryId])
+
+  const displayCount = dataScope
     ? filteredBatteries.length
-    : totalBatteries
+    : activeFilter
+      ? filteredBatteries.length
+      : totalBatteries
 
   return (
     <>

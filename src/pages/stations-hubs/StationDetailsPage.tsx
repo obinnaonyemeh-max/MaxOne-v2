@@ -22,14 +22,19 @@ import { SwapOperatorTab } from "./SwapOperatorTab"
 import { AddBatteriesToStationFlow } from "./AddBatteriesToStationFlow"
 import { StationBatteryListTab } from "./StationBatteryListTab"
 import { StationsMap } from "./StationsMap"
+import { useCan, useRoleSimulation } from "@/contexts/RoleSimulationContext"
+import { isPathAllowedForMode } from "@/data/rolePermissions"
 import {
   addBatteriesToStation,
   formatStationCollections,
   getStationById,
+  isHubLocation,
+  locationIconUrl,
   updateStation,
 } from "@/data/mockStationsData"
 
-const TAB_VALUES = ["info", "batteries", "swap-history", "transfer-log", "operators"] as const
+const ALL_TAB_VALUES = ["info", "batteries", "swap-history", "transfer-log", "operators"] as const
+const HUB_TAB_VALUES = ["info", "batteries", "transfer-log", "operators"] as const
 
 function formatCoordinates(lat: number, lng: number): string {
   return `Lat ${lat.toFixed(6)}, Long ${lng.toFixed(6)}`
@@ -57,11 +62,26 @@ export default function StationDetailsPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
+  const canEditStation = useCan("falcon.stations.edit")
+  const canSetHours = useCan("falcon.stations.setHours")
+  const canAddBatteries = useCan("falcon.stations.addBatteries")
+  const canTransfer = useCan("falcon.stations.transfer")
+  const canManageOperators = useCan("falcon.stations.manageOperators")
+  const { mode, filterByCity, filterByStation } = useRoleSimulation()
+  const canOpenBatteryDetails = isPathAllowedForMode("/falcon/batteries", mode)
+  const canViewTransferLog = canTransfer || mode === "global-fleet-manager"
   const requestedTab = searchParams.get("tab") || "info"
-  const initialTab = TAB_VALUES.includes(requestedTab as (typeof TAB_VALUES)[number])
+  const [station, setStation] = useState(() => getStationById(id || ""))
+  const isHub = station ? isHubLocation(station) : false
+  const tabValues = isHub ? HUB_TAB_VALUES : ALL_TAB_VALUES
+  const allowedTabs = tabValues.filter((tab) => {
+    if (tab === "operators") return canManageOperators
+    if (tab === "transfer-log") return canViewTransferLog
+    return true
+  })
+  const initialTab = (allowedTabs as readonly string[]).includes(requestedTab)
     ? requestedTab
     : "info"
-  const [station, setStation] = useState(() => getStationById(id || ""))
   const [editOpen, setEditOpen] = useState(false)
   const [hoursOpen, setHoursOpen] = useState(false)
   const [transferOpen, setTransferOpen] = useState(false)
@@ -74,7 +94,13 @@ export default function StationDetailsPage() {
   }, [id])
 
   useEffect(() => {
-    if (searchParams.get("transfer") !== "1") return
+    if (station && (!filterByCity(station.city) || !filterByStation(station.id))) {
+      navigate("/falcon/swap-stations", { replace: true })
+    }
+  }, [filterByCity, filterByStation, navigate, station])
+
+  useEffect(() => {
+    if (!canTransfer || searchParams.get("transfer") !== "1") return
     setTransferOpen(true)
     const nextParams = new URLSearchParams(searchParams)
     nextParams.delete("transfer")
@@ -86,7 +112,7 @@ export default function StationDetailsPage() {
       },
       { replace: true }
     )
-  }, [id, navigate, searchParams])
+  }, [canTransfer, id, navigate, searchParams])
 
   const refreshStation = () => {
     const next = getStationById(id || "")
@@ -105,13 +131,15 @@ export default function StationDetailsPage() {
           ]}
         />
         <div className="flex flex-1 items-center justify-center">
-          <p className="text-gray-500">Swap station not found</p>
+          <p className="text-gray-500">{isHub ? "Hub not found" : "Swap station not found"}</p>
         </div>
       </>
     )
   }
 
   const isEmpty = station.batteriesAvailable === 0
+  const noun = isHub ? "hub" : "swap station"
+  const titleNoun = isHub ? "Hub" : "Swap Station"
   const detailItems = [
     { label: "Sub-City", value: station.subCity || "N/A" },
     { label: "City", value: station.city },
@@ -123,14 +151,18 @@ export default function StationDetailsPage() {
       label: "Average State of Charge",
       value: isEmpty ? "N/A" : `${station.averageSoc}%`,
     },
-    {
-      label: "Total Collections",
-      value: formatStationCollections(station.totalCollections),
-    },
-    {
-      label: "Total Swaps (Today)",
-      value: station.totalSwapsToday.toLocaleString(),
-    },
+    ...(!isHub
+      ? [
+          {
+            label: "Total Collections",
+            value: formatStationCollections(station.totalCollections),
+          },
+          {
+            label: "Total Swaps (Today)",
+            value: station.totalSwapsToday.toLocaleString(),
+          },
+        ]
+      : []),
     {
       label: "Current Location",
       value: formatCoordinates(station.coordinates.lat, station.coordinates.lng),
@@ -141,17 +173,17 @@ export default function StationDetailsPage() {
       value: String(station.batteriesAvailable),
     },
     {
-      label: "Photo of Swap Station",
+      label: `Photo of ${titleNoun}`,
       value: (
         <button
           type="button"
           onClick={() => setPhotoPreviewOpen(true)}
           className="rounded border border-gray-200 bg-amber-50 transition-colors hover:border-gray-950"
-          aria-label="View swap station photo"
+          aria-label={`View ${titleNoun.toLowerCase()} photo`}
         >
           <img
-            src={station.photoUrl || "/images/station.svg"}
-            alt="Swap station"
+            src={station.photoUrl || locationIconUrl(station.locationType)}
+            alt=""
             className="h-14 w-20 object-contain"
           />
         </button>
@@ -185,41 +217,49 @@ export default function StationDetailsPage() {
                 </h1>
               </div>
               <p className="mt-1 text-sm font-medium text-breadcrumb-root">
-                View swap station information and activity
+                View {noun} information and activity
               </p>
             </div>
-            <div className="flex shrink-0 flex-wrap items-center gap-3">
-              <Tooltip>
-                <TooltipTrigger asChild>
+            {(canEditStation || canSetHours || canTransfer) && (
+              <div className="flex shrink-0 flex-wrap items-center gap-3">
+                {canEditStation && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="h-10 w-10"
+                        aria-label={`Edit ${noun} details`}
+                        onClick={() => setEditOpen(true)}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Edit {noun} details</TooltipContent>
+                  </Tooltip>
+                )}
+                {canSetHours && (
                   <Button
                     variant="outline"
-                    size="icon"
-                    className="h-10 w-10"
-                    aria-label="Edit swap station details"
-                    onClick={() => setEditOpen(true)}
+                    className="h-10 gap-2"
+                    onClick={() => setHoursOpen(true)}
                   >
-                    <Pencil className="h-4 w-4" />
+                    <img src="/images/open_hours.svg" alt="" className="h-5 w-5" />
+                    Set operating hours
                   </Button>
-                </TooltipTrigger>
-                <TooltipContent>Edit swap station details</TooltipContent>
-              </Tooltip>
-              <Button
-                variant="outline"
-                className="h-10 gap-2"
-                onClick={() => setHoursOpen(true)}
-              >
-                <img src="/images/open_hours.svg" alt="" className="h-5 w-5" />
-                Set operating hours
-              </Button>
-              <Button
-                variant="outline"
-                className="h-10 gap-2"
-                onClick={() => setTransferOpen(true)}
-              >
-                <img src="/images/transfer.svg" alt="" className="h-5 w-5" />
-                Transfer batteries
-              </Button>
-            </div>
+                )}
+                {canTransfer && (
+                  <Button
+                    variant="outline"
+                    className="h-10 gap-2"
+                    onClick={() => setTransferOpen(true)}
+                  >
+                    <img src="/images/transfer.svg" alt="" className="h-5 w-5" />
+                    Transfer batteries
+                  </Button>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
@@ -230,7 +270,7 @@ export default function StationDetailsPage() {
                 value="info"
                 className="px-4 py-3 text-sm font-medium data-[state=active]:text-sidebar-item-active data-[state=inactive]:text-breadcrumb-root"
               >
-                Swap Station Information
+                {titleNoun} Information
               </TabsTrigger>
               <TabsTrigger
                 value="batteries"
@@ -238,30 +278,36 @@ export default function StationDetailsPage() {
               >
                 Battery list
               </TabsTrigger>
-              <TabsTrigger
-                value="swap-history"
-                className="px-4 py-3 text-sm font-medium data-[state=active]:text-sidebar-item-active data-[state=inactive]:text-breadcrumb-root"
-              >
-                Battery swap history
-              </TabsTrigger>
-              <TabsTrigger
-                value="transfer-log"
-                className="px-4 py-3 text-sm font-medium data-[state=active]:text-sidebar-item-active data-[state=inactive]:text-breadcrumb-root"
-              >
-                Transfer log
-              </TabsTrigger>
-              <TabsTrigger
-                value="operators"
-                className="px-4 py-3 text-sm font-medium data-[state=active]:text-sidebar-item-active data-[state=inactive]:text-breadcrumb-root"
-              >
-                Swap operator
-              </TabsTrigger>
+              {!isHub && (
+                <TabsTrigger
+                  value="swap-history"
+                  className="px-4 py-3 text-sm font-medium data-[state=active]:text-sidebar-item-active data-[state=inactive]:text-breadcrumb-root"
+                >
+                  Battery swap history
+                </TabsTrigger>
+              )}
+              {canViewTransferLog && (
+                <TabsTrigger
+                  value="transfer-log"
+                  className="px-4 py-3 text-sm font-medium data-[state=active]:text-sidebar-item-active data-[state=inactive]:text-breadcrumb-root"
+                >
+                  Transfer log
+                </TabsTrigger>
+              )}
+              {canManageOperators && (
+                <TabsTrigger
+                  value="operators"
+                  className="px-4 py-3 text-sm font-medium data-[state=active]:text-sidebar-item-active data-[state=inactive]:text-breadcrumb-root"
+                >
+                  {isHub ? "Operators" : "Swap operator"}
+                </TabsTrigger>
+              )}
             </TabsList>
 
             <TabsContent value="info" className="mt-4 min-h-0 flex-1">
               <div className="flex h-full min-h-0 flex-col items-stretch gap-4 lg:flex-row">
                 <div className="w-full shrink-0 overflow-y-auto lg:w-[440px]">
-                  <InfoCard title="Swap Station Details">
+                  <InfoCard title={`${titleNoun} Details`}>
                     <InfoGrid columns={2} showDividers items={detailItems} />
                   </InfoCard>
                 </div>
@@ -281,27 +327,42 @@ export default function StationDetailsPage() {
               <StationBatteryListTab
                 station={station}
                 refreshKey={logVersion}
-                onAddBatteries={() => setAddBatteriesOpen(true)}
-                onBatteryClick={(batteryId) =>
-                  navigate(`/falcon/batteries/${batteryId}`, {
-                    state: { from: `/falcon/swap-stations/${station.id}?tab=batteries` },
-                  })
+                onAddBatteries={canAddBatteries ? () => setAddBatteriesOpen(true) : undefined}
+                onBatteryClick={
+                  canOpenBatteryDetails
+                    ? (batteryId) =>
+                        navigate(`/falcon/batteries/${batteryId}`, {
+                          state: {
+                            from: `/falcon/swap-stations/${station.id}?tab=batteries`,
+                          },
+                        })
+                    : undefined
                 }
               />
             </TabsContent>
-            <TabsContent value="swap-history" className="mt-4 min-h-0 flex-1 overflow-y-auto">
-              <SwapHistoryTab stationId={station.id} />
-            </TabsContent>
-            <TabsContent value="transfer-log" className="mt-4 min-h-0 flex-1 overflow-y-auto">
-              <TransferLogTab
-                stationId={station.id}
-                refreshKey={logVersion}
-                onStationChange={refreshStation}
-              />
-            </TabsContent>
-            <TabsContent value="operators" className="mt-4 min-h-0 flex-1 overflow-y-auto">
-              <SwapOperatorTab stationId={station.id} stationName={station.name} />
-            </TabsContent>
+            {!isHub && (
+              <TabsContent value="swap-history" className="mt-4 min-h-0 flex-1 overflow-y-auto">
+                <SwapHistoryTab stationId={station.id} />
+              </TabsContent>
+            )}
+            {canViewTransferLog && (
+              <TabsContent value="transfer-log" className="mt-4 min-h-0 flex-1 overflow-y-auto">
+                <TransferLogTab
+                  stationId={station.id}
+                  refreshKey={logVersion}
+                  onStationChange={refreshStation}
+                />
+              </TabsContent>
+            )}
+            {canManageOperators && (
+              <TabsContent value="operators" className="mt-4 min-h-0 flex-1 overflow-y-auto">
+                <SwapOperatorTab
+                  stationId={station.id}
+                  stationName={station.name}
+                  locationType={station.locationType}
+                />
+              </TabsContent>
+            )}
           </Tabs>
         </div>
       </div>
@@ -309,12 +370,12 @@ export default function StationDetailsPage() {
       <Modal
         open={photoPreviewOpen}
         onOpenChange={setPhotoPreviewOpen}
-        title="Photo of Swap Station"
+        title={`Photo of ${titleNoun}`}
         subtitle={station.name}
         className="max-w-2xl"
       >
         <img
-          src={station.photoUrl || "/images/station.svg"}
+          src={station.photoUrl || locationIconUrl(station.locationType)}
           alt={station.name}
           className="mx-auto max-h-[70vh] w-full rounded-lg bg-amber-50 object-contain"
         />
@@ -346,6 +407,7 @@ export default function StationDetailsPage() {
       <AddBatteriesToStationFlow
         open={addBatteriesOpen}
         stationName={station.name}
+        locationType={station.locationType}
         onClose={() => setAddBatteriesOpen(false)}
         onComplete={(importedCount) => {
           const next = addBatteriesToStation(station.id, importedCount)

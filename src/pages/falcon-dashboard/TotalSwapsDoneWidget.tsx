@@ -32,7 +32,7 @@ const STATION_FILTER_SECTIONS: FilterSection[] = CITIES.map((city, index) => ({
   title: city,
   defaultExpanded: index === 0,
   options: mockSwapStations
-    .filter((station) => station.city === city)
+    .filter((station) => station.locationType === "swap-station" && station.city === city)
     .map((station) => ({
       value: station.id,
       label: station.name,

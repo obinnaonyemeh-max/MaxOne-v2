@@ -186,7 +186,11 @@ export default function Champion360Page() {
     () => buildChampionStats(
       scopedChampions,
       mode === "welfare-agent"
-        ? `Assigned to you in ${dataScope?.city ?? "your city"}`
+        ? `Assigned to you in ${
+            dataScope?.type === "city" || dataScope?.type === "subCity"
+              ? dataScope.city
+              : "your city"
+          }`
         : dataScope?.type === "city"
           ? `Across ${dataScope.city}`
           : "Across all cities"

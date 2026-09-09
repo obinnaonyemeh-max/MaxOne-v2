@@ -9,6 +9,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import { useRoleSimulation } from "@/contexts/RoleSimulationContext"
+import { isPathAllowedForMode } from "@/data/rolePermissions"
 import type { ChargerStatus, LifecycleStatus } from "@/data/mockChargerData"
 
 interface ChargerListCardProps {
@@ -89,6 +91,14 @@ export function ChargerListCard({
   className,
 }: ChargerListCardProps) {
   const [menuOpen, setMenuOpen] = useState(false)
+  const { mode } = useRoleSimulation()
+  const canViewChargeSpots = isPathAllowedForMode(
+    `/falcon/ev-chargers/${id}/charge-spots`,
+    mode
+  )
+  const visibleMenuItems = menuItems.filter(
+    (item) => item.id !== "view-charge-spots" || canViewChargeSpots
+  )
 
   return (
     <div
@@ -137,7 +147,7 @@ export function ChargerListCard({
                   className="w-48 p-1"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  {menuItems.map((item) => (
+                  {visibleMenuItems.map((item) => (
                     <button
                       key={item.id}
                       onClick={(e) => {

@@ -7,7 +7,7 @@ import {
   type ReactNode,
 } from "react"
 import type { SidebarSection } from "@/components/max"
-import { isInCityScope, resolveLagosSubCity } from "@/data/cityScope"
+import { isInCityScope, isInCountryScope, resolveLagosSubCity } from "@/data/cityScope"
 import {
   widgetsForFullBuild,
   widgetsForModules,
@@ -24,6 +24,7 @@ import {
 } from "@/data/rolePermissions"
 import {
   driverExperienceSidebarSections,
+  falconSidebarSections,
   sidebarSections,
 } from "@/data/sidebarConfig"
 
@@ -47,7 +48,10 @@ function readStoredMode(): SimulationMode {
       stored === "welfare-manager" ||
       stored === "executive" ||
       stored === "dxp-product-manager" ||
-      stored === "operations-manager"
+      stored === "operations-manager" ||
+      stored === "hub-manager" ||
+      stored === "swap-operator" ||
+      stored === "telematics-officer"
     ) {
       return stored
     }
@@ -73,6 +77,8 @@ interface RoleSimulationContextValue {
   dataScope: RoleDataScope | null
   /** True when the value is in-scope, or when the role has no city scope. */
   filterByCity: (value: string | null | undefined) => boolean
+  /** True when unscoped, not station-scoped, or the id is assigned. */
+  filterByStation: (stationId: string | null | undefined) => boolean
 }
 
 const RoleSimulationContext = createContext<RoleSimulationContextValue | null>(null)
@@ -110,6 +116,19 @@ export function RoleSimulationProvider({ children }: { children: ReactNode }) {
     if (mode === "full-build") return sidebarSections
     const role = getRoleDefinition(mode)
     if (!role) return sidebarSections
+    if (mode === "global-fleet-manager") {
+      return [
+        ...filterSidebarSections(sidebarSections, role.navItemIds),
+        ...filterSidebarSections(falconSidebarSections, role.navItemIds),
+      ]
+    }
+    if (
+      mode === "hub-manager" ||
+      mode === "swap-operator" ||
+      mode === "telematics-officer"
+    ) {
+      return filterSidebarSections(falconSidebarSections, role.navItemIds)
+    }
     const sourceSections =
       mode === "call-centre-agent" ||
       mode === "welfare-agent" ||
@@ -144,7 +163,19 @@ export function RoleSimulationProvider({ children }: { children: ReactNode }) {
       if (dataScope.type === "city") {
         return isInCityScope(value, dataScope.city)
       }
+      if (dataScope.type === "country") {
+        return isInCountryScope(value, dataScope.country)
+      }
       return true
+    },
+    [dataScope]
+  )
+
+  const filterByStation = useCallback(
+    (stationId: string | null | undefined) => {
+      if (!dataScope || dataScope.type !== "station") return true
+      if (!stationId) return false
+      return dataScope.stationIds.includes(stationId)
     },
     [dataScope]
   )
@@ -162,8 +193,19 @@ export function RoleSimulationProvider({ children }: { children: ReactNode }) {
       dashboardWidgets,
       dataScope,
       filterByCity,
+      filterByStation,
     }),
-    [mode, setMode, can, filterSections, roleSidebarSections, dashboardWidgets, dataScope, filterByCity]
+    [
+      mode,
+      setMode,
+      can,
+      filterSections,
+      roleSidebarSections,
+      dashboardWidgets,
+      dataScope,
+      filterByCity,
+      filterByStation,
+    ]
   )
 
   return (
@@ -203,5 +245,20 @@ export function useCityScopedRecords<T>(
         filterByCity(item[locationKey] as string | null | undefined)
       ),
     [records, filterByCity, locationKey]
+  )
+}
+
+/** Filter records by assigned station ids. Unscoped and city-scoped roles return all records. */
+export function useStationScopedRecords<T>(
+  records: readonly T[],
+  idKey: keyof T
+): T[] {
+  const { filterByStation } = useRoleSimulation()
+  return useMemo(
+    () =>
+      records.filter((item) =>
+        filterByStation(item[idKey] as string | null | undefined)
+      ),
+    [records, filterByStation, idKey]
   )
 }

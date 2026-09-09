@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react"
 import { Modal, LoaderModal, DocUpload } from "@/components/max"
-import type { StationLocationType } from "@/data/mockStationsData"
 
-type AddBatteriesStep = "bulk" | "validating" | "validated" | "importing" | "imported"
+type AddChargerStep = "bulk" | "validating" | "validated" | "importing" | "imported"
 
 const initialStats = {
   totalRows: 25,
@@ -10,25 +9,15 @@ const initialStats = {
   rowsWithErrors: 0,
 }
 
-interface AddBatteriesToStationFlowProps {
+interface AddChargerFlowProps {
   open: boolean
-  stationName: string
-  locationType?: StationLocationType
   onClose: () => void
-  onComplete?: (importedCount: number) => void
 }
 
-export function AddBatteriesToStationFlow({
-  open,
-  stationName,
-  locationType = "swap-station",
-  onClose,
-  onComplete,
-}: AddBatteriesToStationFlowProps) {
-  const [step, setStep] = useState<AddBatteriesStep>("bulk")
+export function AddChargerFlow({ open, onClose }: AddChargerFlowProps) {
+  const [step, setStep] = useState<AddChargerStep>("bulk")
   const [uploadedFile, setUploadedFile] = useState<File | null>(null)
   const [validationStats] = useState(initialStats)
-  const noun = locationType === "hub" ? "hub" : "swap station"
 
   useEffect(() => {
     if (!open) {
@@ -42,8 +31,8 @@ export function AddBatteriesToStationFlow({
       <Modal
         open={open && step === "bulk"}
         onOpenChange={onClose}
-        title={`Add batteries to ${noun}`}
-        subtitle="Upload multiple batteries using a template sheet"
+        title="Bulk upload chargers"
+        subtitle="Upload multiple chargers using a template sheet"
         className="max-w-3xl"
         primaryAction={{
           label: "Validate data",
@@ -76,10 +65,10 @@ export function AddBatteriesToStationFlow({
           <div className="flex-1 space-y-4">
             <div className="space-y-2">
               <h3 className="font-semibold text-sidebar-item-active" style={{ fontSize: "16px" }}>
-                Bulk add batteries you wish to assign to {stationName || `this ${noun}`}
+                Bulk add chargers you wish to import into the system
               </h3>
               <p className="text-breadcrumb-root font-medium" style={{ fontSize: "13px" }}>
-                Download the template, fill in the required battery details under the designated headers, and upload the completed file to import them into the system.
+                Download the template, fill in the required charger details under the designated headers, and upload the completed file to import them into the system.
               </p>
             </div>
             <a
@@ -88,7 +77,7 @@ export function AddBatteriesToStationFlow({
               style={{ fontSize: "14px", color: "var(--color-status-amber)" }}
               onClick={(e) => {
                 e.preventDefault()
-                console.log("Download battery template")
+                console.log("Download charger template")
               }}
             >
               Download template sheet
@@ -105,8 +94,8 @@ export function AddBatteriesToStationFlow({
       <Modal
         open={open && step === "validated"}
         onOpenChange={onClose}
-        title={`Add batteries to ${noun}`}
-        subtitle="Upload multiple batteries using a template sheet"
+        title="Bulk upload chargers"
+        subtitle="Upload multiple chargers using a template sheet"
         showBackButton
         onBack={() => setStep("bulk")}
         className="max-w-xl"
@@ -115,7 +104,6 @@ export function AddBatteriesToStationFlow({
           onClick: () => {
             setStep("importing")
             setTimeout(() => {
-              onComplete?.(validationStats.validEntries)
               setStep("imported")
             }, 2000)
           },
@@ -130,7 +118,7 @@ export function AddBatteriesToStationFlow({
           <img src="/images/success_Checkmark.svg" alt="Success" className="h-16 w-16" />
 
           <h3 className="mt-6 font-semibold text-sidebar-item-active" style={{ fontSize: "18px" }}>
-            Batteries ready to import
+            Chargers ready to import
           </h3>
 
           <p className="mt-2 text-center text-breadcrumb-root font-medium" style={{ fontSize: "13px" }}>

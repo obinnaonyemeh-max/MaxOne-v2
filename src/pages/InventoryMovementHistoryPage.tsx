@@ -313,7 +313,7 @@ export default function InventoryMovementHistoryPage() {
           tabs={tabs}
           activeTab={activeTab}
           onTabChange={setActiveTab}
-          className="px-0 mb-4 shrink-0"
+          className="px-0 md:px-0 mb-4 shrink-0"
         />
 
         <div className="mt-0 flex-1 flex flex-col min-h-0 rounded-t-[14px] rounded-b-[4px] border border-table-border">

@@ -10,6 +10,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import { useRoleSimulation } from "@/contexts/RoleSimulationContext"
 import { getVehicleById } from "@/data/mockVehicleRegister"
 import {
   getVehiclePrimeStopHeatMap,
@@ -129,6 +130,7 @@ function applyPrimeStopFilters(
 export default function VehicleStopsPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const { filterByCity } = useRoleSimulation()
   const vehicle = getVehicleById(id || "")
   const stops = useMemo(() => getVehicleStops(id || ""), [id])
   const primeStops = useMemo(() => getVehiclePrimeStops(id || ""), [id])
@@ -182,6 +184,12 @@ export default function VehicleStopsPage() {
       setSelectedPrimeId(filteredPrimeStops[0].id)
     }
   }, [filteredPrimeStops, selectedPrimeId])
+
+  useEffect(() => {
+    if (vehicle && !filterByCity(vehicle.city)) {
+      navigate("/falcon/vehicle-register", { replace: true })
+    }
+  }, [filterByCity, navigate, vehicle])
 
   if (!vehicle) {
     return (

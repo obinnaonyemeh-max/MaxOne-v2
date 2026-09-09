@@ -117,25 +117,26 @@ export function ChargeStopsCard({
             </h3>
           </div>
 
-          {/* Top-Right View All Button with Frosted Glass Effect */}
-          <div
-            className="absolute right-4 top-4 z-[1000] rounded-lg px-4 py-3"
-            style={{
-              background: "rgba(255, 255, 255, 0.55)",
-              backdropFilter: "blur(8px)",
-              WebkitBackdropFilter: "blur(8px)",
-              boxShadow: "0 4px 16px rgba(0, 0, 0, 0.08)",
-              border: "1px solid rgba(255, 255, 255, 0.4)",
-            }}
-          >
-            <button
-              onClick={onViewAllClick}
-              className="hover:underline"
-              style={{ fontSize: "11px", fontWeight: 600, color: "#E88E15" }}
+          {onViewAllClick && (
+            <div
+              className="absolute right-4 top-4 z-[1000] rounded-lg px-4 py-3"
+              style={{
+                background: "rgba(255, 255, 255, 0.55)",
+                backdropFilter: "blur(8px)",
+                WebkitBackdropFilter: "blur(8px)",
+                boxShadow: "0 4px 16px rgba(0, 0, 0, 0.08)",
+                border: "1px solid rgba(255, 255, 255, 0.4)",
+              }}
             >
-              {viewAllLabel}
-            </button>
-          </div>
+              <button
+                onClick={onViewAllClick}
+                className="hover:underline"
+                style={{ fontSize: "11px", fontWeight: 600, color: "#E88E15" }}
+              >
+                {viewAllLabel}
+              </button>
+            </div>
+          )}
 
           {/* Bottom-Right Location Panel with Frosted Glass Effect */}
           <div

@@ -1,5 +1,6 @@
 import type { SidebarItem, SidebarSection } from "@/components/max"
-import type { CityId, LagosSubCity } from "@/data/cityScope"
+import type { CityId, CountryId, LagosSubCity } from "@/data/cityScope"
+import { getStationIdsByName } from "@/data/mockStationsData"
 
 export type SimulationMode =
   | "full-build"
@@ -17,6 +18,9 @@ export type SimulationMode =
   | "executive"
   | "dxp-product-manager"
   | "operations-manager"
+  | "hub-manager"
+  | "swap-operator"
+  | "telematics-officer"
 
 export type PermissionKey =
   | "fleetRegister.addVehicles"
@@ -49,10 +53,25 @@ export type PermissionKey =
   | "ticketManagement.addComment"
   | "inventory.editCostPrice"
   | "inventory.approvals.decide"
+  | "falcon.enforcement.apply"
+  | "falcon.vehicle.immobilize"
+  | "falcon.vehicle.shareLiveLocation"
+  | "falcon.stations.create"
+  | "falcon.stations.edit"
+  | "falcon.stations.setHours"
+  | "falcon.stations.addBatteries"
+  | "falcon.stations.transfer"
+  | "falcon.stations.manageOperators"
+  | "falcon.batteries.tab.telemetry"
+  | "falcon.batteries.tab.movement"
+  | "falcon.batteries.command"
+  | "falcon.chargers.add"
 
 export type RoleDataScope =
   | { type: "city"; city: CityId }
   | { type: "subCity"; city: CityId; subCity: LagosSubCity }
+  | { type: "station"; stationIds: string[] }
+  | { type: "country"; country: CountryId }
 
 export interface RoleDefinition {
   id: Exclude<SimulationMode, "full-build">
@@ -97,32 +116,126 @@ export const ALL_PERMISSIONS: PermissionKey[] = [
   "ticketManagement.addComment",
   "inventory.editCostPrice",
   "inventory.approvals.decide",
+  "falcon.enforcement.apply",
+  "falcon.vehicle.immobilize",
+  "falcon.vehicle.shareLiveLocation",
+  "falcon.stations.create",
+  "falcon.stations.edit",
+  "falcon.stations.setHours",
+  "falcon.stations.addBatteries",
+  "falcon.stations.transfer",
+  "falcon.stations.manageOperators",
+  "falcon.batteries.tab.telemetry",
+  "falcon.batteries.tab.movement",
+  "falcon.batteries.command",
+  "falcon.chargers.add",
+]
+
+const FLEET_OPS_NAV_ITEM_IDS = [
+  "dashboard",
+  "fleet-register",
+  "asset-movement",
+  "inbound",
+  "inbound-batches",
+  "inbound-stock-setup",
+  "activation-readiness",
+  "vehicle-document",
+  "deactivated-vehicles",
+  "assessment-list",
+  "refurbishment",
+  "maintenance",
+  "service-schedule",
+  "disposal-auction",
+  "disposal-management",
+  "conversion-request",
+  "scrap-management",
+  "asset-reassignment",
+  "asset-reassignment-kit",
+]
+
+const FALCON_GFM_NAV_ITEM_IDS = [
+  "vehicle-register",
+  "geofencing",
+  "stations-hubs",
+  "batteries",
+  "ev-chargers",
+]
+
+const FLEET_OPS_PATH_PREFIXES = [
+  "/dashboard",
+  "/fleet-register",
+  "/asset-movement",
+  "/inbound/batches",
+  "/inbound/stock-setup",
+  "/inbound",
+  "/activation/readiness",
+  "/vehicle-document",
+  "/deactivated-vehicles",
+  "/assessment-list",
+  "/refurbishment",
+  "/service-schedule",
+  "/disposal-management",
+  "/conversion-request",
+  "/scrap-management",
+  "/activation-assignment/asset-reassignment/kit",
+]
+
+const FALCON_GFM_PATH_PREFIXES = [
+  "/falcon/vehicle-register",
+  "/falcon/geofences",
+  "/falcon/swap-stations",
+  "/falcon/batteries",
+  "/falcon/ev-chargers",
+]
+
+const FALCON_HUB_MANAGER_NAV_ITEM_IDS = [
+  "falcon-dashboard",
+  "stations-hubs",
+  "batteries",
+  "ev-chargers",
+]
+
+const FALCON_HUB_MANAGER_PATH_PREFIXES = [
+  "/falcon/dashboard",
+  "/falcon/swap-stations",
+  "/falcon/batteries",
+  "/falcon/ev-chargers",
+]
+
+const FALCON_SWAP_OPERATOR_NAV_ITEM_IDS = ["stations-hubs"]
+
+const FALCON_SWAP_OPERATOR_PATH_PREFIXES = ["/falcon/swap-stations"]
+
+const SWAP_OPERATOR_STATION_IDS = getStationIdsByName("Lekki Phase 1")
+
+const FALCON_TELEMATICS_OFFICER_NAV_ITEM_IDS = [
+  "falcon-dashboard",
+  "vehicle-register",
+  "enforcement",
+  "alerts",
+  "tamper-alerts",
+  "battery-alerts",
+  "geofencing",
+  "stations-hubs",
+  "batteries",
+  "ev-chargers",
+]
+
+const FALCON_TELEMATICS_OFFICER_PATH_PREFIXES = [
+  "/falcon/dashboard",
+  "/falcon/vehicle-register",
+  "/falcon/enforcement",
+  "/falcon/alerts",
+  "/falcon/geofences",
+  "/falcon/swap-stations",
+  "/falcon/batteries",
+  "/falcon/ev-chargers",
 ]
 
 export const GLOBAL_FLEET_MANAGER: RoleDefinition = {
   id: "global-fleet-manager",
   label: "Global Fleet Manager",
-  navItemIds: [
-    "dashboard",
-    "fleet-register",
-    "asset-movement",
-    "inbound",
-    "inbound-batches",
-    "inbound-stock-setup",
-    "activation-readiness",
-    "vehicle-document",
-    "deactivated-vehicles",
-    "assessment-list",
-    "refurbishment",
-    "maintenance",
-    "service-schedule",
-    "disposal-auction",
-    "disposal-management",
-    "conversion-request",
-    "scrap-management",
-    "asset-reassignment",
-    "asset-reassignment-kit",
-  ],
+  navItemIds: [...FLEET_OPS_NAV_ITEM_IDS, ...FALCON_GFM_NAV_ITEM_IDS],
   permissions: [
     "vehicleDetails.tab.telematics",
     // Fleet Register: view columns except contract risk / collection %; no add/bulk/edit
@@ -135,10 +248,9 @@ export const GLOBAL_FLEET_MANAGER: RoleDefinition = {
     // Service schedule / disposal modules: everything (no denied keys)
     // Refurbishment: hide part cost column
     // Kit: no reassignment action
+    // Falcon: view-only tracking, geofences, stations, batteries, chargers
   ],
 }
-
-const FLEET_OPS_NAV_ITEM_IDS = GLOBAL_FLEET_MANAGER.navItemIds
 
 export const CITY_FLEET_OFFICER: RoleDefinition = {
   id: "city-fleet-officer",
@@ -225,6 +337,43 @@ export const INVENTORY_OFFICER: RoleDefinition = {
   navItemIds: INVENTORY_NAV_ITEM_IDS,
   dataScope: { type: "city", city: "Lagos" },
   permissions: [],
+}
+
+export const HUB_MANAGER: RoleDefinition = {
+  id: "hub-manager",
+  label: "Hub Manager",
+  navItemIds: FALCON_HUB_MANAGER_NAV_ITEM_IDS,
+  dataScope: { type: "city", city: "Lagos" },
+  permissions: [
+    "falcon.stations.transfer",
+    "falcon.batteries.tab.telemetry",
+    "falcon.batteries.tab.movement",
+    "falcon.batteries.command",
+  ],
+}
+
+export const SWAP_OPERATOR: RoleDefinition = {
+  id: "swap-operator",
+  label: "Swap Operator",
+  navItemIds: FALCON_SWAP_OPERATOR_NAV_ITEM_IDS,
+  dataScope: { type: "station", stationIds: SWAP_OPERATOR_STATION_IDS },
+  permissions: ["falcon.stations.setHours", "falcon.stations.transfer"],
+}
+
+export const TELEMATICS_OFFICER: RoleDefinition = {
+  id: "telematics-officer",
+  label: "Telematics Officer",
+  navItemIds: FALCON_TELEMATICS_OFFICER_NAV_ITEM_IDS,
+  dataScope: { type: "country", country: "Nigeria" },
+  permissions: [
+    "falcon.enforcement.apply",
+    "falcon.vehicle.immobilize",
+    "falcon.vehicle.shareLiveLocation",
+    "falcon.batteries.tab.telemetry",
+    "falcon.batteries.tab.movement",
+    "falcon.batteries.command",
+    "falcon.chargers.add",
+  ],
 }
 
 export const CALL_CENTRE_AGENT: RoleDefinition = {
@@ -358,6 +507,9 @@ export const SIMULATION_OPTIONS: {
   { mode: "refurbishment-officer", label: "Refurbishment Officer" },
   { mode: "inventory-manager", label: "Inventory Manager" },
   { mode: "inventory-officer", label: "Inventory Officer" },
+  { mode: "hub-manager", label: "Hub Manager" },
+  { mode: "swap-operator", label: "Swap Operator" },
+  { mode: "telematics-officer", label: "Telematics Officer" },
   { mode: "call-centre-agent", label: "Call Centre Agent" },
   { mode: "welfare-agent", label: "Welfare Agent" },
   { mode: "field-ops-manager", label: "Field Ops Manager" },
@@ -376,6 +528,9 @@ export function getRoleDefinition(mode: SimulationMode): RoleDefinition | null {
   if (mode === "refurbishment-officer") return REFURBISHMENT_OFFICER
   if (mode === "inventory-manager") return INVENTORY_MANAGER
   if (mode === "inventory-officer") return INVENTORY_OFFICER
+  if (mode === "hub-manager") return HUB_MANAGER
+  if (mode === "swap-operator") return SWAP_OPERATOR
+  if (mode === "telematics-officer") return TELEMATICS_OFFICER
   if (mode === "call-centre-agent") return CALL_CENTRE_AGENT
   if (mode === "welfare-agent") return WELFARE_AGENT
   if (mode === "field-ops-manager") return FIELD_OPS_MANAGER
@@ -535,24 +690,27 @@ export function getAllowedPathPrefixes(mode: SimulationMode): string[] | null {
     return ["/inventory"]
   }
 
-  return [
-    "/dashboard",
-    "/fleet-register",
-    "/asset-movement",
-    "/inbound/batches",
-    "/inbound/stock-setup",
-    "/inbound",
-    "/activation/readiness",
-    "/vehicle-document",
-    "/deactivated-vehicles",
-    "/assessment-list",
-    "/refurbishment",
-    "/service-schedule",
-    "/disposal-management",
-    "/conversion-request",
-    "/scrap-management",
-    "/activation-assignment/asset-reassignment/kit",
-  ]
+  if (mode === "global-fleet-manager") {
+    return [...FLEET_OPS_PATH_PREFIXES, ...FALCON_GFM_PATH_PREFIXES]
+  }
+
+  if (mode === "city-fleet-officer") {
+    return FLEET_OPS_PATH_PREFIXES
+  }
+
+  if (mode === "hub-manager") {
+    return FALCON_HUB_MANAGER_PATH_PREFIXES
+  }
+
+  if (mode === "swap-operator") {
+    return FALCON_SWAP_OPERATOR_PATH_PREFIXES
+  }
+
+  if (mode === "telematics-officer") {
+    return FALCON_TELEMATICS_OFFICER_PATH_PREFIXES
+  }
+
+  return FLEET_OPS_PATH_PREFIXES
 }
 
 /** Paths that are denied even when under an allowed prefix (action-level route blocks). */
@@ -573,8 +731,19 @@ export function getDeniedPathPrefixes(mode: SimulationMode): string[] {
   return []
 }
 
+const CHARGE_SPOTS_PATH = /^\/falcon\/ev-chargers\/([^/]+)\/charge-spots(?:\/|$)/
+const VEHICLE_STOPS_PATH = /^\/falcon\/vehicle-register\/([^/]+)\/stops(?:\/|$)/
+
+function isDeniedFalconExtraPath(pathname: string, mode: SimulationMode): boolean {
+  if (mode === "hub-manager") return CHARGE_SPOTS_PATH.test(pathname)
+  if (mode !== "global-fleet-manager") return false
+  return CHARGE_SPOTS_PATH.test(pathname) || VEHICLE_STOPS_PATH.test(pathname)
+}
+
 export function isPathAllowedForMode(pathname: string, mode: SimulationMode): boolean {
   if (mode === "full-build") return true
+
+  if (isDeniedFalconExtraPath(pathname, mode)) return false
 
   for (const denied of getDeniedPathPrefixes(mode)) {
     if (pathname === denied || pathname.startsWith(`${denied}/`)) {
@@ -618,18 +787,34 @@ export function getFallbackPathForDenied(pathname: string, mode: SimulationMode)
   if (mode === "operations-manager") {
     return "/driver-experience/dashboard"
   }
-  if (
-    mode === "global-fleet-manager" &&
-    (pathname === "/activation-assignment/asset-reassignment/kit/assign" ||
-      pathname.startsWith("/activation-assignment/asset-reassignment/kit/assign/"))
-  ) {
-    return "/activation-assignment/asset-reassignment/kit"
+  if (mode === "global-fleet-manager") {
+    const chargeSpots = pathname.match(CHARGE_SPOTS_PATH)
+    if (chargeSpots) return `/falcon/ev-chargers/${chargeSpots[1]}`
+    const stops = pathname.match(VEHICLE_STOPS_PATH)
+    if (stops) return `/falcon/vehicle-register/${stops[1]}/activity`
+    if (
+      pathname === "/activation-assignment/asset-reassignment/kit/assign" ||
+      pathname.startsWith("/activation-assignment/asset-reassignment/kit/assign/")
+    ) {
+      return "/activation-assignment/asset-reassignment/kit"
+    }
   }
   if (mode === "refurbishment-manager" || mode === "refurbishment-officer") {
     return "/refurbishment"
   }
   if (mode === "inventory-manager" || mode === "inventory-officer") {
     return "/inventory/list"
+  }
+  if (mode === "hub-manager") {
+    const chargeSpots = pathname.match(CHARGE_SPOTS_PATH)
+    if (chargeSpots) return `/falcon/ev-chargers/${chargeSpots[1]}`
+    return "/falcon/dashboard"
+  }
+  if (mode === "swap-operator") {
+    return "/falcon/swap-stations"
+  }
+  if (mode === "telematics-officer") {
+    return "/falcon/dashboard"
   }
   return "/dashboard"
 }

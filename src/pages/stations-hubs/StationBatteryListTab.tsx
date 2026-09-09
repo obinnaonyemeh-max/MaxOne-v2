@@ -93,12 +93,16 @@ export function StationBatteryListTab({
 
       <div className="min-h-0 flex-1 overflow-y-auto">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
-          <CreateStationCard label="Add new batteries" onClick={onAddBatteries} />
+          {onAddBatteries && (
+            <CreateStationCard label="Add new batteries" onClick={onAddBatteries} />
+          )}
           {filteredBatteries.map((battery) => (
             <StationBatteryGridCard
               key={battery.id}
               battery={battery}
-              onClick={() => onBatteryClick?.(battery.id)}
+              onClick={
+                onBatteryClick ? () => onBatteryClick(battery.id) : undefined
+              }
             />
           ))}
         </div>

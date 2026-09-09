@@ -1,12 +1,22 @@
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { Presentation } from "lucide-react"
 import { PageHeader, TopBar } from "@/components/max"
 import { Button } from "@/components/ui/button"
+import { useRoleSimulation } from "@/contexts/RoleSimulationContext"
+import { falconWidgetModuleIdsFromNav } from "@/data/falconDashboardWidgets"
+import { getRoleDefinition } from "@/data/rolePermissions"
 import { FalconDashboardBody } from "@/pages/falcon-dashboard/FalconDashboardBody"
 import { FalconDashboardSlideshow } from "@/pages/falcon-dashboard/FalconDashboardSlideshow"
 
 export default function FalconDashboardPage() {
+  const { isFullBuild, mode } = useRoleSimulation()
   const [slideshowOpen, setSlideshowOpen] = useState(false)
+  const allowedModuleIds = useMemo(() => {
+    if (isFullBuild) return undefined
+    const role = getRoleDefinition(mode)
+    if (!role) return undefined
+    return falconWidgetModuleIdsFromNav(role.navItemIds)
+  }, [isFullBuild, mode])
 
   return (
     <>
@@ -23,17 +33,19 @@ export default function FalconDashboardPage() {
           subtitle="Monitor connected vehicles, energy, and alerts across your fleet"
           className="px-0"
           action={
-            <Button variant="outline" onClick={() => setSlideshowOpen(true)}>
-              <Presentation className="h-4 w-4" />
-              Slideshow
-            </Button>
+            isFullBuild ? (
+              <Button variant="outline" onClick={() => setSlideshowOpen(true)}>
+                <Presentation className="h-4 w-4" />
+                Slideshow
+              </Button>
+            ) : undefined
           }
         />
 
-        <FalconDashboardBody />
+        <FalconDashboardBody allowedModuleIds={allowedModuleIds} />
       </div>
 
-      {slideshowOpen && (
+      {isFullBuild && slideshowOpen && (
         <FalconDashboardSlideshow onClose={() => setSlideshowOpen(false)} />
       )}
     </>

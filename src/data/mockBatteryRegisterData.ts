@@ -1,4 +1,9 @@
-import { findStationBatteryById, getStationById, type StationBattery } from "./mockStationsData"
+import {
+  findStationBatteryById,
+  getStationById,
+  mockSwapStations,
+  type StationBattery,
+} from "./mockStationsData"
 
 export type BatteryStatus = "riding" | "in-transit" | "idle" | "checked-in" | "retired" | "unknown"
 
@@ -325,13 +330,21 @@ export const mockBatteryRegisterItems: BatteryRegisterItem[] = [
     imeiNumber: "Unknown",
     capacity: 0,
     owner: "Unknown",
-    currentStation: "Unknown",
+    currentStation: "Ikeja Swap Station",
     bmsNumber: "Unknown",
     registrationDate: "Unknown",
   },
 ]
 
 export const totalBatteries = batteryStatusCounts.reduce((sum, item) => sum + item.count, 0)
+
+/** City or station name used by `filterByCity` for register and detail scoping. */
+export function getBatteryCityScopeValue(
+  battery: Pick<BatteryRegisterItem, "currentStation">
+): string {
+  const station = mockSwapStations.find((item) => item.name === battery.currentStation)
+  return station?.city ?? battery.currentStation
+}
 
 export function getBatteryById(id: string): BatteryRegisterItem | undefined {
   const fromRegister = mockBatteryRegisterItems.find((battery) => battery.id === id)

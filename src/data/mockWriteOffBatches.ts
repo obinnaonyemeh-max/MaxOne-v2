@@ -24,6 +24,17 @@ export const writeOffStatusVariantMap: Record<WriteOffStatus, "success" | "dange
   Pending: "warning",
 }
 
+export function addWriteOffBatch(batch: WriteOffBatch): void {
+  mockWriteOffBatches.unshift(batch)
+}
+
+// WO Recovery (submission) and WO Approvals (review) both read this array, so a status
+// change made from either page is mutated in place here rather than in page-local state.
+export function setWriteOffBatchStatus(id: string, status: WriteOffStatus): void {
+  const batch = mockWriteOffBatches.find((b) => b.id === id)
+  if (batch) batch.status = status
+}
+
 export const mockWriteOffBatches: WriteOffBatch[] = [
   {
     id: "1",

@@ -10,12 +10,14 @@ const textCell = (value: string | number) => (
 interface RepricingRuleColumnsOptions {
   onView: (rule: RepricingRule) => void
   onDuplicate: (rule: RepricingRule) => void
+  onActivate: (rule: RepricingRule) => void
   onDeactivate: (rule: RepricingRule) => void
 }
 
 export function getRepricingRuleColumns({
   onView,
   onDuplicate,
+  onActivate,
   onDeactivate,
 }: RepricingRuleColumnsOptions): ColumnDef<RepricingRule>[] {
   return [
@@ -71,17 +73,30 @@ export function getRepricingRuleColumns({
           >
             Duplicate
           </button>
-          <button
-            type="button"
-            disabled={row.original.status === "Inactive"}
-            onClick={(e) => {
-              e.stopPropagation()
-              onDeactivate(row.original)
-            }}
-            className="text-sm font-medium text-status-danger hover:underline disabled:pointer-events-none disabled:opacity-40"
-          >
-            Deactivate
-          </button>
+          {row.original.status === "Draft" ? (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation()
+                onActivate(row.original)
+              }}
+              className="text-sm font-medium text-status-success hover:underline"
+            >
+              Activate
+            </button>
+          ) : (
+            <button
+              type="button"
+              disabled={row.original.status === "Inactive"}
+              onClick={(e) => {
+                e.stopPropagation()
+                onDeactivate(row.original)
+              }}
+              className="text-sm font-medium text-status-danger hover:underline disabled:pointer-events-none disabled:opacity-40"
+            >
+              Deactivate
+            </button>
+          )}
         </div>
       ),
     },

@@ -2,7 +2,7 @@ import { type ColumnDef } from "@tanstack/react-table"
 
 import { StatusBadge } from "@/components/max"
 import { Button } from "@/components/ui/button"
-import { mockAssetClasses, mockVehicleTypeOptions } from "@/data/mockVehicleCatalog"
+import { mockAssetClasses } from "@/data/mockVehicleCatalog"
 import { templateGrandTotal, type PricingTemplate } from "@/data/mockPricingTemplates"
 
 function formatCurrency(amount: number): string {
@@ -10,10 +10,9 @@ function formatCurrency(amount: number): string {
 }
 
 export function vehicleTypeLabel(template: PricingTemplate): string {
-  const assetClass = mockAssetClasses.find((a) => a.id === template.vehicleTypePrimary)
-  const subtype = mockVehicleTypeOptions.find((v) => v.id === template.vehicleTypeSubtype)
-  if (!assetClass && !subtype) return "—"
-  return [assetClass?.name, subtype?.name].filter(Boolean).join(" · ")
+  const assetClass = mockAssetClasses.find((a) => a.id === template.vehicleTypeSubtype)
+  if (!template.vehicleTypePrimary && !assetClass) return "—"
+  return [template.vehicleTypePrimary, assetClass?.name].filter(Boolean).join(" · ")
 }
 
 interface PricingTemplateColumnsOptions {

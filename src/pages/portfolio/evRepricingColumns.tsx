@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { type ColumnDef } from "@tanstack/react-table"
+import { format, parseISO } from "date-fns"
 import { MoreHorizontal } from "lucide-react"
 
 import { StatusBadge } from "@/components/max"
@@ -78,23 +79,11 @@ export function getEvRepricingColumns({
 }: EvRepricingColumnsOptions): ColumnDef<EvRepricedContract>[] {
   return [
     {
-      accessorKey: "contractId",
-      header: "Contract ID",
+      accessorKey: "vehicleId",
+      header: "Vehicle ID",
       cell: ({ row }) => (
-        <span className="font-semibold text-table-text-primary text-sm">{row.original.contractId}</span>
+        <span className="font-semibold text-table-text-primary text-sm">{row.original.vehicleId}</span>
       ),
-    },
-    {
-      accessorKey: "championName",
-      header: "Champion Name",
-      cell: ({ row }) => (
-        <span className="font-medium text-table-text-primary text-sm">{row.original.championName}</span>
-      ),
-    },
-    {
-      accessorKey: "championId",
-      header: "Champion ID",
-      cell: ({ row }) => <span className="font-medium text-muted-foreground text-sm">{row.original.championId}</span>,
     },
     { accessorKey: "plateNumber", header: "Plate Number", cell: ({ row }) => textCell(row.original.plateNumber) },
     { accessorKey: "vehicleModel", header: "Vehicle Model", cell: ({ row }) => textCell(row.original.vehicleModel) },
@@ -132,6 +121,11 @@ export function getEvRepricingColumns({
       accessorKey: "dailyRemittance",
       header: "Daily Remittance",
       cell: ({ row }) => textCell(formatDailyRemittance(row.original.dailyRemittance)),
+    },
+    {
+      accessorKey: "lastRepricedAt",
+      header: "Date Repriced",
+      cell: ({ row }) => textCell(format(parseISO(row.original.lastRepricedAt), "dd MMM yyyy")),
     },
     {
       id: "actions",

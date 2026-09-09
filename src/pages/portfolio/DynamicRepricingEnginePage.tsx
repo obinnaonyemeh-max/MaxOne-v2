@@ -1,6 +1,7 @@
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { useNavigate, useSearchParams } from "react-router-dom"
-import { Calendar, Plus, Play } from "lucide-react"
+import { Calendar, Plus, Play, Zap, Fuel } from "lucide-react"
+import { parse } from "date-fns"
 import { toast } from "sonner"
 
 import { TopBar, StatusBadge, StatCard, DataTable, InfoGrid, Modal, Banner } from "@/components/max"
@@ -14,6 +15,7 @@ import {
   repricingRuleStatusVariantMap,
   type RepricingRule,
   type RepricingSession,
+  type RepricingVehicleType,
 } from "@/data/mockRepricingEngine"
 import { repricingSessionColumns } from "./repricingSessionColumns"
 import { RepricingRulesTable } from "./RepricingRulesTable"
@@ -23,12 +25,13 @@ import { RepricingSessionsTab } from "./RepricingSessionsTab"
 import { ExceptionQueueTab } from "./ExceptionQueueTab"
 import { AuditTrailTab } from "./AuditTrailTab"
 import { RunRepricingModal } from "./RunRepricingModal"
+import { RepricingRuleDetailSheet } from "./RepricingRuleDetailSheet"
 
 const tabTriggerClass =
   "px-3 py-3 text-sm font-medium data-[state=active]:text-sidebar-item-active data-[state=inactive]:text-breadcrumb-root"
 
 const tabs = [
-  { value: "dashboard", label: "Dashboard" },
+  { value: "dashboard", label: "Overview" },
   { value: "rules", label: "Repricing Rules" },
   { value: "ev", label: "EV Repricing" },
   { value: "ice", label: "ICE Repricing" },
@@ -49,6 +52,20 @@ export default function DynamicRepricingEnginePage() {
   const [showRunModal, setShowRunModal] = useState(false)
   const [showScheduleModal, setShowScheduleModal] = useState(false)
 
+  // Single latest active rule per vehicle type, by effective date.
+  const activeRules = useMemo(() => {
+    const latestByType = (vehicleType: RepricingVehicleType) =>
+      rules
+        .filter((rule) => rule.status === "Active" && rule.vehicleType === vehicleType)
+        .sort(
+          (a, b) =>
+            parse(b.effectiveDate, "dd MMM yyyy", new Date()).getTime() -
+            parse(a.effectiveDate, "dd MMM yyyy", new Date()).getTime()
+        )
+        .slice(0, 1)
+    return [...latestByType("EV"), ...latestByType("ICE")]
+  }, [rules])
+
   const handleDuplicateRule = (rule: RepricingRule) => {
     const duplicate: RepricingRule = {
       ...rule,
@@ -59,6 +76,11 @@ export default function DynamicRepricingEnginePage() {
     }
     setRules((prev) => [duplicate, ...prev])
     toast.success("Rule duplicated", { description: `${duplicate.name} created as a draft.` })
+  }
+
+  const handleActivateRule = (rule: RepricingRule) => {
+    setRules((prev) => prev.map((r) => (r.id === rule.id ? { ...r, status: "Active" } : r)))
+    toast.success("Rule activated", { description: `${rule.name} is now active.` })
   }
 
   const handleDeactivateRule = (rule: RepricingRule) => {
@@ -137,7 +159,7 @@ export default function DynamicRepricingEnginePage() {
       )}
 
       <Tabs value={activeTab} onValueChange={handleTabChange} className="flex-1 min-h-0 flex flex-col">
-        <TabsList className="mx-6 mb-2 w-fit gap-4 bg-transparent p-0 border-b border-gray-200 rounded-none justify-start">
+        <TabsList variant="line" className="mx-6 mb-2 w-fit gap-4 border-b border-gray-200 justify-start">
           {tabs.map((tab) => (
             <TabsTrigger key={tab.value} value={tab.value} className={tabTriggerClass}>
               {tab.label}
@@ -147,7 +169,7 @@ export default function DynamicRepricingEnginePage() {
 
         <div className="flex-1 overflow-y-auto pb-6">
           <TabsContent value="dashboard" className="flex flex-col gap-4 mt-0">
-            <div className="px-6 grid grid-cols-6 gap-2">
+            <div className="px-6 grid grid-cols-3 gap-2">
               <StatCard
                 title="Awaiting Repricing"
                 value={mockRepricingMetrics.awaitingRepricing}
@@ -187,51 +209,42 @@ export default function DynamicRepricingEnginePage() {
               />
             </div>
 
-            <div className="px-6 grid grid-cols-2 gap-4">
+            <div className="px-6">
               <div className="rounded-lg border border-gray-200 bg-white p-5 flex flex-col gap-3">
-                <span className="text-xs font-semibold uppercase tracking-wider text-breadcrumb-root">Active Rules</span>
-                <div className="flex flex-col divide-y divide-gray-100">
-                  {rules.slice(0, 4).map((rule) => (
-                    <div key={rule.id} className="flex items-start justify-between gap-2 py-2.5">
-                      <div className="flex items-start gap-2">
-                        <StatusBadge variant={rule.vehicleType === "EV" ? "info" : "warning"} size="sm">
-                          {rule.vehicleType}
-                        </StatusBadge>
-                        <div>
-                          <p className="font-medium text-sidebar-item-active text-sm">{rule.name}</p>
-                          <p className="text-xs text-breadcrumb-root">
-                            {rule.vehicleModel} &middot; {rule.country} &middot; {rule.version} &middot; Effective {rule.effectiveDate}
-                          </p>
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-breadcrumb-root">Active Rules</span>
+                  <Button variant="outline" size="sm" onClick={() => handleTabChange("rules")}>
+                    View All Active Rules
+                  </Button>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  {activeRules.map((rule) => (
+                    <div
+                      key={rule.id}
+                      className="flex items-center gap-3 rounded-lg border border-gray-100 bg-gray-25 p-3"
+                    >
+                      {rule.vehicleType === "EV" ? (
+                        <Zap className="h-6 w-6 mx-2 text-breadcrumb-root shrink-0" />
+                      ) : (
+                        <Fuel className="h-6 w-6 mx-2 text-breadcrumb-root shrink-0" />
+                      )}
+                      <div className="flex flex-col gap-1.5 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <StatusBadge variant={rule.vehicleType === "EV" ? "info" : "warning"} size="sm">
+                            {rule.vehicleType}
+                          </StatusBadge>
+                          <StatusBadge variant={repricingRuleStatusVariantMap[rule.status]} size="sm">
+                            {rule.status}
+                          </StatusBadge>
                         </div>
+                        <p className="font-medium text-sidebar-item-active text-sm">{rule.name}</p>
+                        <p className="text-xs text-breadcrumb-root">
+                          {rule.vehicleModel} &middot; {rule.country} &middot; {rule.version} &middot; Effective {rule.effectiveDate}
+                        </p>
                       </div>
-                      <StatusBadge variant={repricingRuleStatusVariantMap[rule.status]} size="sm">
-                        {rule.status}
-                      </StatusBadge>
                     </div>
                   ))}
                 </div>
-                <button
-                  type="button"
-                  onClick={() => handleTabChange("rules")}
-                  className="mt-1 text-left text-sm font-medium text-status-info hover:underline"
-                >
-                  View rule register →
-                </button>
-              </div>
-
-              <div className="rounded-lg border border-gray-200 bg-white p-5 flex flex-col gap-3">
-                <span className="text-xs font-semibold uppercase tracking-wider text-breadcrumb-root">Automation</span>
-                <InfoGrid
-                  columns={2}
-                  showDividers
-                  items={[
-                    { label: "Frequency", value: mockAutomationConfig.frequency },
-                    { label: "Run windows", value: mockAutomationConfig.runWindows },
-                    { label: "Scope", value: mockAutomationConfig.scope },
-                    { label: "Refurbishment gate", value: mockAutomationConfig.refurbishmentGate },
-                    { label: "On constraint breach", value: mockAutomationConfig.onConstraintBreach },
-                  ]}
-                />
               </div>
             </div>
 
@@ -257,6 +270,7 @@ export default function DynamicRepricingEnginePage() {
                 rules={rules}
                 onView={setViewRule}
                 onDuplicate={handleDuplicateRule}
+                onActivate={handleActivateRule}
                 onDeactivate={handleDeactivateRule}
               />
             </div>
@@ -300,27 +314,7 @@ export default function DynamicRepricingEnginePage() {
         />
       </Modal>
 
-      <Modal
-        open={viewRule !== null}
-        onOpenChange={(open) => !open && setViewRule(null)}
-        title={viewRule?.name}
-        subtitle="Repricing rule details"
-        secondaryAction={{ label: "Close", onClick: () => setViewRule(null) }}
-      >
-        {viewRule && (
-          <InfoGrid
-            columns={2}
-            items={[
-              { label: "Vehicle Type", value: viewRule.vehicleType },
-              { label: "Vehicle Model", value: viewRule.vehicleModel },
-              { label: "Country", value: viewRule.country },
-              { label: "Version", value: viewRule.version },
-              { label: "Effective Date", value: viewRule.effectiveDate },
-              { label: "Status", value: viewRule.status },
-            ]}
-          />
-        )}
-      </Modal>
+      <RepricingRuleDetailSheet rule={viewRule} onClose={() => setViewRule(null)} />
     </>
   )
 }

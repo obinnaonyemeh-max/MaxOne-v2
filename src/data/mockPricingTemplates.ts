@@ -3,6 +3,10 @@
 // accordions offer for entry. Risks & Contingency Cost line items are entered as a
 // percentage of the Vehicle Purchase Cost total rather than a currency amount.
 
+import type { WizardFields } from "@/pages/create-pricing-template/types"
+
+export const PRICING_TEMPLATE_PRODUCT_TYPES = ["Subscription", "Outright Finance", "Enterprise"] as const
+
 export const COST_CATEGORY_KEYS = [
   "vehiclePurchaseCost",
   "costOfFunds",
@@ -54,7 +58,7 @@ export interface TemplateRemittanceSchedule {
   equityContributionPercent: number
 }
 
-export type PricingTemplateStatus = "Draft" | "Active"
+export type PricingTemplateStatus = "Draft" | "Active" | "Inactive"
 
 export interface PricingTemplate {
   id: string
@@ -64,12 +68,21 @@ export interface PricingTemplate {
   /** Metadata captured by the Create Pricing Template wizard — optional so hand-seeded templates don't need it. */
   code?: string
   productType?: string
+  /** "EV" or "ICE" — see VEHICLE_POWERTRAIN_TYPES in mockVehicleCatalog.ts. */
   vehicleTypePrimary?: string
+  /** References AssetClass.id in mockVehicleCatalog.ts (e.g. "two-wheeler"). */
   vehicleTypeSubtype?: string
   currency?: string
   effectiveDate?: string
   description?: string
   status?: PricingTemplateStatus
+  /** Full wizard field snapshot at last save — lets a Draft be reopened for editing without re-entering everything. */
+  wizardSnapshot?: WizardFields
+}
+
+export function archivePricingTemplate(id: string): void {
+  const template = mockPricingTemplates.find((t) => t.id === id)
+  if (template) template.status = "Inactive"
 }
 
 export function addPricingTemplate(template: PricingTemplate): void {
@@ -169,9 +182,9 @@ export const mockPricingTemplates: PricingTemplate[] = [
     id: "tpl-two-wheeler-standard",
     name: "Two-Wheeler — Standard",
     code: "TPL-2W-STD",
-    productType: "Hire Purchase",
-    vehicleTypePrimary: "two-wheeler",
-    vehicleTypeSubtype: "vt-motorcycle",
+    productType: "Outright Finance",
+    vehicleTypePrimary: "EV",
+    vehicleTypeSubtype: "two-wheeler",
     currency: "NGN",
     effectiveDate: "01 Jan 2024",
     description: "Standard EV two-wheeler pricing template.",
@@ -199,9 +212,9 @@ export const mockPricingTemplates: PricingTemplate[] = [
     id: "tpl-three-wheeler-standard",
     name: "Three-Wheeler — Standard",
     code: "TPL-3W-STD",
-    productType: "Hire Purchase",
-    vehicleTypePrimary: "three-wheeler",
-    vehicleTypeSubtype: "vt-cargo-tricycle",
+    productType: "Outright Finance",
+    vehicleTypePrimary: "ICE",
+    vehicleTypeSubtype: "three-wheeler",
     currency: "NGN",
     effectiveDate: "01 Jan 2024",
     description: "Standard three-wheeler pricing template.",
@@ -229,9 +242,9 @@ export const mockPricingTemplates: PricingTemplate[] = [
     id: "tpl-four-wheeler-standard",
     name: "Four-Wheeler — Standard",
     code: "TPL-4W-STD",
-    productType: "Lease-to-Own",
-    vehicleTypePrimary: "four-wheeler",
-    vehicleTypeSubtype: "vt-sedan",
+    productType: "Enterprise",
+    vehicleTypePrimary: "ICE",
+    vehicleTypeSubtype: "four-wheeler",
     currency: "NGN",
     effectiveDate: "01 Jan 2024",
     description: "Standard four-wheeler pricing template.",
@@ -253,6 +266,36 @@ export const mockPricingTemplates: PricingTemplate[] = [
       batteryAccessFeesDaily: 0,
       batterySwapFeeSubsidyDaily: 0,
       equityContributionPercent: 25,
+    },
+  },
+  {
+    id: "tpl-two-wheeler-uganda-pilot",
+    name: "Two-Wheeler — Uganda Pilot",
+    code: "TPL-2W-UG-PILOT",
+    productType: "Subscription",
+    vehicleTypePrimary: "EV",
+    vehicleTypeSubtype: "two-wheeler",
+    currency: "UGX",
+    effectiveDate: "01 Sep 2026",
+    description: "Draft subscription pricing template for the Uganda EV two-wheeler pilot — pending finance sign-off.",
+    status: "Draft",
+    costCategories: [
+      { key: "vehiclePurchaseCost", lineItems: vehiclePurchaseCostItems(950000, 420000, 65000, 38000, 60000) },
+      { key: "costOfFunds", lineItems: costOfFundsItems(85000, 22000, 15000, 8000) },
+      { key: "onboardingCost", lineItems: onboardingCostItems(12000, 6000, 9000, 5000, 3000, 8000, 4000, 3000, 4500) },
+      { key: "operationalCost", lineItems: operationalCostItems(28000, 10000) },
+      { key: "maxAdvantage", lineItems: maxAdvantageItems(9000, 12000, 4000, 3000) },
+      { key: "salesAndMarketing", lineItems: salesAndMarketingItems(15000) },
+      { key: "risksAndContingency", lineItems: risksAndContingencyItems(3, 2, 5) },
+    ],
+    remittanceSchedule: {
+      tenorMonths: 18,
+      daysPerMonth: 25,
+      repaymentAmountDaily: 4200,
+      maxAdvantageDaily: 900,
+      batteryAccessFeesDaily: 300,
+      batterySwapFeeSubsidyDaily: 200,
+      equityContributionPercent: 20,
     },
   },
 ]

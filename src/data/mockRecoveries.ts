@@ -170,7 +170,7 @@ export const pendingRecoveryStats = {
 // ── Recoveries in Session ──
 
 const sessionSeeds: { status: SessionStatus; pairIdx: number; elapsed: number; outcomeNotes: string | null }[] = [
-  { status: "In Session", pairIdx: 0, elapsed: 42, outcomeNotes: null },
+  { status: "In Session", pairIdx: 7, elapsed: 42, outcomeNotes: null },
   { status: "In Session", pairIdx: 2, elapsed: 118, outcomeNotes: null },
   { status: "In Session", pairIdx: 4, elapsed: 27, outcomeNotes: null },
   { status: "In Session", pairIdx: 6, elapsed: 205, outcomeNotes: null },
@@ -210,6 +210,12 @@ export const recoverySessionStats = {
   inSession: mockRecoverySessions.filter((s) => s.status === "In Session").length,
   successful: mockRecoverySessions.filter((s) => s.status === "Successful").length,
   failed: mockRecoverySessions.filter((s) => s.status === "Failed").length,
+}
+
+// Single source of truth for "is this pair currently working a case" — every action that
+// must be locked during an active session (unlink, relocate, vehicle reassignment) checks this.
+export function isPairInSession(pair: { pairCode: string }): boolean {
+  return mockRecoverySessions.some((s) => s.pairCode === pair.pairCode && s.status === "In Session")
 }
 
 // ── Pending Check-Ins ──

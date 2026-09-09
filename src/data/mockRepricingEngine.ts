@@ -8,6 +8,52 @@ import type { PreviousContractBaseline } from "@/pages/create-repricing-rule/ref
 export type RepricingVehicleType = "EV" | "ICE"
 export type RepricingRuleStatus = "Active" | "Draft" | "Inactive"
 
+// Mirrors the Create Repricing Rule wizard's steps 2–6 field-for-field, so a rule's detail
+// view can show every parameter set when it was created (or last edited).
+export interface RepricingRuleParameters {
+  description: string
+  /** References `PricingBatchRecord.id` in mockPricingBatchRecords.ts — empty when none was attached. */
+  pricingBatchId: string
+
+  // Contract Eligibility
+  processStages: string[]
+  refurbishmentStatuses: string[]
+  vehicleTypeEligibility: string[]
+
+  // Recovery Rules — keyed by RecoveryComponentKey (create-repricing-rule/referenceData.ts)
+  recoveryRules: Record<string, { method: string; percent: number | null }>
+
+  // New Investment Rules — Capital Investments
+  refurbishmentCost: number
+  batteryCost: number
+  chargerCost: number
+  trackerCost: number
+  // New Investment Rules — Redeployment Costs
+  licensingRegistrationCost: number
+  paintingBrandingCost: number
+  helmetCost: number
+  vestCost: number
+  recoveryFeeCost: number
+
+  // Commercial Assumptions — Contract Structure
+  collectionDaysPerMonth: number
+  // Commercial Assumptions — Funding
+  debtFundingPercent: number
+  debtInterestRatePercent: number
+  equityCostPercent: number
+  lenderProcessingFeePercent: number
+  // Commercial Assumptions — Commercial
+  vatPercent: number
+  dailyBatterySwapSubsidy: number
+
+  // Pricing Constraints
+  maxDailyRemittancePercent: number
+  minDailyRemittance: number
+  maxTenorMonths: number
+  minGrossMarginPercent: number
+  minNetMarginPercent: number
+}
+
 export interface RepricingRule {
   id: string
   /** Short reference code, e.g. "RR-001" — used wherever a rule is cited from another register (contracts, sessions). */
@@ -19,13 +65,146 @@ export interface RepricingRule {
   version: string
   effectiveDate: string
   status: RepricingRuleStatus
+  /** Full wizard parameter set — undefined only for legacy rules created before this field existed. */
+  parameters?: RepricingRuleParameters
+}
+
+const baseRecoveryRules: RepricingRuleParameters["recoveryRules"] = {
+  outstandingVehiclePrincipal: { method: "Full Recovery", percent: 100 },
+  interestIncome: { method: "Partial Recovery", percent: 60 },
+  batterySwapSubsidyFee: { method: "Full Recovery", percent: 100 },
+  onboardingCosts: { method: "Partial Recovery", percent: 50 },
+  operationalCosts: { method: "Partial Recovery", percent: 40 },
+  maxAdvantageCosts: { method: "No Recovery", percent: 0 },
+  salesMarketingCosts: { method: "No Recovery", percent: 0 },
+  riskContingencyCosts: { method: "Partial Recovery", percent: 30 },
+  grossProfit: { method: "Carry Forward to New Contract", percent: 20 },
+}
+
+function buildRuleParameters(overrides: Partial<RepricingRuleParameters>): RepricingRuleParameters {
+  return {
+    description: "",
+    pricingBatchId: "",
+    processStages: ["Repricing"],
+    refurbishmentStatuses: ["Completed"],
+    vehicleTypeEligibility: ["EV 2-Wheeler"],
+    recoveryRules: baseRecoveryRules,
+    refurbishmentCost: 85000,
+    batteryCost: 420000,
+    chargerCost: 65000,
+    trackerCost: 38000,
+    licensingRegistrationCost: 45000,
+    paintingBrandingCost: 30000,
+    helmetCost: 12000,
+    vestCost: 6000,
+    recoveryFeeCost: 25000,
+    collectionDaysPerMonth: 26,
+    debtFundingPercent: 80,
+    debtInterestRatePercent: 22,
+    equityCostPercent: 28,
+    lenderProcessingFeePercent: 1.5,
+    vatPercent: 7.5,
+    dailyBatterySwapSubsidy: 200,
+    maxDailyRemittancePercent: 115,
+    minDailyRemittance: 1800,
+    maxTenorMonths: 18,
+    minGrossMarginPercent: 18,
+    minNetMarginPercent: 8,
+    ...overrides,
+  }
 }
 
 export const mockRepricingRules: RepricingRule[] = [
-  { id: "1", code: "RR-001", vehicleType: "EV", vehicleModel: "MAX Bolt 2W", name: "EV Two-Wheeler Standard Reprice", country: "Nigeria", version: "v3", effectiveDate: "01 Aug 2026", status: "Active" },
-  { id: "2", code: "RR-002", vehicleType: "EV", vehicleModel: "MAX Tri EV", name: "EV Battery Swap Subsidy Adjustment", country: "Kenya", version: "v2", effectiveDate: "15 Jul 2026", status: "Active" },
-  { id: "3", code: "RR-003", vehicleType: "ICE", vehicleModel: "Keke Bajaj RE", name: "ICE Three-Wheeler Fuel Index Reprice", country: "Nigeria", version: "v4", effectiveDate: "01 Aug 2026", status: "Active" },
-  { id: "4", code: "RR-004", vehicleType: "ICE", vehicleModel: "Boxer 150", name: "ICE Four-Wheeler Cost of Funds Reprice", country: "Ghana", version: "v1", effectiveDate: "20 Jul 2026", status: "Active" },
+  {
+    id: "1",
+    code: "RR-001",
+    vehicleType: "EV",
+    vehicleModel: "MAX Bolt 2W",
+    name: "EV Two-Wheeler Standard Reprice",
+    country: "Nigeria",
+    version: "v3",
+    effectiveDate: "01 Aug 2026",
+    status: "Active",
+    parameters: buildRuleParameters({
+      description: "Standard repricing for EV two-wheeler contracts entering the Repricing stage after refurbishment.",
+      pricingBatchId: "1",
+      vehicleTypeEligibility: ["EV 2-Wheeler"],
+    }),
+  },
+  {
+    id: "2",
+    code: "RR-002",
+    vehicleType: "EV",
+    vehicleModel: "MAX Tri EV",
+    name: "EV Battery Swap Subsidy Adjustment",
+    country: "Kenya",
+    version: "v2",
+    effectiveDate: "15 Jul 2026",
+    status: "Active",
+    parameters: buildRuleParameters({
+      description: "Adjusts the daily battery swap subsidy for EV three-wheelers redeployed under the Kenya battery-as-a-service program.",
+      pricingBatchId: "2",
+      vehicleTypeEligibility: ["EV 3-Wheeler"],
+      dailyBatterySwapSubsidy: 260,
+      collectionDaysPerMonth: 25,
+    }),
+  },
+  {
+    id: "3",
+    code: "RR-003",
+    vehicleType: "ICE",
+    vehicleModel: "Keke Bajaj RE",
+    name: "ICE Three-Wheeler Fuel Index Reprice",
+    country: "Nigeria",
+    version: "v4",
+    effectiveDate: "01 Aug 2026",
+    status: "Active",
+    parameters: buildRuleParameters({
+      description: "Tracks the national fuel price index and reprices ICE three-wheeler contracts accordingly.",
+      pricingBatchId: "1",
+      refurbishmentStatuses: ["Completed", "In Progress"],
+      vehicleTypeEligibility: ["ICE 3-Wheeler"],
+      recoveryRules: { ...baseRecoveryRules, operationalCosts: { method: "Full Recovery", percent: 100 } },
+      minDailyRemittance: 2200,
+    }),
+  },
+  {
+    id: "4",
+    code: "RR-004",
+    vehicleType: "ICE",
+    vehicleModel: "Boxer 150",
+    name: "ICE Four-Wheeler Cost of Funds Reprice",
+    country: "Ghana",
+    version: "v1",
+    effectiveDate: "20 Jul 2026",
+    status: "Active",
+    parameters: buildRuleParameters({
+      description: "Repricing for ICE contracts following the Q3 cost-of-funds revision in Ghana.",
+      vehicleTypeEligibility: ["ICE 2-Wheeler"],
+      debtInterestRatePercent: 26,
+      equityCostPercent: 24,
+      maxTenorMonths: 15,
+    }),
+  },
+  {
+    id: "5",
+    code: "RR-005",
+    vehicleType: "EV",
+    vehicleModel: "MAX Bolt 2W",
+    name: "EV Two-Wheeler Uganda Pilot Reprice",
+    country: "Uganda",
+    version: "v1",
+    effectiveDate: "01 Sep 2026",
+    status: "Draft",
+    parameters: buildRuleParameters({
+      description: "Draft pilot rule for the Uganda EV two-wheeler launch — pending finance sign-off before activation.",
+      pricingBatchId: "3",
+      refurbishmentStatuses: ["Pricing"],
+      vehicleTypeEligibility: ["EV 2-Wheeler"],
+      minGrossMarginPercent: 20,
+      minNetMarginPercent: 10,
+    }),
+  },
 ]
 
 export function addRepricingRule(rule: RepricingRule): void {

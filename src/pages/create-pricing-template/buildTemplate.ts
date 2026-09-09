@@ -1,9 +1,16 @@
 import { format } from "date-fns"
 import { type PricingTemplate, type TemplateCostCategory } from "@/data/mockPricingTemplates"
 import { buildIncomeStatement, hmoAutoComputed, vatAutoComputed } from "./calculations"
-import { type WizardState } from "./types"
+import { type WizardFields, type WizardState } from "./types"
 
-export function buildPricingTemplateFromWizard(id: string, s: WizardState): PricingTemplate {
+function extractWizardFields(s: WizardState): WizardFields {
+  const fields: Partial<WizardState> = { ...s }
+  delete fields.currentStage
+  delete fields.completedStages
+  return fields as WizardFields
+}
+
+export function buildPricingTemplateFromWizard(id: string, code: string, s: WizardState): PricingTemplate {
   const statement = buildIncomeStatement(s)
 
   const costCategories: TemplateCostCategory[] = [
@@ -77,7 +84,7 @@ export function buildPricingTemplateFromWizard(id: string, s: WizardState): Pric
   return {
     id,
     name: s.templateName,
-    code: s.templateCode,
+    code,
     productType: s.productType,
     vehicleTypePrimary: s.vehicleTypePrimary,
     vehicleTypeSubtype: s.vehicleTypeSubtype,
@@ -85,6 +92,7 @@ export function buildPricingTemplateFromWizard(id: string, s: WizardState): Pric
     effectiveDate: s.effectiveDate ? format(s.effectiveDate, "dd MMM yyyy") : undefined,
     description: s.description,
     status: s.status,
+    wizardSnapshot: extractWizardFields(s),
     costCategories,
     remittanceSchedule: {
       tenorMonths: s.baseTenorMonths,

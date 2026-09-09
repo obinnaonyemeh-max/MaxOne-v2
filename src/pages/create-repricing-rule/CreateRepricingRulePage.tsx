@@ -125,6 +125,7 @@ export default function CreateRepricingRulePage() {
           currentStep={state.currentStep}
           isSubmitting={isSubmitting}
           isNextEnabled={isNextEnabled}
+          onExit={() => navigate(REPRICING_ENGINE_ROUTE)}
           onPrevious={handleBack}
           onNext={handleNext}
           onActivate={handleActivate}

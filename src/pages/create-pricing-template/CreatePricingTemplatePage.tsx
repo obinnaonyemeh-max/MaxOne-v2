@@ -1,9 +1,9 @@
 import { useReducer, useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useSearchParams } from "react-router-dom"
 import { toast } from "sonner"
 
 import { TopBar } from "@/components/max"
-import { mockPricingTemplates, addPricingTemplate } from "@/data/mockPricingTemplates"
+import { mockPricingTemplates, addPricingTemplate, type PricingTemplate } from "@/data/mockPricingTemplates"
 import { StepperSidebar } from "./StepperSidebar"
 import { WizardHeader } from "./WizardHeader"
 import { CostCategoryStage } from "./CostCategoryStage"
@@ -40,7 +40,6 @@ function isStageValid(stage: WizardStage, state: WizardState): boolean {
   if (stage === 1) {
     return (
       state.templateName.trim() !== "" &&
-      state.templateCode.trim() !== "" &&
       state.productType !== "" &&
       state.vehicleTypePrimary !== "" &&
       state.vehicleTypeSubtype !== "" &&
@@ -56,7 +55,14 @@ function isStageValid(stage: WizardStage, state: WizardState): boolean {
 
 export default function CreatePricingTemplatePage() {
   const navigate = useNavigate()
-  const [state, dispatch] = useReducer(wizardReducer, initialWizardState)
+  const [searchParams] = useSearchParams()
+  const editId = searchParams.get("edit")
+  const [editingTemplate] = useState<PricingTemplate | undefined>(() =>
+    editId ? mockPricingTemplates.find((t) => t.id === editId) : undefined
+  )
+  const [state, dispatch] = useReducer(wizardReducer, editingTemplate, (template) =>
+    template?.wizardSnapshot ? { ...initialWizardState, ...template.wizardSnapshot } : initialWizardState
+  )
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const isNextEnabled = isStageValid(state.currentStage, state)
@@ -79,10 +85,33 @@ export default function CreatePricingTemplatePage() {
     dispatch({ type: "SET_STAGE", stage })
   }
 
+  // Updates the existing entry in place when editing a saved draft, rather than creating
+  // a duplicate — the id/code are reused so the template list keeps one row per draft.
+  const saveTemplate = (status: "Draft" | "Active"): PricingTemplate => {
+    const nextSeq = mockPricingTemplates.length + 1
+    const id = editingTemplate?.id ?? `tpl-custom-${nextSeq}`
+    const code = editingTemplate?.code ?? `TPL-${String(nextSeq).padStart(3, "0")}`
+    const template = buildPricingTemplateFromWizard(id, code, { ...state, status })
+    if (editingTemplate) {
+      Object.assign(editingTemplate, template)
+    } else {
+      addPricingTemplate(template)
+    }
+    return template
+  }
+
   const handleSaveDraft = () => {
+    if (state.templateName.trim() !== "") {
+      saveTemplate("Draft")
+    }
     toast.success("Draft saved", {
       description: `${state.templateName || "Untitled template"} has been saved as a draft.`,
     })
+  }
+
+  const handleExit = () => {
+    handleSaveDraft()
+    navigate(PRICING_TEMPLATES_LIST_ROUTE)
   }
 
   const handlePublish = () => {
@@ -97,9 +126,7 @@ export default function CreatePricingTemplatePage() {
 
     setIsSubmitting(true)
     setTimeout(() => {
-      const nextSeq = mockPricingTemplates.length + 1
-      const template = buildPricingTemplateFromWizard(`tpl-custom-${nextSeq}`, { ...state, status: "Active" })
-      addPricingTemplate(template)
+      const template = saveTemplate("Active")
       setIsSubmitting(false)
       toast.success("Pricing template published", {
         description: `${template.name} is now available when creating pricing batches.`,
@@ -116,7 +143,7 @@ export default function CreatePricingTemplatePage() {
           { label: "Products & Pricing" },
           { label: "Pricing Configuration" },
           { label: "Pricing Templates", href: PRICING_TEMPLATES_LIST_ROUTE },
-          { label: "New" },
+          { label: editingTemplate ? "Edit Draft" : "New" },
         ]}
       />
 
@@ -127,6 +154,7 @@ export default function CreatePricingTemplatePage() {
           currentStage={state.currentStage}
           isSubmitting={isSubmitting}
           isNextEnabled={isNextEnabled}
+          onExit={handleExit}
           onPrevious={handlePrevious}
           onNext={handleNext}
           onPublish={handlePublish}

@@ -5,6 +5,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { FormSection, FormField } from "@/pages/vehicles/FormControls"
 import { mockCountries } from "@/data/mockCountries"
+import { mockPricingBatchRecords } from "@/data/mockPricingBatchRecords"
 import type { RepricingVehicleType } from "@/data/mockRepricingEngine"
 import { EV_VEHICLE_MODELS, ICE_VEHICLE_MODELS } from "../referenceData"
 import { type WizardAction, type WizardState } from "../types"
@@ -29,14 +30,33 @@ export function Step1RuleDetails({ values, dispatch }: Step1Props) {
           Core identity for this repricing rule — name, targeted vehicle, country and when it takes effect.
         </p>
 
-        <FormField label="Rule Name *">
-          <Input
-            value={values.ruleName}
-            onChange={(e) => dispatch({ type: "UPDATE_FIELD", field: "ruleName", value: e.target.value })}
-            placeholder="e.g. EV 2W · Nigeria Standard Repricing"
-            className="h-9 bg-input-soft"
-          />
-        </FormField>
+        <div className="grid grid-cols-2 gap-4">
+          <FormField label="Rule Name *">
+            <Input
+              value={values.ruleName}
+              onChange={(e) => dispatch({ type: "UPDATE_FIELD", field: "ruleName", value: e.target.value })}
+              placeholder="e.g. EV 2W · Nigeria Standard Repricing"
+              className="h-9 bg-input-soft"
+            />
+          </FormField>
+          <FormField label="Pricing Batch">
+            <Select
+              value={values.pricingBatchId}
+              onValueChange={(v) => dispatch({ type: "UPDATE_FIELD", field: "pricingBatchId", value: v })}
+            >
+              <SelectTrigger className="h-9 w-full bg-input-soft">
+                <SelectValue placeholder="Select a pricing batch (optional)" />
+              </SelectTrigger>
+              <SelectContent>
+                {mockPricingBatchRecords.map((batch) => (
+                  <SelectItem key={batch.id} value={batch.id}>
+                    {batch.code} &middot; {batch.manufacturerName} {batch.modelName} &middot; {batch.countryName}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </FormField>
+        </div>
 
         <div className="grid grid-cols-2 gap-4">
           <FormField label="Country *">

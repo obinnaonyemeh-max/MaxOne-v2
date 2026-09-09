@@ -1,9 +1,8 @@
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useState } from "react"
 import { UploadCloud } from "lucide-react"
 
 import { Modal, DocDropZone } from "@/components/max"
 import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
 
 export interface NewWriteOffInput {
   writeOffAmount: number
@@ -21,7 +20,6 @@ export function NewWriteOffModal({ open, onOpenChange, onSubmit }: NewWriteOffMo
   const [writeOffAmount, setWriteOffAmount] = useState<number>(0)
   const [numberOfContracts, setNumberOfContracts] = useState<number>(0)
   const [file, setFile] = useState<File | null>(null)
-  const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     if (!open) {
@@ -76,9 +74,10 @@ export function NewWriteOffModal({ open, onOpenChange, onSubmit }: NewWriteOffMo
                 ₦
               </span>
               <Input
-                type="number"
+                type="text"
+                inputMode="decimal"
                 value={writeOffAmount || ""}
-                onChange={(e) => setWriteOffAmount(Number(e.target.value) || 0)}
+                onChange={(e) => setWriteOffAmount(Number(e.target.value.replace(/[^\d.]/g, "").replace(/(\..*)\./g, "$1")) || 0)}
                 placeholder="Enter amount for Write-Off"
                 className="h-12 bg-input-soft pl-7"
               />
@@ -96,35 +95,6 @@ export function NewWriteOffModal({ open, onOpenChange, onSubmit }: NewWriteOffMo
               placeholder="No of Contracts"
               className="h-12 bg-input-soft"
             />
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <label className="text-gray-400 font-medium" style={{ fontSize: "13px" }}>
-              Sheet File
-            </label>
-            <div className="flex items-center gap-3">
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".csv,.xlsx"
-                className="hidden"
-                onChange={(e) => {
-                  const f = e.target.files?.[0]
-                  if (f) setFile(f)
-                }}
-              />
-              <Button
-                type="button"
-                variant="outline"
-                className="h-10 shrink-0"
-                onClick={() => fileInputRef.current?.click()}
-              >
-                Choose file
-              </Button>
-              <span className="truncate text-gray-400 font-medium" style={{ fontSize: "13px" }}>
-                {file ? file.name : "No file chosen"}
-              </span>
-            </div>
           </div>
         </div>
       </div>

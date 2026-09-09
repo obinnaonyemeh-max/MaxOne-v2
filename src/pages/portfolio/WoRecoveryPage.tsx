@@ -4,7 +4,7 @@ import { toast } from "sonner"
 
 import { TopBar, PageHeader } from "@/components/max"
 import { Button } from "@/components/ui/button"
-import { mockWriteOffBatches, type WriteOffBatch } from "@/data/mockWriteOffBatches"
+import { mockWriteOffBatches, addWriteOffBatch, setWriteOffBatchStatus, type WriteOffBatch } from "@/data/mockWriteOffBatches"
 import { WriteOffTable } from "./WriteOffTable"
 import { NewWriteOffModal, type NewWriteOffInput } from "./NewWriteOffModal"
 
@@ -42,7 +42,8 @@ export default function WoRecoveryPage() {
       fileName: input.file.name,
     }
 
-    setBatches((prev) => [newBatch, ...prev])
+    addWriteOffBatch(newBatch)
+    setBatches([...mockWriteOffBatches])
     setShowCreate(false)
     toast.success("Write-off batch submitted", {
       description: `${newBatch.referenceId} has been submitted for approval.`,
@@ -50,11 +51,8 @@ export default function WoRecoveryPage() {
   }
 
   const handleAction = useCallback((action: "approve" | "reject", row: WriteOffBatch) => {
-    setBatches((prev) =>
-      prev.map((batch) =>
-        batch.id === row.id ? { ...batch, status: action === "approve" ? "Approved" : "Rejected" } : batch
-      )
-    )
+    setWriteOffBatchStatus(row.id, action === "approve" ? "Approved" : "Rejected")
+    setBatches([...mockWriteOffBatches])
     toast.success(action === "approve" ? "Write-off batch approved" : "Write-off batch rejected", {
       description: `${row.referenceId} has been ${action === "approve" ? "approved" : "rejected"}.`,
     })

@@ -4,7 +4,8 @@ import { RefreshCw } from "lucide-react"
 import { ConfirmModal, LoaderModal } from "@/components/max"
 
 interface RerunableContract {
-  contractId: string
+  contractId?: string
+  vehicleId?: string
 }
 
 interface RerunContractModalProps<T extends RerunableContract> {
@@ -44,7 +45,7 @@ export function RerunContractModal<T extends RerunableContract>({
         title="Re-run repricing for this contract?"
         subtitle={
           contract
-            ? `${contract.contractId} will be re-evaluated against the current active rule immediately.`
+            ? `${contract.contractId ?? contract.vehicleId} will be re-evaluated against the current active rule immediately.`
             : undefined
         }
         primaryAction={{ label: "Re-run Repricing", onClick: handleConfirm }}

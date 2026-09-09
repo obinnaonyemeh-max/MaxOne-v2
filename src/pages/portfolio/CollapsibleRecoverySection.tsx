@@ -1,4 +1,4 @@
-import { Fragment, useState } from "react"
+import { useState } from "react"
 import { ChevronDown } from "lucide-react"
 
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table"
@@ -27,61 +27,60 @@ export function CollapsibleRecoverySection({ columns, sections }: CollapsibleRec
   }
 
   return (
-    <div className="rounded-lg border border-table-border overflow-hidden">
-      <Table>
-        <TableHeader>
-          <TableRow className="hover:bg-transparent border-0">
-            <TableHead className="h-11 bg-table-header-bg text-table-header-text font-medium pl-4" style={{ fontSize: "13px" }}>
-              Component
-            </TableHead>
-            {columns.map((label, i) => (
-              <TableHead
-                key={label}
-                className={`h-11 bg-table-header-bg text-table-header-text font-medium uppercase ${i === columns.length - 1 ? "pr-4" : ""}`}
-                style={{ fontSize: "13px" }}
-              >
-                {label}
-              </TableHead>
-            ))}
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {sections.map((section) => {
-            const isCollapsed = collapsedSections.has(section.key)
+    <div className="flex flex-col gap-3">
+      {sections.map((section) => {
+        const isOpen = !collapsedSections.has(section.key)
 
-            return (
-              <Fragment key={section.key}>
-                <TableRow className="bg-gray-25 hover:bg-gray-25 border-gray-100">
-                  <TableCell colSpan={columns.length + 1} className="py-2 pl-4">
-                    <button
-                      type="button"
-                      onClick={() => toggleSection(section.key)}
-                      className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-breadcrumb-root"
-                    >
-                      <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-200 ${isCollapsed ? "-rotate-90" : ""}`} />
-                      {section.title}
-                    </button>
-                  </TableCell>
-                </TableRow>
-                {!isCollapsed &&
-                  section.rows.map((row) => (
-                    <TableRow key={row.key} className="border-gray-100">
-                      <TableCell className={`pl-4 ${cellClass(row.isTotal)}`}>
-                        <div>{row.label}</div>
-                        {row.note && <div className="mt-0.5 text-xs font-normal italic text-muted-foreground">{row.note}</div>}
-                      </TableCell>
-                      {row.values.map((value, i) => (
-                        <TableCell key={i} className={`${cellClass(row.isTotal)} ${i === row.values.length - 1 ? "pr-4" : ""}`}>
-                          {formatCurrency(value)}
-                        </TableCell>
+        return (
+          <div key={section.key} className="rounded-lg border border-table-border overflow-hidden">
+            <button
+              type="button"
+              onClick={() => toggleSection(section.key)}
+              className="flex w-full items-center gap-1.5 bg-gray-25 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-breadcrumb-root"
+            >
+              <ChevronDown className={`h-3.5 w-3.5 shrink-0 transition-transform duration-200 ${isOpen ? "" : "-rotate-90"}`} />
+              {section.title}
+            </button>
+            {isOpen && (
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="hover:bg-transparent border-0">
+                      <TableHead className="h-11 bg-table-header-bg text-table-header-text font-medium pl-4" style={{ fontSize: "13px" }}>
+                        Component
+                      </TableHead>
+                      {columns.map((label, i) => (
+                        <TableHead
+                          key={label}
+                          className={`h-11 bg-table-header-bg text-table-header-text font-medium ${i === columns.length - 1 ? "pr-4" : ""}`}
+                          style={{ fontSize: "13px" }}
+                        >
+                          {label}
+                        </TableHead>
                       ))}
                     </TableRow>
-                  ))}
-              </Fragment>
-            )
-          })}
-        </TableBody>
-      </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {section.rows.map((row) => (
+                      <TableRow key={row.key} className="border-gray-100">
+                        <TableCell className={`pl-4 ${cellClass(row.isTotal)}`}>
+                          <div>{row.label}</div>
+                          {row.note && <div className="mt-0.5 text-xs font-normal italic text-muted-foreground">{row.note}</div>}
+                        </TableCell>
+                        {row.values.map((value, i) => (
+                          <TableCell key={i} className={`${cellClass(row.isTotal)} ${i === row.values.length - 1 ? "pr-4" : ""}`}>
+                            {formatCurrency(value)}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </div>
+        )
+      })}
     </div>
   )
 }

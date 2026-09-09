@@ -1,6 +1,6 @@
 import { Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { StatusBadge } from "@/components/max"
+import { BackButton, StatusBadge } from "@/components/max"
 import { STEP_TITLES, TOTAL_STEPS, type WizardStep } from "./types"
 
 interface WizardHeaderProps {
@@ -9,6 +9,7 @@ interface WizardHeaderProps {
   currentStep: WizardStep
   isSubmitting: boolean
   isNextEnabled: boolean
+  onExit: () => void
   onPrevious: () => void
   onNext: () => void
   onActivate: () => void
@@ -22,6 +23,7 @@ export function WizardHeader({
   currentStep,
   isSubmitting,
   isNextEnabled,
+  onExit,
   onPrevious,
   onNext,
   onActivate,
@@ -32,16 +34,19 @@ export function WizardHeader({
 
   return (
     <div className="flex items-center justify-between border-b border-gray-200 bg-white px-6 py-4 shrink-0">
-      <div>
-        <div className="flex items-center gap-2">
-          <h1 className="font-semibold text-sidebar-item-active" style={{ fontSize: "18px" }}>
-            {ruleName || "New Repricing Rule"}
-          </h1>
-          <StatusBadge variant={status === "Active" ? "success" : "default"}>{status}</StatusBadge>
+      <div className="flex items-center gap-3">
+        <BackButton onClick={onExit} />
+        <div>
+          <div className="flex items-center gap-2">
+            <h1 className="font-semibold text-sidebar-item-active" style={{ fontSize: "18px" }}>
+              {ruleName || "New Repricing Rule"}
+            </h1>
+            <StatusBadge variant={status === "Active" ? "success" : "default"}>{status}</StatusBadge>
+          </div>
+          <p className="mt-0.5 text-xs font-medium text-breadcrumb-root">
+            Stage {currentStep} of {TOTAL_STEPS} &middot; {STEP_TITLES[currentStep]}
+          </p>
         </div>
-        <p className="mt-0.5 text-xs font-medium text-breadcrumb-root">
-          Stage {currentStep} of {TOTAL_STEPS} &middot; {STEP_TITLES[currentStep]}
-        </p>
       </div>
 
       <div className="flex items-center gap-2">

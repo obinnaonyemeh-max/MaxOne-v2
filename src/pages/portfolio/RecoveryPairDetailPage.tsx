@@ -1,10 +1,11 @@
 import { useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import { toast } from "sonner"
-import { ArrowLeft, MapPin, UserRound } from "lucide-react"
+import { MapPin, UserRound } from "lucide-react"
 
 import {
   TopBar,
+  BackButton,
   InfoCard,
   StatCard,
   StatusBadge,
@@ -12,6 +13,9 @@ import {
   ConfirmModal,
   Modal,
   StatusTimeline,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
 } from "@/components/max"
 import { Button } from "@/components/ui/button"
 import {
@@ -35,11 +39,13 @@ import {
   mockPendingRecoveries,
   mockRecoverySessions,
   sessionStatusVariantMap,
+  assignmentStatusVariantMap,
   formatElapsed,
+  isPairInSession,
 } from "@/data/mockRecoveries"
 import { RecoveryActiveMap } from "./RecoveryActiveMap"
 import { ManageVehiclesFlow } from "./ManageVehiclesFlow"
-import { formatCurrency, pendingRecoveryQueueColumns, sessionTimelineFor } from "./recoveryDetailShared"
+import { formatCurrency, pendingRecoveryQueueColumns, sessionTimelineFor, sessionMapOverlayStyle } from "./recoveryDetailShared"
 
 const zones = Object.keys(zoneLocationInfo)
 
@@ -84,21 +90,27 @@ export default function RecoveryPairDetailPage() {
   const activeSession = mockRecoverySessions.find(
     (s) => s.pairCode === pair.pairCode && s.status === "In Session"
   )
+  const pairInSession = isPairInSession(pair)
   const assignedPending = mockPendingRecoveries.filter((r) => r.pairCode === pair.pairCode)
 
   const handleReassignVehicle = (vehicleId: string, pairId: string | null) => {
+    // Guard against detaching this pair's own vehicle mid-session — ManageVehiclesFlow
+    // already excludes in-session pairs from its assignment dropdown, this is the backstop.
+    if (vehicle && vehicleId === vehicle.id && pairInSession) return
     setVehicles((prev) =>
       prev.map((v) => (v.id === vehicleId ? { ...v, pairId, status: pairId ? "In Use" : "Available" } : v))
     )
   }
 
   const handleUpdateZone = (zone: string) => {
+    if (pairInSession) return
     const location = zoneLocationInfo[zone]
     setPair((prev) => (prev ? { ...prev, zone, assignedLocation: location.state, deployedZone: location.areas[0] } : prev))
     setEditingLocation(false)
   }
 
   const handleUnlinkPair = () => {
+    if (pairInSession) return
     if (vehicle) {
       setVehicles((prev) =>
         prev.map((v) => (v.id === vehicle.id ? { ...v, pairId: null, status: "Available" } : v))
@@ -117,15 +129,7 @@ export default function RecoveryPairDetailPage() {
 
       <div className="px-6 flex items-center justify-between gap-3 py-6 shrink-0">
         <div className="flex items-center gap-3">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-9 w-9"
-            aria-label="Back"
-            onClick={() => navigate("/portfolio/recovery/officers")}
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
+          <BackButton onClick={() => navigate("/portfolio/recovery/officers")} />
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-lg font-semibold text-table-text-primary">{pair.pairCode}</h1>
@@ -141,13 +145,30 @@ export default function RecoveryPairDetailPage() {
         </div>
 
         <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            className="text-status-danger border-status-danger/30 hover:bg-status-danger/10 hover:text-status-danger"
-            onClick={() => setShowUnlinkConfirm(true)}
-          >
-            Unlink Pair
-          </Button>
+          {pairInSession ? (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span tabIndex={0}>
+                  <Button
+                    variant="outline"
+                    className="text-status-danger border-status-danger/30 hover:bg-status-danger/10 hover:text-status-danger"
+                    disabled
+                  >
+                    Unlink Pair
+                  </Button>
+                </span>
+              </TooltipTrigger>
+              <TooltipContent>Cannot unlink pair while a recovery session is in progress.</TooltipContent>
+            </Tooltip>
+          ) : (
+            <Button
+              variant="outline"
+              className="text-status-danger border-status-danger/30 hover:bg-status-danger/10 hover:text-status-danger"
+              onClick={() => setShowUnlinkConfirm(true)}
+            >
+              Unlink Pair
+            </Button>
+          )}
           <Button
             variant="outline"
             onClick={() => navigate("/portfolio/recovery/sessions/successful")}
@@ -214,14 +235,27 @@ export default function RecoveryPairDetailPage() {
                   <span className="text-sm font-medium text-table-text-primary">{pair.assignedLocation}</span>
                 </div>
               )}
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full mt-3"
-                onClick={() => setEditingLocation((v) => !v)}
-              >
-                {editingLocation ? "Cancel" : "Update Location"}
-              </Button>
+              {pairInSession ? (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span tabIndex={0} className="block mt-3">
+                      <Button variant="outline" size="sm" className="w-full" disabled>
+                        Update Location
+                      </Button>
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent>Location cannot be modified during an active session.</TooltipContent>
+                </Tooltip>
+              ) : (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full mt-3"
+                  onClick={() => setEditingLocation((v) => !v)}
+                >
+                  {editingLocation ? "Cancel" : "Update Location"}
+                </Button>
+              )}
             </InfoCard>
 
             <InfoCard title="Agent Pair">
@@ -259,14 +293,27 @@ export default function RecoveryPairDetailPage() {
               ) : (
                 <p className="text-sm text-muted-foreground">No vehicle assigned</p>
               )}
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full mt-3"
-                onClick={() => setShowManageVehicle(true)}
-              >
-                Manage Vehicle
-              </Button>
+              {pairInSession ? (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span tabIndex={0} className="block mt-3">
+                      <Button variant="outline" size="sm" className="w-full" disabled>
+                        Manage Vehicle
+                      </Button>
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent>Operational vehicle cannot be changed while session is active.</TooltipContent>
+                </Tooltip>
+              ) : (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full mt-3"
+                  onClick={() => setShowManageVehicle(true)}
+                >
+                  Manage Vehicle
+                </Button>
+              )}
             </InfoCard>
 
             <InfoCard title="Deployed Zone">
@@ -277,75 +324,126 @@ export default function RecoveryPairDetailPage() {
 
           {/* Section 2 — Pair Activities */}
           <div className="flex-1 min-w-0 flex flex-col gap-4">
-            <InfoCard title="Active Session">
-              {activeSession ? (
-                <>
-                  <div className="flex items-center justify-between gap-3 mb-3">
-                    <div className="flex items-center gap-3 min-w-0">
-                      <img
-                        src="/images/champvatar.png"
-                        alt={activeSession.championName}
-                        className="h-10 w-10 rounded-full object-cover shrink-0"
-                      />
-                      <div className="min-w-0">
-                        <p className="text-sm font-medium text-table-text-primary truncate">
-                          {activeSession.championName}
-                        </p>
-                        <p className="text-xs text-muted-foreground truncate">
-                          {activeSession.maxId} · {activeSession.vehiclePlate} · {activeSession.vehicleType}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-right shrink-0">
-                      <p className="text-sm font-semibold text-status-danger">
-                        {formatCurrency(activeSession.outstandingBalance)}
-                      </p>
-                      <p className="text-xs text-muted-foreground">Amount Owed</p>
-                    </div>
-                  </div>
-
-                  <div className="h-56 rounded-md overflow-hidden border border-gray-100">
-                    <RecoveryActiveMap
-                      sessions={[activeSession]}
-                      selectedSessionId={activeSession.id}
-                      onSelectSession={() => {}}
-                      className="h-full w-full"
+            {activeSession && (
+              <InfoCard title="Active Session">
+                <div className="flex items-center justify-between gap-3 mb-3">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <img
+                      src="/images/champvatar.png"
+                      alt={activeSession.championName}
+                      className="h-10 w-10 rounded-full object-cover shrink-0"
                     />
-                  </div>
-                  <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
-                    <span>Case {activeSession.caseId}</span>
-                    <div className="flex items-center gap-3">
-                      <span className="flex items-center gap-1.5">
-                        <span className="h-1.5 w-1.5 rounded-full bg-status-info animate-pulse" aria-hidden />
-                        Active · {formatElapsed(activeSession.elapsedMinutes)} elapsed
-                      </span>
-                      <Button
-                        variant="secondary"
-                        size="xs"
-                        className="shrink-0"
-                        onClick={() => setShowSessionTimeline(true)}
-                      >
-                        View Session Timeline
-                      </Button>
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-table-text-primary truncate">
+                        {activeSession.championName}
+                      </p>
+                      <p className="text-xs text-muted-foreground truncate">
+                        {activeSession.maxId} · {activeSession.vehiclePlate} · {activeSession.vehicleType}
+                      </p>
                     </div>
                   </div>
-                  <div className="mt-1 text-xs text-muted-foreground">Started {activeSession.startedAt}</div>
-                </>
-              ) : (
-                <div className="flex flex-col items-center justify-center gap-2 py-10 text-center">
-                  <MapPin className="h-6 w-6 text-gray-300" />
-                  <p className="text-sm text-muted-foreground">This pair is not currently in an active session.</p>
+                  <div className="text-right shrink-0">
+                    <p className="text-sm font-semibold text-status-danger">
+                      {formatCurrency(activeSession.outstandingBalance)}
+                    </p>
+                    <p className="text-xs text-muted-foreground">Amount Owed</p>
+                  </div>
                 </div>
-              )}
-            </InfoCard>
 
-            <InfoCard title="Pending Recoveries Queue">
-              <DataTable
-                columns={pendingRecoveryQueueColumns}
-                data={assignedPending}
-                emptyMessage="No pending recoveries assigned to this pair."
-              />
-            </InfoCard>
+                <div className="relative h-56 rounded-md overflow-hidden border border-gray-100">
+                  <RecoveryActiveMap
+                    sessions={[activeSession]}
+                    selectedSessionId={activeSession.id}
+                    onSelectSession={() => {}}
+                    className="h-full w-full"
+                  />
+
+                  <div className="absolute right-3 bottom-3 z-[1000] rounded-lg p-3" style={sessionMapOverlayStyle}>
+                    <div className="mb-2">
+                      <span className="block text-gray-500 mb-0.5" style={{ fontSize: "10px", fontWeight: 500, letterSpacing: "0.04em" }}>
+                        CASE
+                      </span>
+                      <span className="block text-gray-950" style={{ fontSize: "12px", fontWeight: 500 }}>
+                        {activeSession.caseId}
+                      </span>
+                    </div>
+                    <div className="mb-2">
+                      <span className="block text-gray-500 mb-0.5" style={{ fontSize: "10px", fontWeight: 500, letterSpacing: "0.04em" }}>
+                        TIME ELAPSED
+                      </span>
+                      <span className="flex items-center justify-end gap-1.5 text-gray-950" style={{ fontSize: "12px", fontWeight: 500 }}>
+                        <span className="h-1.5 w-1.5 rounded-full bg-status-info animate-pulse" aria-hidden />
+                        {formatElapsed(activeSession.elapsedMinutes)}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="block text-gray-500 mb-0.5" style={{ fontSize: "10px", fontWeight: 500, letterSpacing: "0.04em" }}>
+                        STARTED
+                      </span>
+                      <span className="block text-gray-950" style={{ fontSize: "12px", fontWeight: 500 }}>
+                        {activeSession.startedAt}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-3 flex items-center justify-end">
+                  <Button
+                    variant="secondary"
+                    size="xs"
+                    className="shrink-0"
+                    onClick={() => setShowSessionTimeline(true)}
+                  >
+                    View Session Timeline
+                  </Button>
+                </div>
+              </InfoCard>
+            )}
+
+            {pairInSession ? (
+              <InfoCard title="Pending Recoveries Queue">
+                <DataTable
+                  columns={pendingRecoveryQueueColumns}
+                  data={assignedPending}
+                  emptyMessage="No pending recoveries assigned to this pair."
+                />
+              </InfoCard>
+            ) : (
+              <InfoCard title="Assigned Recoveries">
+                {assignedPending.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">No recoveries assigned to this pair yet.</p>
+                ) : (
+                  <div className="flex flex-col divide-y divide-gray-100">
+                    {assignedPending.slice(0, 2).map((recovery) => (
+                      <div key={recovery.id} className="flex items-center justify-between gap-3 py-3">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <img
+                            src="/images/champvatar.png"
+                            alt={recovery.championName}
+                            className="h-9 w-9 rounded-full object-cover shrink-0"
+                          />
+                          <div className="min-w-0">
+                            <p className="text-sm font-medium text-table-text-primary truncate">
+                              {recovery.championName}
+                            </p>
+                            <p className="text-xs text-muted-foreground truncate">
+                              {recovery.vehiclePlate} · {recovery.zone}
+                            </p>
+                          </div>
+                        </div>
+                        <StatusBadge variant={assignmentStatusVariantMap[recovery.assignmentStatus]} size="sm">
+                          {recovery.assignmentStatus}
+                        </StatusBadge>
+                      </div>
+                    ))}
+                    {assignedPending.length > 2 && (
+                      <p className="pt-3 text-xs text-muted-foreground">
+                        +{assignedPending.length - 2} more assigned
+                      </p>
+                    )}
+                  </div>
+                )}
+              </InfoCard>
+            )}
           </div>
         </div>
       </div>

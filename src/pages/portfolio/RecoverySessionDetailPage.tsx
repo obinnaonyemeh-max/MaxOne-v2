@@ -1,10 +1,11 @@
 import { useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
-import { ArrowLeft, MapPin, UserRound } from "lucide-react"
+import { MapPin, UserRound } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import {
   TopBar,
+  BackButton,
   InfoCard,
   StatCard,
   StatusBadge,
@@ -26,7 +27,7 @@ import {
   formatElapsed,
 } from "@/data/mockRecoveries"
 import { RecoveryActiveMap } from "./RecoveryActiveMap"
-import { formatCurrency, pendingRecoveryQueueColumns, sessionTimelineFor } from "./recoveryDetailShared"
+import { formatCurrency, pendingRecoveryQueueColumns, sessionTimelineFor, sessionMapOverlayStyle } from "./recoveryDetailShared"
 
 const agentById = new Map(mockRecoveryAgents.map((a) => [a.id, a]))
 
@@ -79,15 +80,7 @@ export default function RecoverySessionDetailPage() {
 
       <div className="px-6 flex items-center justify-between gap-3 py-6 shrink-0">
         <div className="flex items-center gap-3">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-9 w-9"
-            aria-label="Back"
-            onClick={() => navigate(backPath)}
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
+          <BackButton onClick={() => navigate(backPath)} />
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-lg font-semibold text-table-text-primary">{session.championName}</h1>
@@ -227,49 +220,68 @@ export default function RecoverySessionDetailPage() {
                 </div>
               )}
 
-              <div className="h-56 rounded-md overflow-hidden border border-gray-100">
+              <div className="relative h-56 rounded-md overflow-hidden border border-gray-100">
                 <RecoveryActiveMap
                   sessions={[session]}
                   selectedSessionId={session.id}
                   onSelectSession={() => {}}
                   className="h-full w-full"
                 />
-              </div>
-              <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
-                <span>Case {session.caseId}</span>
-                <div className="flex items-center gap-3">
-                  <span className="flex items-center gap-1.5">
-                    <span
-                      className={cn(
-                        "h-1.5 w-1.5 rounded-full",
-                        isActive ? "bg-status-info animate-pulse" : isSuccessful ? "bg-status-success" : "bg-status-danger"
-                      )}
-                    />
-                    {formatElapsed(session.elapsedMinutes)} {isActive ? "elapsed · Active" : "total"}
-                  </span>
-                  <Button
-                    variant="secondary"
-                    size="xs"
-                    className="shrink-0"
-                    onClick={() => setShowSessionTimeline(true)}
-                  >
-                    View Session Timeline
-                  </Button>
+
+                <div className="absolute right-3 bottom-3 z-[1000] rounded-lg p-3" style={sessionMapOverlayStyle}>
+                  <div className="mb-2">
+                    <span className="block text-gray-500 mb-0.5" style={{ fontSize: "10px", fontWeight: 500, letterSpacing: "0.04em" }}>
+                      CASE
+                    </span>
+                    <span className="block text-gray-950" style={{ fontSize: "12px", fontWeight: 500 }}>
+                      {session.caseId}
+                    </span>
+                  </div>
+                  <div className="mb-2">
+                    <span className="block text-gray-500 mb-0.5" style={{ fontSize: "10px", fontWeight: 500, letterSpacing: "0.04em" }}>
+                      TIME ELAPSED
+                    </span>
+                    <span className="flex items-center justify-end gap-1.5 text-gray-950" style={{ fontSize: "12px", fontWeight: 500 }}>
+                      <span
+                        className={cn(
+                          "h-1.5 w-1.5 rounded-full",
+                          isActive ? "bg-status-info animate-pulse" : isSuccessful ? "bg-status-success" : "bg-status-danger"
+                        )}
+                      />
+                      {formatElapsed(session.elapsedMinutes)}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="block text-gray-500 mb-0.5" style={{ fontSize: "10px", fontWeight: 500, letterSpacing: "0.04em" }}>
+                      {session.completedAt ? "COMPLETED" : "STARTED"}
+                    </span>
+                    <span className="block text-gray-950" style={{ fontSize: "12px", fontWeight: 500 }}>
+                      {session.completedAt ?? session.startedAt}
+                    </span>
+                  </div>
                 </div>
               </div>
-              <div className="mt-1 text-xs text-muted-foreground">Started {session.startedAt}</div>
-              {session.completedAt && (
-                <div className="mt-1 text-xs text-muted-foreground">Completed {session.completedAt}</div>
-              )}
+              <div className="mt-3 flex items-center justify-end">
+                <Button
+                  variant="secondary"
+                  size="xs"
+                  className="shrink-0"
+                  onClick={() => setShowSessionTimeline(true)}
+                >
+                  View Session Timeline
+                </Button>
+              </div>
             </InfoCard>
 
-            <InfoCard title="Pending Recoveries Queue">
-              <DataTable
-                columns={pendingRecoveryQueueColumns}
-                data={assignedPending}
-                emptyMessage="No other pending recoveries assigned to this pair."
-              />
-            </InfoCard>
+            {isActive && (
+              <InfoCard title="Pending Recoveries Queue">
+                <DataTable
+                  columns={pendingRecoveryQueueColumns}
+                  data={assignedPending}
+                  emptyMessage="No other pending recoveries assigned to this pair."
+                />
+              </InfoCard>
+            )}
           </div>
         </div>
       </div>

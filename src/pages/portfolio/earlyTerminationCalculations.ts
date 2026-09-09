@@ -1,4 +1,4 @@
-import { addMonths, differenceInCalendarMonths, parse } from "date-fns"
+import { addMonths, differenceInCalendarDays, differenceInCalendarMonths, format, parse } from "date-fns"
 import { type EarlyTerminationContract } from "@/data/mockEarlyTermination"
 
 export function formatCurrency(amount: number): string {
@@ -44,6 +44,31 @@ export function buildSettlementQuote(contract: EarlyTerminationContract, settlem
     outstandingBalance,
     remainingContractValue,
     settlementAmount,
+  }
+}
+
+export interface ContractProgress {
+  percentage: number
+  totalDays: number
+  daysElapsed: number
+  startDate: string
+  endDate: string
+}
+
+// Drives the ContractInformation progress widget — tenor elapsed as a day count rather
+// than the month-granularity used by the settlement quote, since that's the unit it renders in.
+export function buildContractProgress(contract: EarlyTerminationContract, settlementDate: Date): ContractProgress {
+  const start = parse(contract.startDate, "dd MMM yyyy", new Date())
+  const end = addMonths(start, contract.tenorMonths)
+  const totalDays = Math.max(1, differenceInCalendarDays(end, start))
+  const daysElapsed = Math.max(0, Math.min(totalDays, differenceInCalendarDays(settlementDate, start)))
+
+  return {
+    percentage: Math.round((daysElapsed / totalDays) * 100),
+    totalDays,
+    daysElapsed,
+    startDate: contract.startDate,
+    endDate: format(end, "dd MMM yyyy"),
   }
 }
 
@@ -241,9 +266,9 @@ export function buildRecoveryAnalysis(
   }
 
   return {
-    componentColumns: ["Lifetime Amount / Total Revenue", "Billed to Date", "Recovered", "Overdue", "Un-billed Forward", "Recoverable at ET"],
+    componentColumns: ["Lifetime amount / total revenue", "Billed to date", "Recovered", "Overdue", "Un-billed forward", "Recoverable at ET"],
     componentSections,
-    marginColumns: ["Lifetime Margin", "Billed to Date", "Recovered", "Overdue", "Buffer Shortfall", "Recoverable at ET"],
+    marginColumns: ["Lifetime margin", "Billed to date", "Recovered", "Overdue", "Buffer shortfall", "Recoverable at ET"],
     marginSection,
   }
 }

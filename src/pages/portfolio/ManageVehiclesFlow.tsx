@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { Pencil, X } from "lucide-react"
-import { Modal, StatusBadge } from "@/components/max"
+import { Modal, StatusBadge, Tooltip, TooltipContent, TooltipTrigger } from "@/components/max"
 import {
   Select,
   SelectContent,
@@ -13,6 +13,7 @@ import {
   type RecoveryPair,
   vehicleStatusVariantMap,
 } from "@/data/mockRecoveryOfficers"
+import { isPairInSession } from "@/data/mockRecoveries"
 
 const UNASSIGNED = "unassigned"
 
@@ -62,6 +63,7 @@ export function ManageVehiclesFlow({
         {vehicles.map((vehicle) => {
           const isEditing = editingVehicleId === vehicle.id
           const assignedPair = pairFor(vehicle.pairId)
+          const lockedInSession = assignedPair !== null && isPairInSession(assignedPair)
 
           return (
             <div
@@ -98,11 +100,13 @@ export function ManageVehiclesFlow({
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value={UNASSIGNED}>Unassigned</SelectItem>
-                      {pairs.map((pair) => (
-                        <SelectItem key={pair.id} value={pair.id}>
-                          {pair.pairCode} &middot; {pair.zone}
-                        </SelectItem>
-                      ))}
+                      {pairs
+                        .filter((pair) => !isPairInSession(pair))
+                        .map((pair) => (
+                          <SelectItem key={pair.id} value={pair.id}>
+                            {pair.pairCode} &middot; {pair.zone}
+                          </SelectItem>
+                        ))}
                     </SelectContent>
                   </Select>
                   <button
@@ -124,14 +128,32 @@ export function ManageVehiclesFlow({
                       <p className="text-xs text-muted-foreground truncate">{getOfficerNames(assignedPair)}</p>
                     )}
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => setEditingVehicleId(vehicle.id)}
-                    className="flex items-center gap-1 shrink-0 text-xs font-medium text-status-info hover:underline"
-                  >
-                    <Pencil className="h-3 w-3" />
-                    Change
-                  </button>
+                  {lockedInSession ? (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span tabIndex={0} className="shrink-0">
+                          <button
+                            type="button"
+                            disabled
+                            className="flex items-center gap-1 text-xs font-medium text-gray-300 cursor-not-allowed"
+                          >
+                            <Pencil className="h-3 w-3" />
+                            Change
+                          </button>
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent>Operational vehicle cannot be changed while session is active.</TooltipContent>
+                    </Tooltip>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setEditingVehicleId(vehicle.id)}
+                      className="flex items-center gap-1 shrink-0 text-xs font-medium text-status-info hover:underline"
+                    >
+                      <Pencil className="h-3 w-3" />
+                      Change
+                    </button>
+                  )}
                 </div>
               )}
             </div>

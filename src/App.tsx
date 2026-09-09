@@ -63,6 +63,7 @@ import PendingCheckInsPage from "@/pages/portfolio/PendingCheckInsPage"
 import RecoveryCommandCenterPage from "@/pages/portfolio/RecoveryCommandCenterPage"
 import FinanciersPage from "@/pages/portfolio/FinanciersPage"
 import WoRecoveryPage from "@/pages/portfolio/WoRecoveryPage"
+import WoApprovalsPage from "@/pages/portfolio/WoApprovalsPage"
 import SubscriptionPlansListPage from "@/pages/portfolio/SubscriptionPlansListPage"
 import SubscriptionPlansPage from "@/pages/portfolio/SubscriptionPlansPage"
 import PricingBatchesListPage from "@/pages/portfolio/PricingBatchesListPage"
@@ -173,6 +174,7 @@ export default function App() {
         <Route path="/portfolio/recovery/check-ins" element={<PendingCheckInsPage />} />
         <Route path="/portfolio/funding/financiers" element={<FinanciersPage />} />
         <Route path="/portfolio/ops/write-offs" element={<WoRecoveryPage />} />
+        <Route path="/portfolio/ops/write-off-approvals" element={<WoApprovalsPage />} />
         <Route path="/portfolio/pricing-configuration/subscription-plans" element={<SubscriptionPlansListPage />} />
         <Route path="/portfolio/pricing-configuration/subscription-plans/new" element={<SubscriptionPlansPage />} />
         <Route path="/portfolio/pricing-configuration/pricing-batches" element={<PricingBatchesListPage />} />

@@ -1,12 +1,13 @@
 import { useMemo, useState } from "react"
 import { format } from "date-fns"
-import { History, Search, SlidersHorizontal } from "lucide-react"
+import { History, SlidersHorizontal, Upload } from "lucide-react"
 import { toast } from "sonner"
 
 import {
   Banner,
   DataTable,
   DatePickerField,
+  ExpandableSearch,
   GenericFilterPopover,
   getActiveFilterCount,
   InfoGrid,
@@ -15,7 +16,6 @@ import {
   type GenericFilterState,
 } from "@/components/max"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { mockRepricingRules } from "@/data/mockRepricingEngine"
 import {
@@ -25,7 +25,7 @@ import {
 } from "@/data/mockIceRepricedContracts"
 import { mockIceUploadBatches, type IceUploadBatch } from "@/data/mockIceUploadBatches"
 import { getIceRepricingColumns, formatDailyRemittance } from "./iceRepricingColumns"
-import { IceUploadWidget } from "./IceUploadWidget"
+import { IceContractsUploadFlow } from "./IceContractsUploadFlow"
 import { IceUploadHistorySheet } from "./IceUploadHistorySheet"
 import { RerunContractModal } from "./RerunContractModal"
 
@@ -57,10 +57,12 @@ export function IceRepricingTab() {
   const [filters, setFilters] = useState<GenericFilterState>(defaultFilters)
   const [startDate, setStartDate] = useState<Date | undefined>(undefined)
   const [endDate, setEndDate] = useState<Date | undefined>(undefined)
+  const [searchOpen, setSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [viewContract, setViewContract] = useState<IceRepricedContract | null>(null)
   const [rerunContract, setRerunContract] = useState<IceRepricedContract | null>(null)
   const [showHistorySheet, setShowHistorySheet] = useState(false)
+  const [showUploadFlow, setShowUploadFlow] = useState(false)
 
   const filterSections: FilterSection[] = useMemo(() => {
     const countries = [...new Set(contracts.map((c) => c.country))].sort()
@@ -80,7 +82,7 @@ export function IceRepricingTab() {
     ]
   }, [contracts])
 
-  const activeFilterCount = getActiveFilterCount(filters)
+  const totalActiveFilterCount = getActiveFilterCount(filters) + (startDate ? 1 : 0) + (endDate ? 1 : 0)
 
   const filteredContracts = useMemo(() => {
     const startKey = startDate ? format(startDate, "yyyy-MM-dd") : null
@@ -97,8 +99,7 @@ export function IceRepricingTab() {
       if (searchQuery) {
         const q = searchQuery.toLowerCase()
         if (
-          !contract.contractId.toLowerCase().includes(q) &&
-          !contract.championName.toLowerCase().includes(q) &&
+          !contract.vehicleId.toLowerCase().includes(q) &&
           !contract.plateNumber.toLowerCase().includes(q)
         )
           return false
@@ -143,7 +144,7 @@ export function IceRepricingTab() {
           : c
       )
     )
-    toast.success("Repricing complete", { description: `${contract.contractId} has been re-evaluated.` })
+    toast.success("Repricing complete", { description: `${contract.vehicleId} has been re-evaluated.` })
   }
 
   const columns = getIceRepricingColumns({ onView: setViewContract, onRerun: setRerunContract })
@@ -155,67 +156,85 @@ export function IceRepricingTab() {
           variant="info"
           title="ICE contracts are managed via scheduled engine runs or bulk manual contract uploads."
           description="Uploaded contracts are processed against current active rules."
+          action={
+            <Button variant="outline" size="sm" className="gap-2" onClick={() => setShowHistorySheet(true)}>
+              <History className="h-4 w-4" />
+              See Upload History
+            </Button>
+          }
         />
-      </div>
-
-      <div className="px-6 flex justify-end">
-        <Button variant="outline" size="sm" className="gap-2" onClick={() => setShowHistorySheet(true)}>
-          <History className="h-4 w-4" />
-          See Upload History
-        </Button>
-      </div>
-
-      <div className="px-6">
-        <IceUploadWidget onUpload={handleUpload} />
       </div>
 
       <div className="px-6">
         <div className="rounded-lg border border-gray-200 bg-white overflow-hidden">
-          <div className="flex flex-wrap items-center justify-between gap-3 px-2 py-2 border-b border-gray-100">
-            <div className="flex items-center gap-2">
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" className="h-9 gap-2">
-                    <SlidersHorizontal className="h-4 w-4" />
-                    <span className="text-sm">Filters</span>
-                    {activeFilterCount > 0 && (
-                      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-brand-dark text-xs text-white">
-                        {activeFilterCount}
-                      </span>
+          <div className="flex flex-wrap items-center gap-2 px-2 py-2 border-b border-gray-100">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className="h-9 gap-2">
+                  <SlidersHorizontal className="h-4 w-4" />
+                  <span className="text-sm">Filters</span>
+                  {totalActiveFilterCount > 0 && (
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-brand-dark text-xs text-white">
+                      {totalActiveFilterCount}
+                    </span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-72 p-2" align="start">
+                <div className="space-y-1.5 px-1 pt-1 pb-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-sidebar-item">Date Repriced</span>
+                    {(startDate || endDate) && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setStartDate(undefined)
+                          setEndDate(undefined)
+                        }}
+                        className="text-xs font-medium text-gray-500 hover:underline"
+                      >
+                        Clear
+                      </button>
                     )}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-2" align="start">
-                  <GenericFilterPopover sections={filterSections} filters={filters} onFiltersChange={setFilters} />
-                </PopoverContent>
-              </Popover>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <DatePickerField
+                      value={startDate}
+                      onChange={setStartDate}
+                      placeholder="Start Date"
+                      dateFormat="dd/MM/yyyy"
+                      triggerClassName="h-9 w-full"
+                    />
+                    <DatePickerField
+                      value={endDate}
+                      onChange={setEndDate}
+                      placeholder="End Date"
+                      dateFormat="dd/MM/yyyy"
+                      triggerClassName="h-9 w-full"
+                    />
+                  </div>
+                </div>
+                <div className="h-px bg-divider mx-1 mb-1" />
+                <GenericFilterPopover sections={filterSections} filters={filters} onFiltersChange={setFilters} className="w-full p-0" />
+              </PopoverContent>
+            </Popover>
 
-              <DatePickerField
-                value={startDate}
-                onChange={setStartDate}
-                placeholder="Start Date"
-                dateFormat="dd/MM/yyyy"
-                triggerClassName="h-9 w-[150px]"
-              />
-              <DatePickerField
-                value={endDate}
-                onChange={setEndDate}
-                placeholder="End Date"
-                dateFormat="dd/MM/yyyy"
-                triggerClassName="h-9 w-[150px]"
-              />
-            </div>
+            <ExpandableSearch
+              open={searchOpen}
+              onOpenChange={setSearchOpen}
+              value={searchQuery}
+              onValueChange={setSearchQuery}
+              placeholder="Search vehicle ID or plate number..."
+              inputClassName="w-64"
+            />
 
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search ICE contracts..."
-                className="h-9 w-64 pl-9"
-              />
-            </div>
+            <Button
+              className="ml-auto h-9 gap-2 bg-brand-dark text-white hover:bg-brand-dark/90"
+              onClick={() => setShowUploadFlow(true)}
+            >
+              <Upload className="h-4 w-4" />
+              Upload ICE Contracts
+            </Button>
           </div>
 
           <DataTable columns={columns} data={filteredContracts} emptyMessage="No ICE contracts match these filters." />
@@ -225,15 +244,14 @@ export function IceRepricingTab() {
       <Modal
         open={viewContract !== null}
         onOpenChange={(open) => !open && setViewContract(null)}
-        title={viewContract?.contractId}
-        subtitle="ICE contract repricing details"
+        title={viewContract?.vehicleId}
+        subtitle="ICE vehicle repricing details"
         secondaryAction={{ label: "Close", onClick: () => setViewContract(null) }}
       >
         {viewContract && (
           <InfoGrid
             columns={2}
             items={[
-              { label: "Champion", value: `${viewContract.championName} (${viewContract.championId})` },
               { label: "Plate Number", value: viewContract.plateNumber },
               { label: "Vehicle Model", value: viewContract.vehicleModel },
               { label: "Location", value: `${viewContract.city}, ${viewContract.country}` },
@@ -262,6 +280,12 @@ export function IceRepricingTab() {
         onClose={() => setShowHistorySheet(false)}
         batches={uploadBatches}
         onDownloadLog={handleDownloadLog}
+      />
+
+      <IceContractsUploadFlow
+        open={showUploadFlow}
+        onClose={() => setShowUploadFlow(false)}
+        onComplete={handleUpload}
       />
     </div>
   )

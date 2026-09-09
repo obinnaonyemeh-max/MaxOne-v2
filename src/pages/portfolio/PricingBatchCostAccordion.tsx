@@ -22,6 +22,12 @@ const percentExampleHints: Record<string, number> = {
   "li-default-provision": 5,
 }
 
+// Strips everything but digits and a single decimal point — keeps these plain text
+// fields numbers-only without the native number input's up/down counter arrows.
+function sanitizeNumericInput(raw: string): string {
+  return raw.replace(/[^\d.]/g, "").replace(/(\..*)\./g, "$1")
+}
+
 interface PricingBatchCostAccordionProps {
   category: BatchCostCategory
   onLineItemChange: (categoryKey: string, lineItemId: string, value: number) => void
@@ -61,9 +67,10 @@ export function PricingBatchCostAccordion({ category, onLineItemChange }: Pricin
                 ) : item.unit === "percentAssetCost" ? (
                   <div className="relative">
                     <Input
-                      type="number"
+                      type="text"
+                      inputMode="decimal"
                       value={item.value === 0 ? "" : item.value}
-                      onChange={(e) => onLineItemChange(category.key, item.id, Number(e.target.value) || 0)}
+                      onChange={(e) => onLineItemChange(category.key, item.id, Number(sanitizeNumericInput(e.target.value)) || 0)}
                       placeholder={`e.g. ${percentExampleHints[item.id] ?? 0}`}
                       className="h-9 bg-input-soft pr-7"
                     />
@@ -73,9 +80,10 @@ export function PricingBatchCostAccordion({ category, onLineItemChange }: Pricin
                   </div>
                 ) : (
                   <Input
-                    type="number"
+                    type="text"
+                    inputMode="decimal"
                     value={item.value === 0 ? "" : item.value}
-                    onChange={(e) => onLineItemChange(category.key, item.id, Number(e.target.value) || 0)}
+                    onChange={(e) => onLineItemChange(category.key, item.id, Number(sanitizeNumericInput(e.target.value)) || 0)}
                     placeholder={`Enter ${item.label}`}
                     className="h-9 bg-input-soft"
                   />

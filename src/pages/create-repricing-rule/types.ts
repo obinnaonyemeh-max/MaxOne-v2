@@ -24,6 +24,7 @@ export interface RecoveryRuleValue {
 export interface WizardFields {
   // Step 1 — Rule Details
   ruleName: string
+  pricingBatchId: string
   country: string
   vehicleType: RepricingVehicleType | ""
   vehicleModel: string
@@ -94,6 +95,7 @@ export const initialWizardState: WizardState = {
   allowTemplateOverride: false,
 
   ruleName: "",
+  pricingBatchId: "",
   country: "",
   vehicleType: "",
   vehicleModel: "",
